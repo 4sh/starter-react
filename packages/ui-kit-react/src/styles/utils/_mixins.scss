@@ -30,7 +30,6 @@
   &:hover:not(._disabled):not(._readonly) {
     --_surface: var(--ui-form-control-surface-hover, var(--form-#{$palette}-surface-hover));
     --_stroke: var(--ui-form-control-stroke-hover, var(--form-#{$palette}-stroke-hover));
-    --ui-label-color: var(--form-#{$palette}-content-hover);
   }
 
   &._checked:not(._disabled),

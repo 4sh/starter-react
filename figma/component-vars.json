@@ -11,8 +11,8 @@
       ],
       "counts": {
         "tokens": 968,
-        "alias": 858,
-        "literal": 110,
+        "alias": 857,
+        "literal": 111,
         "skipped": 37,
         "derivedDescriptions": 185
       },
@@ -10472,7 +10472,7 @@
   },
   "label": {
     "color": {
-      "$value": "{semantics.form.high.content.default}",
+      "$value": "var(--form-high-content-default, var(--global-text-default))",
       "$type": "color",
       "$description": "Couleur du texte, pilotable par un composant de formulaire parent (hover, disabled…).",
       "$extensions": {
@@ -10489,7 +10489,9 @@
           "cssVar": "--ui-label-color",
           "component": "ui-label",
           "entryPoint": "@4sh/ui-kit-react/ui-label",
-          "descriptionSource": "scss"
+          "descriptionSource": "scss",
+          "perInstance": true,
+          "note": "2 défauts selon la variante rendue : en déclarer un seul écraserait les autres."
         }
       }
     },
