@@ -1,0 +1,176 @@
+@use 'utils';
+@use 'sass:map';
+
+// =====================================================================
+// ui-progress-bar : co-located styles. All values come from design tokens.
+//
+// Extend:
+//   • Size → add an entry to $sizes (+ the `UiProgressBarSize` type).
+// =====================================================================
+
+// --- Config (extension points) ---------------------------------------
+// `default` = base styles; other keys become `._<name>` modifiers.
+/// Épaisseur et rayon de la piste, par taille.
+$sizes: (
+  'default': (
+    track-height: var(--ui-progress-bar-track-height, #{utils.rem-calc(8)}),
+    radius: var(--ui-progress-bar-track-radius, var(--radius-xs)),
+  ),
+  'small': (
+    track-height: var(--ui-progress-bar-track-height-small, #{utils.rem-calc(4)}),
+    radius: var(--ui-progress-bar-track-radius-small, var(--radius-2xs)),
+  ),
+);
+$size-default: map.get($sizes, 'default'); /// Raccourci vers l'entrée `default` de `$sizes`.
+
+$fill-color: var(--ui-progress-bar-color, var(--informative-highlighthigh-surface-default)); /// Couleur de la barre de progression.
+
+// Component-specific (local): one indeterminate cycle duration.
+$indeterminate-duration: var(--ui-progress-bar-indeterminate-duration, 1.6s); /// Durée d'un cycle en mode indéterminé.
+
+.ui-progress-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--units-md);
+  width: 100%;
+
+  // --- Track (the bar container; carries role="progressbar") ---------
+  &-track {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    overflow: hidden;
+    height: map.get($size-default, track-height);
+    border-radius: map.get($size-default, radius);
+    background-color: var(--ui-progress-bar-track-surface, var(--global-border-default)); /// Fond de la piste (et d'un segment non franchi).
+  }
+
+  // --- Determinate fill ----------------------------------------------
+  &-value {
+    height: 100%;
+    border-radius: inherit;
+    background-color: $fill-color;
+    @include utils.motion-transition(width);
+  }
+
+  // --- Segments (steps mode) -----------------------------------------
+  &-segment {
+    flex: 1 1 0;
+    height: 100%;
+    border-radius: var(--radius-2xs);
+    background-color: var(--ui-progress-bar-track-surface, var(--global-border-default));
+
+    &._active {
+      background-color: $fill-color;
+    }
+  }
+
+  // --- Label ---------------------------------------------------------
+  &-label {
+    flex: 0 0 auto;
+    color: var(--ui-progress-bar-label-color, var(--global-text-default)); /// Couleur du libellé.
+    font-family: var(--ui-progress-bar-font-family, var(--fontfamily-base)); /// Famille typographique du libellé.
+    font-weight: var(--ui-progress-bar-label-weight, var(--weight-regular)); /// Graisse du libellé.
+    font-size: var(--size-typography-text-default);
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  // --- Value position: label below the bar ---------------------------
+  // En colonne, `align-items` gouverne l'axe HORIZONTAL : un `flex-end` y
+  // ramenait la piste à sa largeur de contenu, c'est-à-dire zéro, et la barre
+  // disparaissait. La piste s'étire donc, et seul le libellé s'aligne à droite.
+  &._bottom {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--units-sm);
+
+    .ui-progress-bar-label { align-self: flex-end; }
+  }
+
+  // --- Value position: label inside the filled portion ---------------
+  // The bar grows tall enough to hold text; the label is centered inside
+  // the fill and clipped when the fill is too narrow (overflow: hidden).
+  &._inside &-track {
+    height: var(--size-components-xs);
+    border-radius: var(--radius-sm);
+  }
+
+  &._inside &-value {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  &-value-label {
+    padding-inline: var(--units-sm);
+    color: var(--ui-progress-bar-value-label-color, var(--informative-highlighthigh-content-default)); /// Couleur du libellé de valeur posé sur la barre.
+    font-family: var(--ui-progress-bar-font-family, var(--fontfamily-base)); /// Famille typographique du libellé de valeur.
+    font-weight: var(--ui-progress-bar-value-label-weight, var(--weight-bold)); /// Graisse du libellé de valeur.
+    font-size: var(--size-typography-text-md);
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  // --- Steps: discrete segments with a hairline gap ------------------
+  &._steps .ui-progress-bar-track {
+    gap: var(--units-2xs);
+    overflow: visible;
+    border-radius: 0;
+    background-color: transparent;
+  }
+
+  // --- Sizes (all but `default`) -------------------------------------
+  @each $name, $size in $sizes {
+    @if $name != 'default' {
+      &._#{$name} .ui-progress-bar-track {
+        height: map.get($size, track-height);
+        border-radius: map.get($size, radius);
+      }
+    }
+  }
+
+  // --- Indeterminate: looping sweep, no tracked width ----------------
+  &._indeterminate .ui-progress-bar-value {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 40%;
+    animation: ui-progress-bar-indeterminate $indeterminate-duration var(--transition-easeinout) infinite;
+  }
+}
+
+// --- Keyframes -------------------------------------------------------
+@keyframes ui-progress-bar-indeterminate {
+  0% {
+    inset-inline-start: -40%;
+    width: 40%;
+  }
+  50% {
+    inset-inline-start: 30%;
+    width: 60%;
+  }
+  100% {
+    inset-inline-start: 100%;
+    width: 40%;
+  }
+}
+
+// --- Mouvement réduit ------------------------------------------------
+// `motion-reduce` couvre les deux cas d'un coup : la préférence système et
+// l'interrupteur `data-motion="off"` du kit.
+.ui-progress-bar {
+  @include utils.motion-reduce {
+    .ui-progress-bar-value {
+      transition: none;
+      animation: none;
+    }
+
+    &._indeterminate .ui-progress-bar-value {
+      inset-inline-start: 0;
+      width: 100%;
+      opacity: 0.6;
+    }
+  }
+}

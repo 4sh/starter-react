@@ -1,0 +1,43 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as LabelStories from './ui-label.stories';
+
+<Meta of={LabelStories} />
+
+# ui-label
+
+Libellé de champ. Rend un `<label>` natif avec un marqueur requis optionnel. Utilisé seul,
+ou composé dans un champ : c'est `ui-field` qui l'instancie pour tous les champs en boîte.
+
+<Canvas of={LabelStories.Required} />
+
+## API
+
+<ArgTypes of={LabelStories} />
+
+## Accessibilité
+
+Un libellé doit être **associé à un contrôle**, par `htmlFor` pointant l'`id` de celui-ci.
+Un `<label>` orphelin est une violation signalée par axe, et à raison : il annonce une
+étiquette qui n'étiquette rien.
+
+Le marqueur requis est `aria-hidden` : l'astérisque est un signal visuel, et c'est
+l'attribut `required` du contrôle qui porte l'information pour un lecteur d'écran.
+
+## Piloté par le parent
+
+<Canvas of={LabelStories.DrivenByParent} />
+
+La couleur du texte lit `--ui-label-color` **en premier**. Un composant de formulaire pilote
+donc l'état du libellé (survol, désactivé) sans avoir à écrire un sélecteur qui traverse ce
+composant :
+
+```scss
+.ui-checkbox:hover {
+  --ui-label-color: var(--form-high-content-hover);
+}
+```
+
+## Theming
+
+<ConfigTable of="ui-label" />

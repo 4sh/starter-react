@@ -1,0 +1,46 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as EmptyStateStories from './ui-empty-state.stories';
+
+<Meta of={EmptyStateStories} />
+
+# ui-empty-state
+
+Dit l'absence de contenu (liste vide, recherche sans résultat, boîte traitée) et propose une
+suite.
+
+<Canvas of={EmptyStateStories.WithActions} />
+
+## API
+
+<ArgTypes of={EmptyStateStories} />
+
+## Écrire un état vide
+
+Trois lignes, dans cet ordre. Le **titre** dit ce qui est vide. La **description** dit
+pourquoi, ou quoi faire. Les **actions** donnent la sortie.
+
+Un état vide sans issue est une impasse : c'est le cas le plus fréquent, et le plus facile à
+éviter. Quand aucune action n'a de sens (une boîte de réception vide parce que tout est
+traité), le dire explicitement vaut mieux que laisser un écran muet.
+
+## Le visuel
+
+`icon` est le raccourci ; `media` le remplace par une illustration libre. `showMedia={false}`
+garde un état vide purement textuel sans avoir à retirer l'un ou l'autre du code appelant.
+
+<Canvas of={EmptyStateStories.WithIllustration} />
+<Canvas of={EmptyStateStories.TextOnly} />
+
+## Accessibilité
+
+Le composant ne prend `role="region"` que s'il reçoit un nom, par `aria-label` ou
+`aria-labelledby`. Un point de repère anonyme encombrerait la liste des repères sans rien y
+apporter.
+
+Une illustration passée à `media` est décorative : lui donner un `alt` vide évite qu'un
+lecteur d'écran annonce un nom de fichier à la place du message.
+
+## Theming
+
+<ConfigTable of="ui-empty-state" />

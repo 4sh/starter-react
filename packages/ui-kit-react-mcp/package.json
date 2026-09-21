@@ -1,0 +1,33 @@
+{
+  "name": "@4sh/ui-kit-react-mcp",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Serveur MCP exposant le catalogue et la doc de @4sh/ui-kit-react aux agents de codage.",
+  "homepage": "https://4sh.github.io/starter-react/?path=/docs/introduction--docs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/4sh/starter-react.git",
+    "directory": "packages/ui-kit-react-mcp"
+  },
+  "author": "4SH",
+  "license": "Apache-2.0",
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "design-system",
+    "react",
+    "ai-agent"
+  ],
+  "bin": {
+    "ui-kit-react-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "data",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "echo 'phase 5 — voir docs/ROADMAP.md' && exit 1"
+  }
+}

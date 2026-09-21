@@ -1,0 +1,79 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as RatingStories from './ui-rating.stories';
+
+<Meta of={RatingStories} />
+
+# ui-rating
+
+Note en étoiles, bâtie sur un `<input type="range">` natif.
+
+<Canvas of={RatingStories.Default} />
+
+## API
+
+<ArgTypes of={RatingStories} />
+
+## Un curseur natif sous les étoiles
+
+Les étoiles sont **purement visuelles**. Le focus, le clavier et la sémantique de valeur sont
+portés par un `<input type="range">` masqué visuellement, ce qui donne gratuitement les
+flèches, Début et Fin, l'annonce de la valeur par les lecteurs d'écran, et la participation à
+un formulaire natif.
+
+L'étoile pleine est **empilée** sur l'étoile vide et découpée à la portion remplie. C'est ce
+qui fait marcher la demi-note avec n'importe quelle famille d'icônes, y compris un rendu
+fourni par l'appelant.
+
+<Canvas of={RatingStories.CustomIcons} />
+
+## Demi-notes
+
+`allowHalf` fait avancer la valeur par 0,5 : un clic sur la **première moitié** d'une étoile
+vaut `x,5`, sur la seconde `x`. Le sens d'écriture est lu, pour que « la première moitié »
+reste celle du début en RTL, comme le découpage appliqué par la feuille de style.
+
+<Canvas of={RatingStories.AllowHalf} />
+
+Une valeur hors pas est **ramenée au pas**. Une moyenne poussée par l'hôte, 4,3 par exemple,
+rend 4 étoiles et non un remplissage que personne n'aurait pu choisir en cliquant.
+
+<Canvas of={RatingStories.HalfReadOnly} />
+
+## Retirer la note
+
+Par défaut, recliquer la valeur courante la retire, et le modèle passe à `null`. C'est
+`null`, jamais `0` : le 0 du curseur natif est une valeur de rendu, pas une note.
+`cancel={false}` retire ce comportement.
+
+<Canvas of={RatingStories.NoCancel} />
+<Canvas of={RatingStories.Empty} />
+
+## Survol
+
+Le survol **prévisualise** sans rien enregistrer, et l'aperçu suit le curseur d'une moitié
+d'étoile à l'autre. Il s'efface dès que le pointeur quitte le composant.
+
+## Accessibilité
+
+Le curseur natif porte `aria-label` (ou `aria-labelledby`), `aria-invalid`, et sa propre
+sémantique de valeur : rien à réinventer.
+
+**Écart assumé avec la version Angular** : celle-ci n'a aucune règle `:focus-visible`, et son
+curseur étant en `opacity: 0`, son anneau natif est invisible. Le composant y est donc
+opérable au clavier **sans indicateur de focus**, ce qui échoue WCAG 2.4.7 ; le hook
+`--ui-rating-focus-ring-width` y est déclaré et documenté mais branché sur rien. Ici, le rang
+d'étoiles rend l'anneau à la place du curseur masqué.
+
+<Canvas of={RatingStories.Disabled} />
+<Canvas of={RatingStories.ReadOnly} />
+<Canvas of={RatingStories.Invalid} />
+
+## Disposition
+
+<Canvas of={RatingStories.Vertical} />
+<Canvas of={RatingStories.TenStars} />
+
+## Theming
+
+<ConfigTable of="ui-rating" />

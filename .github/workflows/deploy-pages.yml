@@ -1,0 +1,91 @@
+name: Deploy Storybook and demo app to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Un seul déploiement à la fois.
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+# GitHub Pages n'accepte qu'un artefact : les deux builds sont fusionnés dans un
+# même dossier avant l'envoi.
+#   /starter-react/      → Storybook
+#   /starter-react/demo/ → application de démonstration
+env:
+  PAGES_BASE: /starter-react/
+  DEMO_BASE: /starter-react/demo/
+
+jobs:
+  build:
+    name: Build Storybook and demo app
+    runs-on: ubuntu-latest
+    steps:
+      # fetch-depth 0 : `build-storybook` appelle `build-info.mjs`, qui lance
+      # `git describe --tags` pour trouver la dernière version publiée. Un
+      # checkout superficiel (le défaut) ne récupère aucun tag, et la mention
+      # « ahead of X.Y.Z » du bandeau disparaîtrait en silence.
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Read Node.js version from .nvmrc
+        id: nvmrc
+        run: echo "NODE_VERSION=$(cat .nvmrc)" >> $GITHUB_OUTPUT
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ steps.nvmrc.outputs.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Storybook
+        run: pnpm build-storybook
+
+      # La démo consomme le paquet construit : `pnpm build` enchaîne les deux
+      # dans le bon ordre.
+      - name: Build the demo app
+        run: pnpm build
+        env:
+          # Vite préfixe les assets avec cette base. Sans elle, la démo servie
+          # dans un sous-chemin de Pages chercherait ses bundles à la racine.
+          VITE_BASE: ${{ env.DEMO_BASE }}
+
+      - name: Assemble the Pages artifact
+        run: |
+          mkdir -p _site
+          cp -r storybook-static/. _site/
+          mkdir -p _site/demo
+          cp -r apps/demo/dist/. _site/demo/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

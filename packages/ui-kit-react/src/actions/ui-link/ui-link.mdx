@@ -1,0 +1,87 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as LinkStories from './ui-link.stories';
+
+<Meta of={LinkStories} />
+
+# ui-link
+
+Lien textuel en ligne, qui rend une vraie ancre.
+
+<Canvas of={LinkStories.InProse} />
+
+## API
+
+<ArgTypes of={LinkStories} />
+
+## Lien ou bouton
+
+Le choix se fait sur le **sens**, pas sur l'apparence.
+
+Ce qui **navigue** vers une URL est un lien : `ui-link` dans du texte, ou `ui-button` avec un
+`href` quand le design demande l'allure d'un bouton. Ce qui **déclenche une action** (soumettre,
+ouvrir une fenêtre, supprimer) est un `ui-button`, même quand le design le veut discret.
+
+C'est ce qui décide du clavier, du menu contextuel, de l'ouverture dans un nouvel onglet et de
+ce qu'annonce un lecteur d'écran. Une apparence se règle avec du CSS ; ces comportements, non.
+
+## Brancher un routeur
+
+Le kit n'impose aucun routeur. `render` reçoit exactement les props que le lien aurait posées
+sur son `<a>`, à reverser sur le composant du projet.
+
+<Canvas of={LinkStories.CustomRouter} />
+
+## Liens externes
+
+`external` pose `target="_blank"` et un `rel` qui empêche la page ouverte d'accéder à celle
+d'origine. Une icône explicite reste utile : une ouverture dans un nouvel onglet se signale.
+
+<Canvas of={LinkStories.External} />
+
+## Accessibilité
+
+Une ancre n'a **pas** d'attribut `disabled`. `disabled` retire donc le `href`, sort le lien du
+parcours clavier et pose `aria-disabled` : c'est le retrait du `href` qui fait le travail, le
+reste ne fait que le dire.
+
+Un lien en icône seule a besoin d'`aria-label` ; sans lui, un avertissement est émis en
+développement.
+
+### Se distinguer dans un paragraphe
+
+Le lien n'est pas souligné au repos : il se distingue par sa couleur et par sa graisse. Deux
+mesures, dans le thème clair par défaut, pour situer la marge :
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th style={{ width: 240 }}>Rapport</th>
+      <th style={{ width: 100 }}>Mesuré</th>
+      <th>Seuil</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Lien / texte environnant</td>
+      <td>3,03</td>
+      <td>3 (WCAG 1.4.1, si la couleur seule sépare)</td>
+    </tr>
+    <tr>
+      <td>Lien / fond</td>
+      <td>5,45</td>
+      <td>4,5 (WCAG 1.4.3, texte normal)</td>
+    </tr>
+  </tbody>
+</table>
+
+La graisse (700 contre 400) est un second signe, non coloré, qui satisfait le critère à elle
+seule. Mais **3,03 pour 3 attendus n'est pas une marge** : un projet qui reteinte
+`--actions-low-content-default` peut passer sous le seuil sans s'en apercevoir. Dans ce cas,
+souligner au repos (`text-decoration: underline`) règle la question définitivement.
+
+<Canvas of={LinkStories.IconOnly} />
+
+## Theming
+
+<ConfigTable of="ui-link" />

@@ -1,0 +1,73 @@
+# Réglages pnpm — sécurisation de la chaîne de dépendances.
+#
+# Repris du starter Angular, à une différence près : ce dépôt EST un monorepo
+# pnpm. Les trois paquets et l'application de démo sont de vrais workspaces,
+# chacun avec son `package.json` et ses dépendances propres — là où le starter
+# Angular assemblait ses paquets avec ng-packagr depuis un `angular.json`
+# unique et n'avait donc pas de clé `packages:`.
+#
+# Doc : https://pnpm.io/supply-chain-security
+packages:
+  - 'packages/*'
+  - 'apps/*'
+
+# ─── Quarantaine des versions fraîchement publiées ──────────────────────────
+#
+# Une version publiée il y a moins de 24 h n'est pas installée, dépendances
+# transitives comprises. C'est la fenêtre pendant laquelle un paquet compromis
+# est repéré et dépublié.
+#
+# ⚠️ Conséquence côté Dependabot : une PR qui propose une version publiée le
+# matin même échouera en CI (« no version satisfies minimumReleaseAge ») puis
+# passera d'elle-même à la relance suivante. Ce n'est pas une panne à
+# contourner. Pour prendre immédiatement un correctif de sécurité, inscrire le
+# paquet dans `minimumReleaseAgeExclude` le temps du bump — puis l'en retirer,
+# sinon l'exception devient permanente en silence.
+minimumReleaseAge: 1440
+
+# Renseigner `minimumReleaseAge` fait aussi passer `minimumReleaseAgeStrict` à
+# `true` : pnpm ÉCHOUE quand aucune version ne satisfait le délai, au lieu de
+# retomber silencieusement sur une version trop récente.
+minimumReleaseAgeExclude: []
+
+# ─── Scripts de build des dépendances ───────────────────────────────────────
+#
+# pnpm 10+ n'exécute AUCUN script d'install de dépendance sans autorisation
+# explicite : c'est ce qui coupe le vecteur principal des attaques supply chain
+# (un `postinstall` malveillant dans une version compromise).
+#
+# Cette liste est à auditer au premier `pnpm install` — elle part de ce que la
+# chaîne Vite + Storybook + Playwright réclame réellement. Pour la recenser :
+#
+#   pnpm ls --depth Infinity --json | grep -i postinstall
+#
+allowBuilds:
+  esbuild: true # binaire du bundler (Vite, Storybook)
+  '@parcel/watcher': true # watcher FS natif
+  unrs-resolver: true # binaire du résolveur (chaîne ESLint)
+
+# Échoue si une dépendance porte un script de build non arbitré ci-dessus.
+# Sans ça, un nouveau paquet à `postinstall` arrive en n'émettant qu'un
+# avertissement — que personne ne lit dans un log de CI.
+strictDepBuilds: true
+
+# Garde-fou : interdit d'ouvrir l'exécution en bloc. Renseigné explicitement
+# pour qu'un passage à `true` soit un diff visible en revue.
+dangerouslyAllowAllBuilds: false
+
+# ─── Reproductibilité ───────────────────────────────────────────────────────
+#
+# Versions figées à l'exact dans les package.json.
+#
+# ⚠️ Ce réglage DOIT être ici. pnpm n'honore PAS `save-exact` depuis `.npmrc` :
+# `pnpm config get save-exact` renvoie `undefined` et un `pnpm add` écrit
+# `^x.y.z`. Ne pas remettre la clé dans `.npmrc` en croyant la déplacer.
+saveExact: true
+
+# ─── Origine des dépendances ────────────────────────────────────────────────
+#
+# Seules les dépendances DIRECTES peuvent venir d'une source exotique (dépôt
+# git, URL de tarball). Une dépendance transitive doit venir du registre : un
+# tarball transitif échappe aux dépublications, au `minimumReleaseAge` et à
+# toute alerte de sécurité.
+blockExoticSubdeps: true

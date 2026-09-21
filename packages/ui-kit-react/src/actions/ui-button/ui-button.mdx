@@ -1,0 +1,167 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as ButtonStories from './ui-button.stories';
+
+<Meta of={ButtonStories} />
+
+# ui-button
+
+Bouton d'action. Trois axes de couleur qui **se composent**, un jeu de jetons chacun :
+`level` × `variant` × `onColor`. Deux tailles, une icône positionnable sur les quatre côtés,
+un mode icône seule, un état de chargement. Rend un `<button>` natif, ou un vrai `<a>` dès
+que `href` est renseigné.
+
+<Canvas of={ButtonStories.FilledLevels} />
+
+## API
+
+<ArgTypes of={ButtonStories} />
+
+## Les trois axes de couleur
+
+Aucune couleur n'est écrite dans le CSS du composant : chaque combinaison lit un jeu de
+jetons `--actions-*` complet (5 états × contenu / surface / contour). C'est pourquoi une
+variante n'a pas de CSS propre : la transparence d'un `outlined` est portée par le jeton,
+pas par une règle.
+
+<table>
+  <thead>
+    <tr>
+      <th>Axe</th>
+      <th>Valeurs</th>
+      <th>Ce qu'il décide</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>level</code>
+      </td>
+      <td>
+        <code>high</code> · <code>low</code> · <code>success</code> · <code>warning</code> ·{' '}
+        <code>error</code>
+      </td>
+      <td>La famille de couleur.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>variant</code>
+      </td>
+      <td>
+        <code>filled</code> · <code>outlined</code> · <code>ghost</code>
+      </td>
+      <td>
+        L'intensité de la surface. <code>filled</code> est le jeu nu : il n'émet aucune classe.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>onColor</code>
+      </td>
+      <td>
+        <code>dark</code> · <code>light</code>
+      </td>
+      <td>
+        La luminosité du fond sur lequel le bouton est posé. Volontairement insensible au thème.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<Canvas of={ButtonStories.OutlinedLevels} />
+
+### `onColor` : à ne renseigner que sur un fond de couleur
+
+Sur un bandeau, une carte teintée ou une image, un bouton qui suit le thème se fond dans le
+fond. `onColor` épingle son chrome à la luminosité de ce fond : `dark` donne du blanc,
+`light` du sombre. La prop est orthogonale à `level` et `variant`, et **ne réagit pas au
+thème** : un bandeau violet reste violet en clair comme en sombre.
+
+<Canvas of={ButtonStories.OnColorDark} />
+
+Le même bandeau sans la prop, pour voir ce qu'elle évite :
+
+<Canvas of={ButtonStories.OnColorOmitted} />
+
+## Icônes
+
+`icon` accepte **un nom** (rendu par `ui-icon`) ou **un nœud** rendu tel quel. Un seul point
+d'entrée pour les deux, là où la version Angular avait besoin de `icon` et `iconTemplate`
+séparés.
+
+`iconPos` place l'icône à gauche, à droite, au-dessus ou en dessous. Les deux positions
+empilées passent la hauteur en `auto` et n'entrent jamais en mode icône seule : elles
+supposent un libellé.
+
+<Canvas of={ButtonStories.IconTop} />
+
+## Mode icône seule
+
+Il est **déduit** dès qu'une icône est présente sans texte visible, et le bouton devient
+carré. `iconOnly` le force quand un libellé est fourni ; ce libellé n'est alors pas rendu
+visuellement mais devient le nom accessible.
+
+<Canvas of={ButtonStories.IconOnly} />
+
+Un bouton en icône seule **doit** porter un nom accessible : `aria-label`, ou `label` qui en
+tient le rôle. En développement, un avertissement est émis une seule fois si les deux
+manquent.
+
+## Mode lien
+
+`href` fait rendre un vrai `<a>`, ce qui préserve le comportement d'ancre : Cmd ou Ctrl
+clic, clic milieu, « ouvrir dans un nouvel onglet », « copier l'adresse du lien ». Aucun
+gestionnaire de clic ne simule ça correctement.
+
+Un `<a>` n'a pas de `disabled` natif : un lien désactivé perd son `href`, passe en
+`tabindex="-1"` et annonce `aria-disabled`.
+
+### Lien de routeur
+
+Le kit n'impose aucun routeur. `render` reçoit exactement les props que le bouton aurait
+posées sur son `<a>`, et le projet décide qui les porte :
+
+```tsx
+import Link from 'next/link';
+
+<UiButton
+  label="Voir la fiche"
+  icon="arrow-right"
+  iconPos="right"
+  render={(props, children) => (
+    <Link {...props} href="/fiche/12">
+      {children}
+    </Link>
+  )}
+/>;
+```
+
+<Canvas of={ButtonStories.AsRouterLink} />
+
+## Composition et accessibilité
+
+- `className`, `style` et tous les attributs natifs (`aria-*`, `data-*`, `name`, `form`,
+  `onFocus`…) sont transmis à l'élément rendu. Aucune prop supplémentaire n'est nécessaire
+  pour ça.
+- `ref` pointe l'élément natif : `ref.current?.focus()` remplace la méthode `focus()` que
+  la version Angular devait exposer.
+- Le clic est bloqué en `disabled` comme en `loading`, sur le `<button>` comme sur le `<a>`.
+- L'état de chargement annonce `aria-busy` et désactive le bouton.
+- L'anneau de focus est porté par le jeton `--actions-<jeu>-stroke-focused` et reste
+  distinct de l'état survolé.
+
+### Écart connu avec la version Angular
+
+La prop `ripple` n'existe pas encore : le moteur d'onde de pression vit dans un point
+d'entrée à part côté Angular, et n'est pas porté. Le bouton React n'émet donc pas
+`data-ripple`. Voir `docs/components-index.md`.
+
+## Theming
+
+Les points d'extension de ce composant sont documentés ci-dessous. Trois d'entre eux
+méritent un mot : `--ui-button-radius` est lu à la fois par la forme normale et par la
+présentation `rounded`, ce qui permet à un hôte comme `ui-button-split` de reformer des
+coins accolés sans écraser la pilule ; et les trois `--ui-button-icon-stacked-*` ne
+s'appliquent qu'aux positions d'icône empilées, où la hauteur passe en `auto`.
+
+<ConfigTable of="ui-button" />

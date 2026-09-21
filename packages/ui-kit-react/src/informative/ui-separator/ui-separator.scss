@@ -1,0 +1,63 @@
+@use 'utils';
+
+// =====================================================================
+// ui-separator : co-located styles. All values come from design tokens.
+// =====================================================================
+
+// --- Config -----------------------------------------------------------
+$gap: var(--ui-separator-gap, var(--units-sm));                                /// Espacement filet ↔ libellé.
+$stroke-width: var(--ui-separator-stroke-width, var(--stroke-default));        /// Épaisseur du filet.
+$stroke-width-small: var(--ui-separator-stroke-width-small, var(--stroke-sm)); /// Épaisseur du filet en taille `small`.
+
+$font-size: var(--ui-separator-font-size, var(--size-typography-text-default));        /// Taille du libellé.
+$font-size-small: var(--ui-separator-font-size-small, var(--size-typography-text-md)); /// Taille du libellé en taille `small`.
+
+.ui-separator {
+  // --- Base ----------------------------------------------------------
+  --_thickness: #{$stroke-width};
+  --_style: solid;
+
+  display: flex;
+  align-items: center;
+  gap: $gap;
+  box-sizing: border-box;
+
+  // --- Variants (line style / thickness) -------------
+  &._dashed { --_style: dashed; }
+  &._small { --_thickness: #{$stroke-width-small}; }
+
+  // --- Sub-elements --------------------------------------------------
+  &-line {
+    flex: 1 1 auto;
+    border: 0 var(--_style) var(--ui-separator-line-stroke, var(--global-border-default)); /// Couleur du trait.
+  }
+
+  &-label {
+    flex: 0 0 auto;
+    color: var(--ui-separator-label-color, var(--global-text-default)); /// Couleur du libellé.
+    font-family: var(--ui-separator-font-family, var(--fontfamily-base)); /// Famille typographique du libellé.
+    font-size: $font-size;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  &._small &-label { font-size: $font-size-small; }
+
+  // --- Horizontal (default) --------------------------
+  // Fills the available width; the rule is a top border.
+  &._horizontal {
+    width: 100%;
+
+    .ui-separator-line { border-top-width: var(--_thickness); }
+  }
+
+  // --- Vertical --------------------------------------
+  // Fills the parent's height; the rule is a left border.
+  &._vertical {
+    flex-direction: column;
+    align-self: stretch;
+    height: 100%;
+
+    .ui-separator-line { border-left-width: var(--_thickness); }
+  }
+}

@@ -1,0 +1,84 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as DrawerStories from './ui-drawer.stories';
+
+<Meta of={DrawerStories} />
+
+# ui-drawer
+
+Panneau glissant ancré à un bord de l'écran.
+
+<Canvas of={DrawerStories.Opened} />
+
+## API
+
+<ArgTypes of={DrawerStories} />
+
+## Tiroir ou fenêtre modale
+
+Le choix est une question de **place**, pas de style. Un tiroir garde le contexte visible
+autour de lui, ce qui convient à des filtres, une navigation, un panneau de détail que l'on
+consulte en gardant la liste sous les yeux. Une fenêtre modale (`ui-modal`) remplace le
+contexte, ce qui convient à une décision à prendre avant de continuer.
+
+Les deux partagent le même socle, le `<dialog>` natif : piège de focus, restitution du focus,
+inertie de l'arrière-plan et empilement viennent du navigateur. Seuls changent l'ancrage et la
+dimension du panneau.
+
+## Les quatre bords
+
+<Canvas of={DrawerStories.Positions} />
+
+L'ancrage se règle par les insets : trois à zéro, le quatrième à `auto`. La dimension du bord
+vient de `--ui-drawer-size-side` (gauche et droite) ou `--ui-drawer-size-edge` (haut et bas).
+
+`fullScreen` fait occuper tout l'écran, quel que soit le bord.
+
+## Cantonner le tiroir
+
+Comme `ui-modal`, `contained` cale le tiroir sur le premier ancêtre positionné au lieu de
+l'écran, et ne bloque pas le défilement. C'est ce qui permet aux exemples de cette page de
+rester dans leur vignette.
+
+Un tiroir cantonné n'a **pas** d'arrière-plan : son cadre est un ancêtre positionné, pas un
+masque. `dismissableMask` n'y a donc pas d'effet. Pour voir le comportement réel, l'exemple
+non cantonné :
+
+<Canvas of={DrawerStories.RealModal} />
+
+## Les exemples démarrent fermés
+
+Un seul exemple de cette page s'ouvre d'emblée, celui du haut. Les autres partent fermés et
+s'ouvrent par leur bouton : un tiroir ouvert au montage masque son propre déclencheur, et sur
+une page de doc tous les exemples s'ouvriraient ensemble.
+
+## Animation d'ouverture et de fermeture
+
+Le tiroir **glisse depuis son propre bord**, en fondu, et l'arrière-plan fait un fondu avec
+lui. Il n'y a pas de préréglage à choisir : le bord suffit à dire le mouvement, et c'est le
+seul qui ait du sens.
+
+Comme pour `ui-modal`, tout est en CSS : `transition-behavior: allow-discrete` et
+`@starting-style` remplacent la directive de mouvement de la version Angular. La durée et la
+courbe viennent du système de motion, `motionDisabled` coupe l'animation pour un tiroir donné,
+et `data-motion="off"` la coupe partout.
+
+<Canvas of={DrawerStories.MotionDisabled} />
+
+## Accessibilité
+
+Un tiroir **doit avoir un nom**, qui vient de `header` ou d'`aria-label` quand l'en-tête est
+masqué ; sans lui, un avertissement est émis en développement.
+
+<Canvas of={DrawerStories.WithoutHeader} />
+
+Un tiroir non fermable refuse Échap en annulant l'événement `cancel` : c'est la seule façon de
+retenir le navigateur, qui ne demande pas la permission.
+
+Le corps défile à l'intérieur du tiroir, l'en-tête et le pied restant à leur place.
+
+<Canvas of={DrawerStories.LongContent} />
+
+## Theming
+
+<ConfigTable of="ui-drawer" />

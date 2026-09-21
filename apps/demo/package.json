@@ -1,0 +1,23 @@
+{
+  "name": "demo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Application de d\u00e9monstration du kit. Elle sert aussi de terrain pour les composants m\u00e9tier (dossier domain/).",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "@4sh/ui-kit-react": "workspace:*"
+  },
+  "devDependencies": {
+    "@fortawesome/fontawesome-free": "7.3.1",
+    "@vitejs/plugin-react": "6.1.1",
+    "typescript": "6.0.3",
+    "vite": "8.2.2"
+  }
+}

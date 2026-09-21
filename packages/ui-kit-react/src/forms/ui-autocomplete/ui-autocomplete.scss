@@ -1,0 +1,301 @@
+@use 'utils';
+@use 'sass:map';
+
+// =====================================================================
+// ui-autocomplete : the input box + label + helper live in `ui-field`.
+// =====================================================================
+
+// --- Config ----------------------------------------
+/// Géométrie et typo des options, des en-têtes de groupe et hauteur de défilement, par taille.
+$sizes: (
+  'default': (
+    option-height: var(--ui-autocomplete-option-height, #{utils.rem-calc(40)}),
+    option-padding-x: var(--ui-autocomplete-option-padding-x, var(--units-default)),
+    font-size: var(--ui-autocomplete-font-size, var(--size-typography-text-default)),
+    group-height: var(--ui-autocomplete-group-height, #{utils.rem-calc(32)}),
+    group-font-size: var(--ui-autocomplete-group-font-size, var(--size-typography-text-md)),
+    scroll-height: var(--ui-autocomplete-scroller-max-height, #{utils.rem-calc(312)}),
+  ),
+  'small': (
+    option-height: var(--ui-autocomplete-option-height-small, #{utils.rem-calc(32)}),
+    option-padding-x: var(--ui-autocomplete-option-padding-x-small, var(--units-md)),
+    font-size: var(--ui-autocomplete-font-size-small, var(--size-typography-text-md)),
+    group-height: var(--ui-autocomplete-group-height-small, #{utils.rem-calc(24)}),
+    group-font-size: var(--ui-autocomplete-group-font-size-small, var(--size-typography-text-sm)),
+    scroll-height: var(--ui-autocomplete-scroller-max-height-small, #{utils.rem-calc(256)}),
+  ),
+);
+$size-default: map.get($sizes, 'default'); /// Raccourci vers l'entrée `default` de `$sizes`.
+$size-small: map.get($sizes, 'small');     /// Raccourci vers l'entrée `small` de `$sizes`.
+
+$panel-surface: var(--ui-autocomplete-panel-surface, var(--form-high-surface-default)); /// Fond du panneau de suggestions.
+$panel-stroke: var(--ui-autocomplete-panel-stroke, var(--form-high-stroke-default));    /// Couleur de bordure du panneau de suggestions.
+$panel-padding: var(--ui-autocomplete-panel-padding, var(--units-xs));                   /// Inset du panneau de suggestions.
+$panel-gap: var(--ui-autocomplete-panel-gap, var(--units-xs));                           /// Espacement entre les groupes du panneau.
+$panel-max-width: var(--ui-autocomplete-panel-max-width, calc(100vw - var(--units-lg))); /// Largeur maximale du panneau, gouttière laissée au viewport.
+$header-padding-y: var(--ui-autocomplete-header-padding-y, var(--units-xs));             /// Inset vertical des zones d'en-tête et de pied projetées.
+$header-padding-x: var(--ui-autocomplete-header-padding-x, var(--units-sm));             /// Inset horizontal des zones d'en-tête et de pied projetées.
+
+$option-radius: var(--ui-autocomplete-option-radius, var(--radius-sm)); /// Rayon d'une option.
+$option-gap: var(--ui-autocomplete-option-gap, var(--units-sm));        /// Espacement entre l'icône et le libellé d'une option.
+
+$tag-gap: var(--ui-autocomplete-tag-gap, var(--units-xs));                       /// Espacement entre les valeurs sélectionnées (mode `multiple`).
+$tag-radius: var(--ui-autocomplete-tag-radius, var(--radius-full));              /// Rayon d'une valeur sélectionnée (mode `multiple`).
+$input-min-width: var(--ui-autocomplete-input-min-width, #{utils.rem-calc(80)}); /// Largeur minimale de la zone de saisie restante (mode `multiple`).
+
+$clear-size: var(--ui-autocomplete-clear-size, var(--size-components-2xs));                  /// Taille du bouton d'effacement.
+$clear-radius: var(--ui-autocomplete-clear-radius, var(--radius-full));                      /// Rayon du bouton d'effacement.
+$focus-ring-width: var(--ui-autocomplete-focus-ring-width, #{utils.$form-focus-ring-width}); /// Épaisseur de l'anneau de focus (valeur sélectionnée, bouton d'effacement).
+
+.ui-autocomplete {
+  display: block;
+  --ui-field-box-cursor: text;
+
+  // --- Control : wrapping chip listbox + inline combobox input --------
+  &-control {
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    gap: $tag-gap;
+    min-width: 0;
+    @include utils.field-inset-edges;
+    @include utils.field-float-inset;
+  }
+
+  // --- Selected value chip (role=option, roving focus, `multiple`) ----
+  // The chip IS the focusable option; fill/padding/remove come from
+  // `ui-chip` : cette règle ne fait que la mise en page et l'anneau de focus.
+  // The `role="listbox"` wrapper is ARIA-only: the tags stay direct children of the box.
+  &-tags { display: contents; }
+
+  &-tag {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    border-radius: $tag-radius;
+    @include utils.control-transition(box-shadow);
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 $focus-ring-width rgb(from var(--ui-autocomplete-tag-focus-ring-color, var(--form-high-stroke-focused)) r g b / 50%); /// Teinte de l'anneau de focus d'une valeur sélectionnée (mode `multiple`).
+    }
+  }
+
+  // --- Native combobox input (fills the control wrapper) --------------
+  &-input {
+    @include utils.field-native-input(false);
+    flex: 1 1 $input-min-width;
+    min-width: $input-min-width;
+    width: auto;
+
+    &._small { font-size: map.get($size-small, font-size); }
+  }
+
+  // --- Affixes ----------------------------------------------------------
+  &-clear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: $clear-size;
+    height: $clear-size;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: $clear-radius;
+    background: none;
+    color: var(--ui-autocomplete-clear-color, var(--form-low-content-default)); /// Couleur du bouton d'effacement.
+    cursor: pointer;
+    @include utils.control-transition(color, box-shadow);
+    @include utils.field-inset-edges('margin');
+
+    &:hover:not(:disabled) { color: var(--ui-autocomplete-clear-color-hover, var(--form-high-content-hover)); } /// Couleur du bouton d'effacement au survol.
+    &:focus-visible {
+      outline: none;
+      color: var(--ui-autocomplete-clear-color-focus, var(--form-high-content-focused)); /// Couleur du bouton d'effacement au focus clavier.
+      box-shadow: 0 0 0 $focus-ring-width rgb(from var(--ui-autocomplete-clear-focus-ring-color, var(--form-high-stroke-focused)) r g b / 50%); /// Teinte de l'anneau de focus du bouton d'effacement.
+    }
+    &:disabled { cursor: not-allowed; color: var(--ui-autocomplete-clear-color-disabled, var(--form-high-content-disabled)); } /// Couleur du bouton d'effacement désactivé.
+  }
+
+  // Bouton de liste déroulante : `field-action` lui donne la pleine hauteur, le
+  // collage au bord et le rayon du coin. La version Angular part de
+  // `field-affix`, écrit pour une icône, puis annule à la main la bordure, le
+  // fond et jusqu'à l'inset que le mixin venait d'ajouter : le bouton n'y prend
+  // ni la hauteur du champ ni son coin.
+  &-dropdown {
+    @include utils.field-action;
+
+    .ui-icon {
+      @include utils.motion-transition(rotate);
+    }
+
+    &._open .ui-icon { rotate: 180deg; }
+  }
+
+  &-loading {
+    flex-shrink: 0;
+    @include utils.field-inset-edges('margin');
+  }
+}
+
+// --- Panel -------------------------------------------------------------
+// Le panneau de suggestions vit dans le CALQUE SUPÉRIEUR (`popover="manual"`),
+// comme celui de `ui-select` : aucun z-index, et aucun rognage par un ancêtre
+// en `overflow: hidden`.
+.ui-autocomplete-panel {
+  @include utils.overlay-panel($panel-surface, $panel-stroke);
+
+  // Styles navigateur du calque : c'est le placement calculé qui décide.
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  border-width: utils.$overlay-panel-stroke-width;
+
+  // Le `display: none` d'un popover fermé vient du style navigateur, que le
+  // `display` de ce bloc écrase : il faut le redire.
+  &:not(:popover-open) {
+    display: none;
+  }
+
+  @include utils.overlay-motion {
+    opacity: 0;
+    translate: 0 calc(-1 * var(--ui-motion-distance, #{utils.$motion-distance}));
+  }
+  display: flex;
+  flex-direction: column;
+  gap: $panel-gap;
+  box-sizing: border-box;
+  max-width: $panel-max-width;
+  padding: $panel-padding;
+
+  // --- Header / footer (projected templates) --------------------------
+  .ui-autocomplete-header,
+  .ui-autocomplete-footer {
+    padding: $header-padding-y $header-padding-x;
+    font-family: var(--ui-autocomplete-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+    font-size: map.get($size-default, group-font-size);
+    color: var(--ui-autocomplete-header-color, var(--form-high-content-default)); /// Couleur du texte des zones d'en-tête et de pied projetées.
+  }
+
+  // --- Scrollers ------------------------------------------------------
+  .ui-autocomplete-scroller {
+    overflow: auto;
+    max-height: map.get($size-default, scroll-height);
+    &._small { max-height: map.get($size-small, scroll-height); }
+  }
+
+  .ui-autocomplete-viewport { width: 100%; }
+
+  .ui-autocomplete-list {
+    display: flex;
+    flex-direction: column;
+    gap: $panel-gap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ui-autocomplete-viewport .ui-autocomplete-list { gap: 0; }
+  .ui-autocomplete-viewport .ui-autocomplete-group { height: map.get($size-default, option-height); }
+  .ui-autocomplete-viewport .ui-autocomplete-group._small { height: map.get($size-small, option-height); }
+
+  // --- Suggestion row -------------------------------------------------
+  .ui-autocomplete-option {
+    display: flex;
+    align-items: center;
+    gap: $option-gap;
+    box-sizing: border-box;
+    height: map.get($size-default, option-height);
+    flex-shrink: 0;
+    padding: 0 map.get($size-default, option-padding-x);
+    border-radius: $option-radius;
+    font-family: var(--ui-autocomplete-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+    font-size: map.get($size-default, font-size);
+    color: var(--ui-autocomplete-option-color, var(--form-high-content-default)); /// Couleur du texte d'une suggestion.
+    cursor: pointer;
+    user-select: none;
+    @include utils.control-transition(background-color, color);
+
+    &._small {
+      height: map.get($size-small, option-height);
+      padding: 0 map.get($size-small, option-padding-x);
+      font-size: map.get($size-small, font-size);
+    }
+
+    // Visual focus (aria-activedescendant) and pointer hover share the look.
+    &._focused,
+    &:hover:not(._disabled) { background-color: var(--ui-autocomplete-option-surface-hover, var(--global-background-default-hover)); } /// Fond d'une suggestion survolée ou active au clavier.
+
+    &._selected {
+      background-color: var(--ui-autocomplete-option-surface-selected, var(--form-high-surface-hover)); /// Fond de la suggestion sélectionnée.
+      color: var(--ui-autocomplete-option-color-selected, var(--form-high-content-checked));            /// Couleur du texte de la suggestion sélectionnée.
+    }
+
+    &._disabled {
+      color: var(--ui-autocomplete-option-color-disabled, var(--form-high-content-disabled)); /// Couleur du texte d'une suggestion désactivée.
+      cursor: not-allowed;
+    }
+  }
+
+  .ui-autocomplete-option-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  // --- Group header ---------------------------------------------------
+  .ui-autocomplete-group {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: map.get($size-default, group-height);
+    flex-shrink: 0;
+    padding: 0 map.get($size-default, option-padding-x);
+    font-family: var(--ui-autocomplete-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+    font-size: map.get($size-default, group-font-size);
+    font-weight: var(--ui-autocomplete-weight, var(--weight-bold)); /// Graisse du texte.
+    color: var(--ui-autocomplete-group-color, var(--form-low-content-default)); /// Couleur d'un en-tête de groupe.
+
+    &._small {
+      height: map.get($size-small, group-height);
+      padding: 0 map.get($size-small, option-padding-x);
+      font-size: map.get($size-small, group-font-size);
+    }
+  }
+
+  // --- Empty state ----------------------------------------------------
+  .ui-autocomplete-empty {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-height: map.get($size-default, option-height);
+    padding: 0 map.get($size-default, option-padding-x);
+    font-family: var(--ui-autocomplete-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+    font-size: map.get($size-default, font-size);
+    color: var(--ui-autocomplete-empty-color, var(--form-low-content-default)); /// Couleur du message « aucun résultat ».
+  }
+}
+
+// Croix de retrait d'une puce. Ce n'est PAS un bouton : elle vit dans une
+// `option` interactive, où un contrôle imbriqué serait invalide. Elle est donc
+// `aria-hidden`, et le retrait au clavier passe par Suppr sur l'option.
+.ui-autocomplete-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 0;
+  cursor: pointer;
+  opacity: var(--ui-autocomplete-remove-opacity, 0.7); /// Opacité de la croix de retrait au repos.
+  @include utils.control-transition(opacity);
+
+  &:hover {
+    opacity: 1;
+  }
+}

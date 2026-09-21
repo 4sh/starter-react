@@ -1,0 +1,49 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as SpinnerStories from './ui-spinner.stories';
+
+<Meta of={SpinnerStories} />
+
+# ui-spinner
+
+Indicateur de chargement indéterminé : il dit qu'un traitement est en cours, pas où il en
+est. Pour un avancement chiffré, c'est `ui-progress-bar`.
+
+<Canvas of={SpinnerStories.WithLabel} />
+
+## API
+
+<ArgTypes of={SpinnerStories} />
+
+## Remplacer le marqueur
+
+Quatre sources, par ordre de priorité : `renderMark`, `image`, `icon`, puis le cercle
+intégré. Le cercle se règle par `strokeWidth`, `fill` et `animationDuration` ; les autres
+marqueurs ignorent ces trois props, sauf `icon` qui partage la durée.
+
+<Canvas of={SpinnerStories.IconMark} />
+<Canvas of={SpinnerStories.CustomMark} />
+
+## Le délai de grâce
+
+Un loader qui apparaît puis disparaît en 200 ms est plus gênant qu'utile : il attire l'œil
+sur une attente que personne n'avait remarquée. `delay` retarde l'apparition, et le composant
+ne rend rien jusque-là.
+
+<Canvas of={SpinnerStories.Delayed} />
+
+## Accessibilité
+
+La racine est une région vivante `role="status"` avec `aria-busy`. Le marqueur, lui, est
+décoratif : c'est le texte qui informe.
+
+Le nom accessible suit une règle simple. Avec un `label` visible, la région vivante le lit
+déjà, donc aucun `aria-label` n'est posé : en poser un le **remplacerait** au lieu de s'y
+ajouter. Sans libellé, le composant retombe sur « Chargement », remplaçable par `aria-label`.
+
+L'animation s'arrête sous `prefers-reduced-motion` et sous l'interrupteur `data-motion="off"`
+du kit ; le cercle reste alors visible, simplement immobile.
+
+## Theming
+
+<ConfigTable of="ui-spinner" />

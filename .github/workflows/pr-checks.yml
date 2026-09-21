@@ -1,0 +1,141 @@
+name: PR checks
+
+# Tourne sur chaque pull request. `main` est la branche depuis laquelle les paquets
+# seront publiés : une régression qui l'atteint peut atteindre les consommateurs.
+#
+# ⚠️ Un workflow vert ne bloque rien tout seul. Transformer ces contrôles en
+# conditions de fusion : *Settings → Branches → main → Require status checks to pass*.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Un nouveau push sur la même branche remplace l'exécution précédente.
+concurrency:
+  group: pr-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Lint, types, tests & doc
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Read Node.js version from .nvmrc
+        id: nvmrc
+        run: echo "NODE_VERSION=$(cat .nvmrc)" >> $GITHUB_OUTPUT
+
+      # Avant `setup-node` : c'est la présence de `pnpm` sur le PATH qui permet à
+      # setup-node de localiser le store à mettre en cache. La version installée
+      # vient du champ `packageManager` du package.json — un seul endroit à bumper.
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ steps.nvmrc.outputs.NODE_VERSION }}
+          cache: 'pnpm'
+
+      # `postinstall` enchaîne tokens:build → exports:build : cette étape prouve
+      # déjà que les jetons se génèrent et que la table `exports` est calculable.
+      - name: Install dependencies (generates tokens + exports)
+        run: pnpm install --frozen-lockfile
+
+      # `pnpm lint` porte --fix : il répare au lieu de signaler, donc en CI il
+      # ne pourrait jamais échouer. lint:check est la même cible sans le --fix.
+      - name: Lint
+        run: pnpm lint:check
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      # Le paquet doit se construire AVANT les tests : rien ne dépend de `dist/`
+      # côté tests, mais un build cassé doit échouer tôt et pour la bonne raison.
+      - name: Build the package
+        run: pnpm kit:build
+
+      # Playwright est une devDependency DÉCLARÉE, et doit le rester. Ne pas
+      # « simplifier » en `pnpm dlx playwright` : dlx tire `latest`, donc les
+      # navigateurs installés ne correspondraient plus au playwright-core que
+      # Vitest résout, et les tests échoueraient sur « Executable doesn't exist ».
+      - name: Install Playwright's Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      # Décision D8 : les composants sont testés dans un vrai navigateur.
+      - name: Component tests
+        run: pnpm test
+
+      # `postinstall` vient de régénérer ce que `docs:config` produit, donc cette
+      # étape semble redondante. Elle ne l'est pas : elle applique les validations
+      # que les générateurs effectuent SANS échouer en mode génération — hooks
+      # `--ui-*` hors convention, hooks sans `///`, alias pointant vers un jeton
+      # inexistant, décomptes cités dans figma/README.md — et elle enchaîne
+      # `components:check`, le garde-fou des listes écrites à la main.
+      # Une seule étape pour les sept garde-fous, parce que c'est aussi la seule
+      # commande qu'un développeur lance avant de committer : la CI et le poste
+      # de travail échouent alors exactement pareil. Ce qu'elle enchaîne :
+      #
+      #   docs.config          hooks `--ui-*` hors convention ou sans `///`
+      #   component-vars.build alias vers un jeton inexistant, décomptes de figma/
+      #   components.check     composant absent d'une des quatre listes
+      #   exports.build        point d'entrée compilé mais non déclaré
+      #   deps.check           import d'une librairie tierce hors de sa brique
+      #   docs.links.check     renvoi de doc vers un fichier inexistant
+      #   prose.check          tiret cadratin dans un commentaire ou une doc
+      - name: Check the docs, the lists and the conventions
+        run: pnpm docs:config:check
+
+      # Le cas inverse, que les étapes ci-dessus ne PEUVENT pas attraper : trois
+      # fichiers sont générés ET committés. `postinstall` et le build les ont déjà
+      # réécrits sur le disque, donc comparer le disque au disque passe toujours.
+      # Seul git sait si le commit était périmé.
+      - name: Fail if a committed generated file was stale
+        run: |
+          git diff --exit-code -- \
+            packages/ui-kit-react/package.json \
+            packages/ui-kit-react/src/styles/component-vars.scss \
+            figma/component-vars.json
+
+  storybook:
+    name: Build Storybook
+    runs-on: ubuntu-latest
+    # Job séparé pour qu'il tourne en parallèle des contrôles rapides plutôt que
+    # de les retarder : c'est l'étape la plus lente, et c'est le livrable public.
+    steps:
+      # fetch-depth 0 : `build-storybook` appelle `build-info.mjs` (`git describe
+      # --tags`), qui a besoin de tags qu'un checkout superficiel ne récupère pas.
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Read Node.js version from .nvmrc
+        id: nvmrc
+        run: echo "NODE_VERSION=$(cat .nvmrc)" >> $GITHUB_OUTPUT
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ steps.nvmrc.outputs.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Storybook
+        run: pnpm build-storybook
+
+      - name: Upload Storybook build
+        uses: actions/upload-artifact@v7
+        with:
+          name: storybook-static
+          path: storybook-static
+          retention-days: 1

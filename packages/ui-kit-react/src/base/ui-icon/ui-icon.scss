@@ -1,0 +1,44 @@
+// =====================================================================
+// ui-icon : styles co-localisés. Toutes les valeurs viennent des jetons.
+//
+// React ne rend pas d'élément hôte : le composant produit directement son
+// `<i>`. Les règles portées par `:host` côté Angular sont donc fondues dans
+// `.ui-icon`, qui est à la fois la boîte et le glyphe.
+// =====================================================================
+
+// Taille du glyphe par `size`, sur l'échelle dédiée aux icônes (pas celle du texte).
+/// Taille du glyphe pour chaque valeur de `size`.
+$icon-sizes: (
+  'sm': var(--ui-icon-size-sm, var(--size-typography-icon-sm)),
+  'md': var(--ui-icon-size-md, var(--size-typography-icon-md)),
+  'default': var(--ui-icon-size-default, var(--size-typography-icon-default)),
+  'lg': var(--ui-icon-size-lg, var(--size-typography-icon-lg)),
+  'xl': var(--ui-icon-size-xl, var(--size-typography-icon-xl)),
+);
+
+$min-size: var(--ui-icon-min-size, 1em); /// Plancher de la boîte du glyphe (largeur et hauteur).
+$aspect-ratio: var(--ui-icon-aspect-ratio, 1); /// Ratio de la boîte du glyphe.
+
+.ui-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: $min-size;
+  min-height: $min-size;
+  aspect-ratio: $aspect-ratio;
+  line-height: 1;
+  color: inherit;
+
+  // Deux niveaux, et la raison pour laquelle `--ui-icon-size` est lu une seule
+  // fois plutôt que dans chaque taille : l'entrée `size` choisit un cran de
+  // l'échelle (`--_scale`), et un parent peut pousser UNE icône hors de cette
+  // échelle (`--ui-icon-size`). C'est ainsi qu'un composant dimensionne l'icône
+  // qu'on lui projette.
+  font-size: var(--ui-icon-size, var(--_scale)); /// Taille imposée à un exemplaire, quel que soit son `size`.
+
+  @each $name, $value in $icon-sizes {
+    &._#{$name} {
+      --_scale: #{$value};
+    }
+  }
+}

@@ -1,0 +1,252 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as TableStories from './ui-table.stories';
+
+<Meta of={TableStories} />
+
+# ui-table
+
+Tableau de données **headless**. C'est le plus gros composant du kit, et le partage des
+responsabilités en est la clé : **l'appelant possède le balisage**, le composant possède le
+pipeline.
+
+<Canvas of={TableStories.Basic} />
+
+## API
+
+<ArgTypes of={TableStories} />
+
+## Qui possède quoi
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>L'appelant</th>
+      <th>Le composant</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Les <code>&lt;tr&gt;</code>, <code>&lt;th&gt;</code> et <code>&lt;td&gt;</code>, par{' '}
+        <code>renderHeader</code>, <code>renderBody</code> et <code>renderFooter</code>
+      </td>
+      <td>Le pipeline : tri, puis pagination</td>
+    </tr>
+    <tr>
+      <td>Le contenu et la mise en forme des cellules</td>
+      <td>L'état de sélection et de dépliage</td>
+    </tr>
+    <tr>
+      <td>Ce qui est trié, sélectionnable, figé, redimensionnable</td>
+      <td>La coquille défilante, l'en-tête collée, la barre de pagination</td>
+    </tr>
+  </tbody>
+</table>
+
+C'est ce partage qui rend le composant utilisable sur n'importe quelle donnée sans lui décrire
+ses colonnes : il n'y a pas de modèle de colonne à remplir, seulement du balisage à écrire.
+
+## Les comportements s'attachent par des props
+
+Là où la version Angular attache ses comportements par des **directives**
+(`uiSortableColumn`, `uiSelectableRow`…), React n'a pas de directives. Ce sont des **fabriques
+de props**, passées au balisage projeté et à reverser sur les éléments que l'appelant rend :
+
+```tsx
+<UiTable
+  value={villes}
+  dataKey="id"
+  renderHeader={(table) => (
+    <tr>
+      <th {...table.sortableColumn('nom')} scope="col">
+        Ville <UiTableSortIcon field="nom" />
+      </th>
+    </tr>
+  )}
+  renderBody={({ row, rowIndex, table }) => (
+    <tr {...table.selectableRow(row, rowIndex)}>
+      <td>{row.nom}</td>
+    </tr>
+  )}
+/>
+```
+
+> ⚠️ Ce ne sont **pas** des crochets, et c'est la raison qui compte : une ligne se rend dans
+> une boucle dont la longueur varie, et un crochet appelé un nombre variable de fois est
+> interdit. Un composant rendu **dans** le tableau, lui, peut lire le même contexte par
+> `useUiTable()` : c'est ce que font les parties (`UiTableSortIcon`, `UiTableCheckbox`…).
+
+## Tri
+
+Un clic cycle croissant, décroissant, plus de tri. Le tri est un **état contrôlable** comme
+les autres : `sort`, `defaultSort`, `onSortChange`. Une seule valeur là où Angular en a trois,
+parce que le tri est une chose et que les signaux rendaient le découpage gratuit là-bas.
+
+<Canvas of={TableStories.SortSingle} />
+
+`sortMode="multiple"` compose les tris : un clic simple repart d'une seule colonne, Ctrl ou Cmd
+ajoute la colonne à celles déjà triées.
+
+<Canvas of={TableStories.SortMultiple} />
+<Canvas of={TableStories.SortPresort} />
+
+`customSort` délègue : le tableau ne trie plus rien et appelle `onSortFunction` avec les
+données. Un tri change l'ordre, donc **la pagination revient à la première page** : rester à
+la page 5 d'un autre ordre n'aurait pas de sens.
+
+## Sélection
+
+<Canvas of={TableStories.SelectionSingle} />
+<Canvas of={TableStories.SelectionMultiple} />
+
+Le clavier suit le motif d'une grille : un **seul arrêt de tabulation** pour tout le tableau,
+les flèches déplacent le focus, `Entrée` et `Espace` sélectionnent, `Maj` étend la plage, et
+`Ctrl+A` sélectionne tout en mode multiple. Un tableau de vingt lignes qui serait vingt arrêts
+de tabulation rendrait le reste de la page inatteignable.
+
+Un clic sur un **descendant interactif** (bouton, lien, champ) appartient à ce contrôle, pas à
+la ligne : sans cette règle, toute action de ligne sélectionnerait la ligne au passage.
+
+Les colonnes de contrôles explicites passent par les parties :
+
+<Canvas of={TableStories.SelectionCheckbox} />
+<Canvas of={TableStories.SelectionRadio} />
+
+## Pagination
+
+<Canvas of={TableStories.Pagination} />
+
+En mode `lazy`, l'appelant possède le tri et la pagination : `value` **est** la page chargée,
+`totalRecords` vient du serveur, et le tableau ne redécoupe rien. C'est `onPageChange` et
+`onSortChange` qui déclenchent la requête suivante.
+
+<Canvas of={TableStories.PaginationServer} />
+
+## Défilement
+
+`scrollable` avec un `scrollHeight` fixe colle l'en-tête dans le viewport ; `scrollHeight="flex"`
+laisse le tableau remplir son parent flex.
+
+<Canvas of={TableStories.ScrollVertical} />
+<Canvas of={TableStories.ScrollHorizontal} />
+
+## Colonnes et lignes figées
+
+`table.frozenColumn()` va sur **chaque** cellule de la colonne, en-tête comprise. Les décalages
+sont calculés par le tableau, qui voit la ligne entière : une colonne figée n'est donc qu'une
+classe côté appelant, là où la version Angular a une directive et un observateur par cellule.
+
+<Canvas of={TableStories.FrozenColumns} />
+<Canvas of={TableStories.FrozenRows} />
+
+## Dépliage
+
+Le dépliage a besoin d'une **identité** : `dataKey` est obligatoire, puisque les clés dépliées
+sont indexées par sa valeur. Sans lui, le composant refuse et le dit.
+
+<Canvas of={TableStories.RowExpansion} />
+
+## Redimensionnement
+
+`resizableColumns`, plus un `<UiTableColumnResizer />` dans les `<th>` concernés. La colonne
+suivante absorbe l'écart, donc la largeur du tableau ne change pas. La poignée est un vrai
+élément rendu par l'appelant : la version Angular l'injecte dans le DOM depuis sa directive, ce
+qui n'a pas de sens ici, React possédant le balisage.
+
+<Canvas of={TableStories.ColumnResize} />
+
+## Réordonnancement
+
+`table.reorderableRow(index)` rend une ligne déplaçable. Au dépôt, `onRowReorder` reçoit une
+**copie réordonnée** de `value`, à rebrancher : le tableau ne mute pas les données qu'on lui
+donne. À réserver à des données non triées, réordonner une vue triée étant ambigu.
+
+<Canvas of={TableStories.RowReorder} />
+
+## Défilement virtuel
+
+Seules les lignes visibles sont rendues, et deux lignes d'espacement tiennent la barre de
+défilement honnête. Exige `scrollable` et un `scrollHeight` fixe, et la même hauteur sur les
+`<tr>` que celle annoncée par `virtualScrollItemSize`.
+
+<Canvas of={TableStories.VirtualScroll} />
+
+> La brique `core/virtual` du kit n'est **pas** utilisée ici, et c'est un choix : elle place ses
+> entrées en position absolue, ce qu'une ligne de tableau ne supporte pas sans quitter la mise
+> en page du tableau. D'où la technique des lignes d'espacement, celle du kit Angular.
+
+## Zones libres et états
+
+<Canvas of={TableStories.Slots} />
+<Canvas of={TableStories.EmptyState} />
+<Canvas of={TableStories.Loading} />
+
+Le `colspan` de la cellule vide, de celle d'attente et des espaceurs est **mesuré** sur les
+`<th>` réellement rendus : l'appelant n'a pas à le déclarer, ni à le tenir à jour quand il
+ajoute une colonne.
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Implémentation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Sémantique</td>
+      <td>
+        Un vrai <code>&lt;table&gt;</code> avec ses <code>&lt;thead&gt;</code>,{' '}
+        <code>&lt;tbody&gt;</code> et <code>&lt;tfoot&gt;</code>. Mettez{' '}
+        <code>scope="col"</code> sur vos en-têtes : le composant ne peut pas le faire à votre
+        place, le balisage est le vôtre.
+      </td>
+    </tr>
+    <tr>
+      <td>Tri</td>
+      <td>
+        <code>aria-sort</code> sur le <code>&lt;th&gt;</code>, qui prend le rôle{' '}
+        <code>columnheader</code> et un arrêt de tabulation. L'icône est décorative : elle ne
+        répète pas un état déjà annoncé.
+      </td>
+    </tr>
+    <tr>
+      <td>Sélection</td>
+      <td>
+        <code>aria-selected</code> par ligne, un seul arrêt de tabulation, et un focus glissant
+        qui suit la ligne sélectionnée.
+      </td>
+    </tr>
+    <tr>
+      <td>Dépliage</td>
+      <td>
+        <code>aria-expanded</code> sur le bouton. Le clic ne remonte pas à la ligne, sinon
+        déplier sélectionnerait.
+      </td>
+    </tr>
+    <tr>
+      <td>Chargement</td>
+      <td>
+        <code>aria-busy</code> sur la racine, et une attente nommée par{' '}
+        <code>loadingAriaLabel</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>Zone défilante</td>
+      <td>
+        Elle reçoit un arrêt de tabulation quand elle déborde <strong>et</strong> ne contient
+        rien de focalisable : axe l'exige, et le poser sans condition encombrerait le parcours
+        clavier pour rien.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Theming
+
+Variables **locales** de `ui-table.scss` :
+
+<ConfigTable of="ui-table" />

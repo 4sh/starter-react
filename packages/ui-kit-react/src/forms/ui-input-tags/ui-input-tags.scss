@@ -1,0 +1,255 @@
+@use 'utils';
+@use 'sass:map';
+
+// =====================================================================
+// ui-input-tags : le libellé, la boîte et le message vivent dans
+// `ui-field` (en `autoHeight`).
+// =====================================================================
+
+/// Géométrie et typo des tags, des options et du panneau, par taille.
+$sizes: (
+  'default': (
+    tag-height: var(--ui-input-tags-tag-height, #{utils.rem-calc(24)}),
+    option-height: var(--ui-input-tags-option-height, #{utils.rem-calc(40)}),
+    option-padding-x: var(--ui-input-tags-option-padding-x, var(--units-default)),
+    font-size: var(--ui-input-tags-font-size, var(--size-typography-text-default)),
+    tag-font-size: var(--ui-input-tags-tag-font-size, var(--size-typography-text-md)),
+    scroll-height: var(--ui-input-tags-scroller-max-height, #{utils.rem-calc(200)}),
+  ),
+  'small': (
+    tag-height: var(--ui-input-tags-tag-height-small, #{utils.rem-calc(20)}),
+    option-height: var(--ui-input-tags-option-height-small, #{utils.rem-calc(32)}),
+    option-padding-x: var(--ui-input-tags-option-padding-x-small, var(--units-md)),
+    font-size: var(--ui-input-tags-font-size-small, var(--size-typography-text-md)),
+    tag-font-size: var(--ui-input-tags-tag-font-size-small, var(--size-typography-text-sm)),
+    scroll-height: var(--ui-input-tags-scroller-max-height-small, #{utils.rem-calc(180)}),
+  ),
+);
+$size-default: map.get($sizes, 'default'); /// Raccourci vers l'entrée `default` de `$sizes`.
+$size-small: map.get($sizes, 'small'); /// Raccourci vers l'entrée `small` de `$sizes`.
+
+$panel-surface: var(--ui-input-tags-panel-surface, var(--form-high-surface-default)); /// Fond du panneau de suggestions.
+$panel-stroke: var(--ui-input-tags-panel-stroke, var(--form-high-stroke-default));    /// Couleur de bordure du panneau de suggestions.
+$panel-padding: var(--ui-input-tags-panel-padding, var(--units-xs)); /// Inset du panneau de suggestions.
+$panel-gap: var(--ui-input-tags-panel-gap, var(--units-xs)); /// Espacement entre les groupes du panneau.
+$panel-max-width: var(--ui-input-tags-panel-max-width, calc(100vw - var(--units-lg))); /// Largeur maximale du panneau de suggestions.
+
+$option-radius: var(--ui-input-tags-option-radius, var(--radius-sm)); /// Rayon d'une option.
+$option-gap: var(--ui-input-tags-option-gap, var(--units-sm)); /// Espacement entre le libellé et la coche d'une option.
+
+$group-height: var(--ui-input-tags-group-height, #{utils.rem-calc(32)}); /// Hauteur d'un en-tête de groupe.
+$group-font-size: var(--ui-input-tags-group-font-size, var(--size-typography-text-md)); /// Taille du texte d'un en-tête de groupe.
+
+$tag-gap: var(--ui-input-tags-tag-gap, var(--units-xs)); /// Espacement entre les tags saisis.
+$tag-radius: var(--ui-input-tags-tag-radius, var(--radius-full)); /// Rayon d'un tag.
+$tag-gap-custom: var(--ui-input-tags-tag-gap-custom, var(--units-2xs)); /// Espacement interne d'un tag rendu par `renderTag`.
+$focus-ring-width: var(--ui-input-tags-focus-ring-width, #{utils.$form-focus-ring-width}); /// Épaisseur de l'anneau de focus d'un tag.
+
+$input-min-width: var(--ui-input-tags-input-min-width, #{utils.rem-calc(80)}); /// Largeur minimale de la zone de saisie restante.
+
+.ui-input-tags {
+  display: block;
+  --ui-field-box-cursor: text;
+
+  // --- Contrôle : la liste de tags qui s'enroule, plus la saisie en ligne.
+  &-control {
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    gap: $tag-gap;
+    min-width: 0;
+    @include utils.field-inset-edges;
+    @include utils.field-float-inset;
+  }
+
+  // Enveloppe d'accessibilité seulement (le `role="listbox"` autour des tags) :
+  // aucune boîte propre, pour que tags et saisie continuent de s'enrouler sur
+  // les mêmes lignes.
+  &-list {
+    display: contents;
+  }
+
+  // --- Tag : l'option focalisable du focus glissant --------------------
+  // Le visuel (fond, inset, action de retrait) vient de `ui-chip` ou du rendu
+  // projeté ; cette règle ne fait que la mise en page et l'anneau de focus.
+  &-tag {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    border-radius: $tag-radius;
+    @include utils.control-transition(box-shadow);
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 $focus-ring-width rgb(from var(--ui-input-tags-tag-focus-ring-color, var(--form-high-stroke-focused)) r g b / 50%); /// Teinte de l'anneau de focus d'un tag.
+    }
+
+    // Enveloppe d'un rendu personnalisé, calée sur la hauteur d'une puce.
+    &._custom {
+      gap: $tag-gap-custom;
+      min-height: map.get($size-default, tag-height);
+      color: var(--ui-input-tags-tag-color, var(--form-high-content-default)); /// Couleur du texte d'un tag rendu par `renderItem`.
+      font-family: var(--ui-input-tags-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+      font-size: map.get($size-default, tag-font-size);
+    }
+  }
+
+  // --- Saisie en ligne -------------------------------------------------
+  &-input {
+    @include utils.field-native-input(0);
+    flex: 1 1 $input-min-width;
+    min-width: $input-min-width;
+    width: auto;
+
+    &._small {
+      font-size: map.get($size-small, font-size);
+    }
+  }
+}
+
+// --- Panneau de suggestions --------------------------------------------
+.ui-input-tags-panel {
+  @include utils.overlay-panel($panel-surface, $panel-stroke);
+
+  // Styles navigateur du calque supérieur : `inset` et `margin` centreraient le
+  // panneau, c'est le placement calculé qui décide.
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  max-width: $panel-max-width;
+  padding: $panel-padding;
+
+  // Le `display: none` d'un popover fermé vient du style NAVIGATEUR, que le
+  // `display` de ce bloc écrase : il faut le redire.
+  &:not(:popover-open) {
+    display: none;
+  }
+
+  @include utils.overlay-motion {
+    opacity: 0;
+    translate: 0 calc(-1 * var(--ui-motion-distance, #{utils.$motion-distance}));
+  }
+
+  .ui-input-tags-scroller {
+    overflow: auto;
+    max-height: map.get($size-default, scroll-height);
+
+    &._small {
+      max-height: map.get($size-small, scroll-height);
+    }
+  }
+
+  .ui-input-tags-list {
+    display: flex;
+    flex-direction: column;
+    gap: $panel-gap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  // --- Une suggestion --------------------------------------------------
+  .ui-input-tags-option {
+    display: flex;
+    align-items: center;
+    gap: $option-gap;
+    box-sizing: border-box;
+    height: map.get($size-default, option-height);
+    flex-shrink: 0;
+    padding: 0 map.get($size-default, option-padding-x);
+    border-radius: $option-radius;
+    font-family: var(--ui-input-tags-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+    font-size: map.get($size-default, font-size);
+    color: var(--ui-input-tags-option-color, var(--form-high-content-default)); /// Couleur du texte d'une suggestion.
+    cursor: pointer;
+    user-select: none;
+    @include utils.control-transition(background-color, color);
+
+    &._small {
+      height: map.get($size-small, option-height);
+      padding: 0 map.get($size-small, option-padding-x);
+      font-size: map.get($size-small, font-size);
+    }
+
+    &._focused,
+    &:hover:not(._disabled) {
+      background-color: var(--ui-input-tags-option-surface-hover, var(--global-background-default-hover)); /// Fond d'une suggestion survolée ou active au clavier.
+    }
+
+    &._present {
+      color: var(--ui-input-tags-option-color-selected, var(--form-high-content-checked)); /// Couleur du texte d'une suggestion déjà saisie.
+    }
+
+    &._disabled {
+      color: var(--ui-input-tags-option-color-disabled, var(--form-high-content-disabled)); /// Couleur du texte d'une suggestion désactivée.
+      cursor: not-allowed;
+    }
+  }
+
+  .ui-input-tags-option-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ui-input-tags-option-check {
+    flex-shrink: 0;
+    margin-left: auto;
+    color: var(--ui-input-tags-option-check-color, var(--form-high-content-checked)); /// Couleur de la coche d'une suggestion déjà saisie.
+  }
+
+  // --- En-tête de groupe -----------------------------------------------
+  .ui-input-tags-group {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: $group-height;
+    flex-shrink: 0;
+    padding: 0 map.get($size-default, option-padding-x);
+    font-family: var(--ui-input-tags-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+    font-size: $group-font-size;
+    font-weight: var(--ui-input-tags-weight, var(--weight-bold)); /// Graisse du texte.
+    color: var(--ui-input-tags-group-color, var(--form-low-content-default)); /// Couleur d'un en-tête de groupe.
+
+    &._small {
+      padding: 0 map.get($size-small, option-padding-x);
+    }
+  }
+
+  // --- Aucun résultat ---------------------------------------------------
+  .ui-input-tags-empty {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-height: map.get($size-default, option-height);
+    padding: 0 map.get($size-default, option-padding-x);
+    font-family: var(--ui-input-tags-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+    font-size: map.get($size-default, font-size);
+    color: var(--ui-input-tags-empty-color, var(--form-low-content-default)); /// Couleur du message « aucun résultat ».
+  }
+}
+
+// Croix de retrait d'un tag. Ce n'est PAS un bouton : elle vit dans une
+// `option` interactive, où un contrôle imbriqué serait invalide. Elle est donc
+// `aria-hidden`, et le retrait au clavier passe par Suppr sur l'option.
+.ui-input-tags-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 0;
+  cursor: pointer;
+  opacity: var(--ui-input-tags-remove-opacity, 0.7); /// Opacité de la croix de retrait au repos.
+  @include utils.control-transition(opacity);
+
+  &:hover {
+    opacity: 1;
+  }
+}

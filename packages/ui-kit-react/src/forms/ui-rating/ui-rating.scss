@@ -1,0 +1,138 @@
+@use 'utils';
+
+// =====================================================================
+// ui-rating : styles co-localisés. Toutes les valeurs viennent des jetons.
+// =====================================================================
+
+$focus-ring-width: var(--ui-rating-focus-ring-width, #{utils.$form-focus-ring-width}); /// Épaisseur de l'anneau de focus.
+$focus-ring-radius: var(--ui-rating-focus-ring-radius, var(--radius-sm)); /// Rayon de l'anneau de focus autour des étoiles.
+
+$gap: var(--ui-rating-gap, var(--units-2xs)); /// Espacement entre étoiles.
+$gap-sm: var(--ui-rating-gap-sm, var(--units-2xs)); /// Espacement entre étoiles, taille `sm`.
+$gap-md: var(--ui-rating-gap-md, var(--units-2xs)); /// Espacement entre étoiles, taille `md`.
+$gap-lg: var(--ui-rating-gap-lg, var(--units-2xs)); /// Espacement entre étoiles, taille `lg`.
+$gap-xl: var(--ui-rating-gap-xl, var(--units-2xs)); /// Espacement entre étoiles, taille `xl`.
+
+$icon-padding: var(--ui-rating-icon-padding, var(--units-2xs)); /// Inset de la zone de clic d'une étoile.
+$icon-radius: var(--ui-rating-icon-radius, var(--radius-full)); /// Rayon de la zone de clic d'une étoile.
+
+$icon-color: var(--ui-rating-icon-color, var(--form-low-content-default)); /// Couleur d'une étoile vide.
+$icon-fill-color: var(--ui-rating-icon-fill-color, var(--form-high-content-checked)); /// Couleur de la portion remplie d'une étoile.
+$focus-ring-color: var(--ui-rating-focus-ring-color, var(--form-high-stroke-focused)); /// Teinte de l'anneau de focus (rendu à 50 % d'opacité).
+
+.ui-rating {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+
+  &-input {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: inherit;
+    pointer-events: none;
+  }
+
+  &-stars {
+    display: flex;
+    gap: $gap;
+    border-radius: $focus-ring-radius;
+    @include utils.control-transition(box-shadow);
+  }
+
+  // Le champ natif porte le focus mais il est en `opacity: 0`, donc son propre
+  // anneau est invisible : c'est le rang d'étoiles qui le rend. Sans cette
+  // règle, le composant est opérable au clavier SANS indicateur de focus, ce
+  // qui échoue WCAG 2.4.7. Écart assumé avec la version Angular, où le hook
+  // `--ui-rating-focus-ring-width` est déclaré mais n'est branché sur rien.
+  &-input:focus-visible ~ &-stars {
+    box-shadow: 0 0 0 $focus-ring-width rgb(from #{$focus-ring-color} r g b / 50%);
+  }
+
+  &._size-sm &-stars {
+    gap: $gap-sm;
+  }
+  &._size-md &-stars {
+    gap: $gap-md;
+  }
+  &._size-default &-stars {
+    gap: $gap;
+  }
+  &._size-lg &-stars {
+    gap: $gap-lg;
+  }
+  &._size-xl &-stars {
+    gap: $gap-xl;
+  }
+
+  &._vertical &-stars {
+    flex-direction: column;
+  }
+
+  &-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $icon-padding;
+    cursor: pointer;
+    border-radius: $icon-radius;
+    pointer-events: auto;
+
+    &-stack {
+      position: relative;
+      display: flex;
+      line-height: 1;
+      color: $icon-color;
+      @include utils.control-transition(color);
+    }
+
+    &-base,
+    &-fill {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    // Calque découpé à la portion remplie : 1 = étoile entière, 0,5 = moitié
+    // du début. `--_rating-fill` est de la plomberie interne, écrite par le
+    // composant sur CHAQUE étoile : préfixe `--_`, donc pas un hook de thème.
+    &-fill {
+      position: absolute;
+      inset: 0;
+      color: $icon-fill-color;
+      clip-path: inset(0 calc((1 - var(--_rating-fill, 1)) * 100%) 0 0);
+      @include utils.control-transition(color);
+    }
+  }
+
+  &._disabled {
+    cursor: not-allowed;
+
+    .ui-rating-icon {
+      cursor: not-allowed;
+
+      &-stack { color: var(--ui-rating-icon-color-disabled, var(--form-low-content-disabled)); }      /// Couleur d'une étoile vide, composant désactivé.
+      &-fill { color: var(--ui-rating-icon-fill-color-disabled, var(--form-high-content-disabled)); } /// Couleur de la portion remplie, composant désactivé.
+    }
+  }
+
+  &._readonly .ui-rating-icon {
+    cursor: default;
+  }
+
+  &._invalid .ui-rating-icon {
+    &-stack { color: var(--ui-rating-icon-color-invalid, var(--form-error-content-default)); }      /// Couleur d'une étoile vide en erreur.
+    &-fill { color: var(--ui-rating-icon-fill-color-invalid, var(--form-error-content-checked)); } /// Couleur de la portion remplie en erreur.
+  }
+}
+
+// `clip-path: inset()` est physique : on le miroite pour que la portion
+// remplie reste du côté du début. Pas de `:host-context` ici, React n'ayant
+// aucune encapsulation à contourner : un sélecteur d'ancêtre suffit.
+[dir='rtl'] .ui-rating-icon-fill {
+  clip-path: inset(0 0 0 calc((1 - var(--_rating-fill, 1)) * 100%));
+}

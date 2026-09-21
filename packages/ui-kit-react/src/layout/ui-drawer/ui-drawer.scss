@@ -1,0 +1,215 @@
+@use 'utils';
+
+// =====================================================================
+// ui-drawer : styles co-localisés. Toutes les valeurs viennent des jetons.
+//
+// La racine est un <dialog> NATIF, comme `ui-modal`. Le scrim et le
+// positionneur de la version Angular disparaissent : `::backdrop` fait le
+// premier, et les insets du dialogue font le second.
+//
+// Étendre :
+//   • Bord → ajouter un bloc `._<bord>` (insets + dimension).
+// =====================================================================
+
+// --- Réglages ---------------------------------------------------------
+$stroke-width: var(--ui-drawer-stroke-width, var(--stroke-sm));                   /// Épaisseur du filet séparant le tiroir du contenu.
+$panel-padding: var(--ui-drawer-panel-padding, var(--units-lg));                  /// Inset du tiroir.
+$header-gap: var(--ui-drawer-header-gap, var(--units-sm));                        /// Espacement entre les éléments de l'en-tête.
+$action-size: var(--ui-drawer-action-size, #{utils.rem-calc(32)});                /// Taille de la cible tactile du bouton de fermeture.
+$focus-ring-width: var(--ui-drawer-focus-ring-width, #{utils.$focus-ring-width}); /// Épaisseur de l'anneau de focus du bouton de fermeture.
+$mask-background: var(--ui-drawer-mask-background, var(--primitives-black-50));   /// Assombrissement de l'arrière-plan.
+$size-side: var(--ui-drawer-size-side, #{utils.rem-calc(320)});                   /// Largeur d'un tiroir ancré à gauche ou à droite.
+$size-edge: var(--ui-drawer-size-edge, #{utils.rem-calc(160)});                    /// Hauteur d'un tiroir ancré en haut ou en bas.
+
+.ui-drawer {
+  // --- Base ----------------------------------------------------------
+  position: fixed;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  margin: 0; // un tiroir est collé à un bord, pas centré
+  padding: 0;
+  max-width: none;
+  max-height: none;
+  border: 0;
+  background-color: var(--ui-drawer-surface, var(--global-background-default)); /// Fond du panneau.
+  color: var(--ui-drawer-color, var(--global-text-default));                    /// Couleur du texte du panneau.
+  font-family: var(--ui-drawer-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+  outline: none;
+
+  // Le `display: none` d'un dialogue fermé vient du style NAVIGATEUR, que le
+  // `display: flex` ci-dessus bat. Il faut donc le redire, sinon un tiroir
+  // fermé reste affiché par-dessus la page.
+  &:not([open]) {
+    display: none;
+  }
+
+  // --- Entrée et sortie -----------------------------------------------
+  // Un tiroir glisse depuis SON bord : une variable par bord suffit, et le
+  // mixin n'est inclus qu'une fois.
+  --_motion-slide: 0 0;
+
+  @include utils.overlay-motion {
+    opacity: 0;
+    translate: var(--_motion-slide);
+  }
+
+  &::backdrop {
+    background-color: $mask-background;
+    transition:
+      display allow-discrete var(--ui-motion-duration, #{utils.$motion-duration-base}),
+      overlay allow-discrete var(--ui-motion-duration, #{utils.$motion-duration-base}),
+      opacity var(--ui-motion-duration, #{utils.$motion-duration-base});
+    opacity: 1;
+  }
+
+  &:not([open])::backdrop {
+    opacity: 0;
+  }
+
+  @starting-style {
+    &[open]::backdrop {
+      opacity: 0;
+    }
+  }
+
+  // Tiroir non modal : pas de calque supérieur, donc rien à assombrir.
+  &:not(:modal)::backdrop {
+    background: none;
+  }
+
+  // --- Bords ----------------------------------------------------------
+  // Trois insets à zéro et le quatrième à `auto` collent le tiroir au bord.
+  //
+  // La dimension CROISÉE doit être remise à `auto` explicitement : le style
+  // navigateur d'un `<dialog>` la met à `fit-content`, ce qui l'emporte sur
+  // l'étirement demandé par les deux insets opposés. Sans ça, un tiroir de
+  // droite épouse la hauteur de son texte au lieu de prendre toute la hauteur
+  // (mesuré : 109 px au lieu de 200).
+  &._left {
+    --_motion-slide: -100% 0;
+    inset: 0 auto 0 0;
+    width: $size-side;
+    height: auto;
+    border-inline-end: $stroke-width solid var(--ui-drawer-stroke, var(--global-border-subtle)); /// Couleur du trait qui fait face au contenu, quel que soit le bord d'accroche.
+  }
+
+  &._right {
+    --_motion-slide: 100% 0;
+    inset: 0 0 0 auto;
+    width: $size-side;
+    height: auto;
+    border-inline-start: $stroke-width solid var(--ui-drawer-stroke, var(--global-border-subtle));
+  }
+
+  &._top {
+    --_motion-slide: 0 -100%;
+    inset: 0 0 auto 0;
+    width: auto;
+    height: $size-edge;
+    border-block-end: $stroke-width solid var(--ui-drawer-stroke, var(--global-border-subtle));
+  }
+
+  &._bottom {
+    --_motion-slide: 0 100%;
+    inset: auto 0 0 0;
+    width: auto;
+    height: $size-edge;
+    border-block-start: $stroke-width solid var(--ui-drawer-stroke, var(--global-border-subtle));
+  }
+
+  // --- Plein écran ----------------------------------------------------
+  &._full-screen {
+    inset: 0;
+    width: auto;
+    height: auto;
+    border: 0;
+  }
+
+  // --- Cantonné dans un conteneur borné -------------------------------
+  &._contained {
+    position: absolute;
+  }
+
+  // --- En-tête --------------------------------------------------------
+  &-header {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: flex-start;
+    gap: $header-gap;
+    padding: $panel-padding $panel-padding var(--units-sm);
+  }
+
+  &-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-family: var(--ui-drawer-title-font-family, var(--fontfamily-title)); /// Famille typographique du titre.
+    font-size: var(--size-typography-title-default);
+    font-weight: var(--ui-drawer-weight, var(--weight-bold)); /// Graisse du titre.
+    line-height: 1.3;
+    overflow-wrap: break-word;
+  }
+
+  &-header-actions {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--units-2xs);
+  }
+
+  &-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: $action-size;
+    height: $action-size;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-xs);
+    background: transparent;
+    color: inherit;
+    line-height: 0;
+    cursor: pointer;
+    @include utils.control-transition(background-color, color);
+
+    &:hover {
+      background-color: var(--ui-drawer-close-surface-hover, var(--global-background-muted-hover)); /// Fond du bouton de fermeture au survol.
+      color: var(--ui-drawer-close-color-hover, var(--global-text-muted-hover));                    /// Couleur du bouton de fermeture au survol.
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 $focus-ring-width var(--ui-drawer-close-focus-ring-color, var(--global-border-focus)); /// Couleur de l'anneau de focus du bouton de fermeture.
+    }
+
+    @include utils.motion-reduce {
+      transition-duration: 0.01ms;
+    }
+  }
+
+  // --- Corps ----------------------------------------------------------
+  &-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: $panel-padding;
+    font-size: var(--size-typography-text-md);
+    line-height: 1.5;
+  }
+
+  &-header + &-content {
+    padding-top: 0;
+  }
+
+  // --- Pied -----------------------------------------------------------
+  &-footer {
+    flex: 0 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--units-sm);
+    padding: var(--units-md) $panel-padding $panel-padding;
+    border-top: $stroke-width solid var(--ui-drawer-footer-stroke, var(--global-border-subtle)); /// Couleur du trait séparant le pied.
+  }
+}

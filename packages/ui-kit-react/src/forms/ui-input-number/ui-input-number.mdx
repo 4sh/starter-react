@@ -1,0 +1,81 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as NumberStories from './ui-input-number.stories';
+
+<Meta of={NumberStories} />
+
+# ui-input-number
+
+Champ numérique, bâti sur la coquille `ui-field`. La valeur du modèle est un `number` ou
+`null`.
+
+<Canvas of={NumberStories.MinMax} />
+
+## API
+
+<ArgTypes of={NumberStories} />
+
+## Saisie permissive, formatage à la sortie
+
+C'est le parti pris central du composant. Le texte n'est **pas** reformaté pendant la
+frappe : reformater à chaque caractère ferait sauter le curseur, et rendrait impossible de
+taper une valeur intermédiaire comme `1,` ou `-`.
+
+Le champ montre donc une forme **éditable** au focus (décimales de la locale, sans milliers
+ni devise), et applique le formatage riche à la **sortie**, en même temps que l'écrêtage.
+
+<Canvas of={NumberStories.Grouped} />
+
+C'est aussi ce qui distingue ce champ de `ui-input-mask` : là-bas l'affichage se déduit
+toujours de la valeur, ici le texte est un état à part le temps de la saisie.
+
+## Ce n'est pas un `<input type="number">`
+
+Le champ natif refuse les séparateurs de la locale, avale les décimales différemment selon
+le navigateur, et ajoute son propre pavé impossible à styler. Le composant utilise donc
+`type="text"` avec `inputmode="decimal"`, ce qui donne quand même le bon clavier tactile.
+
+La saisie reste permissive sur les séparateurs : un `1 234,5` collé depuis un tableur passe.
+
+## Formatage
+
+`locale`, `currency`, `useGrouping` et les `*FractionDigits` pilotent `Intl.NumberFormat`.
+Une devise porte déjà son symbole, donc `unit` est ignorée quand `currency` est renseigné.
+
+<Canvas of={NumberStories.Currency} />
+
+Pour un cas que ces options ne couvrent pas, `formatValue` remplace entièrement le
+formatage. Côté Angular c'était une méthode protégée à redéfinir par héritage ; la prop dit
+la même chose en composition, et se change par instance plutôt que par sous-classe.
+
+<Canvas of={NumberStories.CustomFormat} />
+
+⚠️ Toujours passer `locale` explicitement quand le rendu doit être stable. Sans elle, `Intl`
+suit celle du navigateur, et le même écran ne s'affiche pas pareil d'un poste à l'autre.
+
+## Incrémenter
+
+Les flèches haut et bas ajoutent ou retirent un `step`, comme le pavé. Le pavé est **hors du
+parcours clavier** (`tabindex="-1"`) : les flèches font déjà le travail, et deux arrêts de
+tabulation par champ numérique alourdiraient tout formulaire.
+
+Aux bornes, le bouton concerné est désactivé.
+
+<Canvas of={NumberStories.MinMax} />
+
+## Accessibilité
+
+Le champ s'annonce `role="spinbutton"` avec `aria-valuenow`, et `aria-valuemin` /
+`aria-valuemax` quand les bornes existent. Sans borne, les attributs sont **omis** plutôt
+que posés à une valeur vide : une borne annoncée qui n'existe pas est pire qu'aucune borne.
+
+Les deux boutons du pavé portent un nom accessible, réglable par `incrementAriaLabel` et
+`decrementAriaLabel`. Le kit ne fournit pas de traduction : ces libellés n'ont qu'un défaut
+français, et les traduire revient à l'application.
+
+## Theming
+
+Le champ délègue son apparence à `ui-field`, dont la page documente les points d'extension
+de la boîte, du libellé et du message.
+
+<ConfigTable of="ui-input-number" />

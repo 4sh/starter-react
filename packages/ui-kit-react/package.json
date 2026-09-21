@@ -1,0 +1,278 @@
+{
+  "name": "@4sh/ui-kit-react",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Composants React headless du Design System 4SH : props typées, primitives Radix, style piloté exclusivement par les jetons de design.",
+  "homepage": "https://4sh.github.io/starter-react/?path=/docs/introduction--docs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/4sh/starter-react.git",
+    "directory": "packages/ui-kit-react"
+  },
+  "bugs": {
+    "url": "https://github.com/4sh/starter-react/issues"
+  },
+  "author": "4SH",
+  "license": "Apache-2.0",
+  "keywords": [
+    "react",
+    "design-system",
+    "headless",
+    "components",
+    "design-tokens",
+    "ui-kit",
+    "accessibility",
+    "a11y"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "files": [
+    "dist",
+    "src/styles",
+    "NOTICE",
+    "README.md",
+    "README.fr.md"
+  ],
+  "sideEffects": [
+    "**/*.css",
+    "**/*.scss"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./focus": {
+      "types": "./dist/core/focus/index.d.ts",
+      "import": "./dist/focus.js"
+    },
+    "./forms": {
+      "types": "./dist/core/forms/index.d.ts",
+      "import": "./dist/forms.js"
+    },
+    "./overlay": {
+      "types": "./dist/core/overlay/index.d.ts",
+      "import": "./dist/overlay.js"
+    },
+    "./theming": {
+      "types": "./dist/core/theming/index.d.ts",
+      "import": "./dist/theming.js"
+    },
+    "./types": {
+      "types": "./dist/core/types/index.d.ts",
+      "import": "./dist/types.js"
+    },
+    "./utils": {
+      "types": "./dist/core/utils/index.d.ts",
+      "import": "./dist/utils.js"
+    },
+    "./virtual": {
+      "types": "./dist/core/virtual/index.d.ts",
+      "import": "./dist/virtual.js"
+    },
+    "./ui-button": {
+      "types": "./dist/actions/ui-button/index.d.ts",
+      "import": "./dist/ui-button.js"
+    },
+    "./ui-link": {
+      "types": "./dist/actions/ui-link/index.d.ts",
+      "import": "./dist/ui-link.js"
+    },
+    "./ui-icon": {
+      "types": "./dist/base/ui-icon/index.d.ts",
+      "import": "./dist/ui-icon.js"
+    },
+    "./ui-autocomplete": {
+      "types": "./dist/forms/ui-autocomplete/index.d.ts",
+      "import": "./dist/ui-autocomplete.js"
+    },
+    "./ui-checkbox": {
+      "types": "./dist/forms/ui-checkbox/index.d.ts",
+      "import": "./dist/ui-checkbox.js"
+    },
+    "./ui-datepicker": {
+      "types": "./dist/forms/ui-datepicker/index.d.ts",
+      "import": "./dist/ui-datepicker.js"
+    },
+    "./ui-field": {
+      "types": "./dist/forms/ui-field/index.d.ts",
+      "import": "./dist/ui-field.js"
+    },
+    "./ui-input": {
+      "types": "./dist/forms/ui-input/index.d.ts",
+      "import": "./dist/ui-input.js"
+    },
+    "./ui-input-date": {
+      "types": "./dist/forms/ui-input-date/index.d.ts",
+      "import": "./dist/ui-input-date.js"
+    },
+    "./ui-input-mask": {
+      "types": "./dist/forms/ui-input-mask/index.d.ts",
+      "import": "./dist/ui-input-mask.js"
+    },
+    "./ui-input-number": {
+      "types": "./dist/forms/ui-input-number/index.d.ts",
+      "import": "./dist/ui-input-number.js"
+    },
+    "./ui-input-tags": {
+      "types": "./dist/forms/ui-input-tags/index.d.ts",
+      "import": "./dist/ui-input-tags.js"
+    },
+    "./ui-label": {
+      "types": "./dist/forms/ui-label/index.d.ts",
+      "import": "./dist/ui-label.js"
+    },
+    "./ui-nudger": {
+      "types": "./dist/forms/ui-nudger/index.d.ts",
+      "import": "./dist/ui-nudger.js"
+    },
+    "./ui-radio": {
+      "types": "./dist/forms/ui-radio/index.d.ts",
+      "import": "./dist/ui-radio.js"
+    },
+    "./ui-rating": {
+      "types": "./dist/forms/ui-rating/index.d.ts",
+      "import": "./dist/ui-rating.js"
+    },
+    "./ui-segment-control": {
+      "types": "./dist/forms/ui-segment-control/index.d.ts",
+      "import": "./dist/ui-segment-control.js"
+    },
+    "./ui-select": {
+      "types": "./dist/forms/ui-select/index.d.ts",
+      "import": "./dist/ui-select.js"
+    },
+    "./ui-slider": {
+      "types": "./dist/forms/ui-slider/index.d.ts",
+      "import": "./dist/ui-slider.js"
+    },
+    "./ui-textarea": {
+      "types": "./dist/forms/ui-textarea/index.d.ts",
+      "import": "./dist/ui-textarea.js"
+    },
+    "./ui-toggle": {
+      "types": "./dist/forms/ui-toggle/index.d.ts",
+      "import": "./dist/ui-toggle.js"
+    },
+    "./ui-toggle-block": {
+      "types": "./dist/forms/ui-toggle-block/index.d.ts",
+      "import": "./dist/ui-toggle-block.js"
+    },
+    "./ui-toggle-button": {
+      "types": "./dist/forms/ui-toggle-button/index.d.ts",
+      "import": "./dist/ui-toggle-button.js"
+    },
+    "./ui-alert": {
+      "types": "./dist/informative/ui-alert/index.d.ts",
+      "import": "./dist/ui-alert.js"
+    },
+    "./ui-avatar": {
+      "types": "./dist/informative/ui-avatar/index.d.ts",
+      "import": "./dist/ui-avatar.js"
+    },
+    "./ui-badge": {
+      "types": "./dist/informative/ui-badge/index.d.ts",
+      "import": "./dist/ui-badge.js"
+    },
+    "./ui-chip": {
+      "types": "./dist/informative/ui-chip/index.d.ts",
+      "import": "./dist/ui-chip.js"
+    },
+    "./ui-empty-state": {
+      "types": "./dist/informative/ui-empty-state/index.d.ts",
+      "import": "./dist/ui-empty-state.js"
+    },
+    "./ui-helper": {
+      "types": "./dist/informative/ui-helper/index.d.ts",
+      "import": "./dist/ui-helper.js"
+    },
+    "./ui-progress-bar": {
+      "types": "./dist/informative/ui-progress-bar/index.d.ts",
+      "import": "./dist/ui-progress-bar.js"
+    },
+    "./ui-read-only": {
+      "types": "./dist/informative/ui-read-only/index.d.ts",
+      "import": "./dist/ui-read-only.js"
+    },
+    "./ui-separator": {
+      "types": "./dist/informative/ui-separator/index.d.ts",
+      "import": "./dist/ui-separator.js"
+    },
+    "./ui-skeleton": {
+      "types": "./dist/informative/ui-skeleton/index.d.ts",
+      "import": "./dist/ui-skeleton.js"
+    },
+    "./ui-spinner": {
+      "types": "./dist/informative/ui-spinner/index.d.ts",
+      "import": "./dist/ui-spinner.js"
+    },
+    "./ui-tag": {
+      "types": "./dist/informative/ui-tag/index.d.ts",
+      "import": "./dist/ui-tag.js"
+    },
+    "./ui-tooltip": {
+      "types": "./dist/informative/ui-tooltip/index.d.ts",
+      "import": "./dist/ui-tooltip.js"
+    },
+    "./ui-card": {
+      "types": "./dist/layout/ui-card/index.d.ts",
+      "import": "./dist/ui-card.js"
+    },
+    "./ui-drawer": {
+      "types": "./dist/layout/ui-drawer/index.d.ts",
+      "import": "./dist/ui-drawer.js"
+    },
+    "./ui-modal": {
+      "types": "./dist/layout/ui-modal/index.d.ts",
+      "import": "./dist/ui-modal.js"
+    },
+    "./ui-popover": {
+      "types": "./dist/layout/ui-popover/index.d.ts",
+      "import": "./dist/ui-popover.js"
+    },
+    "./ui-context-menu": {
+      "types": "./dist/navigation/ui-context-menu/index.d.ts",
+      "import": "./dist/ui-context-menu.js"
+    },
+    "./ui-menu": {
+      "types": "./dist/navigation/ui-menu/index.d.ts",
+      "import": "./dist/ui-menu.js"
+    },
+    "./ui-tabs": {
+      "types": "./dist/navigation/ui-tabs/index.d.ts",
+      "import": "./dist/ui-tabs.js"
+    },
+    "./ui-paginator": {
+      "types": "./dist/table/ui-paginator/index.d.ts",
+      "import": "./dist/ui-paginator.js"
+    },
+    "./ui-table": {
+      "types": "./dist/table/ui-table/index.d.ts",
+      "import": "./dist/ui-table.js"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./styles/*": "./src/styles/*",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "vite build && pnpm build:styles",
+    "build:styles": "sass src/styles/index.scss dist/styles.css --load-path=src/styles --no-source-map --style=compressed"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "vite": "8.2.2",
+    "vite-plugin-dts": "5.1.0",
+    "vite-plugin-lib-inject-css": "2.2.2"
+  },
+  "dependencies": {
+    "@floating-ui/react-dom": "2.1.9",
+    "@tanstack/react-virtual": "3.14.10"
+  }
+}

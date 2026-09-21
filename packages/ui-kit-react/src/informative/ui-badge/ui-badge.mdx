@@ -1,0 +1,46 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as BadgeStories from './ui-badge.stories';
+
+<Meta of={BadgeStories} />
+
+# ui-badge
+
+Indicateur de statut ou de compte. Il se colore par `level` × `subLevel`, les familles
+informatives des jetons, et prend trois formes selon ce qu'on lui donne.
+
+<Canvas of={BadgeStories.Levels} />
+
+## API
+
+<ArgTypes of={BadgeStories} />
+
+## Les trois formes
+
+Un texte de plusieurs caractères rend une capsule. Un **glyphe unique**, chiffre ou icône
+seule, rend une pastille carrée : une capsule autour d'un seul caractère paraîtrait étirée.
+
+<Canvas of={BadgeStories.SingleGlyph} />
+
+Sans texte ni icône, il ne reste qu'un **point** de notification.
+
+<Canvas of={BadgeStories.Dot} />
+
+## Accessibilité
+
+Un point ou une icône seule ne dit rien à un lecteur d'écran. Ces deux formes ont donc
+besoin d'`aria-label` ; sans lui, un avertissement est émis en développement.
+
+Avec un nom accessible, la pastille prend `role="img"`. Sans, elle reste décorative et n'est
+pas annoncée : un `role="img"` muet ferait dire « image » sans rien ajouter.
+
+<Canvas of={BadgeStories.IconOnly} />
+
+## ui-badge ou ui-tag
+
+`ui-badge` compte ou signale : un nombre, un point, un statut court. `ui-tag` qualifie un
+contenu par un mot. Les deux partagent leurs familles de couleurs, pas leur usage.
+
+## Theming
+
+<ConfigTable of="ui-badge" />

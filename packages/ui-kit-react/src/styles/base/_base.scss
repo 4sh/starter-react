@@ -1,0 +1,19 @@
+@use "utils";
+
+html,
+body {
+  position: relative;
+  height: 100%;
+  margin: 0;
+  background-color: var(--global-background-default);
+  color: var(--global-text-default);
+  font-family: var(--fontfamily-base);
+  font-optical-sizing: auto;
+
+}
+
+// Default focus indicator : safety net for focusable elements that do not ship
+:where(:focus-visible) {
+  outline: var(--global-border-focus) dashed utils.rem-calc(1px);
+  outline-offset: utils.rem-calc(2px);
+}

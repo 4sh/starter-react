@@ -1,0 +1,113 @@
+@use 'utils';
+
+// =====================================================================
+// ui-popover : styles co-localisés du panneau ancré (coquille + flèche).
+//
+// Le panneau vit dans le CALQUE SUPÉRIEUR : `popover` pour un panneau non
+// modal, `<dialog>` pour un panneau modal. Deux conséquences :
+//   • aucun z-index, et aucun rognage par un ancêtre en `overflow: hidden` ;
+//   • il faut neutraliser les styles navigateur du calque (`inset`, `margin`),
+//     sinon ils centrent le panneau au lieu de le laisser à sa position.
+// =====================================================================
+
+// --- Réglages ---------------------------------------------------------
+$popover-arrow-size: var(--ui-popover-arrow-size, #{utils.rem-calc(8)});     /// Diamètre de la flèche, synchronisé avec `ARROW_GAP` dans le `.tsx`
+$popover-arrow-half: calc(#{$popover-arrow-size} / 2);                       /// Demi-largeur de la flèche, dérivée de sa taille.
+$popover-padding: var(--ui-popover-padding, var(--units-md));                /// Espacement interne du contenu projeté
+$popover-max-width: var(--ui-popover-max-width, #{utils.rem-calc(320)});     /// Largeur maximale avant retour à la ligne (le placement garde le panneau dans le viewport)
+
+$popover-surface: var(--ui-popover-surface, var(--global-background-default)); /// Fond du panneau.
+$popover-stroke: var(--ui-popover-stroke, var(--global-border-default));       /// Couleur de bordure du panneau.
+
+.ui-popover {
+  // Le calque supérieur pose `inset: 0` et `margin: auto`, qui centreraient le
+  // panneau. C'est le placement calculé qui doit décider, donc on les annule.
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: block;
+  box-sizing: border-box;
+  width: max-content;
+  max-width: $popover-max-width;
+  color: var(--ui-popover-color, var(--global-text-default)); /// Couleur du texte du panneau.
+  @include utils.overlay-panel($popover-surface, $popover-stroke);
+  overflow: visible;
+
+  &:focus {
+    outline: none;
+  }
+
+  // Un panneau fermé n'est pas rendu : c'est le calque supérieur qui décide,
+  // pas une règle d'affichage.
+  &:not(:popover-open):not(:modal) {
+    display: none;
+  }
+
+  // --- Entrée et sortie -----------------------------------------------
+  @include utils.overlay-motion {
+    opacity: 0;
+    scale: var(--ui-motion-scale, #{utils.$motion-scale});
+  }
+
+  &::backdrop {
+    background: none;
+  }
+
+  // --- Contenu ---------------------------------------------------------
+  &-content {
+    box-sizing: border-box;
+    padding: $popover-padding;
+    max-height: var(--ui-popover-max-height); /// Hauteur maximale du contenu avant scroll interne — non définie par défaut (ex. `60vh`).
+    overflow: auto;
+    border-radius: inherit;
+  }
+
+  // --- Flèche ----------------------------------------------------------
+  &-arrow {
+    position: absolute;
+    width: $popover-arrow-size;
+    height: $popover-arrow-size;
+    background-color: $popover-surface;
+    border: utils.$overlay-panel-stroke-width solid $popover-stroke;
+    rotate: 45deg;
+  }
+
+  &._no-arrow &-arrow {
+    display: none;
+  }
+
+  // Panneau au-dessus du déclencheur : flèche en bas, pointe vers le bas.
+  &._top &-arrow {
+    bottom: calc(-1 * #{$popover-arrow-half});
+    left: 50%;
+    margin-left: calc(-1 * #{$popover-arrow-half});
+    border-top: 0;
+    border-left: 0;
+  }
+  // Panneau en dessous : flèche en haut, pointe vers le haut.
+  &._bottom &-arrow {
+    top: calc(-1 * #{$popover-arrow-half});
+    left: 50%;
+    margin-left: calc(-1 * #{$popover-arrow-half});
+    border-right: 0;
+    border-bottom: 0;
+  }
+  // Panneau à gauche : flèche à droite, pointe vers la droite.
+  &._left &-arrow {
+    right: calc(-1 * #{$popover-arrow-half});
+    top: 50%;
+    margin-top: calc(-1 * #{$popover-arrow-half});
+    border-bottom: 0;
+    border-left: 0;
+  }
+  // Panneau à droite : flèche à gauche, pointe vers la gauche.
+  &._right &-arrow {
+    left: calc(-1 * #{$popover-arrow-half});
+    top: 50%;
+    margin-top: calc(-1 * #{$popover-arrow-half});
+    border-top: 0;
+    border-right: 0;
+  }
+}

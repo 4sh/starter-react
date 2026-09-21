@@ -1,0 +1,121 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as SliderStories from './ui-slider.stories';
+
+<Meta of={SliderStories} />
+
+# ui-slider
+
+Choisir une valeur numérique, ou une plage, en glissant une poignée le long d'une piste.
+
+<Canvas of={SliderStories.Default} />
+
+## API
+
+<ArgTypes of={SliderStories} />
+
+## Le motif slider de WAI-ARIA
+
+Chaque poignée est un `role="slider"` qui expose `aria-valuemin`, `aria-valuemax`,
+`aria-valuenow` et `aria-orientation`. C'est la poignée qui porte le focus et le clavier ; la
+racine n'écoute que le pointeur, pour qu'une pression n'importe où sur la piste saisisse la
+poignée la plus proche.
+
+Le pointeur est **capturé** sur la racine au premier appui : le glissement continue même
+quand le curseur sort de la piste, ce qui est le comportement attendu d'une poignée qu'on
+tient. Un seul chemin de code couvre souris, tactile et stylet.
+
+## Pas et bornes
+
+`step` gouverne à la fois l'aimantation du glissement et l'amplitude d'un cran clavier. La
+valeur est arrondie à la **précision décimale du pas** : sans cela, `0,4 + 0,1` vaudrait
+`0,5000000000000001`.
+
+<Canvas of={SliderStories.DecimalStep} />
+<Canvas of={SliderStories.MinMax} />
+
+Une valeur ne franchit jamais les bornes, et à la borne aucun changement n'est émis plutôt
+qu'une valeur identique.
+
+## Plage
+
+`range` fait passer le modèle à un tableau `[début, fin]`, et rend deux poignées.
+
+<Canvas of={SliderStories.Range} />
+
+`minStepsBetweenHandles` garde un écart minimal entre les deux : elles ne peuvent plus se
+croiser, ni se superposer.
+
+<Canvas of={SliderStories.RangeWithGap} />
+
+## Repères
+
+`marks` rend un repère par pas, et distingue ceux qui sont atteints par la valeur. Ils sont
+`aria-hidden` : ce sont des indices visuels, la valeur étant déjà annoncée par la poignée.
+
+<Canvas of={SliderStories.WithMarks} />
+
+Le nombre de repères est **plafonné à 100** : un pas très fin sur une large plage en
+produirait des milliers, pour rien.
+
+## Orientation
+
+<Canvas of={SliderStories.Vertical} />
+<Canvas of={SliderStories.VerticalRange} />
+
+En vertical le curseur gère sa propre hauteur (`--ui-slider-length`) ; en horizontal il
+remplit son conteneur, un curseur n'ayant pas de largeur propre.
+
+## Accessibilité
+
+Le curseur **doit être nommé**, et en mode `range` chaque poignée a besoin de son propre nom
+(`ariaLabelStart`, `ariaLabelEnd`) : « de 20 à 60 » n'a pas de sens si les deux poignées
+s'appellent pareil. Un avertissement est émis en développement dans les deux cas.
+
+**Clavier :**
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Touche</th>
+      <th>Effet</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <kbd>←</kbd> <kbd>↓</kbd> / <kbd>→</kbd> <kbd>↑</kbd>
+      </td>
+      <td>un pas en arrière / en avant</td>
+    </tr>
+    <tr>
+      <td>
+        <kbd>Page ↓</kbd> / <kbd>Page ↑</kbd>
+      </td>
+      <td>dix pas</td>
+    </tr>
+    <tr>
+      <td>
+        <kbd>Début</kbd> / <kbd>Fin</kbd>
+      </td>
+      <td>le minimum / le maximum</td>
+    </tr>
+  </tbody>
+</table>
+
+Désactivé, la poignée sort du parcours de tabulation. En lecture seule elle y reste, parce que
+la valeur doit rester consultable au clavier, et l'annonce passe par `aria-readonly`.
+
+<Canvas of={SliderStories.Disabled} />
+<Canvas of={SliderStories.ReadOnly} />
+<Canvas of={SliderStories.Invalid} />
+
+## Formulaires
+
+Contrôlé par `value` et `onValueChange`, non contrôlé par `defaultValue`. `onValueChange` part
+**en continu** pendant le glissement ; `onSlideEnd` une seule fois, à la fin, pour ce qu'il
+serait coûteux de faire à chaque pixel.
+
+## Theming
+
+<ConfigTable of="ui-slider" />

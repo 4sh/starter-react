@@ -1,0 +1,104 @@
+@use 'utils';
+@use 'sass:map';
+
+// =====================================================================
+// ui-read-only : co-located styles. All values come from design tokens.
+//
+// Presentational only (no interactive states). Colors use the neutral
+// `global.*` semantics: muted label, high-contrast value.
+//
+// Layout:
+//   • vertical (base) / horizontal → the component owns the flex layout.
+//   • grid (`._grid`)              → no display imposed; the caller's row
+//                                    class (rowClass) + cell classes drive it.
+//
+// Extend:
+//   • Size → add an entry to $sizes (+ the `ReadOnlySize` type).
+// =====================================================================
+
+// --- Config ---------------------------------------
+/// Taille de texte, par taille.
+$sizes: (
+  'default': var(--ui-read-only-font-size, var(--size-typography-text-default)),
+  'small': var(--ui-read-only-font-size-small, var(--size-typography-text-md)),
+);
+
+$label-gap: var(--ui-read-only-label-gap, #{utils.$form-field-gap});                            /// Écart label→valeur en mode `matchField` (sinon compact).
+$field-height: var(--ui-read-only-field-height, #{utils.$form-field-height});                   /// Hauteur de la zone de valeur en `matchField` (taille `default`).
+$field-height-small: var(--ui-read-only-field-height-small, #{utils.$form-field-height-small}); /// Idem pour la taille `small`.
+
+.ui-read-only {
+  margin: 0; // reset native <dl> margin
+  font-family: var(--ui-read-only-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+
+  &:not(._grid) { display: flex; }
+
+  // L'hôte Angular portait `display: block` ou `inline-block` en style inline.
+  // Sans hôte, c'est un modifier, et il doit battre la règle ci-dessus.
+  &._inline:not(._grid) { display: inline-flex; }
+
+  &:not(._grid):not(._horizontal) {
+    flex-direction: column;
+    gap: var(--units-2xs);
+  }
+
+  &._horizontal {
+    flex-direction: row;
+    align-items: baseline;
+    gap: var(--units-default);
+
+    .ui-read-only-label { flex: 0 0 var(--ui-read-only-label-width, auto); } /// Largeur de la colonne du libellé en disposition horizontale (`auto` : elle épouse le texte).
+    .ui-read-only-value-cell { flex: 1 1 auto; }
+  }
+
+  // --- Sub-elements --------------------------------------------------
+  &-label { margin: 0; }
+
+  &-value-cell {
+    margin: 0;
+    min-width: 0;
+    color: var(--ui-read-only-value-color, var(--global-text-default)); /// Couleur de la valeur.
+  }
+
+  &-value {
+    font-size: map.get($sizes, 'default');
+    font-weight: var(--ui-read-only-weight, var(--weight-regular)); /// Graisse de la valeur.
+    line-height: 1.3;
+
+    &._fallback { color: var(--ui-read-only-value-color-fallback, var(--global-text-muted)); } /// Couleur de la valeur de repli (« — »).
+    &._multiline { white-space: pre-line; }
+  }
+
+  &-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  // --- Sizes  -------------------------------------
+  @each $name, $font-size in $sizes {
+    @if $name != 'default' {
+      &._#{$name} .ui-read-only-value { font-size: $font-size; }
+    }
+  }
+
+  // --- Label alignment (horizontal only) -----------------------------
+  &._label-right .ui-read-only-label { text-align: right; }
+
+  // --- Match ui-field (opt-in) ---------------------------------------
+  &._match-field:not(._grid):not(._horizontal) { gap: $label-gap; }
+  &._small._match-field:not(._grid):not(._horizontal) { gap: var(--units-xs); }
+
+  &._match-field .ui-read-only-value-cell {
+    display: flex;
+    align-items: center;
+    min-height: $field-height;
+  }
+  &._small._match-field .ui-read-only-value-cell { min-height: $field-height-small; }
+}

@@ -1,0 +1,72 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as CheckboxStories from './ui-checkbox.stories';
+
+<Meta of={CheckboxStories} />
+
+# ui-checkbox
+
+Case à cocher bâtie sur un vrai `<input type="checkbox">` natif, recouvert par la boîte
+stylée.
+
+<Canvas of={CheckboxStories.Checked} />
+
+## API
+
+<ArgTypes of={CheckboxStories} />
+
+## Pourquoi `value` et non `checked`
+
+C'est la question qui revient, et elle a deux réponses.
+
+D'abord, **le modèle n'est pas forcément un booléen**. `trueValue` et `falseValue` lui font
+porter n'importe quelle paire (`'oui'` / `'non'`, `1` / `0`) et une prop nommée `checked`
+mentirait sur ce qu'elle contient.
+
+<Canvas of={CheckboxStories.CustomValues} />
+
+Ensuite, c'est **la convention unique du kit**. Une vingtaine de champs partagent le couple
+`value` / `defaultValue` / `onValueChange`, porté par `useControllableState`. Une case qui
+dirait `checked` obligerait à retenir deux vocabulaires pour la même idée.
+
+## Le natif fait le travail
+
+L'input natif reste dans le DOM. Le clavier, les lecteurs d'écran, le clic sur le libellé et
+la sémantique de formulaire viennent alors gratuitement, sans une ligne de JavaScript. Les
+états interactifs sont du CSS pur, piloté par les jetons `form.*`.
+
+Le `<label>` **enveloppe** l'input : l'association est structurelle, sans `htmlFor` à tenir à
+jour, et cliquer le texte bascule la case.
+
+## Deux états qui ne sont pas des attributs
+
+**`indeterminate`** n'existe que comme *propriété* du DOM : il n'y a pas d'attribut
+correspondant, donc React ne peut pas le poser en JSX. Le composant l'écrit dans un layout
+effect. Il est purement visuel : le modèle garde sa valeur, et l'état ne se déduit jamais
+tout seul : c'est au parent de savoir que sa sélection est partielle.
+
+<Canvas of={CheckboxStories.Indeterminate} />
+
+**`readOnly`** n'existe pas non plus sur une case : le navigateur bascule la propriété avant
+que quiconque puisse l'en empêcher. Le composant la remet et n'émet rien, puis l'annonce par
+`aria-readonly`. Sans cette remise, l'affichage et le modèle divergeraient : React ne
+re-rendrait pas, puisque l'état n'a pas changé.
+
+<Canvas of={CheckboxStories.ReadOnly} />
+
+## Accessibilité
+
+Sans `label`, la case **doit** porter un `aria-label`. Une case sans nom accessible est
+annoncée « case à cocher, non cochée » et rien d'autre.
+
+Le marqueur requis est `aria-hidden` : l'astérisque est un signal visuel, c'est l'attribut
+`required` qui porte l'information.
+
+Pour regrouper plusieurs cases, un `<fieldset>` avec sa `<legend>` : le `name` partagé sert
+au formulaire, pas à l'accessibilité.
+
+<Canvas of={CheckboxStories.Group} />
+
+## Theming
+
+<ConfigTable of="ui-checkbox" />

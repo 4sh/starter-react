@@ -1,0 +1,88 @@
+@use 'utils';
+@use 'sass:map';
+
+// =====================================================================
+// ui-link : co-located styles. All values come from design tokens.
+// Extend:
+//   • Size → add an entry to $sizes (+ the `LinkSize` type).
+// =====================================================================
+
+// --- Config (extension points) ---------------------------------------
+// `default` = base styles; other keys become `._<name>` modifiers.
+/// Dimensions par taille (spécifique lien)
+$sizes: (
+  'default': (
+    font-size: var(--ui-link-font-size, var(--size-typography-text-default)),
+  ),
+  'small': (
+    font-size: var(--ui-link-font-size-small, var(--size-typography-text-md)),
+  ),
+);
+$size-default: map.get($sizes, 'default');                                             /// Raccourci vers l'entrée `default` de `$sizes`.
+$focus-ring-width: var(--ui-link-focus-ring-width, #{utils.$action-focus-ring-width}); /// Épaisseur de l'anneau de focus
+
+$gap: var(--ui-link-gap, var(--units-sm));                           /// Espacement icône ↔ libellé.
+$radius: var(--ui-link-radius, var(--radius-2xs));                   /// Rayon de la zone de focus.
+$underline-thickness: var(--ui-link-underline-thickness, from-font); /// Épaisseur du soulignement.
+$underline-offset: var(--ui-link-underline-offset, 0.15em);          /// Décalage du soulignement.
+
+.ui-link {
+  // --- Base ----------------------------------------------------------
+  display: inline-flex;
+  align-items: center;
+  gap: $gap;
+  font-family: var(--ui-link-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+  font-weight: var(--ui-link-weight, var(--weight-bold)); /// Graisse du texte.
+  font-size: map.get($size-default, font-size);
+  line-height: 1.4;
+  color: var(--ui-link-color, var(--actions-low-content-default)); /// Couleur du lien.
+  text-decoration: none;
+  text-decoration-thickness: $underline-thickness;
+  text-underline-offset: $underline-offset;
+  border-radius: $radius;
+  cursor: pointer;
+  @include utils.control-transition(color, text-decoration-color, box-shadow);
+
+  // --- Sub-elements --------------------------------------------------
+  &-icon { line-height: 0; }
+
+  &-content {
+    display: inline;
+    &:empty { display: none; }
+  }
+
+  // --- Sizes (all but `default`) -------------------------------------
+  @each $name, $size in $sizes {
+    @if $name != 'default' {
+      &._#{$name} { font-size: map.get($size, font-size); }
+    }
+  }
+
+  // Icon-only: no underline, tight box around the glyph.
+  &._icon-only {
+    gap: 0;
+    text-decoration: none;
+  }
+
+  // --- Interactive states ----------------------
+  &:hover:not(._disabled) {
+    color: var(--ui-link-color-hover, var(--actions-low-content-hover)); /// Couleur du lien au survol.
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: none;
+    color: var(--ui-link-color-focus, var(--actions-low-content-focused)); /// Couleur du lien au focus clavier ; elle teinte aussi l'anneau.
+    text-decoration: underline;
+    box-shadow: 0 0 0 $focus-ring-width var(--ui-link-color-focus, var(--actions-low-content-focused));
+  }
+
+  &:active:not(._disabled) { color: var(--ui-link-color-pressed, var(--actions-low-content-pressed)); } /// Couleur du lien enfoncé.
+
+  &._disabled {
+    color: var(--ui-link-color-disabled, var(--actions-low-content-disabled)); /// Couleur du lien désactivé (soulignement compris).
+    text-decoration-color: var(--ui-link-color-disabled, var(--actions-low-content-disabled));
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}

@@ -1,0 +1,91 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as AlertStories from './ui-alert.stories';
+
+<Meta of={AlertStories} />
+
+# ui-alert
+
+Message **en ligne** pour un retour informatif, de succès, d'avertissement ou d'erreur. Il
+s'insère dans le flux de la page : bandeau de formulaire, résumé d'erreurs, statut. Pour une
+notification flottante et empilée, c'est `ui-toast`.
+
+<Canvas of={AlertStories.Default} />
+
+## API
+
+<ArgTypes of={AlertStories} />
+
+## Sévérité et intensité
+
+`level` porte la sévérité : elle décide de la famille de couleur et de l'icône par défaut.
+`subLevel` en module l'intensité, `high` soutenue ou `low` discrète.
+
+<Canvas of={AlertStories.Levels} />
+<Canvas of={AlertStories.SubLevelLow} />
+
+## Anatomie
+
+L'icône de tête suit le niveau. Un nom la remplace, `false` la retire. Un titre sans corps de
+message se centre verticalement, faute de première ligne sur laquelle s'aligner.
+
+<Canvas of={AlertStories.CustomIcon} />
+<Canvas of={AlertStories.TitleOnly} />
+
+Le contenu projeté se range sous le message : c'est là que vont une action, un lien ou une
+liste de champs fautifs.
+
+<Canvas of={AlertStories.WithContent} />
+
+## Fermeture
+
+L'alerte se ferme toute seule : sans rien lui passer, son bouton la retire. C'est le mode non
+contrôlé, qui suffit pour un bandeau isolé.
+
+Dès qu'il faut retirer le message d'une liste, le parent prend la main : `open` renseignée
+rend l'alerte contrôlée, et `onClose` dit quand elle a été fermée.
+
+<Canvas of={AlertStories.Stack} />
+
+`life` (en millisecondes) fait disparaître le message tout seul. Le délai part au montage,
+donc réafficher le même exemplaire ne le relance pas : c'est une clé neuve qui redonne un
+compte à rebours neuf.
+
+<Canvas of={AlertStories.Life} />
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Implémentation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Rôle</strong></td>
+      <td>La racine porte <code>role="alert"</code>, donc <code>aria-live="assertive"</code> implicite, plus <code>aria-atomic="true"</code> : le message entier est annoncé dès son apparition.</td>
+    </tr>
+    <tr>
+      <td><strong>Couleur</strong></td>
+      <td>Jamais le seul vecteur de sens : l'icône et le texte portent aussi la sévérité.</td>
+    </tr>
+    <tr>
+      <td><strong>Fermeture</strong></td>
+      <td>Un <code>&lt;button&gt;</code> natif nommé par <code>closeAriaLabel</code> : <kbd>Entrée</kbd> et <kbd>Espace</kbd> viennent avec.</td>
+    </tr>
+    <tr>
+      <td><strong>Focus</strong></td>
+      <td><code>:focus-visible</code> visible sur le bouton de fermeture, et distinct du survol.</td>
+    </tr>
+  </tbody>
+</table>
+
+⚠️ Un `role="alert"` monté en même temps que la page n'est pas annoncé : les lecteurs d'écran
+ne lisent que ce qui **apparaît** après. Un message présent au chargement doit donc être
+atteignable autrement, par un titre ou par le focus.
+
+## Theming
+
+<ConfigTable of="ui-alert" />

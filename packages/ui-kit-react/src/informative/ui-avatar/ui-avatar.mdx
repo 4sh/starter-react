@@ -1,0 +1,50 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as AvatarStories from './ui-avatar.stories';
+
+<Meta of={AvatarStories} />
+
+# ui-avatar
+
+Représente une personne ou une entité par une image, des initiales ou une icône.
+
+<Canvas of={AvatarStories.Modes} />
+
+## API
+
+<ArgTypes of={AvatarStories} />
+
+## Le mode se déduit
+
+Il n'y a pas de prop `mode` : l'ordre `image`, `label`, `icon` la remplace. Donner une image
+suffit à être en mode image, la retirer fait retomber sur les initiales. C'est la variante
+`Type` de Figma, sans prop redondante pour la redire.
+
+Une image qui **échoue à charger** applique la même règle : l'avatar bascule sur le mode
+suivant, et `onImageError` prévient l'appelant.
+
+<Canvas of={AvatarStories.BrokenImage} />
+
+## Le badge de statut
+
+`badge` pose un contenu en haut à droite, typiquement un `ui-badge` en forme de point. Le
+débord se règle par `--ui-avatar-badge-offset-x` et `-y`.
+
+<Canvas of={AvatarStories.WithBadge} />
+
+## Accessibilité
+
+Trois cas, une règle par mode.
+
+En mode **image**, c'est l'`alt` qui nomme. Aucun `role="img"` n'est posé sur le parent :
+l'image en porte déjà un, et le doubler ferait annoncer l'avatar deux fois.
+
+En mode **initiales**, les lettres sont masquées et le nom accessible est le `label`, ou
+l'`aria-label` s'il est donné : « RL » lu lettre à lettre n'apprend rien.
+
+En mode **icône sans nom**, l'avatar est purement décoratif et masqué. C'est le bon défaut
+pour un avatar générique posé à côté d'un nom déjà écrit à l'écran.
+
+## Theming
+
+<ConfigTable of="ui-avatar" />

@@ -1,0 +1,251 @@
+@use 'utils';
+
+// =====================================================================
+// ui-modal : styles co-localisés. Toutes les valeurs viennent des jetons.
+//
+// La racine est un <dialog> NATIF. Trois conséquences sur cette feuille :
+//   • pas de scrim ni de positionneur, `::backdrop` et le calque supérieur
+//     les remplacent ;
+//   • pas de z-index, l'ordre d'ouverture suffit au calque supérieur ;
+//   • les positions se règlent par la MARGE, un dialogue étant déjà centré
+//     par `margin: auto`.
+//
+// Étendre :
+//   • Position → ajouter un bloc `._pos-<nom>` (marges).
+// =====================================================================
+
+// --- Réglages ---------------------------------------------------------
+$mask-padding: var(--ui-modal-mask-padding, var(--units-lg));                    /// Inset entre le bord de l'écran et le dialogue.
+$dialog-radius: var(--ui-modal-dialog-radius, var(--radius-md));                 /// Rayon du dialogue.
+$dialog-padding: var(--ui-modal-dialog-padding, var(--units-lg));                /// Inset du dialogue.
+$header-gap: var(--ui-modal-header-gap, var(--units-sm));                        /// Espacement entre les éléments de l'en-tête.
+$stroke-width: var(--ui-modal-stroke-width, var(--stroke-sm));                   /// Épaisseur de bordure du dialogue.
+$action-size: var(--ui-modal-action-size, #{utils.rem-calc(32)});                /// Taille de la cible tactile des boutons d'en-tête.
+$resize-handle-size: var(--ui-modal-resize-handle-size, 16px);                   /// Taille de la poignée de redimensionnement.
+$focus-ring-width: var(--ui-modal-focus-ring-width, #{utils.$focus-ring-width}); /// Épaisseur de l'anneau de focus des boutons d'en-tête.
+$mask-background: var(--ui-modal-mask-background, var(--primitives-black-50));   /// Assombrissement de l'arrière-plan.
+
+.ui-modal {
+  // --- Base ----------------------------------------------------------
+  position: fixed;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  margin: auto; // centré : c'est le comportement natif d'un <dialog>
+  padding: 0;
+  max-width: min(90vw, utils.rem-calc(560));
+  max-height: 90vh;
+  border: $stroke-width solid var(--ui-modal-stroke, var(--global-border-subtle)); /// Couleur de bordure de la boîte.
+  border-radius: $dialog-radius;
+  background-color: var(--ui-modal-surface, var(--global-background-default));     /// Fond de la boîte.
+  color: var(--ui-modal-color, var(--global-text-default));                        /// Couleur du texte de la boîte.
+  box-shadow: var(--shadow-default-lg);
+  font-family: var(--ui-modal-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+  outline: none;
+  overflow: visible; // la poignée de redimensionnement déborde du coin
+
+  // Le style NAVIGATEUR dit `dialog:not([open]) { display: none }`, mais il est
+  // de niveau UA : notre `display: flex` d'auteur le bat. Sans cette règle, un
+  // dialogue fermé reste affiché, recouvre son propre déclencheur, et donne
+  // exactement l'impression d'un dialogue qu'on ne peut ni fermer ni rouvrir.
+  &:not([open]) {
+    display: none;
+  }
+
+  // --- Entrée et sortie -----------------------------------------------
+  // L'état de départ dépend du préréglage, et passe par deux variables : le
+  // mixin n'est donc inclus qu'une fois, quel que soit le nombre de préréglages.
+  --_motion-scale: 1;
+  --_motion-translate: 0 0;
+
+  &._motion-zoom { --_motion-scale: var(--ui-motion-scale, #{utils.$motion-scale}); }
+  &._motion-slide-up { --_motion-translate: 0 var(--ui-motion-distance, #{utils.$motion-distance}); }
+  &._motion-slide-down { --_motion-translate: 0 calc(-1 * var(--ui-motion-distance, #{utils.$motion-distance})); }
+  &._motion-slide-left { --_motion-translate: var(--ui-motion-distance, #{utils.$motion-distance}) 0; }
+  &._motion-slide-right { --_motion-translate: calc(-1 * var(--ui-motion-distance, #{utils.$motion-distance})) 0; }
+
+  @include utils.overlay-motion {
+    opacity: 0;
+    scale: var(--_motion-scale);
+    translate: var(--_motion-translate);
+  }
+
+  // L'arrière-plan a son propre fondu : c'est un pseudo-élément, donc il ne
+  // peut pas hériter de la transition du dialogue.
+  &::backdrop {
+    background-color: $mask-background;
+    transition:
+      display allow-discrete var(--ui-motion-duration, #{utils.$motion-duration-base}),
+      overlay allow-discrete var(--ui-motion-duration, #{utils.$motion-duration-base}),
+      opacity var(--ui-motion-duration, #{utils.$motion-duration-base});
+    opacity: 1;
+  }
+
+  &:not([open])::backdrop {
+    opacity: 0;
+  }
+
+  @starting-style {
+    &[open]::backdrop {
+      opacity: 0;
+    }
+  }
+
+  // Dialogue non modal : pas de calque supérieur, donc pas d'assombrissement.
+  &:not(:modal)::backdrop {
+    background: none;
+  }
+
+  // --- Contenu dans un conteneur borné -------------------------------
+  // Ouvert par `show()` et non `showModal()` : il reste dans le flux, donc se
+  // cale sur le premier ancêtre positionné.
+  //
+  // `inset: 0` est indispensable : le style navigateur ne contraint que l'axe
+  // horizontal d'un dialogue non modal, son `top` restant à `auto`. Le dialogue
+  // se posait donc à sa position statique, sous le contenu qui le précède, et
+  // débordait du cadre (mesuré : 87 px de débord). Avec les quatre insets, le
+  // `margin: auto` reprend son travail et centre dans l'ancêtre.
+  &._contained {
+    position: absolute;
+    inset: 0;
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  // --- Positions ------------------------------------------------------
+  // `margin: auto` centre ; remplacer une marge par l'inset colle de ce côté.
+  &._pos-top { margin-block: $mask-padding auto; }
+  &._pos-bottom { margin-block: auto $mask-padding; }
+  &._pos-left { margin-inline: $mask-padding auto; }
+  &._pos-right { margin-inline: auto $mask-padding; }
+
+  &._pos-topleft { margin: $mask-padding auto auto $mask-padding; }
+  &._pos-topright { margin: $mask-padding $mask-padding auto auto; }
+  &._pos-bottomleft { margin: auto auto $mask-padding $mask-padding; }
+  &._pos-bottomright { margin: auto $mask-padding $mask-padding auto; }
+
+  // --- Agrandi --------------------------------------------------------
+  &._maximized {
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+    margin: 0;
+    border-radius: 0;
+
+    &._contained {
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
+    }
+  }
+
+  // --- En-tête --------------------------------------------------------
+  &-header {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: flex-start;
+    gap: $header-gap;
+    padding: $dialog-padding $dialog-padding var(--units-sm);
+
+    &._draggable {
+      cursor: move;
+      user-select: none;
+    }
+  }
+
+  &-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-family: var(--ui-modal-title-font-family, var(--fontfamily-title)); /// Famille typographique du titre.
+    font-size: var(--size-typography-title-default);
+    font-weight: var(--ui-modal-weight, var(--weight-bold)); /// Graisse du titre.
+    line-height: 1.3;
+    overflow-wrap: break-word;
+  }
+
+  &-header-actions {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--units-2xs);
+  }
+
+  // Boutons d'icône natifs (fermer, agrandir) : pas des ui-button, volontairement légers.
+  &-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: $action-size;
+    height: $action-size;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-xs);
+    background: transparent;
+    color: inherit;
+    line-height: 0;
+    cursor: pointer;
+    @include utils.control-transition(background-color, color);
+
+    &:hover {
+      background-color: var(--ui-modal-close-surface-hover, var(--global-background-muted-hover)); /// Fond du bouton de fermeture au survol.
+      color: var(--ui-modal-close-color-hover, var(--global-text-muted-hover));                    /// Couleur du bouton de fermeture au survol.
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 $focus-ring-width var(--ui-modal-close-focus-ring-color, var(--global-border-focus)); /// Couleur de l'anneau de focus du bouton de fermeture.
+    }
+
+    @include utils.motion-reduce {
+      transition-duration: 0.01ms;
+    }
+  }
+
+  // --- Corps ----------------------------------------------------------
+  &-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: $dialog-padding;
+    font-size: var(--size-typography-text-md);
+    line-height: 1.5;
+  }
+
+  // En-tête présent : le corps ne reprend pas l'inset du haut.
+  &-header + &-content {
+    padding-top: 0;
+  }
+
+  // --- Pied -----------------------------------------------------------
+  &-footer {
+    flex: 0 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--units-sm);
+    padding: var(--units-md) $dialog-padding $dialog-padding;
+    border-top: $stroke-width solid var(--ui-modal-footer-stroke, var(--global-border-subtle)); /// Couleur du trait séparant le pied.
+  }
+
+  // --- Poignée de redimensionnement ------------------------------------
+  &-resize-handle {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: $resize-handle-size;
+    height: $resize-handle-size;
+    cursor: nwse-resize;
+    touch-action: none;
+    color: var(--ui-modal-resize-handle-color, var(--global-text-muted)); /// Couleur de la poignée de redimensionnement.
+    background-image: repeating-linear-gradient(-45deg, currentColor 0 1px, transparent 1px 3px);
+    mask-image: linear-gradient(-45deg, transparent 0 45%, #000 55%);
+    opacity: 0.5;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}

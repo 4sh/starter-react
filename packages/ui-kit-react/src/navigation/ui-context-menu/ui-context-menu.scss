@@ -1,0 +1,34 @@
+@use 'utils';
+
+// =====================================================================
+// ui-context-menu : le panneau n'est qu'un porteur de position, c'est le
+// `ui-menu` qu'il contient qui peint le menu.
+// =====================================================================
+
+.ui-context-menu {
+  // Styles NAVIGATEUR du calque supérieur : `inset: 0` et `margin: auto`
+  // centreraient le panneau, le `border`, le `padding` et le fond dessineraient
+  // une seconde boîte autour du menu, et `overflow: auto` rognerait l'ombre du
+  // panneau, cette enveloppe faisant exactement sa taille. Chacun est
+  // neutralisé consciemment.
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  overflow: visible;
+  display: block;
+
+  // Le `display: none` d'un popover fermé vient du style navigateur, qu'un
+  // `display` d'auteur bat : il faut le redire.
+  &:not(:popover-open) {
+    display: none;
+  }
+
+  // Apparition et disparition, par le mixin partagé du système de motion.
+  @include utils.overlay-motion((opacity, scale)) {
+    opacity: 0;
+    scale: var(--ui-motion-scale, #{utils.$motion-scale});
+  }
+}

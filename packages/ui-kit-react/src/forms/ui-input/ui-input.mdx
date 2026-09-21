@@ -1,0 +1,104 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as InputStories from './ui-input.stories';
+
+<Meta of={InputStories} />
+
+# ui-input
+
+Champ texte composé : la coquille `ui-field` plus un `<input>` natif. Couvre tous les types
+texte, mot de passe compris.
+
+<Canvas of={InputStories.WithHelper} />
+
+## API
+
+<ArgTypes of={InputStories} />
+
+## Contrôlé ou non contrôlé
+
+C'est le contrat le plus important du composant, et il est le même pour **tous** les champs
+du kit.
+
+<table>
+  <thead>
+    <tr>
+      <th>Vous passez</th>
+      <th>Le champ est</th>
+      <th>Ce qui se passe</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>defaultValue</code>
+      </td>
+      <td>non contrôlé</td>
+      <td>Il garde son état. <code>onValueChange</code> vous prévient.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>value</code>
+      </td>
+      <td>contrôlé</td>
+      <td>
+        Il ne bouge que si vous lui rendez une nouvelle <code>value</code>. Ignorer{' '}
+        <code>onValueChange</code> le fige : c'est voulu.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<Canvas of={InputStories.Controlled} />
+
+C'est ce qui rend l'interopérabilité gratuite. `<Controller>` de react-hook-form fournit
+`value` et `onChange`, donc le champ est contrôlé **sans que le kit connaisse la
+librairie** :
+
+```tsx
+<Controller
+  name="email"
+  control={control}
+  render={({ field, fieldState }) => (
+    <UiInput
+      {...field}
+      onValueChange={field.onChange}
+      label="Adresse e-mail"
+      invalid={fieldState.invalid}
+      errorText={fieldState.error?.message}
+    />
+  )}
+/>
+```
+
+Et un formulaire natif, sans librairie, fonctionne en non contrôlé par le `name` du champ.
+
+## Icônes et zone d'action
+
+`iconLeft` et `iconRight` acceptent **un nom** (rendu par `ui-icon`) ou **un nœud** rendu tel
+quel.
+
+L'icône de droite devient une **zone d'action** : un vrai `<button>` carré sur toute la
+hauteur : dès qu'elle porte un `iconRightAriaLabel`. C'est le mécanisme qui sert à révéler
+un mot de passe ou à vider une recherche : pas de prop dédiée, un seul chemin.
+
+<Canvas of={InputStories.WithRightAction} />
+
+Sans nom accessible, pas de bouton. Un bouton sans nom est un piège pour un lecteur d'écran,
+pas une fonctionnalité.
+
+## Validation
+
+`invalid` force le rendu en erreur, et `errorText` remplace alors le texte d'aide. Le
+composant pose `aria-invalid` et chaîne l'identifiant du message dans `aria-describedby` :
+avec celui que vous fournissez, jamais à sa place.
+
+<Canvas of={InputStories.Invalid} />
+
+## Theming
+
+Le champ délègue l'essentiel de son apparence à `ui-field` : les points d'extension de la
+boîte, du libellé et du message sont documentés sur la page de cette coquille. Ce qui suit
+ne concerne que ce qui est propre à `ui-input`.
+
+<ConfigTable of="ui-input" />

@@ -1,0 +1,292 @@
+@use 'utils';
+@use 'sass:map';
+
+// =====================================================================
+// ui-menu : styles co-localisés.
+// =====================================================================
+
+// --- Config ------------------------------------------------------------
+$levels: high, low; /// Niveaux générant les modifieurs `._<niveau>`.
+
+/// Largeur minimale du panneau, géométrie et typo des entrées, par taille.
+$sizes: (
+  'default': (
+    min-width: var(--ui-menu-min-width, #{utils.rem-calc(210)}),
+    item-height: var(--ui-menu-item-height, #{utils.rem-calc(40)}),
+    item-padding-x: var(--ui-menu-item-padding-x, var(--units-md)),
+    font-size: var(--ui-menu-font-size, var(--size-typography-text-default)),
+    header-height: var(--ui-menu-header-height, #{utils.rem-calc(32)}),
+    header-font-size: var(--ui-menu-header-font-size, var(--size-typography-text-md)),
+  ),
+  'small': (
+    min-width: var(--ui-menu-min-width-small, #{utils.rem-calc(160)}),
+    item-height: var(--ui-menu-item-height-small, #{utils.rem-calc(32)}),
+    item-padding-x: var(--ui-menu-item-padding-x-small, var(--units-sm)),
+    font-size: var(--ui-menu-font-size-small, var(--size-typography-text-md)),
+    header-height: var(--ui-menu-header-height-small, #{utils.rem-calc(24)}),
+    header-font-size: var(--ui-menu-header-font-size-small, var(--size-typography-text-sm)),
+  ),
+);
+$size-default: map.get($sizes, 'default'); /// Raccourci vers l'entrée `default` de `$sizes`.
+
+$panel-surface: var(--ui-menu-panel-surface, var(--global-background-default)); /// Fond opaque du panneau (le jeton de surface `navigation` est transparent par nature).
+$item-radius: var(--ui-menu-item-radius, var(--radius-sm));                    /// Rayon des entrées.
+$group-indent: var(--ui-menu-group-indent, var(--units-default));              /// Indentation d'un groupe imbriqué.
+$panel-padding: var(--ui-menu-panel-padding, #{utils.$overlay-panel-padding}); /// Gouttière interne du panneau (**partagée** avec les autres panneaux flottants).
+$panel-gap: var(--ui-menu-gap, var(--units-2xs));                              /// Écart entre deux entrées.
+$focus-ring-width: var(--ui-menu-focus-ring-width, #{utils.$focus-ring-width}); /// Épaisseur de l'anneau de focus.
+
+@mixin menu-size($size) {
+  min-width: map.get($size, min-width);
+
+  .ui-menu-action {
+    min-height: map.get($size, item-height);
+    padding: 0 map.get($size, item-padding-x);
+    font-size: map.get($size, font-size);
+  }
+
+  .ui-menu-header {
+    min-height: map.get($size, header-height);
+    padding: 0 map.get($size, item-padding-x);
+    font-size: map.get($size, header-font-size);
+  }
+}
+
+.ui-menu {
+  display: flex;
+  flex-direction: column;
+  gap: $panel-gap;
+  box-sizing: border-box;
+  padding: $panel-padding;
+  @include utils.overlay-panel($panel-surface, transparent);
+  border: none;
+
+  @include menu-size($size-default);
+
+  // --- Sizes (toutes sauf `default`) ------------------------------------
+  @each $name, $size in $sizes {
+    @if $name != 'default' {
+      &._#{$name} { @include menu-size($size); }
+    }
+  }
+
+  // --- Lists ------------------------------------------------------------
+  &-list,
+  &-group {
+    display: flex;
+    flex-direction: column;
+    gap: $panel-gap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  // Un groupe repliable est indenté sous sa bascule.
+  &-group._nested {
+    padding-left: $group-indent;
+  }
+
+  &-section,
+  &-entry {
+    display: flex;
+    flex-direction: column;
+    gap: $panel-gap;
+  }
+
+  // --- En-tête de section (groupe non repliable) ------------------------
+  &-header {
+    display: flex;
+    align-items: center;
+    gap: var(--units-sm);
+    font-weight: var(--ui-menu-header-weight, var(--weight-bold)); /// Graisse de l'en-tête.
+    user-select: none;
+  }
+
+  // --- Entrée et bascule (coquille d'action partagée) -------------------
+  &-action {
+    display: flex;
+    align-items: center;
+    gap: var(--units-sm);
+    box-sizing: border-box;
+    width: 100%;
+    border: none;
+    border-radius: $item-radius;
+    background: none;
+    font-family: var(--ui-menu-font-family, var(--fontfamily-base)); /// Famille typographique de l'action.
+    font-size: map.get($size-default, font-size);
+    font-weight: var(--ui-menu-action-weight, var(--weight-regular)); /// Graisse de l'action.
+    line-height: 1.2;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    @include utils.control-transition(background-color, color, box-shadow);
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: inset 0 0 0 $focus-ring-width var(--ui-menu-action-focus-ring-color, var(--global-border-focus)); /// Couleur de l'anneau de focus d'une action.
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+
+  &-item-icon,
+  &-chevron {
+    flex-shrink: 0;
+    line-height: 0;
+  }
+
+  &-item-label {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  // Le chevron de bascule tourne avec l'état.
+  // `_open` et non `_expanded` : cette dernière est une classe utilitaire globale.
+  &-chevron {
+    margin-left: auto;
+    @include utils.motion-transition(rotate);
+
+    &._open {
+      rotate: 180deg;
+    }
+  }
+
+  // --- Sous-menu repliable (technique grid-rows) ------------------------
+  &-collapse {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    @include utils.motion-transition(grid-template-rows, opacity);
+
+    &._open {
+      grid-template-rows: 1fr;
+      opacity: 1;
+    }
+  }
+
+  &-collapse-inner {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  // --- Séparateur -------------------------------------------------------
+  // La sémantique est sur le `<li>` : le filet, lui, est décoratif.
+  &-separator {
+    border: none;
+  }
+
+  // --- Slots start / end ------------------------------------------------
+  &-start,
+  &-end {
+    padding: var(--units-2xs) map.get($size-default, item-padding-x);
+  }
+
+  // --- Couleurs (un jeu par niveau navigation) --------------------------
+  // La surface du panneau reste `global` (opaque) quel que soit le niveau :
+  // seules les entrées, en-têtes et séparateurs changent de famille.
+  @each $lvl in $levels {
+    &._#{$lvl} {
+      .ui-menu-header {
+        color: var(--ui-menu-header-color, var(--navigation-#{$lvl}-content-default)); /// Couleur d'un intitulé de groupe.
+      }
+
+      .ui-menu-action {
+        color: var(--ui-menu-action-color, var(--navigation-#{$lvl}-content-default)); /// Couleur d'une entrée de menu.
+
+        &:hover:not(:disabled) {
+          background-color: var(--ui-menu-action-surface-hover, var(--navigation-#{$lvl}-surface-hover)); /// Fond d'une entrée au survol (et d'un parent dont le sous-menu est ouvert).
+          color: var(--ui-menu-action-color-hover, var(--navigation-#{$lvl}-content-hover));              /// Couleur d'une entrée au survol.
+        }
+
+        &:active:not(:disabled) {
+          background-color: var(--ui-menu-action-surface-pressed, var(--navigation-#{$lvl}-surface-active)); /// Fond d'une entrée enfoncée.
+          color: var(--ui-menu-action-color-pressed, var(--navigation-#{$lvl}-content-active));              /// Couleur d'une entrée enfoncée.
+        }
+
+        // Parent dont le panneau latéral est ouvert : on garde l'aspect survolé.
+        &._sub-open:not(:disabled) {
+          background-color: var(--ui-menu-action-surface-hover, var(--navigation-#{$lvl}-surface-hover));
+          color: var(--ui-menu-action-color-hover, var(--navigation-#{$lvl}-content-hover));
+        }
+
+        // Entrée de la page courante.
+        &._active {
+          background-color: var(--ui-menu-action-surface-active, var(--navigation-#{$lvl}-surface-active)); /// Fond de l'entrée correspondant à la route courante.
+          color: var(--ui-menu-action-color-active, var(--navigation-#{$lvl}-content-active));              /// Couleur de l'entrée courante : elle n'est lisible que sur le fond `surface-active` qui l'accompagne.
+        }
+
+        &:disabled {
+          background-color: var(--ui-menu-action-surface-disabled, var(--navigation-#{$lvl}-surface-disabled)); /// Fond d'une entrée désactivée.
+          color: var(--ui-menu-action-color-disabled, var(--navigation-#{$lvl}-content-disabled));              /// Couleur d'une entrée désactivée.
+        }
+      }
+    }
+  }
+}
+
+// --- Panneaux flottants ------------------------------------------------
+// Le popup et les sous-menus en cascade vivent dans le CALQUE SUPÉRIEUR
+// (`popover="manual"`) : aucun z-index, et aucun rognage par un ancêtre en
+// `overflow: hidden`, ce qui est le défaut le plus pénible d'un menu posé dans
+// une zone défilante.
+//
+// Le style NAVIGATEUR d'un `[popover]` pose `inset: 0`, `margin: auto`,
+// `border`, `padding`, `background` ET `overflow: auto` : chacun doit être
+// neutralisé consciemment, comme pour le `<dialog>` de `ui-modal`.
+@mixin top-layer {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+
+  // Le `display: none` d'un popover fermé vient du style NAVIGATEUR, qu'un
+  // `display` d'auteur bat : il faut le redire, sinon le panneau fermé reste
+  // affiché par-dessus son propre déclencheur.
+  &:not(:popover-open) {
+    display: none;
+  }
+}
+
+.ui-menu._popup,
+.ui-menu._floating {
+  width: max-content;
+  max-width: calc(100vw - var(--units-lg));
+  max-height: calc(100vh - var(--units-lg));
+  overflow: auto;
+}
+
+.ui-menu._popup {
+  @include top-layer;
+  display: flex;
+
+  // Entrée et sortie, par le mixin partagé du système de motion.
+  @include utils.overlay-motion {
+    opacity: 0;
+    translate: 0 calc(-1 * var(--ui-motion-distance, #{utils.$motion-distance}));
+  }
+}
+
+// Le sous-menu en cascade n'est qu'un porteur de position : c'est le `ui-menu`
+// qu'il contient qui peint le panneau.
+.ui-menu-flyout {
+  @include top-layer;
+  display: block;
+  padding: 0;
+  border: none;
+  background: none;
+
+  // Le style navigateur d'un `[popover]` pose `overflow: auto`, et cette
+  // enveloppe fait EXACTEMENT la taille du panneau qu'elle porte : son ombre,
+  // peinte hors de la boîte, se faisait donc rogner sur les quatre côtés. Le
+  // même correctif existe déjà dans `ui-tooltip`.
+  overflow: visible;
+
+  // Entrée SEULE, en fondu : pas de glissement latéral, qui ferait passer le
+  // sous-menu par-dessus son parent, et pas de sortie, dont la fenêtre
+  // d'affichage exposait deux défauts. Voir `utils.overlay-motion-enter`.
+  @include utils.overlay-motion-enter {
+    opacity: 0;
+    scale: var(--ui-motion-scale, #{utils.$motion-scale});
+  }
+}

@@ -1,0 +1,103 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as BlockStories from './ui-toggle-block.stories';
+
+<Meta of={BlockStories} />
+
+# ui-toggle-block
+
+Bloc sélectionnable enveloppant une case, un bouton radio ou un interrupteur.
+
+<Canvas of={BlockStories.Checked} />
+
+## API
+
+<ArgTypes of={BlockStories} />
+
+## Ce qui rend toute la surface cliquable
+
+Un `<label for>` **étiré** couvre le bloc. C'est lui, et non un gestionnaire de clic, qui fait
+que cliquer n'importe où active le contrôle natif : on hérite donc de l'activation au clavier,
+de la zone de clic étendue et du comportement de sélection sans écrire une ligne de logique.
+
+Ce label est **vide** à dessein. C'est le corps du bloc qui nomme le contrôle, par
+`aria-labelledby`, ce qui permet de projeter n'importe quel balisage sans l'envelopper dans un
+`<label>`, qui n'accepte de toute façon pas de contenu interactif.
+
+Trois couches, et c'est cet ordre qui fait tout tenir :
+
+1. le **corps** dans le flux ;
+2. la **zone de clic** étirée au-dessus, pour qu'un clic sur le texte sélectionne le bloc ;
+3. l'**indicateur** et tout contenu interactif au-dessus d'elle, pour qu'ils gardent leur
+   propre comportement.
+
+<Canvas of={BlockStories.WithProjectedLink} />
+
+## L'indicateur
+
+`indicator` choisit entre `checkbox` (par défaut), `radio` et `toggle`. Ce n'est pas un dessin
+maison : c'est une **instance** de `ui-checkbox`, `ui-radio` ou `ui-toggle`, donc l'indicateur
+garde exactement l'allure, les états et la sémantique qu'il a seul.
+
+<Canvas of={BlockStories.Toggle} />
+
+Seule chose que le bloc leur retire : leur anneau de focus. C'est le bloc qui le dessine, et
+deux contours imbriqués dans la même zone de clic seraient illisibles.
+
+En mode `radio`, `blockValue` est **indispensable** : sans elle, tous les blocs du groupe
+partageraient la même identité. Un avertissement est émis en développement.
+
+<Canvas of={BlockStories.RadioGroup} />
+
+## Carte de sélection
+
+`hideIndicator` retire l'indicateur de la vue en le gardant **opérable** : focalisable,
+activable par le label, présent dans l'arbre d'accessibilité. C'est le bloc lui-même qui
+montre alors la sélection.
+
+<Canvas of={BlockStories.SelectionCard} />
+
+## Disposition
+
+<Canvas of={BlockStories.IndicatorEnd} />
+
+`align="start"` cale l'indicateur en haut, ce qu'il faut dès que le corps fait plusieurs
+lignes.
+
+<Canvas of={BlockStories.AlignStart} />
+
+`fluid` occupe toute la largeur du parent. Sans lui, un parent flex ou grid dimensionne le
+bloc à son contenu.
+
+<Canvas of={BlockStories.Small} />
+<Canvas of={BlockStories.Large} />
+
+## Accessibilité
+
+Le bloc **doit avoir un nom** : `label`, un contenu projeté, `aria-label` ou
+`aria-labelledby`. Un avertissement est émis en développement quand aucun des quatre n'est
+là.
+
+`aria-labelledby` prime sur `aria-label` dans la spécification, donc les deux ne sont jamais
+posés ensemble : un nom explicite remplace le corps, il ne s'y ajoute pas.
+
+Le focus se lit en deux temps, ce qui évite de cerner le bloc à chaque clic : la **bordure**
+répond à tout focus (`:focus-within`), l'**anneau** seulement au focus clavier.
+
+Un bloc en **lecture seule** reste focalisable, parce que sa valeur doit rester consultable.
+Le pointeur est coupé en CSS et le clavier gardé dans le composant ; le label perd son `for`,
+donc il n'active plus rien.
+
+<Canvas of={BlockStories.ReadOnly} />
+<Canvas of={BlockStories.Disabled} />
+<Canvas of={BlockStories.Invalid} />
+
+## Formulaires
+
+Contrôlé par `value` et `onValueChange`, non contrôlé par `defaultValue`. Les blocs forment un
+groupe **à la manière native** : même `name`, même modèle lié. `trueValue` et `falseValue`
+permettent un modèle non booléen en `checkbox` et `toggle`.
+
+## Theming
+
+<ConfigTable of="ui-toggle-block" />

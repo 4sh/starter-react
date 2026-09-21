@@ -1,0 +1,72 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as NudgerStories from './ui-nudger.stories';
+
+<Meta of={NudgerStories} />
+
+# ui-nudger
+
+Compteur numérique : `[moins] valeur [plus]`. Il compose deux `ui-button` en mode icône seule
+autour d'un affichage en lecture, et ne porte donc aucune couleur propre.
+
+<Canvas of={NudgerStories.Default} />
+
+## API
+
+<ArgTypes of={NudgerStories} />
+
+## Bornes
+
+`min` et `max` désactivent le bouton concerné, chacun de son côté. Ces états sont **dérivés de
+la valeur**, jamais des props : il n'existe pas de prop « au minimum ». C'est ce qui garantit
+qu'ils ne peuvent pas mentir.
+
+<Canvas of={NudgerStories.AtMin} />
+<Canvas of={NudgerStories.AtMax} />
+
+Un cran qui dépasserait la borne y est ramené, pas au-delà. Et si le cran ne change rien,
+aucun changement n'est émis : un consommateur ne reçoit pas deux fois la même valeur.
+
+<Canvas of={NudgerStories.Step} />
+
+## Apparence
+
+Le compteur transmet `level`, `variant`, `size` et `onColor` à ses deux boutons : toute la
+palette de `ui-button` est donc disponible sans que ce composant en connaisse une seule
+couleur.
+
+<Canvas of={NudgerStories.LevelLow} />
+<Canvas of={NudgerStories.Outlined} />
+<Canvas of={NudgerStories.OnColor} />
+
+## Affichage de la valeur
+
+`formatValue` n'habille que ce qui est **affiché**. Le modèle reste un nombre, et c'est ce
+nombre qui est émis.
+
+<Canvas of={NudgerStories.Formatted} />
+
+## Accessibilité
+
+Le compteur est un `role="group"` qui **doit être nommé** : un compteur sans nom ne dit pas ce
+qu'il compte. Un avertissement est émis en développement quand ni `aria-label` ni
+`aria-labelledby` ne sont fournis.
+
+Chaque bouton est un vrai `<button>`, donc atteignable au Tab et actionnable à Entrée comme à
+Espace, avec son propre nom accessible. La valeur est une **région vive** (`aria-live="polite"`)
+pour être annoncée à chaque cran, ce qu'un simple texte ne ferait pas.
+
+Le focus qui passe d'un bouton à l'autre ne compte pas comme une sortie : `onBlur` n'est
+notifié que quand le focus quitte le compteur pour de bon.
+
+<Canvas of={NudgerStories.Disabled} />
+<Canvas of={NudgerStories.Invalid} />
+
+## Formulaires
+
+Contrôlé par `value` et `onValueChange`, non contrôlé par `defaultValue`. Un `name` ajoute un
+porteur masqué, pour qu'un formulaire natif emporte la valeur.
+
+## Theming
+
+<ConfigTable of="ui-nudger" />

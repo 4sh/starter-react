@@ -1,0 +1,52 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as TextareaStories from './ui-textarea.stories';
+
+<Meta of={TextareaStories} />
+
+# ui-textarea
+
+Champ texte multiligne : la coquille `ui-field` en mode **multiligne**, plus un `<textarea>`
+natif. Même contrat contrôlé / non contrôlé que `ui-input`.
+
+<Canvas of={TextareaStories.WithHelper} />
+
+## API
+
+<ArgTypes of={TextareaStories} />
+
+## Hauteur
+
+Deux mécanismes, qui **ne coexistent pas** :
+
+- `resize` laisse l'utilisateur tirer la poignée native (`vertical` par défaut) ;
+- `autoResize` fait grandir la boîte avec le contenu, et retire la poignée.
+
+<Canvas of={TextareaStories.AutoResize} />
+
+Les activer ensemble se contredirait à la première frappe : une hauteur pilotée par le
+contenu écraserait celle que l'utilisateur vient de choisir. `autoResize` gagne donc, et
+force `resize: none`.
+
+Le recalcul remet la hauteur à `auto` avant de lire `scrollHeight` : celui d'un élément déjà
+agrandi ne redescend jamais, et sans cette remise à zéro la boîte ne rétrécirait pas quand on
+efface du texte. Il se fait avant la peinture, pour qu'aucune image intermédiaire à la
+mauvaise hauteur ne soit visible.
+
+## Compteur de caractères
+
+`showCount` pose un compteur dans le pied de la coquille, à côté du message.
+
+<Canvas of={TextareaStories.WithCount} />
+
+Son identifiant est **chaîné** à `aria-describedby`, avec celui du message : les deux
+décrivent le champ, et remplacer l'un par l'autre en perdrait un. Le dépassement de
+`maxLength` n'est atteignable que par programme : la saisie est bornée par le navigateur :
+mais il est signalé quand il arrive, plutôt que d'afficher un compte faux.
+
+## Theming
+
+Le champ délègue l'essentiel de son apparence à `ui-field` : les points d'extension de la
+boîte, du libellé et du message sont documentés sur la page de cette coquille.
+
+<ConfigTable of="ui-textarea" />

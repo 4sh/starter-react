@@ -1,0 +1,36 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { SharedConfigTable } from '../../blocks/config-table';
+
+<Meta title="Components/configuration/Global UI" />
+
+# Configuration : niveau GLOBAL UI
+
+Constantes structurelles qui s'appliquent à **tous** les composants interactifs
+(actions / forms / navigation). Éditer une valeur ici se répercute partout.
+
+> Fichier source : `packages/ui-kit-react/src/styles/settings/_ui-config.scss` · exposé via `@use 'utils'`.
+> Retour au [fonctionnement & sommaire](?path=/docs/components-configuration--docs).
+
+<SharedConfigTable group="global-ui" exclude={['motion-', 'overlay-panel-']} />
+
+## Panneaux flottants (`$overlay-panel-*`)
+
+Structure partagée des **panneaux flottants** (dropdown de `ui-menu`, calendrier de
+`ui-datepicker`, select/multiselect…), consommée via le mixin
+`utils.overlay-panel($surface, $stroke)`. Les **couleurs** ne sont pas ici : chaque
+composant passe sa propre famille de tokens au mixin (menu → `navigation.*`,
+forms → `form.*`) : re-styler une famille n'impacte pas les autres. Échappatoire
+par instance via les custom properties `--ui-overlay-radius` / `--ui-overlay-shadow` /
+`--ui-overlay-surface` / `--ui-overlay-stroke`.
+
+<SharedConfigTable group="global-ui" prefix="overlay-panel-" />
+
+> Consommée par : `ui-menu`, `ui-datepicker`, `ui-select`, `ui-autocomplete`, `ui-popover`.
+
+## Motion (`$motion-*`)
+
+Timing partagé du **système de motion** (presets d'entrée/sortie + transitions d'état).
+Consommé par `utils.motion-transition()`, `base/_motion.scss` et la directive `[uiMotion]`.
+Surchargeable par élément via les custom properties `--ui-motion-*`. Voir **Foundations → Motion**.
+
+<SharedConfigTable group="global-ui" prefix="motion-" />

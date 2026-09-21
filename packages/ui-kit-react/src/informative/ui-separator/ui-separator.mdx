@@ -1,0 +1,35 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as SeparatorStories from './ui-separator.stories';
+
+<Meta of={SeparatorStories} />
+
+# ui-separator
+
+Séparation entre deux contenus, visuelle et sémantique. Un `label` la transforme en
+séparateur titré : le filet se coupe pour laisser passer le texte.
+
+<Canvas of={SeparatorStories.LabelAlign} />
+
+## API
+
+<ArgTypes of={SeparatorStories} />
+
+## Orientation
+
+En horizontal, le composant prend toute la largeur disponible. En vertical, il prend la
+hauteur de son parent : celui-ci doit donc en avoir une, sinon le filet ne se voit pas.
+
+<Canvas of={SeparatorStories.Vertical} />
+
+## Accessibilité
+
+Le composant rend un `role="separator"` avec son `aria-orientation`. Un séparateur titré
+prend son `label` comme nom accessible, remplaçable par `aria-label`.
+
+Les filets eux-mêmes sont masqués aux lecteurs d'écran : ce sont des traits, la sémantique
+est déjà portée par le rôle.
+
+## Theming
+
+<ConfigTable of="ui-separator" />

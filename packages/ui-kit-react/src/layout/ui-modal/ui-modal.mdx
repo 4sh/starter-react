@@ -1,0 +1,121 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as ModalStories from './ui-modal.stories';
+
+<Meta of={ModalStories} />
+
+# ui-modal
+
+Fenêtre de dialogue, bâtie sur le **`<dialog>` natif**.
+
+<Canvas of={ModalStories.Opened} />
+
+## API
+
+<ArgTypes of={ModalStories} />
+
+## Les exemples démarrent fermés
+
+Un seul exemple de cette page s'ouvre d'emblée, celui du haut, pour montrer l'anatomie du
+dialogue. Tous les autres partent **fermés** et s'ouvrent par leur bouton.
+
+Ce n'est pas un détail de présentation. Un dialogue ouvert au montage masque son propre
+déclencheur, et sur une page de doc tous les exemples s'ouvriraient en même temps : on croit
+alors que le dialogue ne se ferme pas, alors qu'on en ferme un parmi dix. Il revient en plus à
+chaque remontage de la story.
+
+## Ce que le navigateur fait, et ce que le composant ajoute
+
+C'est la différence la plus nette avec la version Angular, qui reconstruit tout à la main.
+
+Le navigateur prend en charge le **piège de focus**, la **restitution du focus** à la
+fermeture, l'**inertie de l'arrière-plan**, l'**empilement** de plusieurs dialogues, l'écran
+assombri (`::backdrop`) et la touche **Échap**. Rien de tout cela n'est écrit ici.
+
+Le composant ajoute ce qui manque : le blocage du défilement de fond (mesuré absent), la
+fermeture au clic sur l'arrière-plan, les neuf positions, le glissement, le redimensionnement
+et l'agrandissement.
+
+Le relevé qui a mené là est dans « Spécifications / Couches et focus ».
+
+### Un piège à connaître
+
+Un `<dialog>` s'ouvre par une **méthode**, pas par un attribut. Poser `open` en JSX rend bien
+le dialogue, mais **sans** calque supérieur, sans arrière-plan et sans piège de focus : il
+ressemble à un dialogue sans en être un. C'est pour cela que ce composant appelle
+`showModal()` dans un effet, et jamais `<dialog open>`.
+
+## Modal ou non
+
+`modal` (par défaut) ouvre par `showModal()` : arrière-plan assombri et inerte, défilement
+bloqué, focus enfermé. `modal={false}` ouvre par `show()` : le dialogue flotte, mais la page
+derrière reste utilisable.
+
+<Canvas of={ModalStories.NonModal} />
+
+`dismissableMask` ajoute la fermeture au clic sur l'arrière-plan. Elle ne s'applique qu'au
+mode modal, puisqu'un dialogue non modal n'a **pas** d'arrière-plan à cliquer. Un dialogue
+`contained` non plus : son cadre n'est pas un arrière-plan, c'est un ancêtre positionné.
+
+<Canvas of={ModalStories.DismissableMask} />
+
+## Cantonner le dialogue
+
+`contained` cale le dialogue sur le premier ancêtre positionné au lieu de l'écran, et ne
+bloque pas le défilement. C'est ce qui permet aux exemples de cette page de rester dans leur
+vignette au lieu de recouvrir la documentation.
+
+## Positions, glissement, redimensionnement
+
+Neuf ancrages, réglés par la marge du dialogue. `draggable` le rend déplaçable par son
+en-tête, `resizable` par son coin inférieur droit, `maximizable` ajoute la bascule plein
+écran.
+
+<Canvas of={ModalStories.Positions} />
+
+Le glissement passe par la propriété `translate` et non par `transform` : les deux sont
+indépendantes, donc une animation d'ouverture qui pilote `transform` ne se bat pas avec la
+position acquise.
+
+## Animation d'ouverture et de fermeture
+
+Le dialogue entre et sort en fondu, avec un préréglage de mouvement (`motion`) : `zoom` par
+défaut, ou un fondu simple, ou un glissement. L'arrière-plan, lui, fait toujours un fondu :
+c'est ce qui rattache le dialogue à la page, quel que soit le mouvement choisi.
+
+<Canvas of={ModalStories.Motions} />
+
+L'animation est **entièrement en CSS**, sans une ligne de JavaScript. Là où la version Angular
+a besoin d'une directive et de `animate.enter` / `animate.leave` pour garder le nœud sortant
+dans le DOM le temps de l'animation, la plateforme le fait seule :
+`transition-behavior: allow-discrete` laisse `display` et `overlay` s'animer, et
+`@starting-style` fournit l'état de départ d'un élément qui vient d'entrer dans le calque
+supérieur.
+
+La durée, la courbe, la distance et l'échelle viennent du système de motion
+(`--ui-motion-duration`, `--ui-motion-easing`, `--ui-motion-distance`, `--ui-motion-scale`).
+`motionDisabled` coupe l'animation pour un dialogue donné, et l'interrupteur
+`data-motion="off"` du kit comme la préférence système de mouvement réduit la coupent partout.
+
+<Canvas of={ModalStories.MotionDisabled} />
+
+## Accessibilité
+
+Un dialogue **doit avoir un nom**. Il vient de `header`, ou d'`aria-label` quand l'en-tête est
+masqué ; sans lui, un avertissement est émis en développement.
+
+<Canvas of={ModalStories.WithoutHeader} />
+
+Le **corps défilant** devient un arrêt de tabulation, mais seulement s'il déborde **et** ne
+contient rien de focalisable. Sans cela, un utilisateur au clavier ne pourrait pas faire
+défiler un texte long ; avec un `tabindex` inconditionnel, on ajouterait un arrêt inutile à
+tous les dialogues. La condition est **mesurée** au rendu, le contenu étant projeté.
+
+<Canvas of={ModalStories.LongContent} />
+
+Un dialogue non fermable refuse Échap en annulant l'événement `cancel` : c'est la seule façon
+de retenir le navigateur, qui ne demande pas la permission.
+
+## Theming
+
+<ConfigTable of="ui-modal" />

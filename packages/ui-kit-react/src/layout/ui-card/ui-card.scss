@@ -1,0 +1,139 @@
+@use 'utils';
+
+// =====================================================================
+// ui-card : co-located styles. All values come from design tokens.
+//
+// Regions (media / header / content / footer) are rendered by the template
+// only when they hold content, so there is no empty-wrapper gap to guard here.
+//
+// Extend:
+//   • Variant (surface treatment) → add a `._<name>` block below.
+// =====================================================================
+
+// --- Config (extension points) ---------------------------------------
+// Local structural constants : retune here to detune ONLY this component.
+$card-padding: var(--ui-card-padding, var(--units-lg));            /// Inset du corps.
+$card-gap: var(--ui-card-gap, var(--units-md));                    /// Espacement entre en-tête / contenu / pied.
+$card-header-gap: var(--ui-card-header-gap, var(--units-2xs));     /// Espacement titre ↔ sous-titre.
+$card-footer-gap: var(--ui-card-footer-gap, var(--units-sm));      /// Espacement entre éléments du pied.
+$card-radius: var(--ui-card-radius, var(--radius-md));             /// Rayon des coins.
+$card-stroke-width: var(--ui-card-stroke-width, var(--stroke-sm)); /// Épaisseur de bordure.
+
+.ui-card {
+  // --- Base ----------------------------------------------------------
+  // Read-only mirror of the gutter: a consumer re-applies it inside a flush
+  // content region. Distinct from the `--ui-card-padding` override it resolves,
+  // since a custom property cannot reference itself.
+  --ui-card-gutter: #{$card-padding}; /// Gouttière relisible pour regouttiérer un contenu `contentFlush` (surcharge : `--ui-card-padding`).
+
+  // Côté Angular, l'hôte portait la boîte et `.ui-card` la remplissait par
+  // `flex: 1 1 auto`. Sans hôte, cette classe EST la boîte : elle reprend les
+  // règles de l'hôte et laisse tomber le `flex`, qui ferait maintenant grandir
+  // la carte dans la rangée du consommateur au lieu de remplir un parent.
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; // clips full-bleed media to the rounded corners
+
+  // Pas de largeur intrinsèque : un parent bloc donne déjà 100 %, un parent
+  // flex ou grille dimensionne au contenu sauf demande contraire.
+  &._fluid { width: 100%; }
+  background-color: var(--ui-card-surface, var(--global-background-default)); /// Fond de la carte.
+  border: $card-stroke-width solid transparent;
+  border-radius: $card-radius;
+  color: var(--ui-card-color, var(--global-text-default));                    /// Couleur du texte de la carte.
+  font-family: var(--ui-card-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+
+  // --- Sub-elements --------------------------------------------------
+  // Full-bleed media: no padding, spans the full width, clipped by the root.
+  &-media {
+    display: flex;
+    overflow: hidden;
+
+    // Media content fills the region without overflowing.
+    ::ng-deep img,
+    ::ng-deep svg,
+    ::ng-deep ui-image,
+    ::ng-deep picture {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  // Region holding header + content + footer.
+  // Vertical inset lives here; horizontal gutter is per-region so the content
+  // slot can opt out (`._flush`) while header/footer stay padded.
+  &-body {
+    display: flex;
+    flex-direction: column;
+    gap: $card-gap;
+    padding-block: $card-padding;
+  }
+
+  &-header {
+    display: flex;
+    flex-direction: column;
+    gap: $card-header-gap;
+    padding-inline: $card-padding;
+  }
+
+  // Flex row so inline adornments (tag, icon, badge) center on the title text.
+  &-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--units-sm);
+    font-family: var(--ui-card-title-font-family, var(--fontfamily-title)); /// Famille typographique du titre.
+    font-size: var(--size-typography-title-default);
+    font-weight: var(--ui-card-weight, var(--weight-bold)); /// Graisse du titre.
+    line-height: 1.2;
+    color: var(--ui-card-title-color, var(--global-text-default)); /// Couleur du titre.
+  }
+
+  &-subtitle {
+    font-size: var(--size-typography-text-md);
+    line-height: 1.4;
+    color: var(--ui-card-subtitle-color, var(--global-text-muted)); /// Couleur du sous-titre.
+  }
+
+  &-content {
+    padding-inline: $card-padding;
+    font-size: var(--size-typography-text-md);
+    line-height: 1.5;
+    color: var(--ui-card-content-color, var(--global-text-default)); /// Couleur du corps de la carte.
+
+    // Full-bleed content: consumer owns the inner gutters.
+    &._flush {
+      padding-inline: 0;
+    }
+
+    // Guard: an empty default slot must not add to the body gap.
+    &._empty {
+      display: none;
+    }
+  }
+
+  // Footer aligned to the end by default.
+  // A full-width child (e.g. a Gridaflex `flex-x` group) overrides this to lay
+  // out its own distribution (tags left / action right, etc.).
+  &-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: $card-footer-gap;
+    padding-inline: $card-padding;
+  }
+
+  // --- Variants (surface treatment) ----------------------------------
+  &._outlined {
+    border-color: var(--ui-card-stroke, var(--global-border-subtle)); /// Couleur de bordure de la carte, variante `outlined`.
+  }
+
+  &._elevated {
+    box-shadow: var(--shadow-default-md);
+  }
+
+  // `._flat` keeps the base (transparent border, no shadow) : no rule needed.
+}

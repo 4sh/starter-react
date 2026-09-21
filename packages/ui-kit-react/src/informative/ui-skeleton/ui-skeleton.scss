@@ -1,0 +1,148 @@
+@use 'utils';
+@use 'sass:map';
+
+// =====================================================================
+// ui-skeleton : co-located styles. All values come from design tokens.
+//
+// Extend:
+//   • Shape → add an entry to $shapes (base dimensions + radius).
+//   • Size  → add per-shape overrides to $small (or a new size map).
+// =====================================================================
+
+// --- Config (extension points) ---------------------------------------
+// Base dimensions per shape (the `default` size).
+/// Dimensions et rayon de base, par forme.
+$shapes: (
+  'text': (
+    width: var(--ui-skeleton-text-width, #{utils.rem-calc(224)}),
+    height: var(--ui-skeleton-text-height, #{utils.rem-calc(20)}),
+    radius: var(--ui-skeleton-text-radius, var(--radius-xl)),
+  ),
+  'circle': (
+    width: var(--ui-skeleton-circle-width, #{utils.rem-calc(100)}),
+    height: var(--ui-skeleton-circle-height, #{utils.rem-calc(100)}),
+    radius: var(--ui-skeleton-circle-radius, var(--radius-full)),
+  ),
+  'rectangle': (
+    width: var(--ui-skeleton-rectangle-width, #{utils.rem-calc(100)}),
+    height: var(--ui-skeleton-rectangle-height, #{utils.rem-calc(100)}),
+    radius: var(--ui-skeleton-rectangle-radius, var(--radius-default)),
+  ),
+);
+
+// `small` size: per-shape overrides (only the keys that change).
+/// Surcharges de la variante `small`, par forme.
+$small: (
+  'text': (
+    height: var(--ui-skeleton-text-height-small, #{utils.rem-calc(12)}),
+  ),
+  'circle': (
+    width: var(--ui-skeleton-circle-width-small, #{utils.rem-calc(64)}),
+    height: var(--ui-skeleton-circle-height-small, #{utils.rem-calc(64)}),
+  ),
+  'rectangle': (
+    width: var(--ui-skeleton-rectangle-width-small, #{utils.rem-calc(64)}),
+    height: var(--ui-skeleton-rectangle-height-small, #{utils.rem-calc(64)}),
+  ),
+);
+
+// The mode-dependent default travels through a private variable, so the public
+// hook keeps winning in dark mode instead of being shadowed by the override.
+$shine: var(--ui-skeleton-shine, var(--_shine, rgba(255, 255, 255, 0.6))); /// Teinte du reflet glissant de l’animation `wave`.
+
+.ui-skeleton {
+  display: block;
+  flex: none;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--ui-skeleton-background, var(--global-background-muted)); /// Couleur de fond de la boîte du placeholder.
+
+  // --- Reflection sweep (base animation) -----------------------------
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      $shine 50%,
+      transparent 100%
+    );
+    will-change: transform;
+    animation: ui-skeleton-wave 1.6s ease-in-out infinite;
+  }
+
+  // --- Shapes (base = `default` size) --------------------------------
+  @each $name, $s in $shapes {
+    &._#{$name} {
+      width: map.get($s, width);
+      height: map.get($s, height);
+      border-radius: map.get($s, radius);
+    }
+  }
+
+  // Circle stays round when only one dimension is overridden.
+  &._circle {
+    aspect-ratio: 1 / 1;
+  }
+
+  // --- Small size overrides ------------------------------------------
+  @each $name, $s in $small {
+    &._#{$name}._small {
+      @if map.has-key($s, width) {
+        width: map.get($s, width);
+      }
+      height: map.get($s, height);
+    }
+  }
+
+  // --- Pulse animation (opacity blink instead of the sweep) ----------
+  &._pulse {
+    animation: ui-skeleton-pulse 1.5s ease-in-out infinite;
+
+    &::after {
+      content: none;
+    }
+  }
+
+  // --- No animation --------------------------------------------------
+  &._static::after {
+    content: none;
+  }
+}
+
+// Sans encapsulation, un sélecteur d'ancêtre ordinaire suffit : côté Angular
+// il fallait `:host-context()`, l'attribut de scoping se posant aussi sur
+// l'ancêtre.
+[data-theme='dark'] .ui-skeleton,
+.dark .ui-skeleton {
+  --_shine: rgba(255, 255, 255, 0.09);
+}
+
+// --- Keyframes -------------------------------------------------------
+@keyframes ui-skeleton-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@keyframes ui-skeleton-wave {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+// --- Mouvement réduit ------------------------------------------------
+// `motion-reduce` couvre les deux cas d'un coup : la préférence système et
+// l'interrupteur `data-motion="off"` du kit.
+.ui-skeleton {
+  @include utils.motion-reduce {
+    animation: none;
+
+    &::after {
+      animation: none;
+      opacity: 0;
+    }
+  }
+}

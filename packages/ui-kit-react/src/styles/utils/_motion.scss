@@ -1,0 +1,143 @@
+// =====================================================================
+// Motion mixins : shared timing recipes for the motion system.
+//
+// Emit nothing by themselves. Durations/easings come from `ui-config`
+// ($motion-*, mapped to `--transition-*` tokens) and are overridable per
+// instance through the `--ui-motion-*` custom properties, so a single
+// element can be re-timed (or disabled) without touching the tokens.
+//
+// Two complementary primitives:
+//   • `motion-transition()` : state-toggle transitions (open/close, show/hide).
+//   • `motion-reduce`        : the reduced-motion guard (`@content` sink).
+// Enter/leave keyframe presets live in `base/_motion.scss` (global classes).
+// =====================================================================
+
+@use 'sass:list';
+@use '../settings/ui-config';
+
+/// Transition recipe timed by the motion system.
+/// Duration/easing/delay resolve from `--ui-motion-*` (per-instance override)
+/// falling back to the motion tokens. Easing defaults to the symmetric curve.
+/// e.g. @include utils.motion-transition(opacity, translate);
+@mixin motion-transition($properties...) {
+  $transitions: ();
+  @each $property in $properties {
+    $transitions: list.append(
+      $transitions,
+      $property var(--ui-motion-duration, #{ui-config.$motion-duration-base})
+        var(--ui-motion-easing, #{ui-config.$motion-easing-standard})
+        var(--ui-motion-delay, 0ms),
+      comma
+    );
+  }
+  transition: $transitions;
+}
+
+/// Entrée et sortie d'un panneau du CALQUE SUPÉRIEUR (`<dialog>`, `[popover]`).
+///
+/// Là où la version Angular a besoin d'une directive et de `animate.enter` /
+/// `animate.leave` pour garder le nœud sortant dans le DOM le temps de
+/// l'animation, la plateforme le fait seule : `transition-behavior:
+/// allow-discrete` laisse `display` et `overlay` s'animer, et
+/// `@starting-style` fournit l'état de départ d'un élément qui vient d'entrer
+/// dans le calque. Zéro JavaScript, et la sortie marche aussi.
+///
+/// Le `@content` décrit l'état FERMÉ, qui sert des deux côtés : point de départ
+/// de l'entrée, point d'arrivée de la sortie.
+///
+/// e.g. @include utils.overlay-motion { opacity: 0; scale: 0.96; }
+@mixin overlay-motion($properties: (opacity, translate, scale)) {
+  transition-property: list.join((display, overlay), $properties, $separator: comma);
+  transition-duration: var(--ui-motion-duration, #{ui-config.$motion-duration-base});
+  // Un seul crochet pour les deux sens, `--ui-motion-easing`, qui est celui que
+  // `motion-transition` expose déjà. Les courbes par sens restent des JETONS :
+  // un consommateur qui veut retimer un exemplaire règle les deux d'un coup,
+  // ce qui est le cas courant, et n'a pas deux noms à retenir.
+  transition-timing-function: var(--ui-motion-easing, #{ui-config.$motion-easing-enter});
+  transition-delay: var(--ui-motion-delay, 0ms);
+  transition-behavior: allow-discrete;
+
+  // Un sélecteur unique pour les deux familles : un `<dialog>` fermé n'a pas
+  // d'attribut `open`, un `[popover]` fermé ne matche pas `:popover-open`.
+  //
+  // `[data-unpositioned]` rejoint l'état fermé : un panneau dont la position
+  // n'est pas encore calculée ne doit pas être peint, `computePosition` étant
+  // asynchrone. Sans ça il apparaît une image au mauvais endroit puis se
+  // replace, ce qui se voit. L'attribut retiré, la transition d'entrée part de
+  // cet état, donc l'animation reste entière.
+  &:not(:popover-open):not([open]),
+  &[data-unpositioned] {
+    @content;
+  }
+
+  @starting-style {
+    &:popover-open,
+    &[open] {
+      @content;
+    }
+  }
+
+  // La sortie accélère là où l'entrée décélère : c'est la convention du système.
+  // `[data-unpositioned]` n'est pas visé : c'est une ATTENTE d'entrée, pas une
+  // sortie, et elle doit garder la courbe d'entrée.
+  &:not(:popover-open):not([open]) {
+    transition-timing-function: var(--ui-motion-easing, #{ui-config.$motion-easing-leave});
+  }
+
+  @include motion-reduce {
+    transition-duration: 0.01ms;
+  }
+}
+
+/// Entrée SEULE d'un panneau du calque supérieur : la sortie est instantanée.
+///
+/// Pour un panneau dont l'ancre peut disparaître sous lui, typiquement un
+/// sous-menu en cascade dont l'item parent vit dans le panneau qui se ferme.
+/// `allow-discrete` garderait le panneau AFFICHÉ le temps de sa sortie, et dans
+/// cette fenêtre deux défauts se voient : le panneau glisse par-dessus son
+/// parent, et une ancre qui perd sa géométrie le recadre en haut à gauche de
+/// l'écran. Une sortie instantanée supprime la fenêtre, ce qui est aussi le
+/// choix du kit Angular, dont la directive n'anime que l'insertion.
+///
+/// La transition n'est déclarée que sur l'état OUVERT : à la fermeture il n'y a
+/// donc rien à interpoler, et le panneau disparaît net.
+///
+/// e.g. @include utils.overlay-motion-enter { opacity: 0; scale: 0.96; }
+@mixin overlay-motion-enter($properties: (opacity, scale)) {
+  &:popover-open,
+  &[open] {
+    transition-property: $properties;
+    transition-duration: var(--ui-motion-duration, #{ui-config.$motion-duration-base});
+    transition-timing-function: var(--ui-motion-easing, #{ui-config.$motion-easing-enter});
+    transition-delay: var(--ui-motion-delay, 0ms);
+  }
+
+  &:not(:popover-open):not([open]),
+  &[data-unpositioned] {
+    @content;
+  }
+
+  @starting-style {
+    &:popover-open,
+    &[open] {
+      @content;
+    }
+  }
+
+  @include motion-reduce {
+    transition-duration: 0.01ms;
+  }
+}
+
+/// Reduced-motion guard. Wrap the neutralising declarations you want applied
+/// when the user asked for less motion (or the global kill-switch is on).
+/// e.g. @include utils.motion-reduce { transition-duration: 0.01ms; }
+@mixin motion-reduce {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+
+  :root[data-motion='off'] & {
+    @content;
+  }
+}

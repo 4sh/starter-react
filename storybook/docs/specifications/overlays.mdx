@@ -1,0 +1,177 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Spécifications/Couches et focus" />
+
+# Couches et focus
+
+Les briques que partagent les composants à panneau flottant : `ui-select`, `ui-autocomplete`,
+`ui-datepicker`, `ui-menu`, `ui-context-menu`, `ui-popover`, `ui-tooltip`, `ui-modal`,
+`ui-drawer`.
+
+Elles vivent dans `@4sh/ui-kit-react/overlay` et `@4sh/ui-kit-react/focus`. Un composant ne
+réimplémente aucune de ces mécaniques : il compose ces crochets.
+
+## Ce que la plateforme fait déjà
+
+Le point de départ de ces briques n'est pas « quelle librairie prendre », mais « que reste-t-il
+à écrire ». Relevé dans un navigateur réel avant d'écrire la première ligne :
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Capacité</th>
+      <th>Qui s'en charge</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Piège de focus modal</td>
+      <td><code>&lt;dialog&gt;.showModal()</code>, nativement</td>
+    </tr>
+    <tr>
+      <td>Restitution du focus</td>
+      <td><code>&lt;dialog&gt;.close()</code> et <code>popover="auto"</code>, nativement</td>
+    </tr>
+    <tr>
+      <td>Arrière-plan inerte</td>
+      <td>Calque supérieur, ou l'attribut <code>inert</code></td>
+    </tr>
+    <tr>
+      <td>Fermeture au clic extérieur</td>
+      <td><code>popover="auto"</code>, sans une ligne de JavaScript</td>
+    </tr>
+    <tr>
+      <td>Couche supérieure, arrière-plan</td>
+      <td><code>::backdrop</code>, <code>:popover-open</code></td>
+    </tr>
+    <tr>
+      <td>Blocage du défilement de fond</td>
+      <td><strong><code>useUiScrollLock</code></strong> : la plateforme ne le fait pas</td>
+    </tr>
+    <tr>
+      <td>Positionnement ancré</td>
+      <td><strong><code>useUiPosition</code></strong> : Floating UI, pas encore le CSS partout</td>
+    </tr>
+  </tbody>
+</table>
+
+D'où une règle simple pour les composants à venir : **un panneau modal est un `<dialog>`, un
+panneau non modal porte `popover`**. Les briques ci-dessous comblent ce que ces deux-là ne
+couvrent pas.
+
+⚠️ **La restitution du focus s'arrête à `popover="auto"`.** La spécification n'enregistre
+l'élément focalisé avant l'ouverture que pour un popover `auto` : un `popover="manual"` se
+ferme donc sans rendre le focus à personne, et l'utilisateur le retrouve sur `<body>`. C'est
+mesuré, et ça concerne tous les panneaux du kit qui prennent `manual` pour garder la main sur
+la fermeture : `ui-select`, `ui-autocomplete`, `ui-menu`, `ui-context-menu`. Chacun rend donc
+le focus lui-même, et vérifie d'abord qu'il était **dans** le panneau, sans quoi ce serait un
+vol de focus.
+
+Le raisonnement complet, et les trois dépendances refusées sur cette base, sont dans
+`docs/DECISIONS.md`.
+
+## `useUiPosition`
+
+Ancre un panneau sur un élément, avec détection de collision, retournement et suivi du
+défilement.
+
+```tsx
+const { setAnchor, setPanel, panelStyle, placement } = useUiPosition({
+  placement: 'bottom-start',
+  matchWidth: true,
+  open,
+});
+
+<button ref={setAnchor}>Ouvrir</button>
+<div ref={setPanel} style={panelStyle} data-placement={placement}>…</div>
+```
+
+`setAnchor` et `setPanel` sont des refs de **rappel**, pas des objets `RefObject` : les
+destructurer en haut du composant, plutôt que de lire `position.setPanel` au fil du rendu.
+
+Deux réglages moins évidents. `offset` accepte la forme `{ main, cross }` : l'axe transverse
+sert à faire coïncider un **contenu** avec celui de l'ancre plutôt que les deux boîtes, ce qui
+est ce qui aligne le premier item d'un sous-menu en cascade sur son item parent. Et
+`anchorPoint` remplace l'élément d'ancrage par un simple **point** du viewport, pour ce qui ne
+s'ancre à rien : un menu contextuel s'ancre sur le pointeur.
+
+`isPositioned` dit si la position a déjà été calculée. Il compte : `computePosition` est
+**asynchrone**, donc entre l'ouverture et sa réponse le panneau porte encore la position
+d'avant, et peindre cette image donne le panneau qui apparaît ailleurs puis se replace. Un
+panneau porte donc `data-unpositioned` tant qu'elle vaut `false`, et
+`utils.overlay-motion` le garde dans son état fermé, invisible. Les **huit** panneaux
+flottants du kit le posent. L'attribut retiré, la
+transition d'entrée part de cet état : l'animation reste entière.
+
+⚠️ Une ancre **élément** qu'on déplacerait en CSS n'est pas resuivie : `autoUpdate` observe le
+défilement et les redimensionnements, pas un déplacement d'auteur. Une ancre mobile est donc
+un `anchorPoint`, dont le changement de coordonnées suffit à replacer le panneau. Et
+`computePosition` étant **asynchrone**, le premier rendu après une ouverture porte encore la
+position d'avant : un test de placement passe par `expect.poll`.
+
+C'est le seul fichier du kit qui importe Floating UI, et `pnpm deps:check` le vérifie.
+
+## Entrée seule : `utils.overlay-motion-enter`
+
+`transition-behavior: allow-discrete` garde un panneau **affiché** le temps de sa sortie.
+C'est ce qui rend la sortie animable sans JavaScript, et c'est aussi une fenêtre pendant
+laquelle ce que la fermeture devait cacher reste visible. Mesuré sur un sous-menu en cascade :
+180 ms pendant lesquels il glisse par-dessus son panneau parent.
+
+Quand un panneau n'a pas de raison de survivre à sa fermeture, sa sortie doit donc être
+instantanée : `utils.overlay-motion-enter` ne déclare la transition que sur l'état ouvert, si
+bien qu'il n'y a rien à interpoler à la fermeture. C'est aussi le choix du kit Angular, dont
+la directive n'anime que l'insertion.
+
+## `useUiDismiss`
+
+Ferme un panneau au clic extérieur et sur Échap, pour les panneaux qui ne sont pas des
+`popover` natifs.
+
+Deux détails y sont figés, parce qu'ils se retrouvent sinon à être redécouverts composant par
+composant.
+
+Le clic se juge sur **`pointerdown`**, jamais sur `click` : un `click` n'existe que si la
+pression et le relâchement ont lieu sur le même élément. Une sélection de texte commencée dans
+le panneau et relâchée dehors ne produirait aucun `click`, et le panneau resterait ouvert.
+
+Échap n'est consommée **que si elle ferme quelque chose**. Sans cette règle, la même touche
+fermerait aussi le `ui-modal` qui contient le panneau, et l'utilisateur en perdrait deux d'un
+coup.
+
+## `useUiScrollLock`
+
+Fige le défilement de l'arrière-plan. Compense la largeur de la barre de défilement, sans quoi
+la page saute latéralement à l'ouverture. Les verrous sont **comptés** : un tiroir ouvert
+depuis une fenêtre modale ne rend pas le défilement en se fermant.
+
+## `useCloseOnNavigation`
+
+Ferme le panneau quand la **page** change. Un panneau monté dans une coquille d'application
+survit à la navigation : il resterait ouvert par-dessus la page suivante, et se replacerait en
+haut à gauche dès qu'on le repositionne, son ancre ayant disparu.
+
+La brique écoute l'API History et non un routeur : le kit n'en impose aucun. Réécrire la
+requête ou le fragment ne ferme pas, seul le chemin compte.
+
+## `useRovingTabIndex`
+
+Un seul arrêt de tabulation pour tout un groupe, les flèches naviguant à l'intérieur. C'est ce
+que le clavier attend d'une liste, d'un menu ou d'un groupe de boutons : un groupe de vingt
+entrées qui serait vingt arrêts rendrait le reste de la page inatteignable.
+
+Une flèche **hors axe** n'est pas consommée : dans une liste verticale, la flèche droite doit
+continuer à déplacer le curseur d'un champ de saisie.
+
+## `focusableWithin` et `focusFirstWithin`
+
+Le sélecteur des éléments atteignables au clavier, et la pose du focus à l'ouverture d'un
+panneau. Un panneau sans élément focalisable reçoit le focus lui-même : sinon le focus resterait
+en arrière et Échap n'atteindrait jamais le panneau.
+
+## Vérifier ces briques
+
+Un piège à connaître : le **light-dismiss natif** de `popover` et de `<dialog>` ne réagit pas
+aux événements synthétiques. Un `document.body.click()` ou un `KeyboardEvent` fabriqué ne ferme
+rien, mesuré. Les tests du kit tournent dans un vrai navigateur avec de vraies interactions,
+mais un test qui dispatche un événement à la main ne prouverait rien sur ces chemins.

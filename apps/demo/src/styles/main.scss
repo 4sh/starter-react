@@ -1,0 +1,23 @@
+// =====================================================================
+// Feuille de l'application de démonstration.
+//
+// Ne contient QUE ce qui est propre à la démo. La fondation du kit (jetons,
+// couche de base, utilitaires) est importée depuis le paquet dans `main.tsx` :
+// une application ne redéclare jamais les jetons.
+// =====================================================================
+
+.demo-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--units-lg);
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: var(--units-2xl) var(--units-lg);
+  color: var(--global-text-default);
+}
+
+.demo-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--units-sm);
+}

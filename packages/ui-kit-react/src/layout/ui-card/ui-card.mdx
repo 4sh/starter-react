@@ -1,0 +1,54 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as CardStories from './ui-card.stories';
+
+<Meta of={CardStories} />
+
+# ui-card
+
+Conteneur qui compose cinq zones optionnelles : un visuel, un titre, un sous-titre, un corps
+et un pied.
+
+<Canvas of={CardStories.AllRegions} />
+
+## API
+
+<ArgTypes of={CardStories} />
+
+## Les zones sont des props
+
+Côté Angular, les zones se déclaraient par des directives marqueurs (`uiCardTitle`,
+`uiCardFooter`), et la carte inspectait le DOM après rendu pour savoir si son corps avait reçu
+quelque chose. React n'a pas besoin de ça : `media`, `header`, `subheader` et `footer` sont
+des props, et le corps est `children`.
+
+Une zone vide n'est pas rendue du tout, donc aucun conteneur ne laisse d'espacement fantôme.
+
+<Canvas of={CardStories.BodyOnly} />
+
+## Dimensions
+
+La carte n'a pas de largeur intrinsèque : un parent bloc lui donne déjà 100 %, un parent flex
+ou grille la dimensionne à son contenu tant que `fluid` n'est pas posé.
+
+Dans une rangée, les hauteurs s'alignent d'elles-mêmes : c'est l'étirement par défaut d'un
+conteneur flex, aucune carte n'a à connaître les autres.
+
+<Canvas of={CardStories.EqualHeights} />
+
+## Contenu jusqu'aux bords
+
+`contentFlush` retire la gouttière horizontale du corps. Pour la rendre à un bloc interne,
+`padding-inline: var(--ui-card-gutter)` la relit sans avoir à la recopier.
+
+<Canvas of={CardStories.ContentFlush} />
+
+## Accessibilité
+
+La carte est un conteneur, pas un point de repère : elle ne prend `role="region"` que si elle
+reçoit un nom, par `aria-label` ou `aria-labelledby`. Un repère anonyme encombrerait la liste
+des repères sans rien y apporter.
+
+## Theming
+
+<ConfigTable of="ui-card" />

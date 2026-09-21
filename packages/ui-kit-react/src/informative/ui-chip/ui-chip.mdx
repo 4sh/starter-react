@@ -1,0 +1,58 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as ChipStories from './ui-chip.stories';
+
+<Meta of={ChipStories} />
+
+# ui-chip
+
+Entité compacte et **manipulable** : une valeur sélectionnée dans un multi-choix, un filtre
+actif, un mot-clé qu'on retire.
+
+<Canvas of={ChipStories.RemovableList} />
+
+## API
+
+<ArgTypes of={ChipStories} />
+
+## ui-chip ou ui-tag
+
+`ui-tag` qualifie et se lit ; `ui-chip` se manipule. Une étiquette sur laquelle on ne peut ni
+cliquer ni agir n'a pas besoin d'être une puce, et l'être lui coûterait un arrêt de tabulation
+pour rien.
+
+## Retirer ou sélectionner, jamais les deux
+
+`removable` pose un vrai `<button>` **dans** la puce. `selectable` fait de la puce **entière**
+un `<button aria-pressed>`.
+
+Les deux s'excluent, et pas par choix de style : un élément interactif ne peut pas en contenir
+un autre. Un bouton dans un bouton produit un balisage invalide, que les navigateurs et les
+technologies d'assistance interprètent chacun à leur manière. Demander les deux ignore le
+retrait, avec un avertissement en développement.
+
+<Canvas of={ChipStories.Removable} />
+<Canvas of={ChipStories.Selectable} />
+
+## Sélection contrôlée ou non
+
+`selected` renseigné, la puce est contrôlée et son parent décide. Absent,
+`defaultSelected` amorce et la puce gère la suite. `onSelectedChange` prévient dans les deux
+cas : c'est le contrat commun à tout le kit.
+
+<Canvas of={ChipStories.FilterBar} />
+
+## Accessibilité
+
+Le retrait est un `<button>` natif : Tab l'atteint, Entrée et Espace l'activent. Retour arrière
+et Suppression retirent aussi, ce qui est le geste attendu sur une liste d'étiquettes.
+
+Sans texte, une puce réduite à une icône ou une image a besoin d'un nom, par `label`,
+`aria-label` ou `aria-labelledby` ; sans lui, un avertissement est émis en développement.
+
+Le rôle suit la structure : `group` quand la puce contient le bouton de retrait, `img` quand
+elle n'est qu'un visuel nommé, et aucun rôle sans nom, puisqu'il n'y aurait rien à annoncer.
+
+## Theming
+
+<ConfigTable of="ui-chip" />

@@ -1,0 +1,78 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as PopoverStories from './ui-popover.stories';
+
+<Meta of={PopoverStories} />
+
+# ui-popover
+
+Panneau flottant ancré à un déclencheur, qui reçoit un contenu libre.
+
+<Canvas of={PopoverStories.Default} />
+
+## API
+
+<ArgTypes of={PopoverStories} />
+
+## Impératif contre contrôlé
+
+Côté Angular, le popover s'appelle par des **méthodes** : le consommateur garde une référence
+de gabarit et écrit `op.toggle($event)`. Le composant pose alors lui-même `aria-expanded` et
+`aria-controls` sur le déclencheur, en mutant son DOM.
+
+Ici il est **contrôlé**, comme tout le reste du kit : `open` / `defaultOpen` / `onOpenChange`.
+Le déclencheur est rendu par `trigger`, qui reçoit les props à lui reverser, `ref` comprise.
+Rien n'est muté après coup.
+
+```tsx
+<UiPopover
+  aria-label="Détails du produit"
+  trigger={(props) => <UiButton {...props} label="Détails" />}
+>
+  …
+</UiPopover>
+```
+
+La `ref` fournie est une **ref de rappel**, pas un `RefObject` : c'est ce qui la rend
+reversable sur un `<button>` sans que le consommateur ait à écrire un cast.
+
+## Le calque supérieur
+
+Un panneau non modal porte l'attribut `popover`, un panneau modal est un `<dialog>`. Les deux
+vivent dans le calque supérieur : aucun z-index à régler, et aucun rognage par un ancêtre en
+`overflow: hidden`.
+
+<Canvas of={PopoverStories.EscapesOverflow} />
+
+C'est la règle posée par le relevé de « Spécifications / Couches et focus », et elle apporte
+plus que du rangement : `dismissable` choisit simplement entre `popover="auto"`, qui donne la
+fermeture au clic extérieur et sur Échap **sans une ligne de JavaScript**, et
+`popover="manual"`, qui ne ferme que sur demande.
+
+<Canvas of={PopoverStories.NotDismissable} />
+
+## Modal
+
+`modal` rend un `<dialog>` ouvert par `showModal()` : l'arrière-plan devient inerte et le
+focus est enfermé, par le navigateur. Pour une vraie fenêtre de dialogue centrée, c'est
+`ui-modal` qu'il faut ; `modal` ici sert au panneau ancré qui doit bloquer.
+
+<Canvas of={PopoverStories.Modal} />
+
+## Accessibilité
+
+Le panneau porte `role="dialog"` et **doit être nommé**, par `aria-label` ou
+`aria-labelledby` ; sans nom, un avertissement est émis en développement.
+
+À l'ouverture, le focus se pose sur le premier élément focalisable du panneau, ou sur le
+panneau lui-même s'il n'en contient aucun. À la fermeture, il revient au déclencheur, mais
+seulement s'il était encore dans le panneau : sinon ce serait un vol de focus.
+
+<Canvas of={PopoverStories.WithForm} />
+
+La flèche suit le côté **retenu** après retournement, pas celui demandé : elle pointerait
+sinon dans le vide dès que le panneau bascule.
+
+## Theming
+
+<ConfigTable of="ui-popover" />

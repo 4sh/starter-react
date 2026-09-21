@@ -1,0 +1,146 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as SelectStories from './ui-select.stories';
+
+<Meta of={SelectStories} />
+
+# ui-select
+
+Liste déroulante posée sur la coquille `ui-field`. C'est le plus gros composant du kit, et
+celui qui fixe le motif de liste d'options que `ui-autocomplete` et `ui-datepicker`
+réutilisent.
+
+<Canvas of={SelectStories.WithFilter} />
+
+## API
+
+<ArgTypes of={SelectStories} />
+
+## Les options
+
+Une option est une primitive ou un objet. Sur un objet, `optionLabel`, `optionValue` et
+`optionDisabled` sont des **chemins de champ** en notation pointée ; à défaut, la clé `label`
+sert de libellé et la clé `disabled` d'état.
+
+<Canvas of={SelectStories.ObjectOptions} />
+
+⚠️ Quand la **valeur** est un objet, `dataKey` est indispensable. Sans lui, deux objets
+identiques restent distincts pour JavaScript, et une sélection rechargée depuis un serveur ne
+se retrouve pas dans la liste.
+
+<Canvas of={SelectStories.ObjectValues} />
+
+`group` traite les options comme des groupes, dont l'en-tête est un `role="presentation"` :
+il n'entre donc pas dans le décompte `aria-setsize` des options, ce qui serait faux.
+
+<Canvas of={SelectStories.Groups} />
+
+## Sélection multiple
+
+La valeur devient un **tableau**, le panneau reste ouvert entre deux choix, et `checkbox`
+ajoute une case devant chaque option. `maxSelectedLabels` replie le surplus derrière un
+compteur.
+
+<Canvas of={SelectStories.MultipleOverflow} />
+
+`renderSelectedItem` remplace l'affichage des valeurs. En multiple, elles sont rendues **hors
+du bouton** : leurs propres boutons de retrait ne peuvent pas s'imbriquer dans un bouton, ce
+serait du balisage invalide. La valeur accessible du combobox reste alors un texte masqué.
+
+<Canvas of={SelectStories.SelectedAsChips} />
+
+## Le filtre
+
+`filter` ajoute un champ de recherche en tête du panneau. La comparaison ignore la **casse et
+les accents** : un filtre qui échoue sur « Élève » quand on tape « ele » est inutilisable en
+français.
+
+<Canvas of={SelectStories.FilterAccents} />
+
+`filterBy` permet de chercher sur d'autres champs que le libellé, séparés par des virgules.
+
+## Le panneau
+
+Il vit dans le **calque supérieur**, donc aucun ancêtre en `overflow: hidden` ne le rogne.
+C'est le défaut le plus pénible d'un select posé dans une zone défilante, et il disparaît.
+
+<Canvas of={SelectStories.EscapesOverflow} />
+
+Le panneau porte `popover="manual"` et non `auto` : le light-dismiss natif se déclencherait
+aussi sur un clic sur le déclencheur, qui rouvrirait aussitôt. C'est `useUiDismiss` qui ferme,
+et lui connaît l'ancre.
+
+Par défaut, le panneau prend la largeur du champ. `panelWidth="auto"` en fait un plancher, et
+une valeur explicite l'impose.
+
+## Listes longues
+
+`virtualScroll` ne rend qu'une fenêtre d'options. Mille options tiennent alors dans une
+poignée de nœuds, et le filtre continue de fonctionner.
+
+<Canvas of={SelectStories.VirtualScroll} />
+
+## Accessibilité
+
+Le composant suit le motif **combobox** de WAI-ARIA, et c'est le point à comprendre : le focus
+ne quitte **jamais** le déclencheur. L'option courante est désignée par
+`aria-activedescendant`, pas par un focus réel.
+
+C'est ce qui permet de taper dans le champ de recherche tout en naviguant dans la liste, avec
+les mêmes touches. Les options n'ont donc ni `tabindex` ni gestionnaire de touches, et c'est
+correct.
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th style={{ width: 200 }}>Touche</th>
+      <th>Effet</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Flèche bas ou haut</td>
+      <td>Ouvre, puis déplace le focus visuel en sautant les options désactivées</td>
+    </tr>
+    <tr>
+      <td>Alt + flèche haut</td>
+      <td>Ferme</td>
+    </tr>
+    <tr>
+      <td>Début, Fin</td>
+      <td>Première ou dernière option activable</td>
+    </tr>
+    <tr>
+      <td>Entrée, Espace</td>
+      <td>Sélectionne l'option au focus visuel</td>
+    </tr>
+    <tr>
+      <td>Échap</td>
+      <td>Ferme, et la touche est consommée seulement dans ce cas</td>
+    </tr>
+    <tr>
+      <td>Une lettre</td>
+      <td>Frappe rapide : amène la première option qui commence par cette lettre</td>
+    </tr>
+    <tr>
+      <td>Retour arrière</td>
+      <td>En multiple, retire la dernière valeur</td>
+    </tr>
+  </tbody>
+</table>
+
+Échap n'est consommée **que si elle ferme** quelque chose : sinon la même touche fermerait
+aussi le `ui-modal` qui contient le champ, et l'utilisateur en perdrait deux d'un coup.
+
+Un clic sur une option annule son `mousedown` pour que le focus reste sur le déclencheur.
+Sans cela, cliquer prendrait le focus à l'ancre et déclencherait la fermeture au clic
+extérieur.
+
+En mode éditable, le chevron est un **vrai bouton** nommé : c'est la seule façon d'ouvrir le
+panneau à la souris, elle doit donc exister au clavier aussi.
+
+<Canvas of={SelectStories.Editable} />
+
+## Theming
+
+<ConfigTable of="ui-select" />

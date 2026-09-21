@@ -1,0 +1,136 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as ToggleButtonStories from './ui-toggle-button.stories';
+
+<Meta of={ToggleButtonStories} />
+
+# ui-toggle-button
+
+Un bouton qui garde un état pressé.
+
+<Canvas of={ToggleButtonStories.Pressed} />
+
+## API
+
+<ArgTypes of={ToggleButtonStories} />
+
+## Deux modes, un composant
+
+Fournir `options` bascule le composant en **groupe**. C'est le seul interrupteur :
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th></th>
+      <th>La racine</th>
+      <th>Le modèle</th>
+      <th>Le nom accessible</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>simple</td>
+      <td>un simple conteneur</td>
+      <td>
+        la paire <code>trueValue</code> / <code>falseValue</code>
+      </td>
+      <td>porté par le bouton</td>
+    </tr>
+    <tr>
+      <td>groupe</td>
+      <td>
+        <code>role="group"</code>
+      </td>
+      <td>le tableau des valeurs pressées</td>
+      <td>porté par le groupe, plus un par bouton</td>
+    </tr>
+  </tbody>
+</table>
+
+Le groupe est **toujours multi-sélection**, délibérément. Un choix exclusif est le travail de
+`ui-segment-control`, qui le dit avec une sémantique `radiogroup` plutôt qu'avec
+`aria-pressed` : mentir sur la sémantique coûterait plus cher que le composant ne rapporte.
+
+<Canvas of={ToggleButtonStories.Group} />
+
+## L'état, et son nom
+
+Libellé et icône peuvent différer d'un état à l'autre.
+
+<Canvas of={ToggleButtonStories.StateLabels} />
+
+Mais un **nom accessible** qui change avec l'état est réannoncé à chaque prise de focus : le
+contrôle sonne alors comme un bouton différent selon sa valeur. Dès que `onLabel` et `offLabel`
+diffèrent, il faut donc un `aria-label` indépendant de l'état, et un avertissement est émis en
+développement quand il manque.
+
+Même exigence pour un bouton en **icône seule**, qui devient carré et n'a plus aucun texte à
+offrir.
+
+<Canvas of={ToggleButtonStories.IconOnly} />
+<Canvas of={ToggleButtonStories.GroupIconOnly} />
+
+En groupe, `selectedIcon` sur une option substitue son icône pendant qu'elle est pressée.
+
+## Les options
+
+Une option est une primitive, un objet, ou la forme riche `{ value, label, icon, selectedIcon,
+disabled, ariaLabel }`. Sur un objet quelconque, `optionLabel`, `optionValue`, `optionDisabled`
+et `optionIcon` sont des **chemins de champ** en notation pointée, et `dataKey` compare deux
+valeurs objet.
+
+Ce composant lit ses options avec la variante « forme riche » du résolveur partagé : la clé
+`value` gagne sans `optionValue`, et un objet **sans clé `label`** reste sans libellé, ce qui
+est exactement le cas d'un bouton en icône seule.
+
+## Couleur et forme
+
+`level` peint l'état **pressé**, `variant` dessine l'état **relâché**. Les deux axes sont
+indépendants et puisent dans les mêmes familles de jetons `actions.*`, donc ajouter un niveau
+ne demande aucune CSS.
+
+<Canvas of={ToggleButtonStories.Filled} />
+<Canvas of={ToggleButtonStories.Ghost} />
+<Canvas of={ToggleButtonStories.LevelSuccess} />
+<Canvas of={ToggleButtonStories.Rounded} />
+
+Un état ne fait que **repointer des variables privées** ; `border-color` et l'anneau de focus
+sont déclarés une seule fois. C'est ce qui permet à `_invalid` d'écraser tous les états à la
+fois, en héritant d'une seule propriété, sans course à la spécificité.
+
+## Disposition
+
+<Canvas of={ToggleButtonStories.GroupVertical} />
+<Canvas of={ToggleButtonStories.GroupFluid} />
+
+## Vider
+
+Par défaut, un bouton pressé se relâche et le groupe peut se vider entièrement.
+`allowEmpty={false}` garde toujours au moins un état pressé.
+
+<Canvas of={ToggleButtonStories.NoEmpty} />
+
+## États
+
+<Canvas of={ToggleButtonStories.Disabled} />
+<Canvas of={ToggleButtonStories.ReadOnly} />
+<Canvas of={ToggleButtonStories.Invalid} />
+
+En **lecture seule**, le bouton reste atteignable au clavier, parce que son état doit rester
+consultable ; seule la bascule est refusée.
+
+`invalid` ne change que le **rendu**. La spécification ARIA ne supporte pas `aria-invalid` sur
+le rôle `button`, et c'est cohérent : la validité porte sur une saisie, pas sur une commande.
+L'annonce revient donc au champ englobant ou à son message d'erreur, comme pour `ui-radio`.
+
+## Rendu personnalisé
+
+`renderContent` remplace tout le contenu en mode simple, `renderIcon` seulement l'icône, et
+`renderItem` le contenu d'un bouton du groupe. Dans les trois cas c'est le **contenu** qui
+change, jamais le bouton : l'état pressé et le nom accessible restent portés par lui.
+
+<Canvas of={ToggleButtonStories.CustomContent} />
+
+## Theming
+
+<ConfigTable of="ui-toggle-button" />

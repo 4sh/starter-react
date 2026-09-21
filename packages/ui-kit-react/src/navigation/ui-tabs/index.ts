@@ -1,0 +1,16 @@
+export {
+  UiTabs,
+  UiTabList,
+  UiTab,
+  UiTabPanels,
+  UiTabPanel,
+  type UiTabsProps,
+  type UiTabListProps,
+  type UiTabProps,
+  type UiTabPanelsProps,
+  type UiTabPanelProps,
+  type UiTabsChangeEvent,
+  type UiTabValue,
+  type TabsOrientation,
+  type TabIconPos,
+} from './ui-tabs';

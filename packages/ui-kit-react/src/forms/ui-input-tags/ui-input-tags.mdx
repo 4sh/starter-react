@@ -1,0 +1,165 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as TagsStories from './ui-input-tags.stories';
+
+<Meta of={TagsStories} />
+
+# ui-input-tags
+
+Saisie de plusieurs valeurs sous forme de tags, posée sur la coquille `ui-field`.
+
+<Canvas of={TagsStories.WithTags} />
+
+## API
+
+<ArgTypes of={TagsStories} />
+
+## Poser un tag
+
+En tapant puis `Entrée`. `delimiter` en pose un dès qu'une partie est complète, et **garde le
+reste** dans le champ : taper « un,deux,tro » donne deux tags et laisse « tro » en cours de
+frappe.
+
+<Canvas of={TagsStories.Delimiter} />
+
+Trois raccourcis complémentaires, tous facultatifs :
+
+- `addOnBlur` transforme le texte restant en tag quand le focus quitte le champ ;
+- `addOnTab` fait de même sur `Tab`, au lieu de quitter le champ ;
+- `addOnPaste` découpe un collage. **Sans `delimiter`, il se découpe quand même** sur les
+  séparateurs usuels (virgule, point-virgule, tabulation, retour ligne) : c'est tout l'intérêt
+  de coller une liste.
+
+<Canvas of={TagsStories.AddOnPaste} />
+
+`max` ferme la saisie une fois atteint, en passant le champ en lecture seule. Un ajout multiple
+en tient compte : coller cinq valeurs avec `max={2}` n'en pose que deux, en **une seule**
+écriture du modèle.
+
+<Canvas of={TagsStories.Max} />
+
+`allowDuplicate` autorise deux fois la même valeur ; par défaut un doublon est simplement
+refusé, sans rien signaler.
+
+## Retirer un tag
+
+`Retour arrière` sur un champ **vide** retire le dernier tag, la croix retire celui qu'on
+vise, et `Suppr` ou `Retour arrière` retire celui qui a le focus. Après un retrait, le focus
+reste cohérent : sur le tag qui prend la place, ou sur le champ s'il n'en reste aucun.
+
+## Le clavier, et la sémantique
+
+La liste des tags est un `role="listbox"` **horizontal** à focus glissant, chaque tag une
+`option`. Le `listbox` n'enveloppe **que** les tags : une liste ne peut pas contenir de champ
+texte. C'est `display: contents` qui garde tags et saisie sur les mêmes lignes, en s'enroulant
+ensemble.
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Touche</th>
+      <th>Dans le champ</th>
+      <th>Sur un tag</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <kbd>←</kbd>
+      </td>
+      <td>entre dans les tags, si le curseur est au début</td>
+      <td>tag précédent</td>
+    </tr>
+    <tr>
+      <td>
+        <kbd>→</kbd>
+      </td>
+      <td>déplace le curseur</td>
+      <td>tag suivant, puis le champ</td>
+    </tr>
+    <tr>
+      <td>
+        <kbd>Retour arrière</kbd>
+      </td>
+      <td>retire le dernier tag, si le champ est vide</td>
+      <td>retire ce tag</td>
+    </tr>
+    <tr>
+      <td>
+        <kbd>Début</kbd> <kbd>Fin</kbd>
+      </td>
+      <td>début et fin du texte</td>
+      <td>premier et dernier tag</td>
+    </tr>
+  </tbody>
+</table>
+
+Un seul arrêt de tabulation pour toute la liste : `Tab` traverse le champ, il ne parcourt pas
+les tags un par un.
+
+## Suggestions
+
+`typeahead` ajoute un panneau. Le composant **ne filtre rien** : il émet une requête par
+`onComplete`, et l'appelant met `suggestions` à jour. C'est ce qui permet d'interroger un
+serveur, exactement comme `ui-autocomplete`.
+
+<Canvas of={TagsStories.Typeahead} />
+
+Le champ suit alors le motif combobox : le focus **ne quitte jamais** le champ, et la
+suggestion courante est désignée par `aria-activedescendant`. Une valeur déjà posée reste
+affichée dans le panneau, cochée et désactivée, plutôt que de disparaître : sa présence est une
+information.
+
+`minLength` retient la requête tant que le texte est trop court, `delay` amortit la frappe, et
+`completeOnFocus` en émet une dès la prise de focus.
+
+<Canvas of={TagsStories.TypeaheadOnFocus} />
+
+`group` traite les suggestions comme des groupes : l'en-tête est un `role="presentation"`, donc
+il n'entre pas dans le décompte des options, et un groupe vide n'est pas rendu du tout.
+
+<Canvas of={TagsStories.TypeaheadGroups} />
+
+Le panneau vit dans le **calque supérieur** : aucun ancêtre en `overflow: hidden` ne le rogne.
+
+<Canvas of={TagsStories.EscapesOverflow} />
+
+## Apparence des tags
+
+`chipLevel`, `chipSubLevel` et `chipRounded` sont transmis aux puces : toute la palette de
+`ui-chip` est disponible sans que ce composant connaisse une seule couleur.
+
+<Canvas of={TagsStories.ChipAppearance} />
+
+`renderTag` remplace le **contenu** d'un tag, jamais son rôle d'option ni son focus glissant.
+
+⚠️ Le contenu projeté **ne doit contenir aucun contrôle focalisable**. Le tag est déjà une
+`option` interactive, et y imbriquer un `<button>` est invalide : c'est la règle
+`nested-interactive`, et un `tabindex="-1"` n'y change rien, les technologies d'assistance
+atteignant quand même l'élément. C'est pour cette raison que la croix de retrait par défaut est
+une **décoration** `aria-hidden` et non un bouton, et que le chemin clavier du retrait est
+`Suppr` sur le tag.
+
+<Canvas of={TagsStories.CustomTag} />
+
+## États
+
+<Canvas of={TagsStories.Error} />
+<Canvas of={TagsStories.Disabled} />
+<Canvas of={TagsStories.ReadOnly} />
+
+Le champ **doit avoir un nom** : `label`, `aria-label` ou `aria-labelledby`. Un avertissement
+est émis en développement quand aucun des trois n'est là.
+
+`Échap` ferme le panneau, et n'est consommée que si elle ferme vraiment : sinon elle remonte,
+pour qu'un dialogue parent reste atteignable par la même touche.
+
+## Formulaires
+
+Contrôlé par `value` et `onValueChange`, non contrôlé par `defaultValue`. Le modèle est un
+**tableau**. Sur des valeurs objet, `optionLabel` donne le libellé et `dataKey` la comparaison,
+sans quoi deux objets identiques restent distincts pour JavaScript.
+
+## Theming
+
+<ConfigTable of="ui-input-tags" />

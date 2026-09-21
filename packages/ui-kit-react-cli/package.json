@@ -1,0 +1,39 @@
+{
+  "name": "@4sh/ui-kit-react-cli",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "CLI compagnon de @4sh/ui-kit-react : pose la fondation, copie les sources des composants dans un projet, et propose leur mise à jour par diff.",
+  "homepage": "https://4sh.github.io/starter-react/?path=/docs/introduction--docs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/4sh/starter-react.git",
+    "directory": "packages/ui-kit-react-cli"
+  },
+  "author": "4SH",
+  "license": "Apache-2.0",
+  "keywords": [
+    "react",
+    "design-system",
+    "cli",
+    "ui-kit",
+    "registry",
+    "shadcn"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "bin": {
+    "ui-kit-react": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "assets",
+    "registry",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "echo 'phase 4 — voir docs/ROADMAP.md' && exit 1"
+  }
+}

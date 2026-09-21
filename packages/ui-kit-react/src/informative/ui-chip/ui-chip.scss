@@ -1,0 +1,190 @@
+@use 'utils';
+@use 'sass:map';
+
+// =====================================================================
+// ui-chip : co-located styles. All values come from design tokens.
+//
+// Extend:
+//   • Level     → add to $levels (tokens --informative-{level}{sub}-* must
+//                 exist + extend the `UiFeedbackLevel` type).
+//   • Sub-level → add to $sublevels (+ the `UiSubLevel` type).
+//   • Size      → add an entry to $sizes (+ the `ChipSize` type).
+// =====================================================================
+
+// --- Config ---------------------------------------
+$levels: default, highlight, success, warning, error; /// Niveaux sémantiques générant les modifiers `._<niveau>`.
+$sublevels: high, low;                                /// Intensités générant les modifiers `._<intensité>`.
+
+$radius: var(--ui-chip-radius, var(--radius-full));                                           /// Rayon des coins.
+$radius-square: var(--ui-chip-radius-square, var(--radius-sm));                               /// Rayon des coins en présentation `square`.
+$stroke-width: var(--ui-chip-stroke-width, var(--stroke-sm));                                 /// Épaisseur de la bordure.
+$padding-inline-end-removable: var(--ui-chip-padding-inline-end-removable, var(--units-2xs)); /// Inset de fin resserré quand le chip porte une action de suppression.
+
+$image-radius: var(--ui-chip-image-radius, var(--radius-full));             /// Rayon du visuel.
+$image-radius-square: var(--ui-chip-image-radius-square, var(--radius-xs)); /// Rayon du visuel en présentation `square`.
+$image-offset: var(--ui-chip-image-offset, var(--units-2xs));               /// Débord du visuel dans l'inset de début.
+
+$remove-padding: var(--ui-chip-remove-padding, var(--units-2xs)); /// Inset du bouton de suppression.
+$remove-radius: var(--ui-chip-remove-radius, var(--radius-full)); /// Rayon des coins du bouton de suppression.
+
+/// Hauteur, gouttières, typo et taille du visuel, par taille.
+$sizes: (
+  'default': (
+    height: var(--ui-chip-height, #{utils.rem-calc(32)}),
+    gap: var(--ui-chip-gap, var(--units-xs)),
+    padding-x: var(--ui-chip-padding-x, var(--units-sm)),
+    font-size: var(--ui-chip-font-size, var(--size-typography-text-default)),
+    visual: var(--ui-chip-image-size, #{utils.rem-calc(24)}),
+  ),
+  'small': (
+    height: var(--ui-chip-height-small, #{utils.rem-calc(24)}),
+    gap: var(--ui-chip-gap-small, var(--units-2xs)),
+    padding-x: var(--ui-chip-padding-x-small, var(--units-sm)),
+    font-size: var(--ui-chip-font-size-small, var(--size-typography-text-md)),
+    visual: var(--ui-chip-image-size-small, #{utils.rem-calc(18)}),
+  ),
+);
+$size-default: map.get($sizes, 'default');                                      /// Raccourci vers l'entrée `default` de `$sizes`.
+$focus-ring-width: var(--ui-chip-focus-ring-width, #{utils.$focus-ring-width}); /// Épaisseur de l'anneau de focus.
+
+@mixin chip-size($size) {
+  height: map.get($size, height);
+  min-width: map.get($size, height);
+  gap: map.get($size, gap);
+  padding: 0 map.get($size, padding-x);
+  font-size: map.get($size, font-size);
+
+  .ui-chip-image {
+    width: map.get($size, visual);
+    height: map.get($size, visual);
+  }
+}
+
+.ui-chip {
+  // --- Base ----------------------------------------------------------
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  max-width: 100%;
+  border: $stroke-width solid transparent;
+  border-radius: $radius;
+  font-family: var(--ui-chip-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+  font-weight: var(--ui-chip-weight, var(--weight-regular)); /// Graisse du texte.
+  line-height: 1;
+  white-space: nowrap;
+
+  @include chip-size($size-default);
+
+  // --- Sub-elements --------------------------------------------------
+  &-icon { line-height: 0; flex: none; }
+
+  &-image {
+    flex: none;
+    margin-inline-start: calc(-1 * #{$image-offset});
+    border-radius: $image-radius;
+    object-fit: cover;
+  }
+
+  &-label {
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // Remove action : native <button>, focusable with Tab.
+  &-remove {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: $remove-padding;
+    border: 0;
+    border-radius: $remove-radius;
+    background: transparent;
+    color: inherit;
+    line-height: 0;
+    cursor: pointer;
+    @include utils.control-transition(background-color, color, box-shadow);
+
+    &:disabled { cursor: not-allowed; }
+  }
+
+  // --- Layout tweaks ---------------------------------
+  &._removable {
+    padding-inline-end: $padding-inline-end-removable !important;
+  }
+
+  // --- Selectable (choice / filter chip) -------------
+  &._selectable {
+    appearance: none;
+    cursor: pointer;
+    text-align: center;
+    @include utils.control-transition(background-color, color, border-color, box-shadow);
+
+    &:disabled { cursor: not-allowed; }
+  }
+
+  // --- Shape -----------------------------------------
+  &._square {
+    border-radius: $radius-square;
+    .ui-chip-image { border-radius: $image-radius-square; }
+  }
+
+  &._disabled { cursor: not-allowed; }
+
+  // --- Sizes -----------------------------------------
+  @each $name, $size in $sizes {
+    @if $name != 'default' {
+      &._#{$name} { @include chip-size($size); }
+    }
+  }
+
+  // --- Colors ----------------------------------------
+  @each $lvl in $levels {
+    @each $sub in $sublevels {
+      &._#{$lvl}._#{$sub} {
+        background-color: var(--ui-chip-surface, var(--informative-#{$lvl}#{$sub}-surface-default)); /// Fond de la puce : un seul nom pour les 10 jeux (niveau × sous-niveau), la portée se choisit avec les classes de modificateur.
+        color: var(--ui-chip-color, var(--informative-#{$lvl}#{$sub}-content-default));              /// Couleur du texte et des icônes.
+        border-color: var(--ui-chip-stroke, var(--informative-#{$lvl}#{$sub}-stroke-default));       /// Couleur de bordure.
+
+        .ui-chip-remove {
+          &:hover:not(:disabled) {
+            background-color: var(--ui-chip-remove-surface-hover, var(--informative-#{$lvl}#{$sub}-surface-hover)); /// Fond du bouton de retrait au survol.
+            color: var(--ui-chip-remove-color-hover, var(--informative-#{$lvl}#{$sub}-content-hover));              /// Couleur du bouton de retrait au survol.
+          }
+
+          &:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 $focus-ring-width var(--ui-chip-remove-focus-ring-color, var(--informative-#{$lvl}#{$sub}-content-default)); /// Couleur de l'anneau de focus du bouton de retrait.
+          }
+        }
+
+        &._selectable:not(._selected):hover:not(:disabled) {
+          background-color: var(--ui-chip-surface-hover, var(--informative-#{$lvl}#{$sub}-surface-hover)); /// Fond d'une puce sélectionnable au survol.
+          color: var(--ui-chip-color-hover, var(--informative-#{$lvl}#{$sub}-content-hover));              /// Couleur du texte d'une puce sélectionnable au survol.
+        }
+      }
+    }
+
+    &._#{$lvl}._selected {
+      background-color: var(--ui-chip-surface-selected, var(--informative-#{$lvl}high-surface-default)); /// Fond d'une puce sélectionnée.
+      color: var(--ui-chip-color-selected, var(--informative-#{$lvl}high-content-default));              /// Couleur du texte d'une puce sélectionnée.
+      border-color: var(--ui-chip-stroke-selected, var(--informative-#{$lvl}high-stroke-default));       /// Couleur de bordure d'une puce sélectionnée.
+
+      &._selectable:hover:not(:disabled) {
+        background-color: var(--ui-chip-surface-selected-hover, var(--informative-#{$lvl}high-surface-hover)); /// Fond d'une puce sélectionnée, au survol.
+        color: var(--ui-chip-color-selected-hover, var(--informative-#{$lvl}high-content-hover));              /// Couleur du texte d'une puce sélectionnée, au survol.
+      }
+    }
+
+    // Focus ring for the whole selectable chip (keyboard), per level.
+    &._#{$lvl}._selectable:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 $focus-ring-width var(--ui-chip-focus-ring-color, var(--informative-#{$lvl}high-surface-default)); /// Couleur de l'anneau de focus d'une puce sélectionnable.
+    }
+  }
+}

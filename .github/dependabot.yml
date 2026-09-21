@@ -1,0 +1,48 @@
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: '/'
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      # Ces paquets doivent bouger ENSEMBLE : Vitest résout `playwright-core`,
+      # et un décalage de version fait échouer les tests sur « Executable
+      # doesn't exist » — sans bruit si le job n'est pas bloquant.
+      testing:
+        patterns:
+          - 'vitest'
+          - '@vitest/*'
+          - 'playwright'
+          - 'vitest-browser-react'
+          - '@testing-library/*'
+      storybook:
+        patterns:
+          - 'storybook'
+          - '@storybook/*'
+          - '@storybook-community/*'
+      react:
+        patterns:
+          - 'react'
+          - 'react-dom'
+          - '@types/react'
+          - '@types/react-dom'
+      build:
+        patterns:
+          - 'vite'
+          - '@vitejs/*'
+          - 'vite-plugin-*'
+          - 'sass'
+      lint:
+        patterns:
+          - 'eslint'
+          - '@eslint/*'
+          - 'typescript-eslint'
+          - 'eslint-plugin-*'
+          - 'prettier'
+
+  - package-ecosystem: github-actions
+    directory: '/'
+    schedule:
+      interval: monthly

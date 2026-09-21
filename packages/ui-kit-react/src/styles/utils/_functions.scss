@@ -1,0 +1,67 @@
+@use "sass:color";
+@use "sass:list";
+@use "sass:map";
+@use "sass:math";
+
+/** map-deep-get
+ * Fetch nested keys
+ * @param {Map} $map - Map
+ * @param {Arglist} $keys - Keys to fetch
+ * @return {*}
+ * By @HugoGiraudel : http://www.sitepoint.com/extra-map-functions-sass/
+ */
+@function map-deep-get($map, $keys...) {
+  @each $key in $keys {
+    $map: map.get($map, $key);
+  }
+
+  @return $map;
+}
+
+// FONT BASE - REM CALC
+
+$rem-base: 16px;
+
+@function strip-unit($num) {
+  @return math.div($num, $num * 0 + 1);
+}
+
+@function convert-to-rem($value, $base-value: $rem-base) {
+  $value: math.div(strip-unit($value), strip-unit($base-value)) * 1rem;
+  @if ($value == 0rem) {
+    $value: 0;
+  } // Turn 0rem into 0
+  @return $value;
+}
+
+@function rem-calc($values, $base-value: $rem-base) {
+  $max: list.length($values);
+  @if $max == 1 {
+    @return convert-to-rem(list.nth($values, 1), $base-value);
+  }
+  $remValues: ();
+  @for $i from 1 through $max {
+    $remValues: list.append(
+      $remValues,
+      convert-to-rem(list.nth($values, $i), $base-value)
+    );
+  }
+  @return $remValues;
+}
+
+@function getHSLvalue($color) {
+  @return #{color.hue($color)} #{color.saturation($color)}
+    #{color.lightness($color)};
+}
+
+@function getHueValue($color) {
+  @return #{color.hue($color)};
+}
+
+@function getSaturationValue($color) {
+  @return #{color.saturation($color)};
+}
+
+@function getLightnessValue($color) {
+  @return #{color.lightness($color)};
+}

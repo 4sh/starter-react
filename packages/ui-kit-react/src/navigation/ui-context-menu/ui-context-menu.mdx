@@ -1,0 +1,126 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as ContextMenuStories from './ui-context-menu.stories';
+
+<Meta of={ContextMenuStories} />
+
+# ui-context-menu
+
+Menu ouvert au **clic droit**, posé sur le pointeur. Le panneau est un
+[`ui-menu`](?path=/docs/components-ui-navigation-ui-menu--docs) : même modèle `UiMenuItem`,
+même clavier, mêmes jetons, en densité compacte et en sous-menus en cascade par défaut.
+
+<Canvas of={ContextMenuStories.Basic} />
+
+## API
+
+<ArgTypes of={ContextMenuStories} />
+
+## Ancré sur un point, pas sur un élément
+
+C'est ce qui distingue ce composant d'un panneau ancré : le positionneur ne mesure aucun
+élément, il reçoit les **coordonnées du clic**. Elles sont gardées en coordonnées de **page**
+et reprojetées à chaque défilement, ce qui fait suivre le menu comme s'il appartenait au
+contenu plutôt qu'à l'écran.
+
+Le panneau vit dans le calque supérieur : il n'a besoin d'aucun `z-index` et n'est jamais
+rogné par un ancêtre en `overflow: hidden`.
+
+## La zone doit pouvoir recevoir le focus
+
+`trigger` rend la zone et reçoit la `ref` à lui reverser. **Donnez-lui un élément
+focalisable** : le navigateur n'émet `contextmenu` au clavier (`Maj+F10`, touche Menu) que sur
+un élément qui a le focus. Une zone non focalisable rend le menu accessible à la souris
+seulement, ce qui est un défaut d'accessibilité et non un choix de design.
+
+En pratique la zone est déjà un contrôle ou une ligne de liste : un `<button>`, une ligne de
+tableau focalisable, une option de `listbox`. Ajoutez-y `aria-haspopup="menu"` pour annoncer
+qu'elle en porte un.
+
+## Groupes en sections
+
+`submenus="inline"` remplace les panneaux en cascade par des sections dans le panneau. Au
+premier niveau un groupe devient alors une **section titrée**, pas une bascule : c'est la
+règle de `ui-menu`, et elle ne change pas ici.
+
+<Canvas of={ContextMenuStories.Inline} />
+
+## Toute la page
+
+`global` attache l'écouteur au document plutôt qu'à la zone. Le menu s'ouvre alors sur
+n'importe quel clic droit de la page, et `trigger` devient inutile.
+
+<Canvas of={ContextMenuStories.Global} />
+
+## Densité
+
+Compacte par défaut, comme tout menu d'actions. `size="default"` rend la densité normale,
+pour un menu contextuel de contenu.
+
+<Canvas of={ContextMenuStories.Default} />
+
+## Commandes
+
+`onItemClick` reçoit chaque activation, y compris celles venues d'un sous-menu, et le menu se
+referme derrière. Un `command` par entrée reste possible.
+
+<Canvas of={ContextMenuStories.Command} />
+
+## Pilotage
+
+Le composant se gouverne **seul** : il n'y a ni `open` ni méthodes `show` / `hide`. Un menu
+contextuel n'a pas d'état utile sans les coordonnées qui vont avec, et l'événement
+`triggerEvent` porte les deux à la fois. Pour un panneau ouvert par programme, sous un bouton,
+c'est [`ui-menu` en mode `popup`](?path=/docs/components-ui-navigation-ui-menu--docs) qu'il
+faut.
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Implémentation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Rôles et clavier</td>
+      <td>
+        Hérités du `ui-menu` embarqué : <code>role="menu"</code> et{' '}
+        <code>role="menuitem"</code> sur de vrais <code>&lt;button&gt;</code> et{' '}
+        <code>&lt;a&gt;</code>, un seul arrêt de tabulation, <code>↑</code> / <code>↓</code> /{' '}
+        <code>Début</code> / <code>Fin</code>, <code>→</code> et <code>←</code> pour les
+        cascades.
+      </td>
+    </tr>
+    <tr>
+      <td>Ouverture</td>
+      <td>
+        Le focus va sur la <strong>première entrée</strong> : le menu est opérable au clavier
+        dès qu'il paraît.
+      </td>
+    </tr>
+    <tr>
+      <td>Fermeture</td>
+      <td>
+        <code>Échap</code> referme et <strong>rend le focus à la zone</strong> ; un appui de
+        pointeur à l'extérieur et l'activation d'une entrée referment aussi. Un{' '}
+        <code>popover</code> manuel ne restitue pas le focus de lui-même : le composant le
+        fait.
+      </td>
+    </tr>
+    <tr>
+      <td>Nom accessible</td>
+      <td>
+        <code>aria-label</code> sur la liste, recommandé. Il est posé sur le{' '}
+        <code>role="menu"</code> et jamais sur l'enveloppe, qui n'a pas de rôle.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Theming
+
+Le rendu visuel (panneau, entrées, densités, jetons) est **entièrement** porté par `ui-menu` :
+voir sa section [Theming](?path=/docs/components-ui-navigation-ui-menu--docs). Le fichier
+local ne fait que neutraliser les styles navigateur du calque supérieur et jouer l'apparition.

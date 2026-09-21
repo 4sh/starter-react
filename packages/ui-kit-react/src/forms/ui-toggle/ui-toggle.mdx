@@ -1,0 +1,75 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as ToggleStories from './ui-toggle.stories';
+
+<Meta of={ToggleStories} />
+
+# ui-toggle
+
+Interrupteur bâti sur un `<input type="checkbox" role="switch">` natif, invisible et posé sur
+le rail.
+
+<Canvas of={ToggleStories.On} />
+
+## API
+
+<ArgTypes of={ToggleStories} />
+
+## Interrupteur ou case à cocher ?
+
+La question n'est pas visuelle, elle est sémantique, et `role="switch"` la tranche : un
+lecteur d'écran annonce « activé / désactivé » au lieu de « coché / non coché ».
+
+<table>
+  <thead>
+    <tr>
+      <th>Choisissez</th>
+      <th>Quand</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>ui-toggle</code>
+      </td>
+      <td>Le réglage prend effet <strong>immédiatement</strong>. Activer les notifications, passer en mode sombre.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>ui-checkbox</code>
+      </td>
+      <td>Le choix est <strong>validé plus tard</strong>, avec le reste du formulaire. Accepter les conditions, cocher des options.</td>
+    </tr>
+  </tbody>
+</table>
+
+## Même contrat que la case à cocher
+
+Le modèle n'est pas forcément un booléen : `trueValue` et `falseValue` lui font porter
+n'importe quelle paire, d'où `value` et non `checked`. Et `readOnly`, qui n'existe pas
+nativement, est annulé dans le gestionnaire puis annoncé par `aria-readonly`.
+
+<Canvas of={ToggleStories.ReadOnly} />
+
+Un détail assumé : le composant ne pose **pas** d'`aria-checked`. Sur un
+`<input type="checkbox">`, l'état coché natif est déjà exposé à l'assistance technique quel
+que soit le `role`. L'ajouter serait un doublon qui peut diverger de l'état réel, et un
+`aria-checked` en désaccord avec la case donne un comportement indéfini.
+
+## Pastille personnalisée
+
+`renderHandle` reçoit l'état, et peut donc en dépendre : une coche quand c'est activé, une
+croix sinon. C'est le pendant React du `<ng-template>` à contexte de la version Angular.
+
+<Canvas of={ToggleStories.CustomHandle} />
+
+## Accessibilité
+
+Le `<label>` enveloppe l'input, des deux côtés : `labelPosition` change l'ordre visuel en
+changeant l'ordre du DOM, sans `order` CSS à maintenir, et les deux côtés restent cliquables.
+
+Sans `label`, l'interrupteur **doit** porter un `aria-label`.
+
+## Theming
+
+<ConfigTable of="ui-toggle" />

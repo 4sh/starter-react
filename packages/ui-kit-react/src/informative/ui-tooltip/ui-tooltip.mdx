@@ -1,0 +1,76 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as TooltipStories from './ui-tooltip.stories';
+
+<Meta of={TooltipStories} />
+
+# ui-tooltip
+
+Bulle d'aide attachée à un déclencheur : un complément court, jamais une information dont
+l'utilisateur a besoin pour agir.
+
+<Canvas of={TooltipStories.Positions} />
+
+## API
+
+<ArgTypes of={TooltipStories} />
+
+## Une directive devient un composant
+
+Côté Angular, `uiTooltip` est une **directive** posée sur l'élément déclencheur. React n'en a
+pas : le composant enveloppe le déclencheur et lui rend ses props par `trigger`.
+
+Ce n'est pas qu'une traduction. La directive Angular **mute le DOM** du déclencheur pour y
+poser `aria-describedby` ; ici, l'attribut est rendu comme les autres, donc visible dans le
+JSX et cohérent à chaque rendu.
+
+Deux props disparaissent au passage. `escape={false}` liait du HTML brut : `content` accepte
+n'importe quel nœud React, ce qui couvre le besoin sans jamais injecter de HTML. Et
+`tooltipContext` n'a plus d'objet, une fermeture faisant le travail d'un contexte de gabarit.
+
+<Canvas of={TooltipStories.RichContent} />
+
+## Le calque supérieur
+
+La bulle porte `popover="manual"`, donc elle vit dans le calque supérieur : pas de z-index à
+régler, et aucun rognage par un ancêtre en `overflow: hidden`.
+
+<Canvas of={TooltipStories.EscapesOverflow} />
+
+`manual` et non `auto` est délibéré : une bulle ne doit pas se fermer au clic à côté, elle
+suit le survol et le focus.
+
+## Accessibilité
+
+WCAG 1.4.13 impose trois choses à un contenu révélé au survol ou au focus, et les trois sont
+tenues.
+
+**Rejetable** : Échap ferme la bulle sans avoir à déplacer le pointeur ni le focus. La touche
+n'est consommée que parce qu'elle ferme, sinon elle fermerait aussi le dialogue contenant le
+déclencheur.
+
+**Survolable** : avec `autoHide={false}`, la bulle reste ouverte quand le pointeur passe
+dessus, ce qui permet d'y lire un lien ou d'y cliquer.
+
+<Canvas of={TooltipStories.Interactive} />
+
+**Persistante** : elle reste tant que le déclencheur garde le survol ou le focus. `life` est
+l'exception explicite, à réserver aux cas où la bulle gêne.
+
+Le déclencheur est décrit par `aria-describedby` pendant l'ouverture seulement : une
+description qui pointe vers un élément absent ne dit rien de bon.
+
+⚠️ Une bulle est un **complément**. Ce qui est nécessaire pour comprendre ou agir ne se met pas
+dans une bulle : elle est invisible au toucher, absente à l'impression, et suppose un survol.
+
+## Le cas de l'ellipse
+
+`showOnEllipsis` n'affiche la bulle que si le texte du déclencheur est réellement tronqué.
+La troncature ne se connaît qu'une fois le texte rendu : la question est donc posée au moment
+d'afficher, pas à la construction.
+
+<Canvas of={TooltipStories.OnEllipsis} />
+
+## Theming
+
+<ConfigTable of="ui-tooltip" />

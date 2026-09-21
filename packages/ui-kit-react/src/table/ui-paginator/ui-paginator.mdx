@@ -1,0 +1,151 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as PaginatorStories from './ui-paginator.stories';
+
+<Meta of={PaginatorStories} />
+
+# ui-paginator
+
+Barre de pagination autonome, et **première entrée de la famille `table`**. Elle se branche
+sur n'importe quelle collection : `totalRecords` pour la taille, `rows` pour la page, `first`
+pour la position.
+
+<Canvas of={PaginatorStories.Basic} />
+
+## API
+
+<ArgTypes of={PaginatorStories} />
+
+## Trois valeurs, et une seule source de vérité
+
+La position est portée par `first`, l'index de la **première ligne affichée**, et non par un
+numéro de page. C'est ce qui permet de la donner directement à un `slice` ou à un `OFFSET`
+SQL, sans recalcul chez l'appelant, et c'est aussi ce qui rend la barre insensible à un
+changement de taille de page.
+
+`first` et `rows` suivent tous deux le contrat contrôlé du kit : renseignés, c'est l'appelant
+qui décide, et il doit répondre à `onFirstChange` et `onRowsChange` pour que la barre bouge.
+`onPageChange` s'ajoute pour qui préfère un seul point d'écoute : il reçoit les quatre valeurs
+d'un coup.
+
+<Canvas of={PaginatorStories.Controlled} />
+
+> Deux bornes valent d'être connues. Le nombre de pages ne descend **jamais sous une** : une
+> collection vide reste une page, sinon la barre n'aurait aucun bouton. Et `first` est
+> **écrêté** à la dernière page : les données peuvent rétrécir sous le curseur, et la barre
+> doit rester juste plutôt que pointer dans le vide.
+
+## Numéros de page
+
+Par défaut la barre est **fenêtrée** : `pageLinks` numéros glissent autour de la page
+courante, en s'arrêtant aux bords plutôt qu'en sortant de la liste.
+
+<Canvas of={PaginatorStories.ManyPages} />
+
+`ellipsis` remplace la fenêtre par un repli sur les bords : `boundaryCount` pages à chaque
+extrémité, le voisinage de la page courante, et `…` dans les trous.
+
+<Canvas of={PaginatorStories.Ellipsis} />
+<Canvas of={PaginatorStories.EllipsisMiddle} />
+
+Une exception vaut d'être notée : quand un trou ne cacherait qu'**une seule** page, c'est la
+page qui est montrée, pas la coupure. Elle coûterait un bouton de moins pour la même largeur.
+
+<Canvas of={PaginatorStories.Ellipsis} />
+
+## Compte rendu
+
+`showCurrentPageReport` affiche un texte dont le motif résout ses marques depuis l'état
+courant : `{first}`, `{last}`, `{rows}`, `{page}`, `{pageCount}`, `{totalRecords}`.
+
+<Canvas of={PaginatorStories.CurrentPageReport} />
+
+## Lignes par page
+
+`rowsPerPageOptions` ajoute un `ui-select` en densité compacte. Changer la taille de page
+**revient à la première page** : garder la position n'aurait pas de sens, la ligne qui était
+en tête n'étant plus en tête de rien.
+
+<Canvas of={PaginatorStories.RowsPerPage} />
+
+## Barre compacte
+
+`showPageLinks` et `showFirstLastIcon` retirent les numéros et les contrôles de bord, ce qui
+laisse une barre précédent / suivant.
+
+<Canvas of={PaginatorStories.Compact} />
+
+## Contenu projeté
+
+`renderStart`, `renderEnd` et `renderReport` reçoivent l'**instantané de pagination**
+(`UiPaginatorState`) ; `renderPageLink` reçoit le numéro, l'index et l'état actif de son
+bouton. Les quatre icônes de contrôle sont des props `ReactNode`.
+
+<Canvas of={PaginatorStories.Slots} />
+<Canvas of={PaginatorStories.CustomIcons} />
+
+> Le nom accessible d'un bouton de page vient de `pageAriaLabel`, **pas** du contenu projeté :
+> décorer un numéro ne doit pas changer ce qu'un lecteur d'écran annonce.
+
+## Cas limites
+
+Une seule page rend les quatre contrôles inertes, ce qui est l'état juste : il n'y a nulle
+part où aller.
+
+<Canvas of={PaginatorStories.SinglePage} />
+<Canvas of={PaginatorStories.Disabled} />
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Implémentation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Repère</td>
+      <td>
+        Un <code>&lt;nav&gt;</code> nommé par <code>aria-label</code>, « Pagination » par
+        défaut : la barre est un point de repère de la page, pas un groupe de boutons.
+      </td>
+    </tr>
+    <tr>
+      <td>Page courante</td>
+      <td>
+        <code>aria-current="page"</code> sur un seul bouton. Le fond plein est un{' '}
+        <strong>état</strong> et ne bouge donc ni au survol, ni au focus, ni à l'appui.
+      </td>
+    </tr>
+    <tr>
+      <td>Noms</td>
+      <td>
+        Chaque bouton de page est nommé par <code>pageAriaLabel</code> (« Page 4 »), et les
+        quatre contrôles par leurs props dédiées. Un contrôle en icône seule sans nom serait
+        muet.
+      </td>
+    </tr>
+    <tr>
+      <td>Coupure</td>
+      <td>
+        <code>aria-hidden</code> : le « … » n'apporte rien à qui écoute la page, et il n'est
+        pas atteignable au clavier.
+      </td>
+    </tr>
+    <tr>
+      <td>Bornes</td>
+      <td>
+        Les contrôles qui ne mènent nulle part portent le <code>disabled</code> natif, donc
+        sortent du parcours clavier au lieu d'être des boutons sans effet.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Theming
+
+Variables **locales** de `ui-paginator.scss` :
+
+<ConfigTable of="ui-paginator" />

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/assets/favicon.png" />
+    <title>Starter React — démo</title>
+    <script>
+      // Pose le mode et la marque mémorisés AVANT la première peinture, pour
+      // éviter le clignotement clair → sombre. Équivalent inline de
+      // `uiThemeBootstrapScript()` : sur une application purement cliente, on
+      // peut l'écrire ici plutôt que de l'injecter au rendu serveur.
+      (function () {
+        try {
+          var d = document.documentElement;
+          var t = localStorage.getItem('ui-kit-theme');
+          if (t === 'dark') d.setAttribute('data-theme', 'dark');
+          var b = localStorage.getItem('ui-kit-brand');
+          if (b === 'brand2' || b === 'brand3') d.setAttribute('data-brand', b);
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

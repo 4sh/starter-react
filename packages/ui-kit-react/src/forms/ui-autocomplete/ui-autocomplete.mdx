@@ -1,0 +1,143 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as AutocompleteStories from './ui-autocomplete.stories';
+
+<Meta of={AutocompleteStories} />
+
+# ui-autocomplete
+
+Champ de saisie assistée. Même motif combobox que `ui-select`, avec une différence de fond :
+la liste ne vient pas de lui.
+
+<Canvas of={AutocompleteStories.WithDropdown} />
+
+## API
+
+<ArgTypes of={AutocompleteStories} />
+
+## Le composant ne filtre rien
+
+C'est la différence avec `ui-select`, et elle décide de tout le reste. Le composant émet une
+requête par `onComplete`, et **l'appelant répond** en mettant `suggestions` à jour. C'est ce
+qui permet d'interroger un serveur, de dédupliquer, de trier, de paginer.
+
+```tsx
+const [suggestions, setSuggestions] = useState([]);
+
+<UiAutocomplete
+  label="Ville"
+  suggestions={suggestions}
+  onComplete={(query) => fetch(`/villes?q=${query}`).then(/* … */).then(setSuggestions)}
+/>
+```
+
+`minLength` et `delay` épargnent le serveur : rien ne part avant N caractères, et la frappe
+est amortie.
+
+<Canvas of={AutocompleteStories.MinLength} />
+
+## Le bouton de liste
+
+`dropdown` ajoute un bouton qui affiche les suggestions sans avoir à taper. `dropdownMode`
+décide de la requête envoyée : `blank` en envoie une vide (donc « tout »), `current` envoie la
+saisie en cours.
+
+<Canvas of={AutocompleteStories.DropdownFromCurrent} />
+
+Un détail qui compte : le clic sur ce bouton déplace le focus dans le champ, ce qui
+déclencherait `completeOnFocus` **en plus** de sa propre requête. Un garde marque la requête
+comme traitée avant de déplacer le focus, pour qu'un clic n'émette jamais qu'une requête.
+
+## Texte libre ou sélection
+
+Par défaut, ce qui est tapé **est** la valeur : le champ accepte le texte libre, ce qui
+convient à une recherche.
+
+`forceSelection` change le contrat : la valeur ne peut être qu'une suggestion connue. À la
+sortie du champ, le texte est comparé à un libellé (casse et accents ignorés) ; sans
+correspondance, le champ est remis à zéro pour que le modèle ne contienne jamais de texte
+libre.
+
+<Canvas of={AutocompleteStories.ForceSelection} />
+
+## Sélection multiple
+
+La valeur devient un tableau, rendu en puces retirables. `unique` refuse deux fois la même
+valeur, `maxSelectedLabels` replie le surplus.
+
+<Canvas of={AutocompleteStories.MultipleOverflow} />
+
+Les puces gardent le libellé retenu **au moment du choix**. Les suggestions changent à chaque
+requête : sans ce cache, une puce perdrait son libellé dès la requête suivante et n'afficherait
+plus que sa valeur brute.
+
+## Accessibilité
+
+Même motif combobox que `ui-select` : le focus ne quitte jamais le champ, et la suggestion
+courante est désignée par `aria-activedescendant`.
+
+En mode multiple il y a **deux** listes, et c'est voulu : celle des suggestions, et celle des
+puces sélectionnées. Chacune a son espace d'options, donc une même valeur peut apparaître comme
+`option` dans les deux, sans ambiguïté pour une technologie d'assistance.
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th style={{ width: 220 }}>Touche</th>
+      <th>Effet</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Flèche bas ou haut</td>
+      <td>Ouvre s'il y a des suggestions, puis déplace le focus visuel</td>
+    </tr>
+    <tr>
+      <td>Alt + flèche haut</td>
+      <td>Ferme</td>
+    </tr>
+    <tr>
+      <td>Début, Fin</td>
+      <td>Extrémités de la liste. Panneau fermé, ces touches restent au curseur du champ</td>
+    </tr>
+    <tr>
+      <td>Entrée</td>
+      <td>Choisit la suggestion au focus visuel. Panneau fermé, la soumission du formulaire passe</td>
+    </tr>
+    <tr>
+      <td>Échap</td>
+      <td>Ferme, et la touche est consommée seulement dans ce cas</td>
+    </tr>
+    <tr>
+      <td>Retour arrière sur un champ vide</td>
+      <td>En multiple, retire la dernière puce</td>
+    </tr>
+    <tr>
+      <td>Flèche gauche, curseur au début</td>
+      <td>En multiple, entre dans les puces</td>
+    </tr>
+    <tr>
+      <td>Flèches dans les puces</td>
+      <td>Navigue de puce en puce ; à droite de la dernière, revient au champ</td>
+    </tr>
+    <tr>
+      <td>Suppression dans les puces</td>
+      <td>Retire la puce au focus</td>
+    </tr>
+  </tbody>
+</table>
+
+Les puces sont un **focus glissant** : un seul arrêt de tabulation pour toute la liste, les
+flèches naviguant dedans. Vingt puces qui seraient vingt arrêts rendraient le reste du
+formulaire inatteignable au clavier.
+
+## Le panneau
+
+Comme celui de `ui-select`, il vit dans le calque supérieur et prend la largeur du champ : aucun
+ancêtre en `overflow: hidden` ne le rogne.
+
+<Canvas of={AutocompleteStories.EscapesOverflow} />
+
+## Theming
+
+<ConfigTable of="ui-autocomplete" />

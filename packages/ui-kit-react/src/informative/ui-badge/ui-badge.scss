@@ -1,0 +1,108 @@
+@use 'utils';
+@use 'sass:map';
+
+// =====================================================================
+// ui-badge : co-located styles. All values come from design tokens.
+//
+// Extend:
+//   • Level     → add to $levels (tokens --informative-{level}{sub}-* must
+//                 exist + extend the `UiFeedbackLevel` type).
+//   • Sub-level → add to $sublevels (+ the `UiSubLevel` type).
+//   • Size      → add an entry to $sizes (+ the `BadgeSize` type).
+// =====================================================================
+
+// --- Config ---------------------------------------
+$levels: default, highlight, success, warning, error; /// Niveaux sémantiques générant les modifiers `._<niveau>`.
+$sublevels: high, low;                                /// Intensités générant les modifiers `._<intensité>`.
+
+$gap: var(--ui-badge-gap, var(--units-xs));                    /// Espacement icône ↔ libellé.
+$radius: var(--ui-badge-radius, var(--radius-full));           /// Rayon des coins.
+$stroke-width: var(--ui-badge-stroke-width, var(--stroke-sm)); /// Épaisseur de la bordure.
+
+/// Hauteur, padding, typo et diamètre du point, par taille.
+$sizes: (
+  'default': (
+    height: var(--ui-badge-height, #{utils.rem-calc(28)}),
+    padding-x: var(--ui-badge-padding-x, var(--units-md)),
+    font-size: var(--ui-badge-font-size, var(--size-typography-text-default)),
+    dot: var(--ui-badge-dot-size, #{utils.rem-calc(10)}),
+  ),
+  'small': (
+    height: var(--ui-badge-height-small, #{utils.rem-calc(22)}),
+    padding-x: var(--ui-badge-padding-x-small, var(--units-md)),
+    font-size: var(--ui-badge-font-size-small, var(--size-typography-text-md)),
+    dot: var(--ui-badge-dot-size-small, #{utils.rem-calc(8)}),
+  ),
+  'large': (
+    height: var(--ui-badge-height-large, #{utils.rem-calc(32)}),
+    padding-x: var(--ui-badge-padding-x-large, var(--units-lg)),
+    font-size: var(--ui-badge-font-size-large, var(--size-typography-text-lg)),
+    dot: var(--ui-badge-dot-size-large, #{utils.rem-calc(12)}),
+  ),
+);
+$size-default: map.get($sizes, 'default'); /// Raccourci vers l'entrée `default` de `$sizes`.
+
+@mixin badge-size($size) {
+  height: map.get($size, height);
+  min-width: map.get($size, height);
+  padding: 0 map.get($size, padding-x);
+  font-size: map.get($size, font-size);
+}
+
+.ui-badge {
+  // --- Base ----------------------------------------------------------
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $gap;
+  box-sizing: border-box;
+  border: $stroke-width solid transparent;
+  border-radius: $radius;
+  font-family: var(--ui-badge-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+  font-weight: var(--ui-badge-weight, var(--weight-bold)); /// Graisse du texte.
+  line-height: 1;
+  white-space: nowrap;
+
+  @include badge-size($size-default);
+
+  // --- Sub-elements --------------------------------------------------
+  &-icon { line-height: 0; }
+  &-label { display: inline-block; }
+
+  // --- Sizes -------------------------------------
+  @each $name, $size in $sizes {
+    @if $name != 'default' {
+      &._#{$name} { @include badge-size($size); }
+    }
+  }
+
+  // --- Single glyph (1:1) ------------------------
+  &._single { padding: 0; }
+
+  // --- Dot ---------------------------
+  @each $name, $size in $sizes {
+    $sel: '&._#{$name}._dot';
+
+    @if $name == 'default' {
+      $sel: '&._dot';
+    }
+
+    #{$sel} {
+      width: map.get($size, dot);
+      height: map.get($size, dot);
+      min-width: 0;
+      padding: 0;
+    }
+  }
+
+  // --- Colors ------------------------------------
+  @each $lvl in $levels {
+    @each $sub in $sublevels {
+      &._#{$lvl}._#{$sub} {
+        background-color: var(--ui-badge-surface, var(--informative-#{$lvl}#{$sub}-surface-default)); /// Fond du composant : un seul nom pour les 10 jeux (niveau × sous-niveau), la portée se choisit avec les classes de modificateur.
+        color: var(--ui-badge-color, var(--informative-#{$lvl}#{$sub}-content-default));              /// Couleur du texte et des icônes.
+        border-color: var(--ui-badge-stroke, var(--informative-#{$lvl}#{$sub}-stroke-default));       /// Couleur de bordure.
+      }
+    }
+  }
+}

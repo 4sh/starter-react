@@ -1,0 +1,220 @@
+// =====================================================================
+// Shared SASS mixins (emit nothing by themselves).
+// =====================================================================
+
+@use 'sass:list';
+@use '../settings/ui-config';
+
+/// Transition recipe (duration/easing from ui-config) for the given properties.
+/// e.g. @include utils.control-transition(background-color, border-color);
+@mixin control-transition($properties...) {
+  $transitions: ();
+  @each $property in $properties {
+    $transitions: list.append(
+      $transitions,
+      $property ui-config.$control-transition-duration ui-config.$control-transition-easing,
+      comma
+    );
+  }
+  transition: $transitions;
+}
+
+/// Route a form palette (high | low | success | error) onto the private props
+/// consumed by selection controls: --_surface, --_stroke, --_content, --_focus-ring
+/// (+ --ui-label-color). State selectors live here; re-include to swap palette.
+@mixin form-control-palette($palette, $control: '.ui-form-control-input') {
+  --_surface: var(--ui-form-control-surface, var(--form-#{$palette}-surface-default));
+  --_stroke: var(--ui-form-control-stroke, var(--form-#{$palette}-stroke-default));
+  --_content: var(--ui-form-control-marker-color, var(--form-#{$palette}-content-checked));
+
+  &:hover:not(._disabled):not(._readonly) {
+    --_surface: var(--ui-form-control-surface-hover, var(--form-#{$palette}-surface-hover));
+    --_stroke: var(--ui-form-control-stroke-hover, var(--form-#{$palette}-stroke-hover));
+    --ui-label-color: var(--form-#{$palette}-content-hover);
+  }
+
+  &._checked:not(._disabled),
+  &._indeterminate:not(._disabled) {
+    --_surface: var(--ui-form-control-surface-checked, var(--form-#{$palette}-surface-checked));
+    --_stroke: var(--ui-form-control-stroke-checked, var(--form-#{$palette}-stroke-checked));
+  }
+
+  &:has(#{$control}:focus-visible) {
+    --_stroke: var(--ui-form-control-stroke-focus, var(--form-#{$palette}-stroke-focused));
+    // Derived from the focus border, like `ui-field`'s ring: retuning the stroke
+    // carries the halo with it instead of letting the two drift apart.
+    --_focus-ring: rgb(from var(--ui-form-control-stroke-focus, var(--form-#{$palette}-stroke-focused)) r g b / 50%);
+  }
+
+  &._disabled {
+    --_surface: var(--ui-form-control-surface-disabled, var(--form-#{$palette}-surface-disabled));
+    --_stroke: var(--ui-form-control-stroke-disabled, var(--form-#{$palette}-stroke-disabled));
+    --_content: var(--ui-form-control-marker-color-disabled, var(--form-#{$palette}-content-disabled));
+  }
+}
+
+// ---------------------------------------------------------------------
+// Field parts : shared by ui-input / ui-input-number / ui-input-mask.
+// The field shell (`ui-field`) owns the box; these style the projected
+// input + affixes (which live in the concrete component's view).
+//
+// Inset contract: the box has NO padding, each direct child owns the field
+// inset on the side where it touches the border. The interactive control
+// therefore spans the box edge to edge, so its hit area, caret zone, autofill
+// background and focus outline all match the visible field.
+// ---------------------------------------------------------------------
+
+/// Field inset carried by a direct child of the box on the edges it touches.
+/// `$mode: 'padding'` grows the control's own box (interactive surfaces:
+/// native input, trigger, wrapping control) : `'margin'` keeps the box tight
+/// and only offsets it (fixed-size affixes: icons, units, round buttons).
+@mixin field-inset-edges($mode: 'padding', $inset: ui-config.$form-field-padding-x) {
+  @if $mode == 'padding' {
+    &:first-child { padding-inline-start: $inset; }
+    &:last-child { padding-inline-end: $inset; }
+  } @else {
+    &:first-child { margin-inline-start: $inset; }
+    &:last-child { margin-inline-end: $inset; }
+  }
+}
+
+/// Vertical room a floating `in` label reserves at the top of the field box.
+/// Carried by the CONTROL, never by the box: affixes, actions and spinners then
+/// keep centring on the box, and the control still spans it edge to edge (hit
+/// area, caret zone, autofill background). Only for a DIRECT child of the box,
+/// stretched to its height. `$extra` adds the control's own vertical inset.
+/// e.g. @include utils.field-float-inset($padding-block);
+@mixin field-float-inset($extra: 0px) {
+  // `--_field-inset-block-start` is set by `ui-field` on `.ui-field-box` in
+  // `_float-in` mode, and inherits down to the projected control.
+  padding-block-start: calc(#{$extra} + var(--_field-inset-block-start, 0px));
+}
+
+/// Bare native <input>/<textarea> filling the field box (no border/bg).
+/// `$inset` = horizontal field inset owned by the control (see
+/// `field-inset-edges`); pass `false` when the control is nested in a wrapper
+/// that already carries the inset, or lives in a box with its own padding.
+@mixin field-native-input($inset: ui-config.$form-field-padding-x) {
+  flex: 1 1 auto;
+  align-self: stretch;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: inherit;
+  background: transparent;
+  outline: none;
+  font-family: ui-config.$form-field-font-family;
+  font-size: var(--size-typography-text-default);
+  color: ui-config.$form-field-color;
+
+  // `$inset: false` = nested in a wrapper that already carries both insets.
+  @if $inset {
+    @include field-inset-edges('padding', $inset);
+    @include field-float-inset;
+  }
+
+  &::placeholder {
+    color: ui-config.$form-field-placeholder-color;
+    opacity: 1;
+  }
+  &:disabled { cursor: not-allowed; color: ui-config.$form-field-color-disabled; }
+}
+
+/// Low-emphasis affix (decorative icon, unit text) sitting inside the box.
+/// Toggle `._disabled` on the element to dim it with the field.
+@mixin field-affix {
+  flex-shrink: 0;
+  color: ui-config.$form-field-affix-color;
+  @include field-inset-edges('margin');
+
+  &._disabled { color: ui-config.$form-field-affix-color-disabled; }
+}
+
+/// Square, full-height, flush-right action button (password reveal, clear…).
+/// `$width` plutôt qu'un `aspect-ratio` : la hauteur vient de l'étirement, donc
+/// aucun axe n'est `auto` et le ratio ne s'applique pas. La largeur tombait à
+/// celle de l'icône dans un champ `_auto-height` (mesuré : 20 px, sous le
+/// minimum de cible de WCAG 2.5.8). Une largeur fixe donne en plus le bon visuel
+/// quand la boîte grandit : un bouton qui s'élargirait avec les puces qui
+/// s'enroulent serait énorme.
+@mixin field-action($width: ui-config.$form-field-height) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  width: $width;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  border-radius:  0 calc(#{ui-config.$form-field-radius} - #{ui-config.$form-field-stroke-width})
+  calc(#{ui-config.$form-field-radius} - #{ui-config.$form-field-stroke-width}) 0;
+  color: ui-config.$form-field-action-color;
+  cursor: pointer;
+  @include control-transition(color, background-color);
+
+  // Collée par construction : la boîte n'a pas d'inset horizontal à annuler.
+  // Verticalement, elle en a un en mode `_auto-height` (un champ qui s'enroule
+  // autour de ses puces), qu'elle publie dans `--_field-inset-block` pour qu'on
+  // l'annule ici. Sans ça, l'élément s'arrête à la boîte de CONTENU et laisse un
+  // blanc en haut et en bas (mesuré : 32 px de haut pour une boîte de 40).
+  margin-block: calc(-1 * var(--_field-inset-block, 0px));
+
+  &:hover:not(:disabled) {
+    color: ui-config.$form-field-action-color-hover;
+    background-color: ui-config.$form-field-action-surface-hover;
+  }
+  // Focus is a surface, never a border: the box already draws the field ring on
+  // `:focus-within`, so an inset stroke here would nest a second outline inside
+  // the field. The fill + `content-focused` say which control holds the focus.
+  &:focus-visible {
+    outline: none;
+    color: ui-config.$form-field-action-color-focus;
+    background-color: ui-config.$form-field-action-surface-focus;
+  }
+  &:disabled { cursor: not-allowed; color: ui-config.$form-field-action-color-disabled; }
+}
+
+/// Vertical up/down spinner (number stepper), flush right + full height, split
+@mixin field-spinner($btn: 'button', $width: 2rem) {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  flex-shrink: 0;
+  width: $width;
+  // Collée par construction : la boîte n'a pas d'inset horizontal à annuler.
+  // Verticalement, elle en a un en mode `_auto-height` (un champ qui s'enroule
+  // autour de ses puces), qu'elle publie dans `--_field-inset-block` pour qu'on
+  // l'annule ici. Sans ça, l'élément s'arrête à la boîte de CONTENU et laisse un
+  // blanc en haut et en bas (mesuré : 32 px de haut pour une boîte de 40).
+  margin-block: calc(-1 * var(--_field-inset-block, 0px));
+  border-left: ui-config.$form-field-stroke-width solid ui-config.$form-field-spinner-stroke;
+  border-radius: 0 ui-config.$form-field-radius ui-config.$form-field-radius 0;
+  overflow: hidden;
+
+  #{$btn} {
+    display: flex;
+    flex: 1 1 50%;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    padding: 0;
+    border: none;
+    background: none;
+    line-height: 0;
+    color: ui-config.$form-field-spinner-color;
+    cursor: pointer;
+    @include control-transition(color, background-color);
+
+    &:hover:not(:disabled) {
+      color: ui-config.$form-field-spinner-color-hover;
+      background-color: ui-config.$form-field-spinner-surface-hover;
+    }
+    &:disabled { cursor: not-allowed; color: ui-config.$form-field-spinner-color-disabled; }
+  }
+
+  #{$btn} + #{$btn} {
+    border-top: ui-config.$form-field-stroke-width solid ui-config.$form-field-spinner-stroke;
+  }
+}

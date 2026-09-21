@@ -1,0 +1,98 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as MaskStories from './ui-input-mask.stories';
+
+<Meta of={MaskStories} />
+
+# ui-input-mask
+
+Champ masqué, bâti sur la coquille `ui-field`. Les littéraux du gabarit sont insérés
+automatiquement à la frappe.
+
+<Canvas of={MaskStories.Date} />
+
+## API
+
+<ArgTypes of={MaskStories} />
+
+## Le gabarit
+
+<table>
+  <thead>
+    <tr>
+      <th>Jeton</th>
+      <th>Accepte</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>9</code>
+      </td>
+      <td>un chiffre</td>
+    </tr>
+    <tr>
+      <td>
+        <code>a</code>
+      </td>
+      <td>une lettre</td>
+    </tr>
+    <tr>
+      <td>
+        <code>*</code>
+      </td>
+      <td>un caractère alphanumérique</td>
+    </tr>
+    <tr>
+      <td>tout le reste</td>
+      <td>un littéral, inséré automatiquement</td>
+    </tr>
+  </tbody>
+</table>
+
+<Canvas of={MaskStories.Licence} />
+
+Les positions encore vides affichent `slotChar`. Un champ **vide**, lui, n'affiche rien : le
+gabarit complet donnerait l'impression d'un champ déjà rempli.
+
+## Les bornes
+
+`ranges` déclare les bornes incluses de chaque segment numérique, dans l'ordre du masque et
+séparées par des espaces. Un caractère qui ne pourrait mener à **aucun** segment valide est
+écarté à la frappe, avant même d'apparaître.
+
+<Canvas of={MaskStories.Time} />
+
+Sur `0-23`, taper `9` ne donne rien : aucune heure ne commence par 9. Taper `2` passe, parce
+que 20 à 23 sont dans la plage. C'est un test sur la **complétion possible**, pas sur le
+chiffre isolé.
+
+## La valeur du modèle
+
+Masquée par défaut (`12/09/2024`), brute avec `unmask` (`12092024`). Le champ reste contrôlé
+ou non contrôlé selon la présence de `value`, comme tous les champs du kit.
+
+## Le curseur
+
+Le curseur est replacé après le Nième caractère **saisi**, les littéraux insérés
+automatiquement étant sautés. Sans cela il retomberait en fin de champ à chaque frappe, la
+valeur étant contrôlée par React.
+
+L'ancre utilisée est le nombre de caractères de donnée situés avant le curseur, jamais sa
+position absolue : celle-ci se décale dès qu'un littéral s'insère.
+
+## Le moteur
+
+Le masquage lui-même vit dans `core/forms`, sous forme de fonctions pures sans état ni
+dépendance. Il est porté **tel quel** du kit Angular, avec ses tests : c'est ce qui garantit
+que les deux stacks masquent à l'identique, jusqu'aux cas limites des bornes.
+
+Il est exporté, donc réutilisable par un composant métier qui aurait besoin du même
+formatage sans vouloir de ce champ.
+
+## Theming
+
+Le champ délègue son apparence à `ui-field`, dont la page documente les points d'extension
+de la boîte, du libellé et du message.
+
+<ConfigTable of="ui-input-mask" />

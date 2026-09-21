@@ -1,0 +1,82 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as FieldStories from './ui-field.stories';
+
+<Meta of={FieldStories} />
+
+# ui-field
+
+Coquille présentationnelle partagée par tous les champs « en boîte ». Elle rend un
+`ui-label` au-dessus, une boîte bordée dont les états viennent des jetons `form.*`, et un
+`ui-helper` en dessous. Le contrôle lui-même est **projeté**.
+
+<Canvas of={FieldStories.WithMessage} />
+
+## API
+
+<ArgTypes of={FieldStories} />
+
+## Elle ne détient rien
+
+C'est le point à comprendre avant de l'utiliser : `ui-field` est **purement visuel**. Elle
+ne connaît ni la valeur, ni la validation, ni le nom du champ. Les composants concrets
+(`ui-input`, `ui-textarea`, `ui-select`…) possèdent l'état et lui passent l'identifiant, le
+niveau et le message **déjà résolus** par `useUiField`.
+
+Conséquence pratique : on n'utilise presque jamais `ui-field` directement. On l'utilise pour
+**construire un champ** que le kit ne fournit pas encore.
+
+```tsx
+const field = useUiField({ label, helperText, errorText, level, invalid });
+
+<UiField
+  label={label}
+  htmlFor={field.inputId}
+  level={field.level}
+  message={field.message}
+  messageId={field.messageId}
+>
+  <input id={field.inputId} aria-describedby={field.describedBy} />
+</UiField>;
+```
+
+## Les trois emplacements
+
+`prefix` et `suffix` encadrent le contrôle **à l'intérieur** de la boîte ; `footer` se pose
+à côté du message, sous la boîte.
+
+<Canvas of={FieldStories.WithAffixes} />
+
+Deux entrées de la version Angular ont disparu ici : `hasPrefix` et `hasFooter`. Elles
+existaient parce qu'un composant Angular ne peut pas savoir si un `<ng-content>` a reçu
+quelque chose. React le sait, la présence de la prop suffit.
+
+## Libellé flottant
+
+`floatLabel` fait descendre le libellé dans la boîte, où il joue le rôle du texte indicatif
+et se relève au focus, ou dès que `filled` est vrai.
+
+<Canvas of={FieldStories.FloatLabelOn} />
+
+La moitié « au focus » est purement CSS (`:focus-within`). La moitié « porte une valeur »
+ne peut pas s'exprimer en CSS pour tous les contrôles : un déclencheur `<button>` n'a pas de
+`value` : d'où la prop `filled`, que le composant concret calcule.
+
+En mode flottant, le texte indicatif natif est neutralisé : le libellé occupe déjà cette
+place, et les superposer les rendrait tous deux illisibles.
+
+## Interaction
+
+Cliquer le **chrome** de la boîte donne le focus au contrôle : un `<label for>` ne couvre
+que le libellé, pas la boîte. L'événement est intercepté au `mousedown` et non au `click`,
+pour pouvoir l'annuler avant que le navigateur ne déplace le focus lui-même : sinon le
+curseur saute. Les éléments déjà interactifs (bouton d'action, contrôle) gardent leur propre
+comportement.
+
+## Theming
+
+Le libellé flottant est un **frère** de la boîte, jamais un enfant : le mixin
+`field-inset-edges` confie l'inset horizontal au premier et au dernier enfant de la boîte,
+et un élément de plus le lui volerait en silence.
+
+<ConfigTable of="ui-field" />

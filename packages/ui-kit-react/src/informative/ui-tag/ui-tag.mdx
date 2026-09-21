@@ -1,0 +1,41 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as TagStories from './ui-tag.stories';
+
+<Meta of={TagStories} />
+
+# ui-tag
+
+Étiquette informative : un mot qui qualifie un contenu, un statut, une catégorie. Purement
+présentationnel, sans interaction.
+
+<Canvas of={TagStories.Levels} />
+
+## API
+
+<ArgTypes of={TagStories} />
+
+## Forme et icônes
+
+La forme pilule est la présentation par défaut ; `rounded={false}` donne un rectangle à coins
+arrondis, utile en tête de tableau où les pilules s'alignent mal.
+
+Une icône peut se poser de chaque côté du libellé.
+
+<Canvas of={TagStories.WithIcons} />
+
+## Accessibilité
+
+Une étiquette sans libellé ne dit rien à un lecteur d'écran. Elle a besoin d'`aria-label` ;
+sans lui, un avertissement est émis en développement.
+
+<Canvas of={TagStories.IconOnly} />
+
+## Choisir entre ui-tag, ui-badge et ui-chip
+
+`ui-tag` qualifie, `ui-badge` compte ou signale, `ui-chip` se manipule (sélection, retrait).
+Une étiquette qu'on peut cliquer ou fermer n'est pas un `ui-tag`.
+
+## Theming
+
+<ConfigTable of="ui-tag" />

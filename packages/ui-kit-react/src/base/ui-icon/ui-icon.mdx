@@ -1,0 +1,65 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as IconStories from './ui-icon.stories';
+
+<Meta of={IconStories} />
+
+# ui-icon
+
+Affiche une icône par son nom (`name`, par exemple `circle-user`), en `solid` ou `outline`, à
+cinq tailles (`sm` → `xl`). **FontAwesome** est la famille par défaut, mais le composant accepte
+**n'importe quelle famille de police d'icônes** (voir _Familles d'icônes_). **Décorative par
+défaut** (ignorée par les lecteurs d'écran) : si l'icône porte une information à elle seule,
+passez `decorative={false}` et un `aria-label`.
+
+<Canvas of={IconStories.Solid} />
+
+## API
+
+<ArgTypes of={IconStories} />
+
+## Familles d'icônes
+
+Le rendu de chaque famille est décrit par une `UiIconFamily` : comment construire les classes
+CSS, et (pour les polices à ligatures comme Material Symbols) le contenu texte. FontAwesome
+est intégré ; les autres familles se déclarent avec `<UiIconFamilyProvider>` :
+
+```tsx
+import { UiIconFamilyProvider } from '@4sh/ui-kit-react/ui-icon';
+
+<UiIconFamilyProvider
+  families={{
+    material: {
+      classes: () => 'material-symbols-outlined',
+      content: (name) => name, // police à ligature : le nom est le contenu
+    },
+    bootstrap: { classes: (name) => `bi bi-${name}` },
+  }}
+  defaultFamily="material"
+>
+  <App />
+</UiIconFamilyProvider>;
+```
+
+Le provider se **compose** : en imbriquer un second complète le registre du premier au lieu de
+le remplacer, et redéfinit la famille par défaut du sous-arbre. C'est ce qui remplace, côté
+React, le couple `provideUiIconFamilies()` + directive `uiIconFamily` du starter Angular. Un
+portail (overlay, popover) conserve l'arbre React de l'endroit où il est **déclaré**, donc la
+famille du sous-arbre le suit jusque dans le DOM où il est projeté.
+
+`family` sur une icône l'emporte toujours sur le provider.
+
+## Accessibilité
+
+- Décorative par défaut : `aria-hidden="true"`, aucun nom accessible.
+- `decorative={false}` fait passer l'icône en `role="img"` et **exige** un `aria-label`. En
+  développement, un avertissement est émis une seule fois par icône concernée si le nom manque.
+- La couleur est héritée (`color: inherit`) : le contraste est celui du texte environnant.
+
+## Theming
+
+Le jeu `outline` de FontAwesome Free ne couvre qu'une poignée de noms ; `type` reste donc à
+`solid` par défaut, et ne devrait basculer qu'avec une police qui fournit réellement les deux
+variantes.
+
+<ConfigTable of="ui-icon" />

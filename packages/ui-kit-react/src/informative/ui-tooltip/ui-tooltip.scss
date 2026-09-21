@@ -1,0 +1,136 @@
+@use 'utils';
+
+// =====================================================================
+// ui-tooltip : styles co-localisés de la bulle (panneau + flèche).
+//
+// La bulle vit dans le CALQUE SUPÉRIEUR (`popover="manual"`) : aucun z-index,
+// et aucun rognage par un ancêtre en `overflow: hidden`. Il faut en revanche
+// neutraliser les styles navigateur du calque, qui centreraient la bulle.
+// =====================================================================
+
+// --- Réglages ---------------------------------------------------------
+// Max content width before wrapping.
+$tooltip-max-width: var(--ui-tooltip-max-width, #{utils.rem-calc(256)});   /// Largeur max avant retour à la ligne.
+// Diamètre de la flèche, tenu en phase avec `ARROW_GAP` dans le .tsx.
+$tooltip-arrow-size: var(--ui-tooltip-arrow-size, #{utils.rem-calc(8)});   /// Taille de la flèche, tenue en phase avec la constante `ARROW_GAP` du `.tsx`.
+$tooltip-arrow-half: calc(#{$tooltip-arrow-size} / 2);                     /// Demi-largeur de la flèche, dérivée de sa taille.
+$tooltip-padding-y: var(--ui-tooltip-padding-y, var(--units-sm));          /// Inset vertical de la bulle.
+$tooltip-padding-x: var(--ui-tooltip-padding-x, var(--units-default));     /// Inset horizontal de la bulle.
+$tooltip-radius: var(--ui-tooltip-radius, var(--radius-default));          /// Rayon des coins de la bulle.
+$tooltip-stroke-width: var(--ui-tooltip-stroke-width, var(--stroke-sm));   /// Épaisseur de bordure de la bulle.
+$tooltip-font-size: var(--ui-tooltip-font-size, var(--size-typography-text-md)); /// Taille de police du contenu.
+
+.ui-tooltip {
+  // Le calque supérieur pose `inset: 0` et `margin: auto` : c'est le placement
+  // calculé qui doit décider, donc on les annule.
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  border: 0;
+  overflow: visible;
+
+  position: relative;
+  display: inline-block;
+  box-sizing: border-box;
+  max-width: $tooltip-max-width;
+  padding: $tooltip-padding-y $tooltip-padding-x;
+  border: $tooltip-stroke-width solid var(--ui-tooltip-stroke, var(--informative-defaulthigh-stroke-default)); /// Couleur de bordure de la bulle (flèche comprise).
+  border-radius: $tooltip-radius;
+  background-color: var(--ui-tooltip-surface, var(--informative-defaulthigh-surface-default)); /// Fond de la bulle (flèche comprise).
+  color: var(--ui-tooltip-color, var(--informative-defaulthigh-content-default));              /// Couleur du texte de la bulle.
+  box-shadow: var(--shadow-default-md);
+  font-family: var(--ui-tooltip-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+  font-weight: var(--ui-tooltip-weight, var(--weight-regular)); /// Graisse du texte.
+  font-size: $tooltip-font-size;
+  line-height: 1.4;
+  overflow-wrap: break-word;
+
+  // --- Fade / slide transition (shared motion system) ----------------
+  // Snappy, decelerating feel: fast duration + ease-out. Timing flows through
+  // the motion system, so `data-motion="off"` / reduced-motion apply here too.
+  --ui-motion-duration: #{utils.$motion-duration-fast};
+  --ui-motion-easing: #{utils.$motion-easing-enter};
+
+  // --- Entrée et sortie -----------------------------------------------
+  // Même mixin partagé que `ui-modal`, `ui-drawer` et `ui-popover` : la bulle
+  // glisse depuis le côté OPPOSÉ à celui où elle s'affiche, de la distance du
+  // système. Une variable par côté, donc une seule inclusion.
+  --_motion-slide: 0 0;
+
+  &._top { --_motion-slide: 0 var(--ui-motion-distance, #{utils.$motion-distance}); }
+  &._bottom { --_motion-slide: 0 calc(-1 * var(--ui-motion-distance, #{utils.$motion-distance})); }
+  &._left { --_motion-slide: var(--ui-motion-distance, #{utils.$motion-distance}) 0; }
+  &._right { --_motion-slide: calc(-1 * var(--ui-motion-distance, #{utils.$motion-distance})) 0; }
+
+  @include utils.overlay-motion {
+    opacity: 0;
+    translate: var(--_motion-slide);
+  }
+
+  // Le `display: none` d'un popover fermé vient du style NAVIGATEUR, que le
+  // `display` de ce bloc écrase : il faut le redire. `display` étant dans la
+  // transition avec `allow-discrete`, la bulle reste affichée le temps du
+  // fondu de sortie.
+  &:not(:popover-open) {
+    display: none;
+  }
+
+  // Interactive tooltips (autoHide=false) must catch pointer events.
+  &._interactive { pointer-events: auto; }
+
+  // Respect reduced-motion preferences / the global motion kill-switch.
+  @include utils.motion-reduce {
+    transition-duration: 0.01ms;
+    translate: none;
+  }
+
+  // --- Content -------------------------------------------------------
+  &-text {
+    display: block;
+  }
+
+  // --- Arrow ---------------------------------------------------------
+  // A rotated square sharing the panel's surface + stroke, clipped to two
+  // sides so only the outward corner shows a border.
+  &-arrow {
+    position: absolute;
+    width: $tooltip-arrow-size;
+    height: $tooltip-arrow-size;
+    background-color: var(--ui-tooltip-surface, var(--informative-defaulthigh-surface-default));
+    border: $tooltip-stroke-width solid var(--ui-tooltip-stroke, var(--informative-defaulthigh-stroke-default));
+    rotate: 45deg;
+  }
+
+  // Panel above trigger : arrow on the bottom edge, pointing down.
+  &._top &-arrow {
+    bottom: calc(-1 * #{$tooltip-arrow-half});
+    left: 50%;
+    margin-left: calc(-1 * #{$tooltip-arrow-half});
+    border-top: 0;
+    border-left: 0;
+  }
+  // Panel below : arrow on top, pointing up.
+  &._bottom &-arrow {
+    top: calc(-1 * #{$tooltip-arrow-half});
+    left: 50%;
+    margin-left: calc(-1 * #{$tooltip-arrow-half});
+    border-right: 0;
+    border-bottom: 0;
+  }
+  // Panel on the left : arrow on the right edge, pointing right.
+  &._left &-arrow {
+    right: calc(-1 * #{$tooltip-arrow-half});
+    top: 50%;
+    margin-top: calc(-1 * #{$tooltip-arrow-half});
+    border-bottom: 0;
+    border-left: 0;
+  }
+  // Panel on the right : arrow on the left edge, pointing left.
+  &._right &-arrow {
+    left: calc(-1 * #{$tooltip-arrow-half});
+    top: 50%;
+    margin-top: calc(-1 * #{$tooltip-arrow-half});
+    border-top: 0;
+    border-right: 0;
+  }
+}

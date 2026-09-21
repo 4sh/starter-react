@@ -1,0 +1,57 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as ReadOnlyStories from './ui-read-only.stories';
+
+<Meta of={ReadOnlyStories} />
+
+# ui-read-only
+
+Une valeur étiquetée, en lecture seule. C'est ce qu'on pose sur un écran de consultation, là
+où un formulaire poserait un champ.
+
+<Canvas of={ReadOnlyStories.Horizontal} />
+
+## API
+
+<ArgTypes of={ReadOnlyStories} />
+
+## Le balisage suit le contenu
+
+Avec un libellé, le composant rend une vraie liste de définition (`dl`, `dt`, `dd`) : c'est le
+balisage juste pour une paire étiquette-valeur, et un lecteur d'écran les relie tout seul.
+
+Sans libellé, il rend de simples `div` : un `dd` sans `dt` serait du HTML invalide, et le
+navigateur n'en ferait rien de bon.
+
+<Canvas of={ReadOnlyStories.WithoutLabel} />
+
+## La valeur vide
+
+Un tiret ne veut rien dire à l'oreille. Quand la valeur est vide, `fallback` reste **visuel**
+et masqué aux lecteurs d'écran, tandis que `emptyLabel` porte le texte annoncé.
+
+<Canvas of={ReadOnlyStories.Empty} />
+
+Sans `emptyLabel`, le symbole est simplement lu tel quel : mieux vaut donc le renseigner dès
+qu'une valeur peut manquer.
+
+## Valeur riche
+
+`children` remplace le texte par n'importe quel contenu : une étiquette, un lien, un montant
+formaté.
+
+<Canvas of={ReadOnlyStories.RichValue} />
+
+## À côté d'un formulaire
+
+`matchField` aligne la hauteur de la zone de valeur sur celle d'un champ, ce qui évite le
+décalage quand une ligne mélange consultation et saisie.
+
+<Canvas of={ReadOnlyStories.MatchField} />
+
+En disposition `grid`, le composant n'impose aucun affichage : ce sont les classes passées à
+`rowClassName`, `labelClassName` et `valueClassName` qui pilotent la mise en page.
+
+## Theming
+
+<ConfigTable of="ui-read-only" />

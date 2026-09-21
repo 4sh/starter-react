@@ -1,0 +1,61 @@
+@use 'utils';
+@use 'sass:map';
+
+// =====================================================================
+// ui-nudger : styles co-localisés. Toutes les valeurs viennent des jetons.
+// Les deux boutons portent leurs propres couleurs et états (`ui-button`) ;
+// ce fichier ne fait que disposer le compteur et habiller la valeur.
+//
+// Étendre :
+//   - une taille : ajouter une entrée à `$sizes` (et au type `NudgerSize`).
+//     La taille est transmise telle quelle à `ui-button`.
+// =====================================================================
+
+// `default` = styles de base ; les autres clés deviennent des modifiers `._x`.
+/// Typo de la valeur et largeur minimale qui stabilise le rendu, par taille.
+$sizes: (
+  'default': (
+    font-size: var(--ui-nudger-value-font-size, var(--size-typography-title-xl)),
+    min-width: var(--ui-nudger-value-min-width, #{utils.rem-calc(40px)}),
+  ),
+  'small': (
+    font-size: var(--ui-nudger-value-font-size-small, var(--size-typography-title-lg)),
+    min-width: var(--ui-nudger-value-min-width-small, #{utils.rem-calc(32px)}),
+  ),
+);
+$size-default: map.get($sizes, 'default'); /// Raccourci vers l'entrée `default` de `$sizes`.
+$gap: var(--ui-nudger-gap, var(--units-default)); /// Espacement entre les boutons et la valeur.
+
+.ui-nudger {
+  display: inline-flex;
+  align-items: center;
+  gap: $gap;
+
+  // --- Affichage de la valeur ----------------------------------------
+  &-value {
+    min-width: map.get($size-default, min-width);
+    font-family: var(--ui-nudger-font-family, var(--fontfamily-title)); /// Famille typographique de la valeur.
+    font-weight: var(--ui-nudger-weight, var(--weight-bold)); /// Graisse de la valeur.
+    font-size: map.get($size-default, font-size);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+    text-align: center;
+    color: var(--ui-nudger-value-color, var(--form-high-content-default)); /// Couleur de la valeur.
+    user-select: none;
+    @include utils.control-transition(color);
+  }
+
+  // --- Tailles -------------------------------------------------------
+  @each $name, $size in $sizes {
+    @if $name != 'default' {
+      &._#{$name} .ui-nudger-value {
+        min-width: map.get($size, min-width);
+        font-size: map.get($size, font-size);
+      }
+    }
+  }
+
+  // --- États ---------------------------------------------------------
+  &._invalid &-value { color: var(--ui-nudger-value-color-invalid, var(--form-error-content-default)); } /// Couleur de la valeur en erreur.
+  &._disabled &-value { color: var(--ui-nudger-value-color-disabled, var(--form-high-content-disabled)); } /// Couleur de la valeur désactivée.
+}

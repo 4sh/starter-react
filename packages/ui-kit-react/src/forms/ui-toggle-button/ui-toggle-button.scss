@@ -1,0 +1,203 @@
+@use 'utils';
+@use 'sass:map';
+
+// =====================================================================
+// ui-toggle-button : styles co-localisés. Toutes les valeurs viennent des
+// jetons.
+//
+// Deux axes, deux familles de jetons : `$levels` peint l'état PRESSÉ (plein),
+// `$off-sets` dessine l'état RELÂCHÉ. Les deux honorent le même contrat à cinq
+// états, donc une nouvelle entrée n'a besoin d'aucune CSS propre.
+//
+// Étendre :
+//   - un niveau   : ajouter un nom à `$levels` (les jetons `--actions-<nom>-*`
+//     doivent exister) ;
+//   - une variante : ajouter une entrée à `$off-sets` (et au type
+//     `ToggleButtonVariant`) ;
+//   - une taille   : ajouter une entrée à `$sizes` (et au type
+//     `ToggleButtonSize`).
+// =====================================================================
+
+$levels: high, low, success, warning, error; /// Familles de couleur de l'état pressé.
+
+/// Jeu de jetons de l'état relâché, par variante. `outlined` est le défaut.
+$off-sets: (
+  'outlined': 'lowoutlined',
+  'filled': 'low',
+  'ghost': 'lowghost',
+);
+
+$radius: var(--ui-toggle-button-radius, var(--radius-sm)); /// Rayon des coins.
+$radius-rounded: var(--ui-toggle-button-radius-rounded, var(--radius-full)); /// Rayon des coins en présentation `rounded`.
+$gap: var(--ui-toggle-button-gap, var(--units-sm)); /// Espacement icône et libellé.
+$group-gap: var(--ui-toggle-button-group-gap, var(--units-sm)); /// Espacement entre les boutons d'un groupe.
+$stroke-width: var(--ui-toggle-button-stroke-width, #{utils.$control-stroke-width}); /// Épaisseur de la bordure.
+$focus-ring-width: var(--ui-toggle-button-focus-ring-width, #{utils.$form-focus-ring-width}); /// Épaisseur de l'anneau de focus.
+
+/// Hauteur, inset horizontal et taille de police par taille.
+$sizes: (
+  'default': (
+    height: var(--ui-toggle-button-height, var(--size-components-default)),
+    padding-x: var(--ui-toggle-button-padding-x, var(--units-default)),
+    font-size: var(--ui-toggle-button-font-size, var(--size-typography-text-default)),
+  ),
+  'small': (
+    height: var(--ui-toggle-button-height-small, var(--size-components-sm)),
+    padding-x: var(--ui-toggle-button-padding-x-small, var(--units-md)),
+    font-size: var(--ui-toggle-button-font-size-small, var(--size-typography-text-md)),
+  ),
+  'large': (
+    height: var(--ui-toggle-button-height-large, var(--size-components-lg)),
+    padding-x: var(--ui-toggle-button-padding-x-large, var(--units-lg)),
+    font-size: var(--ui-toggle-button-font-size-large, var(--size-typography-text-lg)),
+  ),
+);
+$size-default: map.get($sizes, 'default'); /// Raccourci vers l'entrée `default` de `$sizes`.
+
+@mixin toggle-size($size) {
+  .ui-toggle-button-item {
+    height: map.get($size, height);
+    padding: 0 map.get($size, padding-x);
+    font-size: map.get($size, font-size);
+
+    &._icon-only {
+      width: map.get($size, height);
+      padding: 0;
+    }
+  }
+}
+
+// Un état ne fait que repointer les miroirs privés. `border-color` et l'anneau
+// de focus sont déclarés UNE FOIS sur le bouton, donc `_invalid` écrase tous
+// les états à n'importe quelle spécificité, par héritage d'une seule propriété.
+@mixin action-colors($set) {
+  --_surface: var(--ui-toggle-button-surface, var(--actions-#{$set}-surface-default)); /// Fond d'un bouton.
+  --_content: var(--ui-toggle-button-color, var(--actions-#{$set}-content-default));   /// Couleur du libellé et des icônes.
+  --_stroke: var(--ui-toggle-button-stroke, var(--actions-#{$set}-stroke-default));    /// Couleur de bordure.
+  --_ring: var(--ui-toggle-button-focus-ring-color, var(--actions-#{$set}-stroke-focused)); /// Couleur de l'anneau de focus.
+
+  &:hover:not(:disabled) {
+    --_surface: var(--ui-toggle-button-surface-hover, var(--actions-#{$set}-surface-hover)); /// Fond au survol.
+    --_content: var(--ui-toggle-button-color-hover, var(--actions-#{$set}-content-hover));   /// Couleur du libellé au survol.
+    --_stroke: var(--ui-toggle-button-stroke-hover, var(--actions-#{$set}-stroke-hover));    /// Couleur de bordure au survol.
+  }
+
+  &:active:not(:disabled) {
+    --_surface: var(--ui-toggle-button-surface-pressed, var(--actions-#{$set}-surface-pressed)); /// Fond du bouton enfoncé.
+    --_content: var(--ui-toggle-button-color-pressed, var(--actions-#{$set}-content-pressed));   /// Couleur du libellé du bouton enfoncé.
+    --_stroke: var(--ui-toggle-button-stroke-pressed, var(--actions-#{$set}-stroke-pressed));    /// Couleur de bordure du bouton enfoncé.
+  }
+
+  &:disabled {
+    --_surface: var(--ui-toggle-button-surface-disabled, var(--actions-#{$set}-surface-disabled)); /// Fond du bouton désactivé.
+    --_content: var(--ui-toggle-button-color-disabled, var(--actions-#{$set}-content-disabled));   /// Couleur du libellé du bouton désactivé.
+    --_stroke: var(--ui-toggle-button-stroke-disabled, var(--actions-#{$set}-stroke-disabled));    /// Couleur de bordure du bouton désactivé.
+  }
+}
+
+.ui-toggle-button {
+  display: inline-flex;
+  gap: $group-gap;
+  font-family: var(--ui-toggle-button-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+  vertical-align: middle;
+
+  @include toggle-size($size-default);
+
+  @each $name, $size in $sizes {
+    @if $name != 'default' {
+      &._#{$name} {
+        @include toggle-size($size);
+      }
+    }
+  }
+
+  &-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: $gap;
+    box-sizing: border-box;
+    border: $stroke-width solid var(--_invalid-stroke, var(--_stroke));
+    border-radius: $radius;
+    background-color: var(--_surface);
+    color: var(--_content);
+    font-family: inherit;
+    font-weight: var(--ui-toggle-button-weight, var(--weight-bold)); /// Graisse du texte.
+    line-height: 1.2;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    @include utils.control-transition(background-color, color, border-color, box-shadow);
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 $focus-ring-width var(--_invalid-stroke, var(--_ring));
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+
+    // État relâché, variante par défaut.
+    &:not(._selected) {
+      @include action-colors(map.get($off-sets, 'outlined'));
+    }
+  }
+
+  &-icon {
+    line-height: 0;
+  }
+
+  // Le libellé réserve la même largeur dans les deux états, donc presser ne
+  // redistribue jamais la mise en page du groupe.
+  &-label {
+    display: inline-block;
+  }
+
+  // --- État relâché, autres variantes ---------------------------------
+  @each $name, $set in $off-sets {
+    @if $name != 'outlined' {
+      &._#{$name} .ui-toggle-button-item:not(._selected) {
+        @include action-colors($set);
+      }
+    }
+  }
+
+  // --- État pressé ----------------------------------------------------
+  @each $level in $levels {
+    &._#{$level} .ui-toggle-button-item._selected {
+      @include action-colors($level);
+    }
+  }
+
+  // --- Forme ----------------------------------------------------------
+  &._rounded .ui-toggle-button-item {
+    border-radius: $radius-rounded;
+  }
+
+  // --- Fluide : remplit le parent, les boutons se partagent la largeur.
+  &._fluid {
+    display: flex;
+    width: 100%;
+
+    .ui-toggle-button-item {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+  }
+
+  // --- Axe du groupe --------------------------------------------------
+  &._vertical {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  // --- Lecture seule et invalide --------------------------------------
+  &._readonly .ui-toggle-button-item {
+    cursor: default;
+  }
+
+  &._invalid {
+    --_invalid-stroke: var(--ui-toggle-button-stroke-invalid, var(--form-error-stroke-default)); /// Couleur de bordure et d'anneau de focus d'un groupe invalide, quel que soit l'état.
+  }
+}

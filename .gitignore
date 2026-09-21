@@ -1,0 +1,75 @@
+# Dépendances
+node_modules
+
+# Sorties de build
+dist
+storybook-static
+apps/demo/dist
+
+# Environnement / secrets
+.env
+*.local
+
+# Jetons de design (temporaires / générés)
+.temp-tokens
+.tokenflow
+
+# Jetons générés (pnpm tokens:build)
+packages/ui-kit-react/src/styles/generated
+
+# Copie servie par Storybook pour le téléchargement (regénérée par docs:config)
+storybook/public/component-vars.scss
+
+# Index de recherche plein texte de la doc (regénéré par docs:search)
+storybook/public/text-search-docs.json
+
+# Copie temporaire d'axe-core déposée par le contrôle a11y
+storybook/public/_axe-tmp.js
+
+# Manifeste de doc (pnpm docs:config)
+storybook/generated
+
+# Sources brutes figées pour le mode copie (regénérées par pnpm cli:assets)
+packages/ui-kit-react-cli/assets
+
+# Manifeste de doc embarqué dans le serveur MCP (regénéré par pnpm mcp:assets)
+packages/ui-kit-react-mcp/data
+
+# Couverture de test et pièces jointes des échecs (captures Vitest)
+coverage
+.vitest
+
+# Caches
+.cache
+.storybook-cache
+.vite
+
+# Journaux
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Configs d'éditeur locales
+.vscode
+.idea
+# Ignore la config Claude locale partout, mais garde les ressources partagées
+# à la racine du dépôt.
+.claude
+!/.claude
+/.claude/*
+!/.claude/skills/
+!/.claude/hooks/
+!/.claude/rules/
+!/.claude/agents/
+!/.claude/settings.json
+
+# Fichiers d'OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+
+# Sortie de pnpm pack (test local d'un paquet)
+*.tgz

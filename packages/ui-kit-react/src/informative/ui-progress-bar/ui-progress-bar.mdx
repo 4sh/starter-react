@@ -1,0 +1,52 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as ProgressBarStories from './ui-progress-bar.stories';
+
+<Meta of={ProgressBarStories} />
+
+# ui-progress-bar
+
+Avancement d'un traitement. Contrairement à `ui-spinner`, il dit **où en est** ce
+traitement : une valeur, une boucle sans valeur, ou des étapes franchies.
+
+<Canvas of={ProgressBarStories.ValuePosition} />
+
+## API
+
+<ArgTypes of={ProgressBarStories} />
+
+## Trois présentations
+
+Une piste remplie à `value`%, une animation en boucle quand la durée est inconnue
+(`mode="indeterminate"`), ou des segments discrets quand le parcours a des étapes comptables
+(`steps`).
+
+<Canvas of={ProgressBarStories.Indeterminate} />
+<Canvas of={ProgressBarStories.Steps} />
+
+`valuePosition="inside"` centre le libellé dans la portion remplie ; la barre s'épaissit pour
+le contenir, et le texte est rogné quand le remplissage est trop étroit.
+
+## Le libellé
+
+`renderValue` remplace le texte par ce qu'on veut, avec la valeur écrêtée en argument. C'est
+ce qui permet d'afficher autre chose qu'un pourcentage sans dénaturer la sémantique de la
+barre, qui reste sur une échelle de 0 à 100.
+
+<Canvas of={ProgressBarStories.CustomLabel} />
+
+## Accessibilité
+
+La piste porte `role="progressbar"` avec `aria-valuemin` et `aria-valuemax`. `aria-valuenow`
+n'est posé qu'en mode déterminé : en indéterminé, son absence est précisément ce qui dit
+qu'aucune valeur n'est suivie.
+
+En mode étapes, `aria-valuetext` annonce « 3 / 5 », plus parlant que le pourcentage
+correspondant.
+
+La barre n'a pas de nom propre : la nommer par `aria-label` ou `aria-labelledby` est à la
+charge de l'appelant, puisque lui seul sait ce qui progresse.
+
+## Theming
+
+<ConfigTable of="ui-progress-bar" />

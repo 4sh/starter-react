@@ -1,0 +1,231 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as TabsStories from './ui-tabs.stories';
+
+<Meta of={TabsStories} />
+
+# ui-tabs
+
+Onglets **headless** : bascule entre plusieurs vues. API de composition, un conteneur
+`UiTabs` qui porte l'état, un `UiTabList` d'onglets `UiTab`, et un `UiTabPanels` qui groupe
+les `UiTabPanel`. Un onglet et son panneau sont appariés par leur `value`.
+
+<Canvas of={TabsStories.Default} />
+
+## API
+
+### UiTabs, le conteneur
+
+<ArgTypes of={TabsStories} />
+
+### UiTabList
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Prop</th>
+      <th>Type</th>
+      <th>Défaut</th>
+      <th>Rôle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>aria-label</code></td>
+      <td><code>string</code></td>
+      <td><code>undefined</code></td>
+      <td>Nom accessible de la bande. Posé sur le <code>role="tablist"</code>, jamais sur la racine.</td>
+    </tr>
+    <tr>
+      <td><code>prevAriaLabel</code></td>
+      <td><code>string</code></td>
+      <td><code>'Défiler vers les onglets précédents'</code></td>
+      <td>Nom accessible du navigateur « précédents ». À traduire côté application.</td>
+    </tr>
+    <tr>
+      <td><code>nextAriaLabel</code></td>
+      <td><code>string</code></td>
+      <td><code>'Défiler vers les onglets suivants'</code></td>
+      <td>Nom accessible du navigateur « suivants ».</td>
+    </tr>
+  </tbody>
+</table>
+
+### UiTab
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Prop</th>
+      <th>Type</th>
+      <th>Défaut</th>
+      <th>Rôle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>value</code> (requise)</td>
+      <td><code>string | number</code></td>
+      <td></td>
+      <td>Identifiant de l'onglet, comparé à la valeur du conteneur.</td>
+    </tr>
+    <tr>
+      <td><code>disabled</code></td>
+      <td><code>boolean</code></td>
+      <td><code>false</code></td>
+      <td>Onglet non sélectionnable, et sauté par les flèches.</td>
+    </tr>
+    <tr>
+      <td><code>icon</code></td>
+      <td><code>string</code></td>
+      <td><code>undefined</code></td>
+      <td>Nom d'icône accolé au libellé.</td>
+    </tr>
+    <tr>
+      <td><code>iconPos</code></td>
+      <td><code>'left' | 'right'</code></td>
+      <td><code>'left'</code></td>
+      <td>Côté de l'icône.</td>
+    </tr>
+  </tbody>
+</table>
+
+### UiTabPanel
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Prop</th>
+      <th>Type</th>
+      <th>Défaut</th>
+      <th>Rôle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>value</code> (requise)</td>
+      <td><code>string | number</code></td>
+      <td></td>
+      <td>Identifiant du panneau, apparié à l'onglet de même valeur.</td>
+    </tr>
+    <tr>
+      <td><code>lazy</code></td>
+      <td><code>boolean</code></td>
+      <td><code>undefined</code></td>
+      <td>Ne rend le contenu qu'à la première activation. Gagne sur le défaut du groupe.</td>
+    </tr>
+  </tbody>
+</table>
+
+## Onglets construits depuis une liste
+
+L'appariement par `value` garde libellés et contenus synchronisés, sans index à tenir.
+
+<Canvas of={TabsStories.Dynamic} />
+
+## Contrôlé
+
+Sans `value`, le conteneur bascule tout seul depuis `defaultValue`. Avec `value`, l'onglet
+actif appartient à l'appelant : le composant signale par `onValueChange`, il ne décide plus.
+`onTabChange` porte en plus l'événement qui a provoqué le changement, ce dont on a besoin
+pour distinguer un clic d'une navigation au clavier.
+
+<Canvas of={TabsStories.Controlled} />
+
+## Axe vertical
+
+`orientation="vertical"` fait passer la bande sur le côté, et ce sont alors les flèches
+haut et bas qui naviguent.
+
+<Canvas of={TabsStories.Vertical} />
+
+## Défilement
+
+`scrollable` rend la bande défilante, et les navigateurs apparaissent quand elle déborde.
+Chacun reste inactif du côté où il n'y a plus rien à atteindre.
+
+<Canvas of={TabsStories.Scrollable} />
+
+## Activation au focus
+
+Par défaut l'activation est manuelle : les flèches déplacent le focus, <kbd>Entrée</kbd> ou
+<kbd>Espace</kbd> activent. `selectOnFocus` active au passage, ce que le motif Tabs de l'APG
+appelle l'activation automatique. Ne le choisir que si afficher un panneau est instantané.
+
+<Canvas of={TabsStories.SelectOnFocus} />
+
+## Chargement paresseux
+
+Un panneau inactif reste **monté** et masqué, donc son état est conservé. `lazy`, posé sur
+le groupe ou sur un panneau, ne construit son contenu qu'à la première activation ; une fois
+construit, il reste monté.
+
+<Canvas of={TabsStories.Lazy} />
+
+## États
+
+Un onglet désactivé n'est ni sélectionnable ni atteignable au clavier.
+
+<Canvas of={TabsStories.Disabled} />
+
+## Indicateur personnalisé
+
+L'indicateur se retouche par ses deux hooks, sans toucher au composant.
+
+<Canvas of={TabsStories.CustomIndicator} />
+
+## Contenu riche
+
+<Canvas of={TabsStories.RichContent} />
+
+## Menu de navigation
+
+Des onglets **sans panneaux** : le contenu vient d'une route. Sans `UiTabPanels`, les onglets
+n'annoncent aucun `aria-controls`, qui ne pointerait alors sur rien.
+
+<Canvas of={TabsStories.TabMenu} />
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Implémentation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Boutons natifs</strong></td>
+      <td>Un onglet est un <code>&lt;button role="tab"&gt;</code> natif, avec son <code>disabled</code>. React ne rend pas d'élément hôte, donc <code>.ui-tab</code> EST le bouton.</td>
+    </tr>
+    <tr>
+      <td><strong>Structure</strong></td>
+      <td><code>role="tablist"</code> (avec <code>aria-orientation</code>) → <code>role="tab"</code> (<code>aria-selected</code>, <code>aria-controls</code>) → <code>role="tabpanel"</code> (<code>aria-labelledby</code> vers son onglet).</td>
+    </tr>
+    <tr>
+      <td><strong>Clavier</strong></td>
+      <td><kbd>←</kbd>/<kbd>→</kbd> en horizontal, <kbd>↑</kbd>/<kbd>↓</kbd> en vertical, avec bouclage aux deux bouts ; <kbd>Origine</kbd> et <kbd>Fin</kbd> aux extrémités ; <kbd>Entrée</kbd> et <kbd>Espace</kbd> activent.</td>
+    </tr>
+    <tr>
+      <td><strong>Un seul arrêt de tabulation</strong></td>
+      <td>L'onglet actif, ou le premier disponible quand aucun ne l'est : la tabulation entre dans la bande et en sort, elle ne la parcourt pas.</td>
+    </tr>
+    <tr>
+      <td><strong>Panneau masqué</strong></td>
+      <td>Le panneau inactif reste dans le DOM mais porte <code>hidden</code> : son état est conservé, et il reste invisible aux lecteurs d'écran.</td>
+    </tr>
+    <tr>
+      <td><strong>Panneau focalisable</strong></td>
+      <td>Seulement quand son contenu ne l'est pas : un arrêt de tabulation devant un contenu déjà atteignable n'encombre que le parcours clavier.</td>
+    </tr>
+    <tr>
+      <td><strong>Motion</strong></td>
+      <td>Indicateur et fondu neutralisés par <code>prefers-reduced-motion</code>, par <code>data-motion="off"</code> et par <code>motion={false}</code>.</td>
+    </tr>
+  </tbody>
+</table>
+
+## Theming
+
+<ConfigTable of="ui-tabs" />

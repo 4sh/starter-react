@@ -1,0 +1,115 @@
+@use 'utils';
+@use 'sass:map';
+
+// =====================================================================
+// ui-empty-state : co-located styles. All values come from design tokens.
+//
+// Extend:
+//   • Size (density) → add an entry to $sizes (+ the `EmptyStateSize` type).
+// =====================================================================
+
+// --- Config (extension points) ---------------------------------------
+// `default` = base styles; other keys become `._<name>` modifiers.
+/// Gouttières, taille du média et typo, par taille.
+$sizes: (
+  'default': (
+    gap: var(--ui-empty-state-gap, var(--units-lg)),
+    media-size: var(--ui-empty-state-media-size, var(--units-4xl)),
+    title-font: var(--ui-empty-state-title-font-size, var(--size-typography-title-default)),
+    desc-font: var(--ui-empty-state-desc-font-size, var(--size-typography-text-default)),
+  ),
+  'small': (
+    gap: var(--ui-empty-state-gap-small, var(--units-default)),
+    media-size: var(--ui-empty-state-media-size-small, var(--units-2xl)),
+    title-font: var(--ui-empty-state-title-font-size-small, var(--size-typography-title-md)),
+    desc-font: var(--ui-empty-state-desc-font-size-small, var(--size-typography-text-md)),
+  ),
+);
+$size-default: map.get($sizes, 'default');                        /// Raccourci vers l'entrée `default` de `$sizes`.
+$text-gap: var(--ui-empty-state-text-gap, var(--units-xs));       /// Espacement titre ↔ description.
+$actions-gap: var(--ui-empty-state-actions-gap, var(--units-sm)); /// Espacement entre les actions.
+$max-width: var(--ui-empty-state-max-width, 40ch);                /// Largeur maximale du bloc de texte.
+
+@mixin empty-state-size($size) {
+  --_media-size: #{map.get($size, media-size)};      /// Côté de l’icône raccourci (le visuel hero).
+  gap: map.get($size, gap);
+
+  .ui-empty-state-title {
+    font-size: map.get($size, title-font);
+  }
+  .ui-empty-state-description {
+    font-size: map.get($size, desc-font);
+  }
+}
+
+.ui-empty-state {
+  // --- Base ----------------------------------------------------------
+  --_media-color: var(--ui-empty-state-media-color, var(--global-text-muted)); /// Couleur de la zone visuelle (l’icône utilise `currentColor`).
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-family: var(--ui-empty-state-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+
+  @include empty-state-size($size-default);
+
+  // --- Sub-elements --------------------------------------------------
+  &-media {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%; // keeps a projected illustration from blowing out the column
+    // `color` cascades into the icon (ui-icon uses `currentColor`); the icon size
+    // is driven through ui-icon's `--ui-icon-size` hook (a custom property, so it
+    // inherits across the component boundary, so no ::ng-deep is needed).
+    color: var(--_media-color);
+    --ui-icon-size: var(--_media-size);
+  }
+
+  &-text {
+    display: flex;
+    flex-direction: column;
+    gap: $text-gap;
+    max-width: $max-width;
+
+    &._empty {
+      display: none;
+    }
+  }
+
+  &-title {
+    margin: 0;
+    font-family: var(--ui-empty-state-title-font-family, var(--fontfamily-title)); /// Famille typographique du titre.
+    font-weight: var(--ui-empty-state-title-weight, var(--weight-bold)); /// Graisse du titre.
+    line-height: 1.2;
+    color: var(--ui-empty-state-title-color, var(--global-text-default)); /// Couleur du titre.
+  }
+
+  &-description {
+    margin: 0;
+    font-weight: var(--ui-empty-state-description-weight, var(--weight-regular)); /// Graisse de la description.
+    line-height: 1.5;
+    color: var(--ui-empty-state-description-color, var(--global-text-muted)); /// Couleur de la description.
+  }
+
+  &-body._empty {
+    display: none;
+  }
+
+  &-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: $actions-gap;
+  }
+
+  // --- Sizes -------------------------------------
+  @each $name, $size in $sizes {
+    @if $name != 'default' {
+      &._#{$name} {
+        @include empty-state-size($size);
+      }
+    }
+  }
+}

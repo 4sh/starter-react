@@ -1,0 +1,411 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as DatepickerStories from './ui-datepicker.stories';
+
+<Meta of={DatepickerStories} />
+
+# ui-datepicker
+
+Sélecteur de date, de mois ou d'année, avec heure optionnelle. Un déclencheur ouvre un panneau
+calendrier dans le calque supérieur, ou le rend en ligne. Tout le formatage et l'analyse
+passent par `Intl` : le kit n'embarque aucune bibliothèque de dates.
+
+<Canvas of={DatepickerStories.WithValue} />
+
+## API
+
+<ArgTypes of={DatepickerStories} />
+
+## La valeur, et son type
+
+`valueType` est **obligatoire et sans défaut**. Ce n'est pas une omission : le consommateur
+doit choisir la forme qui correspond au type de son propre modèle, plutôt qu'hériter d'un
+défaut muet qui pourrait ne pas y correspondre.
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>
+        <code>valueType</code>
+      </th>
+      <th>Ce qui est émis</th>
+      <th>Pour qui</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>'date'</code>
+      </td>
+      <td>
+        une <code>Date</code> fraîche, ramenée à minuit
+      </td>
+      <td>
+        un modèle qui manipule des <code>Date</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>'iso'</code>
+      </td>
+      <td>
+        une chaîne <code>"yyyy-MM-dd"</code>
+      </td>
+      <td>
+        une valeur écrite directement vers un <code>LocalDate</code>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<Canvas of={DatepickerStories.IsoValueType} />
+
+L'**entrée**, elle, accepte toujours les deux formes, quel que soit `valueType` : une `Date`,
+une chaîne ISO, et même les deux mélangées dans un tableau `multiple` ou `range`. Seul le côté
+émis s'engage sur un type, pour que le modèle appelant reste prévisible.
+
+Ce qui sort n'est jamais la référence interne, et ce qui entre est cloné : muter la `Date`
+qu'on a reçue, ou celle qu'on a passée, ne peut pas désynchroniser le composant.
+
+La sérialisation ISO est construite depuis les composantes **locales**, jamais par
+`toISOString()`, qui convertit en UTC et décalerait le jour de ±1 selon le fuseau.
+
+## Sélection : single, multiple, range
+
+<Canvas of={DatepickerStories.Multiple} />
+
+En `range`, le premier clic pose le début, le second la fin, et la bande couvre l'intervalle.
+Entre les deux, le début est choisi mais **il n'y a pas encore de zone** : la pastille reste
+seule, plutôt qu'une demi-bande filant vers une fin qui n'existe pas. Seul le panneau peut le
+savoir, la grille ne saurait pas distinguer ce cas du début d'une plage terminée dont la fin
+est dans un mois qu'elle n'affiche pas.
+
+<Canvas of={DatepickerStories.Range} />
+
+## Vues et modes
+
+`view` fixe la granularité de base, et les niveaux de forage du panneau : un clic sur le titre
+remonte jour → mois → année. `view="month"` et `view="year"` en font un sélecteur de mois ou
+d'année à part entière, dont la valeur est le 1er de la période.
+
+<Canvas of={DatepickerStories.MonthPicker} />
+<Canvas of={DatepickerStories.YearPicker} />
+
+## Plusieurs mois
+
+<Canvas of={DatepickerStories.TwoMonths} />
+
+Les flèches se répartissent : précédent sur le premier panneau, suivant sur le dernier, une
+cale à la place des manquantes pour que les titres restent alignés. Sous 600 px les mois
+s'empilent, et le filet vertical devient horizontal.
+
+Une date visible dans deux panneaux voisins ne donne qu'**un seul** arrêt de tabulation : les
+cellules de mois adjacent sont exclues du focus rotatif.
+
+## Date et heure
+
+`showTime` ajoute une ligne de compteurs sous la grille ; `timeOnly` masque la grille et ne
+garde que l'heure, l'icône devenant une horloge.
+
+<Canvas of={DatepickerStories.WithTime} />
+
+Chaque unité suit le motif ARIA `spinbutton` : flèches haut / bas et Page haut / bas, et un
+champ tapable. `stepMinute` ne pilote que les flèches : la frappe reste exacte, sinon saisir
+`07` avec un pas de 15 serait impossible. `editableTime` à `false` laisse les compteurs vivants
+et coupe seulement la frappe.
+
+<Canvas of={DatepickerStories.StepperOnlyTime} />
+
+En 12 h, une troisième unité AM/PM apparaît. C'est un `<span>`, qui n'a pas d'état désactivé
+natif et le reflète via `aria-disabled`.
+
+<Canvas of={DatepickerStories.Time12h} />
+
+## Contraintes de sélection
+
+`minDate`, `maxDate` et `disabledDates` acceptent des `Date` comme des chaînes ISO,
+mélangeables. `disabledDays` vise des jours de semaine. Une chaîne malformée dégrade en
+absence de contrainte plutôt que de lever : une configuration fausse ne doit pas casser le
+champ.
+
+<Canvas of={DatepickerStories.MinMax} />
+<Canvas of={DatepickerStories.DisabledWeekends} />
+
+Les contraintes s'appliquent au **grain de la vue** : un mois entier est désactivé quand il
+est tout entier hors bornes, une année de même.
+
+## Saisie manuelle
+
+`allowInput` est **vrai par défaut**. Une grille seule impose à un lecteur d'écran de
+traverser une trentaine de cellules quand taper la date est bien plus rapide.
+
+<Canvas of={DatepickerStories.EditableInput} />
+
+Le masque auto-« / » ne s'arme que pour **construire** une date depuis un champ vide. Il se
+retire dans deux cas, pour la même raison : re-dériver le champ entier depuis un flux plat de
+chiffres marche pour construire, pas pour éditer.
+
+- **Une valeur existe déjà** : l'édition devient du texte libre, lu au flou ou à `Entrée`.
+- **L'édition se fait à l'intérieur du texte** plutôt qu'à sa queue : remplacer le mois `07`
+  par un seul `1` re-découperait tous les segments suivants, et `08/07/2026` deviendrait
+  `08/12/026`, l'année perdant un chiffre en silence. Le masque est alors abandonné pour le
+  **reste** de la saisie, pas seulement cette frappe : les chiffres encore à venir
+  appartiennent au segment qu'on corrige.
+
+Le masque se réarme dès que le champ se lit vide, sans attendre un flou qui peut ne jamais
+venir.
+
+Un champ tapable est d'abord un champ texte : **un clic dedans n'ouvre pas le panneau**.
+Celui-ci avalerait les clics suivants, et corriger un seul segment à la souris deviendrait
+impossible. L'icône, `↓` et le clavier s'en chargent. `allowInput={false}`, `readOnly`,
+`timeOnly` ou `showIcon={false}` rendent le clic ouvrant, le champ étant alors la seule
+affordance.
+
+<Canvas of={DatepickerStories.GridOnly} />
+
+### range et multiple
+
+Tapables aussi, mais toujours en texte simple, lu au flou ou à `Entrée`.
+
+<Canvas of={DatepickerStories.RangeTypedInput} />
+<Canvas of={DatepickerStories.MultipleTypedInput} />
+
+`range` attend exactement deux dates séparées par « - », remises dans l'ordre chronologique si
+elles sont tapées à l'envers ; `multiple` en prend autant que voulu, séparées par « , », sans
+doublon.
+
+Le découpage n'est pas un `split` : un séparateur n'est accepté comme frontière qu'une fois
+que le texte qui le précède se lit **déjà** comme une date complète. Sans cela, un `dateFormat`
+contenant « , » ou un tiret casserait le découpage.
+
+### Format et ordre des champs
+
+`dateFormat` et `parseDate` sont symétriques. Sans `parseDate`, le texte tapé est relu dans
+l'ordre jour / mois / année que **le formateur lui-même écrit**, sondé depuis sa sortie pour
+une date témoin, pas dans celui de la locale résolue.
+
+C'est ce qui évite un piège précis : un formateur `fr-FR` sous une locale `en-US` affichait
+`08/07/2026` et le relisait mois d'abord, donc finir la saisie échangeait le jour et le mois en
+silence. Un format non numérique ne peut pas être sondé : l'accompagner d'un `parseDate`.
+
+<Canvas of={DatepickerStories.CustomFormat} />
+
+Le placeholder automatique suit la même règle. Avec un `dateFormat` personnalisé, le jeton
+numérique de la locale décrirait un format que rien ne produit ni n'accepte : c'est la sortie
+de ce formateur pour la date témoin qui est montrée.
+
+## Ouverture et placement
+
+Le panneau vit dans le **calque supérieur** : aucun z-index, et aucun rognage par un ancêtre
+en `overflow: hidden`. Il se retourne au-dessus du déclencheur quand la place manque en
+dessous, sauf si `autoFlip` est coupé.
+
+<Canvas of={DatepickerStories.EscapesOverflow} />
+
+Deux saveurs, selon `showOnFocus` :
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Élément</th>
+      <th>Piège de focus</th>
+      <th>Arrière-plan</th>
+      <th>
+        Fermeture au <code>Tab</code>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>par défaut</td>
+      <td>
+        <code>&lt;dialog&gt;</code>
+      </td>
+      <td>oui, natif</td>
+      <td>inerte</td>
+      <td>non</td>
+    </tr>
+    <tr>
+      <td>
+        <code>showOnFocus</code>
+      </td>
+      <td>
+        <code>[popover]</code>
+      </td>
+      <td>non</td>
+      <td>vivant</td>
+      <td>oui</td>
+    </tr>
+  </tbody>
+</table>
+
+`showOnFocus` ouvre dès que le déclencheur prend le focus, au pointeur comme au clavier, mais
+**jamais sur un focus programmatique** : un `autofocus` ou un `focus()` d'application hôte ne
+doit pas faire surgir un calendrier que personne n'a demandé.
+
+<Canvas of={DatepickerStories.ShowOnFocus} />
+
+Le focus ne file dans la grille que quand le champ n'est pas tapable, ou quand l'ouverture
+vient de l'icône (« je veux la grille »). Jamais sur une ouverture au focus : déplacer le focus
+en **conséquence** d'un focus est un changement de contexte au sens de WCAG 3.2.1. `↓` est la
+façon de demander la grille dans ce cas.
+
+## Le calendrier en ligne
+
+<Canvas of={DatepickerStories.Inline} />
+
+Pas de déclencheur, pas de calque, pas d'ombre. Le mois affiché s'amorce depuis la valeur, ce
+qui compte particulièrement ici : un calendrier en ligne ne passe par aucune ouverture, seul
+autre point d'amorce de la vue.
+
+<Canvas of={DatepickerStories.InlineWithTime} />
+
+## Personnalisation du rendu
+
+`renderDay` remplace le **contenu** d'une cellule, jamais la cellule : elle reste un
+`<button role="gridcell">` avec son nom accessible, son état choisi et son focus rotatif.
+
+<Canvas of={DatepickerStories.DayTemplate} />
+
+`renderButtonBar` reçoit les deux actions et décide de tout le reste.
+
+<Canvas of={DatepickerStories.CustomButtonBar} />
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Élément</th>
+      <th>Ce qui est posé</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Déclencheur</td>
+      <td>
+        <code>role="combobox"</code>, <code>aria-haspopup="dialog"</code>,{' '}
+        <code>aria-expanded</code>, <code>aria-controls</code> vers le panneau ouvert
+      </td>
+    </tr>
+    <tr>
+      <td>Panneau</td>
+      <td>
+        <code>role="dialog"</code>, nommé par le libellé du champ ou <code>panelAriaLabel</code>{' '}
+        ; <code>aria-modal</code> seulement quand il l'est vraiment
+      </td>
+    </tr>
+    <tr>
+      <td>Grilles</td>
+      <td>
+        <code>role="grid"</code>, cellules en <code>role="gridcell"</code> dans des{' '}
+        <code>role="row"</code>. Sans les lignes, la grille entière est de l'ARIA invalide
+      </td>
+    </tr>
+    <tr>
+      <td>Cellule jour</td>
+      <td>
+        <code>aria-label</code> = la date complète (« 8 juillet 2026 »),{' '}
+        <code>aria-selected</code>, et <code>aria-current="date"</code> sur aujourd'hui
+      </td>
+    </tr>
+    <tr>
+      <td>En-têtes de colonne</td>
+      <td>
+        <code>role="columnheader"</code> avec le jour en entier en <code>aria-label</code>, à
+        côté de l'abrégé visible
+      </td>
+    </tr>
+    <tr>
+      <td>Compteurs d'heure</td>
+      <td>
+        <code>role="spinbutton"</code> avec <code>aria-valuenow</code>,{' '}
+        <code>aria-valuemin</code>, <code>aria-valuemax</code>, <code>aria-valuetext</code>
+      </td>
+    </tr>
+    <tr>
+      <td>Format attendu</td>
+      <td>
+        annoncé par <code>aria-describedby</code>, <strong>chaîné</strong> au message d'aide et
+        jamais à sa place
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+Le format attendu a son propre texte masqué visuellement parce que le `placeholder` seul n'est
+pas fiable d'un lecteur d'écran à l'autre, et qu'il disparaît à la première frappe. Passer
+`formatHintLabel=""` l'omet.
+
+**Clavier :**
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Touche</th>
+      <th>Sur le déclencheur</th>
+      <th>Dans la grille</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <kbd>↓</kbd>
+      </td>
+      <td>ouvre et entre dans la grille</td>
+      <td>semaine suivante</td>
+    </tr>
+    <tr>
+      <td>
+        <kbd>Alt</kbd> + <kbd>↑</kbd>
+      </td>
+      <td>ferme</td>
+      <td>aucun effet</td>
+    </tr>
+    <tr>
+      <td>
+        <kbd>←</kbd> <kbd>→</kbd>
+      </td>
+      <td>déplace le curseur dans le texte</td>
+      <td>jour précédent / suivant</td>
+    </tr>
+    <tr>
+      <td>
+        <kbd>Début</kbd> <kbd>Fin</kbd>
+      </td>
+      <td>début / fin du texte</td>
+      <td>début / fin de la semaine</td>
+    </tr>
+    <tr>
+      <td>
+        <kbd>Page ↑</kbd> <kbd>Page ↓</kbd>
+      </td>
+      <td>aucun effet</td>
+      <td>mois précédent / suivant (<kbd>Shift</kbd> : année)</td>
+    </tr>
+    <tr>
+      <td>
+        <kbd>Entrée</kbd>
+      </td>
+      <td>enregistre le texte tapé</td>
+      <td>choisit la cellule au focus</td>
+    </tr>
+    <tr>
+      <td>
+        <kbd>Échap</kbd>
+      </td>
+      <td colSpan={2}>
+        ferme le panneau. <strong>Consommée seulement si elle ferme</strong> : sinon elle
+        remonte, pour qu'un dialogue parent reste atteignable par la même touche
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+Le focus est **rotatif** : une seule cellule porte `tabIndex={0}` par grille, donc la
+tabulation traverse le calendrier au lieu de s'arrêter sur trente-cinq cellules.
+
+## Theming
+
+<ConfigTable of="ui-datepicker" />

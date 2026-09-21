@@ -1,0 +1,315 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Spécifications/Responsive Design" />
+
+# Responsive Design
+
+**[Gridaflex](https://www.npmjs.com/package/gridaflex)** (v1.0.0) est le système de mise
+en page responsive **proposé en option** par ce starter, celui autour duquel le kit est
+pensé. Il n'est pas imposé : `ng add @4sh/ui-kit-schematics` demande si le projet le veut
+(`--gridaflex` / `--no-gridaflex` répond à votre place). Sans la grille, aucune des classes
+de cette page n'existe dans le projet, et les stories qui s'appuient dessus (`ui-card`,
+`ui-read-only`) s'affichent à plat.
+
+Techniquement, c'est un système **flexbox** à axes X / Y sur un moteur `gap` moderne
+, reprenant l'API XY de Foundation, modernisée.
+
+> Préfixe des classes : `flex-` : ce n'est **pas** CSS Grid.
+
+## 1. Points de Rupture (Breakpoints)
+
+Les paliers sont définis dans les design tokens (`design-tokens/responsive.json` → générés dans `packages/ui-kit-react/src/styles/generated/_tokens-breakpoint.scss`) puis injectés dans Gridaflex via `src/styles/src/vendors/gridaflex-settings.scss`.
+
+<table className="doc-table">
+    <thead>
+    <tr>
+        <th>Nom</th>
+        <th>Valeur</th>
+        <th>Usage</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td><strong><code>phone</code></strong></td>
+        <td><code>0px</code></td>
+        <td>Mobiles (mobile-first)</td>
+    </tr>
+    <tr>
+        <td><strong><code>tablet-portrait</code></strong></td>
+        <td><code>600px</code></td>
+        <td>Tablettes portrait</td>
+    </tr>
+    <tr>
+        <td><strong><code>tablet-landscape</code></strong></td>
+        <td><code>900px</code></td>
+        <td>Tablettes paysage / Petits laptops</td>
+    </tr>
+    <tr>
+        <td><strong><code>desktop</code></strong></td>
+        <td><code>1200px</code></td>
+        <td>Écrans standards</td>
+    </tr>
+    <tr>
+        <td><strong><code>medium-desktop</code></strong></td>
+        <td><code>1440px</code></td>
+        <td>Écrans larges (taille de référence Figma)</td>
+    </tr>
+    <tr>
+        <td><strong><code>big-desktop</code></strong></td>
+        <td><code>1800px</code></td>
+        <td>Très grands écrans</td>
+    </tr>
+    </tbody>
+</table>
+
+## 2. Modèle mental Gridaflex
+
+1. Un **conteneur** optionnel `.flex-container` centre et limite la largeur.
+2. Un **groupe** définit l'axe : `.flex-x` (horizontal) ou `.flex-y` (vertical).
+3. Les **cellules** `.cell` se placent dans le groupe et reçoivent une taille responsive `[breakpoint]-[n]` (n de 1 à **24** dans ce projet, cf. `$flex-columns: 24`).
+4. Les **gouttières** sont posées **sur le groupe** : `.flex-gap-x` (horizontal), `.flex-gap-y` (vertical), `.flex-gap-xy` (les deux).
+5. La **contiguïté** fait partie du contrat : les `.cell` sont les **enfants directs** du groupe. Aucun élément intermédiaire, et surtout aucun composant Angular (voir la section 3).
+
+> Règle d'or : la **taille** (`desktop-8`) va sur la **cellule** ; la **gouttière** (`flex-gap-x`) va sur le **groupe**. Ne pas inverser.
+
+### Squelette canonique
+
+```html
+<div class="flex-container">
+  <div class="flex-x flex-gap-x">
+    <div class="cell phone-24 tablet-portrait-12 desktop-8">A</div>
+    <div class="cell phone-24 tablet-portrait-12 desktop-16">B</div>
+  </div>
+</div>
+```
+
+- Mobile-first : `phone-*` s'applique partout, puis surchargé vers le haut.
+- Les fractions sont **gap-aware** : 3× `desktop-8` (3 × 8 = 24 colonnes) tiennent exactement, gouttière comprise.
+
+## 3. Grille et composants Angular : le nœud hôte
+
+Piège numéro un dans un template Angular : **un composant ne peut pas s'intercaler entre
+le groupe (`flex-x` / `flex-y`) et ses cellules (`.cell`)**. Angular rend l'élément hôte du
+composant (`<ui-step-panel>`, `<sp-mon-bloc>`) comme un vrai nœud du DOM. C'est lui qui
+devient l'enfant direct du groupe, les `.cell` ne sont plus que des petits-enfants, et la
+grille ne s'applique plus.
+
+### ❌ Ce qui casse : un composant entre le groupe et les cellules
+
+```html
+<div class="flex-x flex-gap-x">
+  <ui-step-panel [value]="1">
+    <div class="cell phone-24 desktop-12">A</div>
+    <div class="cell phone-24 desktop-12">B</div>
+  </ui-step-panel>
+</div>
+```
+
+Ce que le navigateur voit réellement :
+
+```html
+<div class="flex-x flex-gap-x">      <!-- display: flex -->
+  <ui-step-panel>                    <!-- nœud hôte Angular : le seul item flex -->
+    <div class="ui-step-panel-...">   <!-- et son template ajoute encore des niveaux -->
+      <div class="cell desktop-12">   <!-- plus un item flex, plus une cellule de grille -->
+      <div class="cell desktop-12">
+    </div>
+  </ui-step-panel>
+</div>
+```
+
+Trois choses lâchent en même temps :
+
+1. `display: flex` ne transforme que les **enfants directs** en items flex. L'unique item
+   est l'hôte ; les cellules redeviennent des blocs et s'empilent verticalement.
+2. Les règles Gridaflex écrites en enfant direct ne matchent plus, car un sélecteur `>`
+   suit l'arbre DOM : `flex-padding-x/y/xy`, le block grid `[bp]-up-[n]`,
+   `[bp]-padding-collapse` et les tailles verticales (`.flex-y > .[bp]-[n]`) ciblent
+   tous `> .cell`.
+3. Les classes de largeur (`desktop-12`) s'appliquent encore, mais leur pourcentage se
+   résout sur la boîte de l'hôte et non sur celle du groupe : la largeur obtenue n'est
+   plus celle de la grille, gouttière comprise.
+
+> `display: contents` sur l'hôte n'est **pas** le correctif : il rend les cellules items
+> flex mais ne répare pas les sélecteurs `> .cell` (un sélecteur matche l'arbre DOM, pas
+> l'arbre de boîtes), et il supprime la boîte de l'hôte donc tout style porté par le
+> composant.
+
+### ✅ Ce qui fonctionne : groupe et cellules dans le même template
+
+Le groupe et ses cellules sont des éléments natifs voisins, sans composant entre les deux :
+
+```html
+<ui-step-panel [value]="1">
+  <div class="flex-x flex-gap-x">
+    <div class="cell phone-24 desktop-12">A</div>
+    <div class="cell phone-24 desktop-12">B</div>
+  </div>
+</ui-step-panel>
+```
+
+Pour disposer des composants dans la grille, chaque composant va **dans** une cellule,
+jamais à la place d'une cellule :
+
+```html
+<div class="flex-x flex-gap-x">
+  <div class="cell phone-24 desktop-12"><ui-card header="A" /></div>
+  <div class="cell phone-24 desktop-12"><ui-card header="B" /></div>
+</div>
+```
+
+### Quand la grille doit vivre dans un composant
+
+Deux voies, selon que vous consommez le composant ou que vous l'écrivez.
+
+**Vous consommez un composant du kit** : passez les classes par les entrées prévues pour
+ça. Elles atterrissent sur les éléments du template du composant, donc groupe et cellules
+redeviennent voisins. `ui-card` expose `contentClass`, `ui-read-only` expose `rowClass` /
+`labelClass` / `valueClass` :
+
+```html
+<ui-card header="Coordonnées" contentClass="flex-x flex-gap-x">
+  <div class="cell phone-24 desktop-12">A</div>
+  <div class="cell phone-24 desktop-12">B</div>
+</ui-card>
+
+<ui-read-only
+  layout="grid"
+  rowClass="flex-x flex-gap-x"
+  labelClass="cell phone-24 desktop-6"
+  valueClass="cell phone-24 desktop-18"
+  label="Client"
+  value="Société Générale"
+/>
+```
+
+**Vous écrivez le composant** : posez le groupe sur l'élément qui contient directement le
+`<ng-content />`. Les nœuds projetés deviennent ses enfants directs dans le DOM, la grille
+matche.
+
+```html
+<!-- template du composant -->
+<div class="flex-x flex-gap-x">
+  <ng-content />
+</div>
+```
+
+> Vérification en deux secondes : dans l'inspecteur, le `.cell` doit être l'enfant
+> **immédiat** du `flex-x`. S'il y a un tag `<ui-…>` ou `<sp-…>` entre les deux, la grille
+> est déjà cassée.
+
+## 4. Utilisation dans SASS/SCSS
+
+Pour appliquer des styles conditionnels, utilisez le mixin `breakpoint()` exposé par l'API Sass de Gridaflex.
+
+### Syntaxe Standard (Up)
+
+Applique les styles à partir du palier spécifié et au-dessus.
+
+```scss
+@use 'gridaflex' as flex;
+
+.mon-element {
+  width: 100%; // Mobile par défaut
+
+  @include flex.breakpoint(tablet-portrait) {
+    width: 50%; // Tablettes et +
+  }
+}
+```
+
+### Variantes utiles
+
+```scss
+@use 'gridaflex' as flex;
+
+// Plage exacte (uniquement entre tablet-portrait et tablet-landscape)
+@include flex.breakpoint(tablet-portrait only) { … }
+
+// Vers le bas (desktop et en-dessous)
+@include flex.breakpoint(desktop down) { … }
+
+// Valeur brute (convertie en em)
+@include flex.breakpoint(768px) { … }
+
+// Orientation / HiDPI
+@include flex.breakpoint(landscape) { … }
+@include flex.breakpoint(retina) { … }
+```
+
+### API sémantique (mixins, sans classes utilitaires)
+
+```scss
+@use 'gridaflex' as flex;
+
+.galerie {
+  @include flex.xy-flex;                       // display:flex + wrap
+  @include flex.xy-flex-margin(xy);            // gouttière sur les 2 axes
+  @include flex.xy-flex-layout(3, '.item');    // 3 items par ligne
+}
+
+.sidebar {
+  @include flex.xy-cell(1 of 4);               // 25 %, gap-aware
+  @include flex.breakpoint(desktop) {
+    @include flex.xy-cell(8);                  // 8 / 24 colonnes en desktop
+  }
+}
+```
+
+## 5. Cheatsheet des classes utilitaires
+
+<table className="doc-table">
+    <thead>
+    <tr>
+        <th>Besoin</th>
+        <th>Classe(s)</th>
+        <th>Posée sur</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>Conteneur centré</td><td><code>flex-container</code> (+ <code>.fluid</code>, <code>.full</code>)</td><td>wrapper</td></tr>
+    <tr><td>Groupe horizontal / vertical</td><td><code>flex-x</code> / <code>flex-y</code></td><td>groupe</td></tr>
+    <tr><td>Gouttière (gap)</td><td><code>flex-gap-x</code> / <code>flex-gap-y</code> / <code>flex-gap-xy</code></td><td>groupe</td></tr>
+    <tr><td>Padding interne</td><td><code>flex-padding-x</code> / <code>-y</code> / <code>-xy</code></td><td>groupe</td></tr>
+    <tr><td>Cellule</td><td><code>cell</code></td><td>cellule</td></tr>
+    <tr><td>Taille responsive</td><td><code>[bp]-[1..24]</code> (ex. <code>desktop-8</code>)</td><td>cellule</td></tr>
+    <tr><td>Largeur auto / au contenu</td><td><code>auto</code> / <code>shrink</code> (ou <code>[bp]-auto</code> / <code>[bp]-shrink</code>)</td><td>cellule</td></tr>
+    <tr><td>Décalage</td><td><code>[bp]-offset-[n]</code></td><td>cellule</td></tr>
+    <tr><td>Block grid (N par ligne)</td><td><code>[bp]-up-[n]</code></td><td>groupe</td></tr>
+    <tr><td>Supprimer la gouttière</td><td><code>[bp]-gap-collapse</code> / <code>[bp]-padding-collapse</code></td><td>groupe</td></tr>
+    <tr><td>Réordonner</td><td><code>[bp]-order-[n]</code></td><td>cellule</td></tr>
+    <tr><td>Alignement parent</td><td><code>align-left/right/center/justify/spaced</code>, <code>align-top/middle/bottom/stretch</code>, <code>align-center-middle</code></td><td>groupe</td></tr>
+    <tr><td>Alignement cellule</td><td><code>align-self-top/middle/bottom/stretch</code></td><td>cellule</td></tr>
+    <tr><td>Visibilité responsive</td><td><code>show-for-[bp]</code>, <code>hide-for-[bp]</code>, <code>*-only</code>, <code>hide</code>, <code>invisible</code>, <code>visible</code></td><td>élément</td></tr>
+    </tbody>
+</table>
+
+## 6. Surcharge ponctuelle via variables CSS
+
+Pour ajuster une gouttière sur une seule instance, sans toucher à la config :
+
+```html
+<div class="flex-x flex-gap-x"  style="--flex-gap-x: 8px">…</div>
+<div class="flex-x flex-gap-xy" style="--flex-gap-x: 8px; --flex-gap-y: 16px">…</div>
+```
+
+## 7. Configuration projet
+
+La configuration Gridaflex est centralisée dans `src/styles/src/vendors/gridaflex-settings.scss` et alimentée par les design tokens responsive :
+
+- **`$flex-columns: 24`** : la grille est sur 24 colonnes (et non 12 par défaut).
+- **`$breakpoints`** : synchronisés avec les tokens (`phone`, `tablet-portrait`, `tablet-landscape`, `desktop`, `medium-desktop`, `big-desktop`).
+- **`$flex-margin-gutters`** : gouttières par breakpoint (16px sur phone, 24px à partir de tablet-portrait).
+- **`$gutters` / `$padding-gutters`** : clé `default: 16px` (utilisée par `flex-gap-x/y/xy`).
+
+> Toute modification de ces réglages doit passer par les design tokens, jamais en dur dans un composant.
+
+## 8. Erreurs à ne pas commettre
+
+- ❌ Mettre la **taille** (`desktop-8`) sur le groupe, ou la **gouttière** (`flex-gap-x`) sur la cellule.
+- ❌ Intercaler un composant (`ui-*`, `sp-*`) entre le groupe `flex-x` / `flex-y` et ses `.cell` : voir la section « Grille et composants Angular ».
+- ❌ Utiliser des marges négatives ou `overflow-x: hidden` pour « corriger » des débordements : inutile, le moteur `gap` n'en crée pas.
+- ❌ Confondre avec **CSS Grid** (`grid-template-*`) : c'est du **flexbox**.
+- ❌ Inventer un breakpoint ou une taille hors de la config (n va de 1 à 24 dans ce projet).
+- ❌ Utiliser les alias dépréciés `grid-*` / `flex-margin-*` / `xy-grid-*` (compat Foundation) en code neuf : préférer `flex-*` / `flex-gap-*` / `xy-flex-*`.
+- ❌ Placer `@use 'gridaflex/src/settings' with (…)` après `@use 'gridaflex/src/classes'` : la config serait ignorée.

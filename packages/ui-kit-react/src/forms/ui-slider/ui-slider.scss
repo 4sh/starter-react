@@ -1,0 +1,175 @@
+@use 'utils';
+
+// =====================================================================
+// ui-slider : styles co-localisés. Toutes les valeurs viennent des jetons.
+// =====================================================================
+
+$track-thickness: var(--ui-slider-thickness, #{utils.rem-calc(8)}); /// Épaisseur de la piste.
+$handle-size: var(--ui-slider-handle-size, #{utils.rem-calc(22)}); /// Diamètre des poignées.
+$mark-size: var(--ui-slider-mark-size, #{utils.rem-calc(6)}); /// Taille des repères de pas.
+$vertical-length: var(--ui-slider-length, 12rem); /// Longueur de la piste en orientation verticale.
+$focus-ring-width: var(--ui-slider-focus-ring-width, #{utils.$form-focus-ring-width}); /// Épaisseur de l'anneau de focus des poignées.
+
+$track-radius: var(--ui-slider-track-radius, var(--radius-full)); /// Rayon de la piste et de la portion remplie.
+$handle-radius: var(--ui-slider-handle-radius, var(--radius-full)); /// Rayon des poignées.
+$handle-stroke-width: var(--ui-slider-handle-stroke-width, #{utils.$control-stroke-width}); /// Épaisseur de bordure des poignées.
+$mark-radius: var(--ui-slider-mark-radius, var(--radius-full)); /// Rayon des repères.
+
+.ui-slider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  // Un curseur n'a pas de largeur propre : il remplit son conteneur en
+  // horizontal, et gère sa propre hauteur en vertical. Ici la racine EST
+  // l'élément stylé, donc aucune liaison d'hôte n'est nécessaire, contrairement
+  // à la version Angular où le composant hôte devait être élargi à la main.
+  width: 100%;
+  min-height: $handle-size;
+  touch-action: none;
+  cursor: pointer;
+  user-select: none;
+
+  // --- Rail ----------------------------------------------------------
+  &-track {
+    position: relative;
+    width: 100%;
+    height: $track-thickness;
+    border-radius: $track-radius;
+    background-color: var(--ui-slider-track-surface, var(--global-background-muted)); /// Fond de la piste.
+  }
+
+  // --- Portion remplie -----------------------------------------------
+  &-range {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    border-radius: $track-radius;
+    background-color: var(--ui-slider-range-surface, var(--actions-high-surface-default)); /// Fond de la portion remplie.
+    @include utils.control-transition(background-color);
+  }
+
+  // --- Poignée (role="slider") ---------------------------------------
+  &-handle {
+    position: absolute;
+    top: 50%;
+    width: $handle-size;
+    height: $handle-size;
+    transform: translate(-50%, -50%);
+    box-sizing: border-box;
+    border: $handle-stroke-width solid var(--ui-slider-handle-stroke, var(--actions-high-stroke-default)); /// Couleur de bordure de la poignée.
+    border-radius: $handle-radius;
+    background-color: var(--ui-slider-handle-surface, var(--actions-high-surface-default)); /// Fond de la poignée.
+    cursor: grab;
+    @include utils.control-transition(background-color, border-color, box-shadow);
+
+    &:hover {
+      background-color: var(--ui-slider-handle-surface-hover, var(--actions-high-surface-hover)); /// Fond de la poignée au survol.
+    }
+
+    &:focus-visible {
+      outline: none;
+      border-color: var(--ui-slider-handle-stroke-focus, var(--actions-high-stroke-focused)); /// Couleur de bordure de la poignée au focus ; elle teinte aussi l'anneau.
+      box-shadow: 0 0 0 $focus-ring-width var(--ui-slider-handle-stroke-focus, var(--actions-high-stroke-focused));
+    }
+
+    &:active {
+      background-color: var(--ui-slider-handle-surface-pressed, var(--actions-high-surface-pressed)); /// Fond de la poignée pendant le glissement.
+      cursor: grabbing;
+    }
+  }
+
+  // --- Repères de pas -------------------------------------------------
+  &-marks {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  &-mark {
+    position: absolute;
+    top: 50%;
+    width: $mark-size;
+    height: $mark-size;
+    transform: translate(-50%, -50%);
+    border-radius: $mark-radius;
+    background-color: var(--ui-slider-mark-surface, var(--informative-defaulthigh-surface-default)); /// Fond d'un repère de pas.
+
+    &._active {
+      background-color: var(--ui-slider-mark-surface-active, var(--actions-high-content-default)); /// Fond d'un repère de pas déjà franchi.
+    }
+  }
+
+  // --- Orientation verticale ------------------------------------------
+  &._vertical {
+    flex-direction: column;
+    width: auto;
+    min-width: $handle-size;
+    height: $vertical-length;
+    min-height: 0;
+
+    .ui-slider-track {
+      width: $track-thickness;
+      height: 100%;
+    }
+
+    .ui-slider-range {
+      top: auto;
+      bottom: 0;
+      width: 100%;
+      height: auto;
+    }
+
+    .ui-slider-handle,
+    .ui-slider-mark {
+      top: auto;
+      left: 50%;
+      transform: translate(-50%, 50%);
+    }
+  }
+
+  // --- Désactivé ------------------------------------------------------
+  &._disabled {
+    cursor: not-allowed;
+
+    .ui-slider-range {
+      background-color: var(--ui-slider-range-surface-disabled, var(--actions-high-surface-disabled)); /// Fond de la portion remplie, composant désactivé.
+    }
+    .ui-slider-handle {
+      cursor: not-allowed;
+      background-color: var(--ui-slider-handle-surface-disabled, var(--actions-high-surface-disabled)); /// Fond de la poignée désactivée.
+
+      &:hover {
+        background-color: var(--ui-slider-handle-surface-disabled, var(--actions-high-surface-disabled));
+      }
+    }
+  }
+
+  // --- Lecture seule --------------------------------------------------
+  &._readonly {
+    cursor: default;
+
+    .ui-slider-handle {
+      cursor: default;
+    }
+  }
+
+  // --- Invalide -------------------------------------------------------
+  // La couleur d'erreur saturée vit dans les jetons `content` : le jeton
+  // `surface` est le fond pâle d'un champ.
+  &._invalid {
+    .ui-slider-range {
+      background-color: var(--ui-slider-range-surface-invalid, var(--form-error-content-default)); /// Fond de la portion remplie en erreur.
+    }
+    .ui-slider-handle {
+      background-color: var(--ui-slider-handle-surface-invalid, var(--form-error-content-default)); /// Fond de la poignée en erreur.
+
+      &:hover {
+        background-color: var(--ui-slider-handle-surface-hover-invalid, var(--form-error-content-hover)); /// Fond de la poignée en erreur, au survol.
+      }
+      &:focus-visible {
+        border-color: var(--ui-slider-handle-stroke-focus-invalid, var(--form-error-stroke-focused)); /// Couleur de bordure de la poignée en erreur, au focus ; elle teinte aussi l'anneau.
+        box-shadow: 0 0 0 $focus-ring-width var(--ui-slider-handle-stroke-focus-invalid, var(--form-error-stroke-focused));
+      }
+    }
+  }
+}

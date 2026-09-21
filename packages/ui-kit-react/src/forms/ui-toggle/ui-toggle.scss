@@ -1,0 +1,167 @@
+@use 'utils';
+@use 'sass:map';
+
+// =====================================================================
+// ui-toggle : co-located styles. All values come from design tokens.
+// Extend:
+//   • Size → add an entry to $sizes (+ the `ToggleSize` type). `offset` (thumb
+//     slide) = track-w − 4·pad − thumb (2·pad + the 2 track borders).
+// =====================================================================
+
+$focus-ring-width: var(--ui-toggle-focus-ring-width, #{utils.$form-focus-ring-width}); /// Épaisseur de l'anneau de focus
+$gap: var(--ui-toggle-gap, #{utils.$form-control-gap});                                /// Espace entre l'interrupteur et le label
+
+$track-radius: var(--ui-toggle-track-radius, var(--radius-full));           /// Rayon des coins de la piste.
+$track-stroke-width: var(--ui-toggle-track-stroke-width, var(--stroke-sm)); /// Épaisseur de la bordure de la piste.
+$thumb-radius: var(--ui-toggle-thumb-radius, var(--radius-full));           /// Rayon des coins de la pastille.
+
+$font-size: var(--ui-toggle-font-size, var(--size-typography-text-default));        /// Taille de police du label.
+$font-size-small: var(--ui-toggle-font-size-small, var(--size-typography-text-md)); /// Taille de police du label en taille `small`.
+$label-gap: var(--ui-toggle-label-gap, var(--units-2xs));                           /// Espacement libellé ↔ marqueur requis.
+
+/// Dimensions de la piste et de la pastille par taille (spécifique toggle)
+$sizes: (
+  'default': (
+    track-w: var(--ui-toggle-track-width, #{utils.rem-calc(44px)}),
+    track-h: var(--ui-toggle-track-height, #{utils.rem-calc(24px)}),
+    thumb: var(--ui-toggle-thumb-size, #{utils.rem-calc(20px)}),
+    pad: var(--ui-toggle-track-padding, #{utils.rem-calc(1px)}),
+    offset: var(--ui-toggle-thumb-offset, #{utils.rem-calc(44px - 4 * 1px - 20px)}),
+  ),
+  'small': (
+    track-w: var(--ui-toggle-track-width-small, #{utils.rem-calc(36px)}),
+    track-h: var(--ui-toggle-track-height-small, #{utils.rem-calc(20px)}),
+    thumb: var(--ui-toggle-thumb-size-small, #{utils.rem-calc(16px)}),
+    pad: var(--ui-toggle-track-padding-small, #{utils.rem-calc(1px)}),
+    offset: var(--ui-toggle-thumb-offset-small, #{utils.rem-calc(36px - 4 * 1px - 16px)}),
+  ),
+);
+
+@mixin toggle-size($size) {
+  .ui-toggle-track {
+    width: map.get($size, track-w);
+    height: map.get($size, track-h);
+    padding: map.get($size, pad);
+  }
+  .ui-toggle-thumb {
+    width: map.get($size, thumb);
+    height: map.get($size, thumb);
+  }
+  &._checked .ui-toggle-thumb {
+    transform: translateX(map.get($size, offset));
+  }
+}
+
+.ui-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: $gap;
+  cursor: pointer;
+
+  // --- Control ---------------------------------------
+  &-control {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+
+  // Native input: invisible but interactive, covers the whole track.
+  &-input {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: inherit;
+  }
+
+  &-track {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    border: $track-stroke-width solid var(--ui-toggle-track-stroke, transparent); /// Couleur de bordure de la piste (transparente au repos, colorée par `_invalid`).
+    border-radius: $track-radius;
+    background-color: var(--ui-toggle-track-surface, var(--form-low-content-default)); /// Fond de la piste, interrupteur éteint.
+    @include utils.control-transition(background-color, border-color, box-shadow);
+  }
+
+  &-thumb {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    border-radius: $thumb-radius;
+    background-color: var(--ui-toggle-thumb-surface, var(--form-high-surface-default)); /// Fond de la pastille.
+    color: var(--ui-toggle-thumb-color, var(--form-low-content-default));               /// Couleur de l'icône portée par la pastille.
+    line-height: 0;
+    overflow: hidden;
+    @include utils.control-transition(transform, background-color);
+  }
+
+  // --- Sizes ----------------------------------------------------------
+  @include toggle-size(map.get($sizes, 'default'));
+  &._small { @include toggle-size(map.get($sizes, 'small')); }
+
+  // --- Hover -----------------------------------------------------------
+  &:hover:not(._disabled):not(._readonly) &-track {
+    background-color: var(--ui-toggle-track-surface-hover, var(--form-high-content-hover)); /// Fond de la piste au survol, dans les deux positions.
+  }
+  &._checked:hover:not(._disabled):not(._readonly) &-track {
+    background-color: var(--ui-toggle-track-surface-hover, var(--form-high-content-hover));
+  }
+
+  // --- Checked  -------
+  &._checked &-track {
+    background-color: var(--ui-toggle-track-surface-checked, var(--form-high-content-checked)); /// Fond de la piste, interrupteur allumé.
+  }
+
+  // --- Focus ring (only on :focus-visible) ----------------------------
+  &:has(.ui-toggle-input:focus-visible) &-track {
+    box-shadow: 0 0 0 $focus-ring-width rgb(from var(--ui-toggle-focus-ring-color, var(--form-high-stroke-focused)) r g b / 50%); /// Teinte de l'anneau de focus (l'opacité reste celle du kit).
+  }
+
+  // --- Invalid --------------------------------------------------------
+  &._invalid &-track {
+    border-color: var(--ui-toggle-track-stroke-invalid, var(--form-error-stroke-default)); /// Couleur de bordure de la piste en erreur.
+  }
+  &._invalid:has(.ui-toggle-input:focus-visible) &-track {
+    box-shadow: 0 0 0 $focus-ring-width rgb(from var(--ui-toggle-focus-ring-color-invalid, var(--form-error-stroke-focused)) r g b / 50%); /// Teinte de l'anneau de focus en erreur.
+  }
+
+  // --- Inline label ---------------------------------------------------
+  &-label {
+    display: inline-flex;
+    align-items: center;
+    gap: $label-gap;
+    font-family: var(--ui-toggle-font-family, var(--fontfamily-base)); /// Famille typographique du libellé.
+    font-size: $font-size;
+    color: var(--ui-label-color, var(--form-high-content-default));
+    cursor: inherit;
+    user-select: none;
+    @include utils.control-transition(color);
+  }
+  &._small &-label { font-size: $font-size-small; }
+
+  &-required {
+    color: var(--ui-toggle-required-color, var(--informative-errorlow-content-default)); /// Couleur du marqueur « requis ».
+  }
+
+  // --- States ---------------------------------------------------------
+  &._disabled {
+    cursor: not-allowed;
+
+    .ui-toggle-track { background-color: var(--ui-toggle-track-surface-disabled, var(--form-low-content-disabled)); } /// Fond de la piste désactivée, interrupteur éteint.
+    .ui-toggle-thumb { background-color: var(--ui-toggle-thumb-surface-disabled, var(--form-high-surface-disabled)); } /// Fond de la pastille désactivée.
+    .ui-toggle-label { color: var(--ui-label-color-disabled, var(--form-high-content-disabled)); }
+  }
+  &._disabled._checked &-track {
+    background-color: var(--ui-toggle-track-surface-checked-disabled, var(--form-high-content-disabled)); /// Fond de la piste désactivée, interrupteur allumé.
+  }
+
+  &._readonly {
+    cursor: default;
+  }
+}

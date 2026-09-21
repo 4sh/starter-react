@@ -1,0 +1,247 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Spécifications/Thème & Système de Tokens" />
+
+# Thème & Système de Tokens
+
+Ce starter n'utilise **aucune librairie UI propriétaire**. Le thème repose entièrement sur des
+**design tokens** générés en variables CSS, consommés par les composants.
+
+## Trois couches, trois mots
+
+Le mot « thème » désigne une seule de ces trois couches. Elles se superposent, de la plus
+large à la plus étroite :
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th style={{ width: 130 }}>Couche</th>
+      <th>Ce qu'elle règle</th>
+      <th>Portée</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Tokens</strong></td>
+      <td>La base du système : couleurs, espacements, rayons, typo</td>
+      <td>Tout, partout</td>
+    </tr>
+    <tr>
+      <td><strong>Marque &amp; mode</strong><br/><em>(le « thème »)</em></td>
+      <td>Quelle palette, et clair ou sombre : en changeant la valeur des tokens</td>
+      <td>Tout, au runtime</td>
+    </tr>
+    <tr>
+      <td><strong>Hooks</strong></td>
+      <td>Une valeur structurelle d'<strong>un</strong> composant : hauteur du bouton
+          <code>small</code>, rayon de la carte, largeur du tiroir…</td>
+      <td>Un composant, ou une seule zone de l'écran</td>
+    </tr>
+  </tbody>
+</table>
+
+Un hook ne remplace pas un token : dans la grande majorité des cas il **pointe** vers un
+token. Retoucher un espacement pour tout le kit = viser le token ; retoucher la hauteur du
+seul bouton `small` = viser le hook.
+
+La couche « hooks » a elle-même deux étages, que la cascade CSS enchaîne toute seule :
+
+```css
+var(--ui-checkbox-box-size, var(--ui-form-control-size, var(--size-components-2xs)))
+/*      ↑ le composant          ↑ la catégorie             ↑ le token               */
+```
+
+Les hooks de **catégorie** viennent de `_ui-config.scss` et portent son nom
+(`$form-control-size` → `--ui-form-control-size`). Ils servent quand une valeur est partagée
+par une famille de composants **et** que le token qu'elle vise sert ailleurs : ici
+`--size-components-2xs` alimente aussi `ui-tag`, donc retoucher le token dépasserait la cible,
+alors que `--ui-form-control-size` ne touche que la case à cocher et le radio.
+
+## Pipeline
+
+```
+design-tokens/*.json        (source DTCG, export Token Flow Manager)
+        │  pnpm tokens:build  (scripts/tokens.build.mjs)
+        ▼
+packages/ui-kit-react/src/styles/generated/_tokens-*.scss   (variables CSS)
+        ▼
+composants (.scss co-localisés) + classes utilitaires (typo…)
+```
+
+## Collections & nommage
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Collection</th>
+      <th>Préfixe variable</th>
+      <th>Exemple</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>primitives</td><td><code>{'--primitives-*'}</code></td><td><code>--primitives-primary-500</code></td></tr>
+    <tr><td>metrics</td><td><code>{'--metrics-*'}</code></td><td><code>--metrics-units-sm</code>, <code>--metrics-radius-sm</code></td></tr>
+    <tr><td>semantics</td><td><em>(aucun)</em></td><td><code>--actions-high-surface-default</code>, <code>--global-text-default</code></td></tr>
+    <tr><td>typography</td><td><em>(aucun)</em></td><td><code>--fontfamily-base</code>, <code>--weight-bold</code></td></tr>
+    <tr><td>responsive</td><td><em>(aucun)</em></td><td><code>--size-typography-title-lg</code></td></tr>
+    <tr><td>transitions</td><td><em>(aucun)</em></td><td><code>--transition-fast</code></td></tr>
+  </tbody>
+</table>
+
+Les **semantics référencent les primitives** (`var(--primitives-*)`), ce qui permet le switch
+de marque/mode sans duplication.
+
+## Marque & mode (runtime)
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Dimension</th>
+      <th>Porté par</th>
+      <th>Application</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Marque</td><td>primitives (modeBrand1/2/3)</td><td><code>[data-brand='brand2'|'brand3']</code> : <code>BrandService</code></td></tr>
+    <tr><td>Clair / Sombre</td><td>semantics (modeLight/modeDark)</td><td><code>[data-theme='dark']</code> : <code>ThemeService</code></td></tr>
+    <tr><td>Viewport</td><td>responsive</td><td><code>@media (min-width: …)</code></td></tr>
+  </tbody>
+</table>
+
+> Voir **Foundations → Colors** pour explorer les valeurs résolues et basculer marque/mode en direct.
+
+## Services runtime
+
+Deux services Angular (`providedIn: 'root'`, signals + `effect`) pilotent ces attributs sur
+`<html>`. Ils sont **headless et sans dépendance UI** : ils ne font que positionner un attribut,
+tout le rendu découle des tokens CSS. Ils sont instanciés dans `AppComponent` (leur `effect`
+applique l'attribut au démarrage puis à chaque changement de signal).
+
+### ThemeService : light / dark
+
+`src/app/core/service/theme.service.ts`
+
+- **État** : `currentMode` (signal `'light' | 'dark'`), initialisé depuis `localStorage` (clé `theme-mode`), défaut `'light'`.
+- **Effet** : `dark` → `document.documentElement` reçoit `[data-theme='dark']` ; `light` → l'attribut est retiré (les sémantiques `:root` s'appliquent). Le choix est persisté dans `localStorage`.
+- **API** : `toggle()` (bascule light/dark), `isDark` (getter booléen), `currentMode.set(...)`.
+
+```ts
+private theme = inject(ThemeService);
+
+this.theme.toggle();          // light ⇄ dark, persisté
+this.theme.currentMode.set('dark');
+const dark = this.theme.isDark;
+```
+
+### BrandService : marque (thème de couleurs)
+
+`src/app/core/service/brand.service.ts`
+
+- **État** : `currentBrand` (signal `'brand1' | 'brand2' | 'brand3'`), initialisé depuis le **sous-domaine** (`themeone → brand1`, `themetwo → brand2`, `themethree → brand3`), défaut `'brand1'`.
+- **Effet** : `brand1` (défaut) → aucun attribut (primitives `:root` = brand 1) ; `brand2`/`brand3` → `[data-brand='brand2'|'brand3']`, ce qui redéfinit les `--primitives-*` et se propage aux sémantiques qui les référencent.
+- **API** : `set(brand)`, `currentBrand()` (lecture).
+
+```ts
+private brand = inject(BrandService);
+
+this.brand.set('brand2');           // active la palette de la marque 2
+const current = this.brand.currentBrand();
+```
+
+> Contrairement au thème, la marque n'est **pas persistée** : elle dérive du sous-domaine
+> (multi-tenant). L'explorateur **Foundations → Colors** permet de forcer marque + mode pour
+> prévisualiser les tokens, sans altérer le reste de l'UI Storybook.
+
+## Hooks de composant (`--ui-*`)
+
+Les tokens règlent le système ; les **hooks** règlent un composant. Chaque valeur
+structurelle d'un composant (hauteur, inset, rayon, épaisseur de bordure, taille de police…)
+est lue à travers une custom property dont le défaut est le réglage livré :
+
+```scss
+// dans ui-button.scss
+height: var(--ui-button-height-small, var(--size-components-sm));
+//          ↑ le hook                    ↑ le défaut livré
+```
+
+Le composant ne **déclare** jamais ce nom : il ne fait que le lire. Le poser n'importe où
+au-dessus suffit donc, et la portée se choisit par le sélecteur :
+
+```scss
+:root              { --ui-button-height-small: 24px; }  /* tous les boutons small */
+.toolbar ui-button { --ui-button-height-small: 24px; }  /* cette zone seulement */
+```
+
+C'est le **seul levier disponible en mode package**, où le SCSS du kit est déjà compilé.
+En mode schematics le code des composants est dans le projet : leurs variables SCSS sont
+rebindables directement (voir **Components → configuration**).
+
+### Deux réflexes
+
+- **Une couleur** se retouche par son token sémantique (`--actions-high-surface-default`),
+  pas par un hook : le token suit la marque, le clair/sombre, et son contraste est vérifié.
+  Les rares hooks de couleur servent à repeindre **un exemplaire** (voile de masque,
+  marqueur de chargement, reflet de squelette).
+- **Une valeur partagée par tout le kit** (espacement, rayon, taille de contrôle) se
+  retouche par son token `--units-*` / `--radius-*` / `--size-components-*` : inutile de
+  poser quarante hooks pour un même effet.
+
+### Le fichier de départ
+
+<p>
+  <a
+    href="component-vars.scss"
+    download="component-vars.scss"
+    style={{
+      display: 'inline-block',
+      padding: '8px 16px',
+      borderRadius: 6,
+      border: '1px solid var(--sb-border, rgba(128,128,128,.35))',
+      background: 'var(--sb-bg-subtle, rgba(128,128,128,.08))',
+      color: 'inherit',
+      fontWeight: 600,
+      textDecoration: 'none',
+    }}
+  >
+    ⬇ Télécharger <code>component-vars.scss</code>
+  </a>
+</p>
+
+**581 hooks** y sont déclarés à leur valeur livrée, groupés par catégorie → composant →
+type de propriété (dimensions, espacements, bordures, typographie, couleurs), valeurs
+alignées.
+
+On le copie dans un dossier **`presets/`** du projet et on l'importe depuis `main.scss` :
+
+```
+src/styles/
+├── main.scss
+└── presets/
+    ├── component-vars.scss   ← le fichier livré, valeurs retouchées
+    └── shadcn.scss           ← ou un préréglage nommé, à côté
+```
+
+```scss
+// src/styles/main.scss
+@use 'presets/component-vars';
+```
+
+Tel quel, le fichier livré ne change rien : il redéclare les défauts. **L'ordre de
+chargement n'a pas d'importance** : le kit ne *déclare* jamais ces noms, il ne fait que
+les lire. (Une surcharge de **token**, elle, doit venir après `styles.css`, puisque le
+kit y déclare déjà les tokens.)
+
+> Un préréglage n'a pas besoin d'être exhaustif : seules les lignes présentes s'appliquent,
+> le reste garde le défaut du kit. Un exemple complet vit dans ce dépôt :
+> `src/styles/presets/shadcn.scss` reproduit la métrique de shadcn/ui (contrôles 36/32,
+> rayons 6/8/12, bordures 1px, texte 14px) en 166 lignes : 16 tokens pour l'échelle
+> globale, 150 variables de composant pour le reste. Les couleurs n'y sont pas touchées.
+
+Il est aussi livré dans le package (`@4sh/ui-kit-react/styles/component-vars.scss`) et **généré**
+depuis les `.scss` du kit, valeurs lues dans le CSS compilé : il ne peut pas dériver du
+code.
+
+> Le hook de chaque valeur est indiqué dans la colonne **« Hook exposé »** de la section
+> « Theming » de chaque composant. Les quelques hooks absents du fichier : valeur dépendante
+> de la variante rendue, ou propriété que le composant se pose lui-même : y figurent aussi,
+> avec leur rôle.

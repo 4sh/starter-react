@@ -1,0 +1,25 @@
+dist
+storybook-static
+storybook/generated
+storybook/public/component-vars.scss
+storybook/public/text-search-docs.json
+packages/ui-kit-react/src/styles/generated
+packages/ui-kit-react/src/styles/component-vars.scss
+packages/ui-kit-react-cli/assets
+packages/ui-kit-react-mcp/data
+figma/component-vars.json
+coverage
+*.tgz
+
+# Le formateur markdown de Prettier prend `{/* commentaire */}` (le seul
+# commentaire que MDX accepte) pour de l'emphase et le transforme en
+# `{/_ commentaire _/}`, ce qui casse le fichier pour l'indexeur MDX de
+# Storybook comme pour docs.search.mjs. Constaté sur le starter Angular.
+*.mdx
+
+# L'imprimeur SCSS de Prettier peut changer la sémantique Sass et pas seulement
+# l'indentation : replier une liste parenthésée séparée par des espaces y ajoute
+# une virgule finale, ce qui transforme `(a b c)` en liste de listes. Combiné à
+# la fragilité des commentaires `///` (voir joinWrappedVarCalls dans
+# docs.config.mjs), le risque de corruption silencieuse l'emporte.
+*.scss

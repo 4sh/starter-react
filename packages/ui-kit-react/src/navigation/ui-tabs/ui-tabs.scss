@@ -1,0 +1,265 @@
+@use 'utils';
+
+// =====================================================================
+// ui-tabs : co-located styles for the whole family (container, list, tab,
+// panels, panel). All values come from the `navigation` tokens.
+//
+// The list is a flex strip (row / column) with an optional scroll viewport
+// and prev/next navigators. The active indicator is an absolutely placed
+// bar gliding under (horizontal) or beside (vertical) the active tab, timed
+// by the motion system.
+//
+// No host element here, so `.ui-tab` IS the native <button role="tab">:
+// the `.ui-tab-button` of the Angular kit has nowhere left to live.
+// =====================================================================
+
+// --- Config -----------------------------------------------------------
+$track-thickness: var(--ui-tabs-track-thickness, var(--stroke-sm));                   /// Épaisseur de la piste sous les onglets.
+$nav-size: var(--ui-tabs-nav-size, #{utils.rem-calc(40)});                            /// Taille des boutons de défilement.
+$min-height: var(--ui-tabs-min-height, #{utils.rem-calc(44)});                        /// Hauteur minimale d'un onglet (cible tactile).
+$focus-ring-width: var(--ui-tabs-focus-ring-width, #{utils.$action-focus-ring-width}); /// Épaisseur de l'anneau de focus.
+
+// Le kit Angular honore encore `--ui-tabs-active-bar-*`, les noms d'avant son
+// renommage. Rien à replier ici : ce dépôt n'a jamais publié les anciens.
+$indicator-color: var(--ui-tabs-indicator-color, var(--navigation-highoutlined-stroke-active)); /// Couleur de la barre d'onglet actif.
+$indicator-thickness: var(--ui-tabs-indicator-thickness, var(--stroke-default));                /// Épaisseur de la barre d'onglet actif.
+
+// --- Container --------------------------------------------------------
+.ui-tabs {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  &._vertical {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+// --- Tab list ---------------------------------------------------------
+.ui-tab-list {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  min-width: 0;
+  box-shadow: inset 0 calc(-1 * #{$track-thickness}) 0 0 var(--ui-tabs-track-stroke, var(--global-border-default)); /// Couleur du rail sous les onglets.
+
+  &-scroll {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  &-tabs {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    width: max-content;
+    min-width: 100%;
+  }
+
+  // --- Active indicator ----------------------------------------------
+  &-active-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: $indicator-thickness;
+    border-radius: var(--radius-full);
+    background-color: $indicator-color;
+    pointer-events: none;
+    will-change: transform, width;
+    @include utils.motion-transition(transform, width, height);
+
+    &._hidden {
+      opacity: 0;
+    }
+
+    @include utils.motion-reduce {
+      transition: none;
+    }
+  }
+
+  // --- Navigators ------------------------------------------------------
+  &-nav {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    width: $nav-size;
+    border: 0;
+    background-color: var(--ui-tabs-nav-surface, var(--navigation-highoutlined-surface-default)); /// Fond d'un chevron de défilement.
+    color: var(--ui-tabs-nav-color, var(--navigation-highoutlined-content-default));              /// Couleur d'un chevron de défilement.
+    cursor: pointer;
+    @include utils.control-transition(color, background-color);
+
+    &:hover:not(:disabled) {
+      background-color: var(--ui-tabs-nav-surface-hover, var(--navigation-highoutlined-surface-hover)); /// Fond d'un chevron au survol.
+      color: var(--ui-tabs-nav-color-hover, var(--navigation-highoutlined-content-hover));              /// Couleur d'un chevron au survol.
+    }
+
+    &:disabled {
+      color: var(--ui-tabs-nav-color-disabled, var(--navigation-highoutlined-content-disabled)); /// Couleur d'un chevron désactivé.
+      cursor: default;
+    }
+  }
+
+  // --- Scrolling strip -------------------------------------------------
+  &._scrollable .ui-tab-list-scroll {
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    @include utils.motion-reduce {
+      scroll-behavior: auto;
+    }
+  }
+
+  // Explicit opt-out (`motion={false}` on UiTabs).
+  &._no-motion .ui-tab-list-scroll {
+    scroll-behavior: auto;
+  }
+
+  &._no-motion .ui-tab-list-active-bar {
+    transition: none;
+  }
+
+  // --- Vertical axis ----------------------------------------------------
+  &._vertical {
+    flex-direction: column;
+    align-items: stretch;
+    box-shadow: inset calc(-1 * #{$track-thickness}) 0 0 0 var(--ui-tabs-track-stroke, var(--global-border-default));
+    // Sur cet axe la bande est un frère du contenu, dont la largeur naturelle
+    // est celle d'un paragraphe : la laisser rétrécir l'écrase à la largeur de
+    // ses icônes (mesuré : 50 px pour 131 de contenu). Elle garde donc sa
+    // largeur de contenu, et c'est le contenu qui absorbe le reste.
+    flex: 0 0 auto;
+
+    .ui-tab-list-tabs {
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .ui-tab-list-active-bar {
+      top: 0;
+      right: 0;
+      bottom: auto;
+      left: auto;
+      width: $indicator-thickness;
+      height: auto;
+    }
+
+    .ui-tab-list-nav {
+      width: auto;
+      height: $nav-size;
+      align-self: auto;
+    }
+  }
+
+  &._vertical._scrollable .ui-tab-list-scroll {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}
+
+// --- Tab --------------------------------------------------------------
+.ui-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--units-sm);
+  box-sizing: border-box;
+  min-height: $min-height;
+  margin: 0;
+  padding: 0 var(--units-default);
+  border: 0;
+  background-color: var(--ui-tabs-tab-surface, var(--navigation-highoutlined-surface-default)); /// Fond d'un onglet.
+  color: var(--ui-tabs-tab-color, var(--navigation-highoutlined-content-default));              /// Couleur du libellé d'un onglet.
+  font-family: var(--ui-tabs-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+  font-weight: var(--ui-tabs-weight, var(--weight-bold)); /// Graisse du texte.
+  font-size: var(--size-typography-text-default);
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  @include utils.control-transition(color, background-color, box-shadow);
+
+  &-icon {
+    line-height: 0;
+  }
+
+  &-label {
+    min-width: 0;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: var(--ui-tabs-tab-surface-hover, var(--navigation-highoutlined-surface-hover)); /// Fond d'un onglet au survol.
+    color: var(--ui-tabs-tab-color-hover, var(--navigation-highoutlined-content-hover));              /// Couleur du libellé au survol.
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 $focus-ring-width var(--ui-tabs-tab-focus-ring-color, var(--global-border-focus)); /// Couleur de l'anneau de focus d'un onglet.
+  }
+
+  &:disabled {
+    background-color: var(--ui-tabs-tab-surface-disabled, var(--navigation-highoutlined-surface-disabled)); /// Fond d'un onglet désactivé.
+    color: var(--ui-tabs-tab-color-disabled, var(--navigation-highoutlined-content-disabled));              /// Couleur du libellé d'un onglet désactivé.
+    cursor: not-allowed;
+  }
+
+  &._active {
+    background-color: var(--ui-tabs-tab-surface-active, var(--navigation-highoutlined-surface-active)); /// Fond de l'onglet actif.
+    color: var(--ui-tabs-tab-color-active, var(--navigation-highoutlined-content-active));              /// Couleur du libellé de l'onglet actif : elle n'est lisible que sur le fond `surface-active` qui l'accompagne.
+  }
+
+  &._icon-right {
+    flex-direction: row-reverse;
+  }
+
+  // Vertical axis: tabs stack and fill the list width, left aligned.
+  &._vertical {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  &._vertical._icon-right {
+    justify-content: space-between;
+  }
+}
+
+// --- Panels -----------------------------------------------------------
+.ui-tab-panels {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ui-tab-panel {
+  display: block;
+  padding: var(--units-default) 0;
+  color: var(--ui-tabs-panel-color, var(--global-text-default)); /// Couleur du texte du panneau d'onglet.
+  font-family: var(--ui-tabs-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+  font-size: var(--size-typography-text-default);
+  line-height: 1.5;
+  outline: none;
+
+  // Le `display: none` de `[hidden]` vient du style NAVIGATEUR : un `display`
+  // d'auteur le bat, et le panneau inactif resterait affiché.
+  &[hidden] {
+    display: none;
+  }
+
+  &._active:not(._no-motion) {
+    animation: ui-motion-fade-in var(--transition-default) var(--transition-easeout) both;
+
+    @include utils.motion-reduce {
+      animation-duration: 0.01ms;
+    }
+  }
+}

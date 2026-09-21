@@ -1,0 +1,421 @@
+@use 'utils';
+@use 'sass:map';
+
+// =====================================================================
+// ui-select : the trigger box + label + helper live in `ui-field`
+// =====================================================================
+
+// --- Config (extension points) ----------------------------------------
+/// Géométrie et typo des options, des en-têtes de groupe, du filtre et hauteur de défilement, par taille.
+$sizes: (
+  'default': (
+    option-height: var(--ui-select-option-height, #{utils.rem-calc(40)}),
+    option-padding-x: var(--ui-select-option-padding-x, var(--units-default)),
+    font-size: var(--ui-select-font-size, var(--size-typography-text-default)),
+    group-height: var(--ui-select-group-height, #{utils.rem-calc(32)}),
+    group-font-size: var(--ui-select-group-font-size, var(--size-typography-text-md)),
+    filter-height: var(--ui-select-filter-height, var(--size-components-sm)),
+    scroll-height: var(--ui-select-scroller-max-height, #{utils.rem-calc(312)}),
+  ),
+  'small': (
+    option-height: var(--ui-select-option-height-small, #{utils.rem-calc(32)}),
+    option-padding-x: var(--ui-select-option-padding-x-small, var(--units-md)),
+    font-size: var(--ui-select-font-size-small, var(--size-typography-text-md)),
+    group-height: var(--ui-select-group-height-small, #{utils.rem-calc(24)}),
+    group-font-size: var(--ui-select-group-font-size-small, var(--size-typography-text-sm)),
+    filter-height: var(--ui-select-filter-height-small, var(--size-components-xs)),
+    scroll-height: var(--ui-select-scroller-max-height-small, #{utils.rem-calc(256)}),
+  ),
+);
+$size-default: map.get($sizes, 'default'); /// Raccourci vers l'entrée `default` de `$sizes`.
+$size-small: map.get($sizes, 'small');     /// Raccourci vers l'entrée `small` de `$sizes`.
+
+$panel-surface: var(--ui-select-panel-surface, var(--form-high-surface-default)); /// Fond du panneau d'options.
+$panel-stroke: var(--ui-select-panel-stroke, var(--form-high-stroke-default));    /// Couleur de bordure du panneau d'options.
+$panel-padding: var(--ui-select-panel-padding, var(--units-xs));                   /// Inset du panneau d'options.
+$panel-gap: var(--ui-select-panel-gap, var(--units-xs));                           /// Espacement entre les groupes du panneau.
+$panel-max-width: var(--ui-select-panel-max-width, calc(100vw - var(--units-lg))); /// Largeur maximale du panneau, gouttière laissée au viewport.
+$header-padding-y: var(--ui-select-header-padding-y, var(--units-xs));             /// Inset vertical des zones d'en-tête et de pied projetées.
+$header-padding-x: var(--ui-select-header-padding-x, var(--units-sm));             /// Inset horizontal des zones d'en-tête et de pied projetées.
+
+$option-radius: var(--ui-select-option-radius, var(--radius-sm));             /// Rayon d'une ligne d'option
+$option-gap: var(--ui-select-option-gap, var(--units-sm));                    /// Espace entre case/contenu/coche dans une ligne
+$values-gap: var(--ui-select-values-gap, var(--units-xs));                    /// Espacement entre les valeurs affichées dans le déclencheur (mode `multiple`).
+$checkbox-size: var(--ui-select-checkbox-size, #{utils.rem-calc(18)});        /// Taille de la case visuelle (mode `checkbox`)
+// The mark has to follow the box, same reason as ui-checkbox: falls back to the `sm`
+// step of the icon scale, which is what it is rendered at.
+$checkbox-icon-size: var(--ui-select-checkbox-icon-size, var(--ui-icon-size-sm, var(--size-typography-icon-sm))); /// Taille de la coche dans la case (mode `checkbox`).
+$checkbox-radius: var(--ui-select-checkbox-radius, var(--radius-xs));         /// Rayon de la case visuelle (mode `checkbox`).
+$stroke-width: var(--ui-select-stroke-width, #{utils.$control-stroke-width}); /// Épaisseur de bordure (case visuelle)
+
+$filter-gap: var(--ui-select-filter-gap, var(--units-sm));                    /// Espacement icône ↔ saisie dans le filtre.
+$filter-padding-x: var(--ui-select-filter-padding-x, var(--units-sm));        /// Inset horizontal du contenu du filtre.
+$filter-stroke-width: var(--ui-select-filter-stroke-width, var(--stroke-sm)); /// Épaisseur de la bordure du filtre.
+
+$clear-size: var(--ui-select-clear-size, var(--size-components-2xs));                  /// Taille du bouton d'effacement.
+$clear-radius: var(--ui-select-clear-radius, var(--radius-full));                      /// Rayon du bouton d'effacement.
+$focus-ring-width: var(--ui-select-focus-ring-width, #{utils.$form-focus-ring-width}); /// Épaisseur de l'anneau de focus (bouton d'effacement).
+
+.ui-select {
+  display: block;
+  cursor: pointer;
+  --ui-field-box-cursor: pointer;
+
+  &._editable { --ui-field-box-cursor: text; }
+
+  // --- Trigger (combobox button filling the field box) ----------------
+  &-trigger {
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    align-self: stretch;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: inherit;
+    background: transparent;
+    outline: none;
+    text-align: left;
+    font-family: var(--ui-select-font-family, var(--fontfamily-base)); /// Famille typographique du déclencheur.
+    font-size: map.get($size-default, font-size);
+    color: var(--ui-select-trigger-color, var(--form-high-content-default)); /// Couleur du texte du déclencheur.
+    cursor: pointer;
+    @include utils.field-inset-edges;
+    @include utils.field-float-inset;
+
+    &._small { font-size: map.get($size-small, font-size); }
+    &:disabled { cursor: not-allowed; color: var(--ui-select-trigger-color-disabled, var(--form-high-content-disabled)); } /// Couleur du texte du déclencheur désactivé.
+  }
+
+  &-value,
+  &-placeholder {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  &-placeholder { color: var(--ui-select-placeholder-color, var(--form-low-content-default)); } /// Couleur du texte d'invite.
+
+  // Multiple: the joined labels wrap instead of truncating (auto-height box).
+  &-value._wrap {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  &-values {
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    flex-wrap: wrap;
+    gap: $values-gap;
+    min-width: 0;
+    @include utils.field-float-inset;
+    // La boîte du champ n'a AUCUN inset : chaque enfant direct porte le sien
+    // sur les bords qu'il touche. Sans ça, les puces sont collées à la bordure.
+    @include utils.field-inset-edges;
+  }
+
+  // Collapsed-count indicator (`maxSelectedLabels`).
+  &-overflow {
+    flex-shrink: 0;
+    font-family: var(--ui-select-font-family, var(--fontfamily-base)); /// Famille typographique de l'indicateur de débordement.
+    font-size: map.get($size-default, group-font-size);
+    color: var(--ui-select-overflow-color, var(--form-low-content-default)); /// Couleur de l'indicateur « +N » de débordement.
+    white-space: nowrap;
+
+    &._small { font-size: map.get($size-small, group-font-size); }
+  }
+
+  // Visually-hidden accessible value of the combobox in chips mode.
+  &-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  // --- Editable input --------------------------------------------------
+  &-native {
+    @include utils.field-native-input;
+    &._small { font-size: map.get($size-small, font-size); }
+  }
+
+  // --- Affixes ----------------------------------------------------------
+  &-clear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: $clear-size;
+    height: $clear-size;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: $clear-radius;
+    background: none;
+    color: var(--ui-select-clear-color, var(--form-low-content-default)); /// Couleur du bouton d'effacement.
+    cursor: pointer;
+    @include utils.control-transition(color, box-shadow);
+    @include utils.field-inset-edges('margin');
+
+    &:hover:not(:disabled) { color: var(--ui-select-clear-color-hover, var(--form-high-content-hover)); } /// Couleur du bouton d'effacement au survol.
+    &:focus-visible {
+      outline: none;
+      color: var(--ui-select-clear-color-focus, var(--form-high-content-focused)); /// Couleur du bouton d'effacement au focus clavier.
+      box-shadow: 0 0 0 $focus-ring-width rgb(from var(--ui-select-clear-focus-ring-color, var(--form-high-stroke-focused)) r g b / 50%); /// Teinte de l'anneau de focus du bouton d'effacement.
+    }
+    &:disabled { cursor: not-allowed; color: var(--ui-select-clear-color-disabled, var(--form-high-content-disabled)); } /// Couleur du bouton d'effacement désactivé.
+  }
+
+  // Chevron décoratif : le déclencheur bouton couvre déjà toute la boîte.
+  &-chevron {
+    @include utils.field-affix;
+    @include utils.motion-transition(rotate);
+
+    &._open { rotate: 180deg; }
+  }
+
+  // Chevron CLIQUABLE, en mode éditable : c'est alors la seule façon d'ouvrir
+  // le panneau à la souris, donc un vrai bouton. `field-action` lui donne la
+  // pleine hauteur, le collage à droite et le rayon du coin, ce que
+  // `field-affix` (écrit pour une icône) ne fait pas : un `<button>` garde
+  // sinon ses styles navigateur et ses marges.
+  &-toggle {
+    @include utils.field-action;
+
+    .ui-icon {
+      @include utils.motion-transition(rotate);
+    }
+
+    &._open .ui-icon { rotate: 180deg; }
+  }
+
+  &-loading {
+    flex-shrink: 0;
+    @include utils.field-inset-edges('margin');
+  }
+}
+
+// --- Panel----------
+// Le panneau d'options vit dans le CALQUE SUPÉRIEUR (`popover="manual"`) :
+// aucun z-index, et aucun rognage par un ancêtre en `overflow: hidden`, ce qui
+// est le défaut le plus pénible d'un select posé dans une zone défilante.
+.ui-select-panel {
+  @include utils.overlay-panel($panel-surface, $panel-stroke);
+
+  // Styles navigateur du calque : `inset` et `margin` centreraient le panneau,
+  // c'est le placement calculé qui décide.
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  border-width: utils.$overlay-panel-stroke-width;
+
+  // Le `display: none` d'un popover fermé vient du style navigateur, que le
+  // `display` de ce bloc écrase : il faut le redire.
+  &:not(:popover-open) {
+    display: none;
+  }
+
+  // Entrée et sortie, par le mixin partagé du système de motion.
+  @include utils.overlay-motion {
+    opacity: 0;
+    translate: 0 calc(-1 * var(--ui-motion-distance, #{utils.$motion-distance}));
+  }
+  display: flex;
+  flex-direction: column;
+  gap: $panel-gap;
+  box-sizing: border-box;
+  max-width: $panel-max-width;
+  padding: $panel-padding;
+
+  // --- Header / footer (projected templates) --------------------------
+  .ui-select-header,
+  .ui-select-footer {
+    padding: $header-padding-y $header-padding-x;
+    font-family: var(--ui-select-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+    font-size: map.get($size-default, group-font-size);
+    color: var(--ui-select-header-color, var(--form-high-content-default)); /// Couleur du texte des zones d'en-tête et de pied projetées.
+  }
+
+  // --- Filter ----------------------------------------------------------
+  .ui-select-filter {
+    display: flex;
+    align-items: center;
+    gap: $filter-gap;
+    box-sizing: border-box;
+    height: map.get($size-default, filter-height);
+    flex-shrink: 0;
+    padding: 0;
+    border: $filter-stroke-width solid var(--ui-select-filter-stroke, var(--form-high-stroke-default)); /// Couleur de bordure du champ de filtre.
+    border-radius: $option-radius;
+    background-color: var(--ui-select-filter-surface, var(--form-high-surface-default)); /// Fond du champ de filtre.
+    @include utils.control-transition(border-color);
+
+    &:hover:not(:focus-within) { border-color: var(--ui-select-filter-stroke-hover, var(--form-high-stroke-hover)); } /// Couleur de bordure du filtre au survol.
+    &:focus-within { border-color: var(--ui-select-filter-stroke-focus, var(--form-high-stroke-focused)); } /// Couleur de bordure du filtre au focus.
+    &._small { height: map.get($size-small, filter-height); }
+  }
+
+  .ui-select-filter-icon {
+    flex-shrink: 0;
+    color: var(--ui-select-filter-icon-color, var(--form-low-content-default)); /// Couleur de la loupe du filtre.
+    @include utils.field-inset-edges('margin', $filter-padding-x);
+  }
+
+  .ui-select-filter-input {
+    @include utils.field-native-input($filter-padding-x);
+    font-size: map.get($size-default, group-font-size);
+  }
+
+  // --- Scrollers ---------------------------------------------------------
+  .ui-select-scroller {
+    overflow: auto;
+    max-height: map.get($size-default, scroll-height);
+    &._small { max-height: map.get($size-small, scroll-height); }
+  }
+
+  .ui-select-viewport { width: 100%; }
+
+  .ui-select-list {
+    display: flex;
+    flex-direction: column;
+    gap: $panel-gap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ui-select-viewport .ui-select-list { gap: 0; }
+  .ui-select-viewport .ui-select-group { height: map.get($size-default, option-height); }
+  .ui-select-viewport .ui-select-group._small { height: map.get($size-small, option-height); }
+
+  // --- Option row --------------------------------------------------------
+  .ui-select-option {
+    display: flex;
+    align-items: center;
+    gap: $option-gap;
+    box-sizing: border-box;
+    height: map.get($size-default, option-height);
+    flex-shrink: 0;
+    padding: 0 map.get($size-default, option-padding-x);
+    border-radius: $option-radius;
+    font-family: var(--ui-select-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+    font-size: map.get($size-default, font-size);
+    color: var(--ui-select-option-color, var(--form-high-content-default)); /// Couleur du texte d'une option.
+    cursor: pointer;
+    user-select: none;
+    @include utils.control-transition(background-color, color);
+
+    &._small {
+      height: map.get($size-small, option-height);
+      padding: 0 map.get($size-small, option-padding-x);
+      font-size: map.get($size-small, font-size);
+    }
+
+    // Visual focus (aria-activedescendant) and pointer hover share the look.
+    &._focused,
+    &:hover:not(._disabled) { background-color: var(--ui-select-option-surface-hover, var(--global-background-default-hover)); } /// Fond d'une option survolée ou active au clavier.
+
+    &._selected {
+      background-color: var(--ui-select-option-surface-selected, var(--form-high-surface-hover)); /// Fond de l'option sélectionnée.
+      color: var(--ui-select-option-color-selected, var(--form-high-content-checked));            /// Couleur du texte de l'option sélectionnée.
+    }
+
+    &._disabled {
+      color: var(--ui-select-option-color-disabled, var(--form-high-content-disabled)); /// Couleur du texte d'une option désactivée.
+      cursor: not-allowed;
+    }
+  }
+
+  .ui-select-option-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  // Check indicator (`checkmark`), pinned to the right edge of the row.
+  .ui-select-checkmark {
+    flex-shrink: 0;
+    margin-left: auto;
+    color: var(--ui-select-checkmark-color, var(--form-high-content-checked)); /// Couleur de la coche de l'option sélectionnée.
+  }
+
+  // Purely visual checkbox
+  .ui-select-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: $checkbox-size;
+    height: $checkbox-size;
+    flex-shrink: 0;
+    border: $stroke-width solid var(--ui-select-checkbox-stroke, var(--form-high-stroke-default)); /// Couleur de bordure de la case (mode `multiple`).
+    border-radius: $checkbox-radius;
+    background-color: var(--ui-select-checkbox-surface, var(--form-high-surface-default)); /// Fond de la case (mode `multiple`).
+    @include utils.control-transition(background-color, border-color);
+
+    .ui-select-checkbox-icon {
+      --ui-icon-size: #{$checkbox-icon-size};
+      color: var(--ui-select-checkbox-marker-color, var(--form-high-content-checked)); /// Couleur de la coche de la case.
+      opacity: 0;
+      transform: scale(0.6);
+      @include utils.control-transition(opacity, transform);
+    }
+
+    &._checked {
+      border-color: var(--ui-select-checkbox-stroke-checked, var(--form-high-stroke-checked)); /// Couleur de bordure de la case cochée.
+
+      .ui-select-checkbox-icon {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  }
+
+  .ui-select-option._disabled .ui-select-checkbox {
+    border-color: var(--ui-select-checkbox-stroke-disabled, var(--form-high-stroke-disabled)); /// Couleur de bordure de la case désactivée.
+    background-color: var(--ui-select-checkbox-surface-disabled, var(--form-high-surface-disabled)); /// Fond de la case désactivée.
+  }
+
+  // --- Group header --------------------------------------------------------
+  .ui-select-group {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: map.get($size-default, group-height);
+    flex-shrink: 0;
+    padding: 0 map.get($size-default, option-padding-x);
+    font-family: var(--ui-select-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+    font-size: map.get($size-default, group-font-size);
+    font-weight: var(--ui-select-weight, var(--weight-bold)); /// Graisse du texte.
+    color: var(--ui-select-group-color, var(--form-low-content-default)); /// Couleur d'un en-tête de groupe.
+
+    &._small {
+      height: map.get($size-small, group-height);
+      padding: 0 map.get($size-small, option-padding-x);
+      font-size: map.get($size-small, group-font-size);
+    }
+  }
+
+  // --- Empty state -----------------------------------------------------------
+  .ui-select-empty {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-height: map.get($size-default, option-height);
+    padding: 0 map.get($size-default, option-padding-x);
+    font-family: var(--ui-select-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+    font-size: map.get($size-default, font-size);
+    color: var(--ui-select-empty-color, var(--form-low-content-default)); /// Couleur du message « aucun résultat ».
+  }
+}

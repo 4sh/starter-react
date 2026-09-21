@@ -1,0 +1,49 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as SkeletonStories from './ui-skeleton.stories';
+
+<Meta of={SkeletonStories} />
+
+# ui-skeleton
+
+Bloc affiché à la place d'un contenu en cours de chargement. Il esquisse la forme de ce qui
+va venir, ce qui évite le saut de mise en page quand les données arrivent.
+
+<Canvas of={SkeletonStories.CardPlaceholder} />
+
+## API
+
+<ArgTypes of={SkeletonStories} />
+
+## Formes et dimensions
+
+Trois formes portent leurs dimensions par défaut. `width`, `height` et `borderRadius` les
+remplacent par une valeur CSS brute, ce qui couvre les cartes, grilles et tableaux sans
+multiplier les formes.
+
+<Canvas of={SkeletonStories.Shapes} />
+<Canvas of={SkeletonStories.CustomSize} />
+
+## Animation
+
+`wave` fait glisser un reflet, `pulse` fait varier l'opacité, `none` fige le bloc. Les deux
+animations s'arrêtent sous `prefers-reduced-motion` et sous l'interrupteur `data-motion="off"`
+du kit.
+
+<Canvas of={SkeletonStories.Pulse} />
+
+## Accessibilité
+
+Le composant est masqué aux lecteurs d'écran : le chargement est un état purement visuel, et
+annoncer chaque bloc produirait du bruit sans information.
+
+Pour que l'attente soit annoncée, c'est le **conteneur** qui porte `aria-busy="true"` et le
+nom de la région, comme dans l'exemple en haut de page.
+
+Ce conteneur a besoin d'un **rôle**, typiquement `role="status"` : `aria-label` est interdit
+sur un élément sans rôle, et un `<div>` nu ne fait donc rien du nom qu'on lui donne. Le
+contrôle axe refuse ce cas, il l'a refusé sur cette page même.
+
+## Theming
+
+<ConfigTable of="ui-skeleton" />

@@ -1,0 +1,60 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as RadioStories from './ui-radio.stories';
+
+<Meta of={RadioStories} />
+
+# ui-radio
+
+Bouton radio bâti sur un vrai `<input type="radio">` natif, recouvert par la pastille stylée.
+
+<Canvas of={RadioStories.UncontrolledGroup} />
+
+## API
+
+<ArgTypes of={RadioStories} />
+
+## Le groupe, pas le bouton
+
+C'est la particularité de ce composant, et elle explique toute son API : **un bouton radio
+ne veut rien dire seul**. L'exclusivité est une propriété du groupe. Chaque bouton porte
+donc **sa** `value`, et c'est le groupe qui porte la valeur choisie.
+
+Deux façons de former ce groupe.
+
+### Non contrôlé : le navigateur s'en charge
+
+Le même `name` sur tous les membres, `defaultChecked` sur celui de départ, et c'est tout.
+Aucun état React. Le navigateur désélectionne les voisins, et la navigation aux flèches vient
+avec : celle que tout le monde réimplémente mal.
+
+<Canvas of={RadioStories.UncontrolledGroup} />
+
+### Contrôlé : `groupValue` sur chaque membre
+
+Le parent détient la valeur du groupe et la passe à chacun. Le bouton dont la `value` lui est
+égale est sélectionné, et `onValueChange` remonte **sa** `value`.
+
+<Canvas of={RadioStories.Controlled} />
+
+### Pourquoi pas de `defaultValue`
+
+Les autres champs du kit en ont un ; celui-ci non, et ce n'est pas un oubli. Un
+`defaultValue` sur un bouton radio n'aurait aucun moyen de coordonner ses voisins : chacun
+tiendrait sa propre idée du groupe. Le mode non contrôlé passe donc par `defaultChecked`,
+qui est ce que le DOM sait faire.
+
+## Accessibilité
+
+Le `<label>` **enveloppe** l'input : l'association est structurelle, sans `htmlFor` à tenir à
+jour, et cliquer le texte sélectionne le bouton.
+
+Un groupe se déclare avec un `<fieldset>` et sa `<legend>`. Le `name` partagé sert au
+formulaire et à la navigation clavier, pas à l'accessibilité : sans `<legend>`, un lecteur
+d'écran annonce trois boutons sans dire de quoi ils sont le choix.
+
+Sans `label`, le bouton **doit** porter un `aria-label`.
+
+## Theming
+
+<ConfigTable of="ui-radio" />

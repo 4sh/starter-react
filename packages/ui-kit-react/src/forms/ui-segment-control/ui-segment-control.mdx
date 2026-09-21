@@ -1,0 +1,160 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as SegmentStories from './ui-segment-control.stories';
+
+<Meta of={SegmentStories} />
+
+# ui-segment-control
+
+Contrôle segmenté : choisir une valeur, ou plusieurs, dans une courte liste de boutons en
+ligne.
+
+<Canvas of={SegmentStories.WithIcons} />
+
+## API
+
+<ArgTypes of={SegmentStories} />
+
+## Deux motifs, pas un
+
+La sémantique change entièrement avec `multiple`, parce qu'un choix exclusif et un jeu de
+bascules ne sont pas la même chose pour un lecteur d'écran :
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Le groupe</th>
+      <th>Chaque segment</th>
+      <th>Les flèches</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>simple</td>
+      <td>
+        <code>radiogroup</code>
+      </td>
+      <td>
+        <code>radio</code> + <code>aria-checked</code>
+      </td>
+      <td>déplacent <strong>et</strong> sélectionnent</td>
+    </tr>
+    <tr>
+      <td>
+        <code>multiple</code>
+      </td>
+      <td>
+        <code>group</code>
+      </td>
+      <td>
+        <code>aria-pressed</code>
+      </td>
+      <td>déplacent seulement</td>
+    </tr>
+  </tbody>
+</table>
+
+Sélectionner au passage d'une flèche est le motif radio de l'APG : c'est ce qui rend le choix
+utilisable au clavier sans une seule frappe supplémentaire. En `multiple`, ce serait faux : on
+ne peut pas cocher trois cases sans pouvoir traverser les autres.
+
+<Canvas of={SegmentStories.Multiple} />
+
+Chaque segment est un vrai `<button>` natif. Le groupe n'a qu'**un seul arrêt de tabulation**,
+et c'est le segment choisi qui le possède : un Tab entrant tombe donc sur l'actif, pas sur le
+premier.
+
+## Les options
+
+Une option est une primitive, un objet, ou la forme riche `{ value, label, icon, disabled,
+ariaLabel }`. Sur un objet quelconque, `optionLabel`, `optionValue`, `optionDisabled` et
+`optionIcon` sont des **chemins de champ** en notation pointée.
+
+<Canvas of={SegmentStories.ObjectOptions} />
+
+Quand la **valeur** est un objet, `dataKey` est indispensable : sans lui, deux objets
+identiques restent distincts pour JavaScript, et une sélection rechargée depuis un serveur ne
+se retrouve pas dans la liste.
+
+## Icône seule
+
+Un segment sans libellé est légitime, mais il lui faut alors un nom : `ariaLabel` sur
+l'option. Un avertissement est émis en développement quand il manque.
+
+<Canvas of={SegmentStories.IconOnly} />
+
+## L'indicateur glissant
+
+En mode simple, un indicateur glisse sous le segment choisi. Sa géométrie est **mesurée**, pas
+calculée depuis un pourcentage : c'est ce qui le fait tenir avec des segments de largeurs
+différentes, et un `ResizeObserver` le remet en place quand la piste change de taille.
+
+Deux détails structurels le rendent exact :
+
+- la bordure de la piste est une **ombre intérieure**, pas un `border`, donc elle n'occupe
+  aucune boîte de mise en page et le calcul de position reste juste ;
+- le libellé réserve sa largeur **en gras** dans tous les états, par un fantôme caché : passer
+  en gras au moment de la sélection ne décale donc jamais la piste sous l'indicateur.
+
+<Canvas of={SegmentStories.NoMotion} />
+
+L'animation suit le système de motion partagé, et la préférence système de mouvement réduit
+gagne toujours, `motion` ou pas.
+
+En `multiple` il n'y a pas d'indicateur : chaque segment choisi peint sa propre surface, un
+indicateur unique n'ayant aucun sens.
+
+## Dimensionnement
+
+Par défaut la piste **se tient à son contenu**, quel que soit son parent. Ce n'est pas
+gratuit : `display: inline-flex` ne suffit pas, parce qu'un parent flex ou grid *bloquifie* ses
+enfants et les étire dans l'axe transverse. Le `display` calculé devient alors `flex`, et la
+piste part à la largeur du parent pendant que les segments, eux, restent collés à leur
+contenu : on obtient une piste vide sur sa droite. C'est une largeur explicite
+(`width: fit-content`) qui tient la promesse, l'étirement ne s'appliquant qu'à une taille
+transverse `auto`.
+
+`fluid` est le moyen **explicite** de remplir : la piste prend toute la largeur du parent, et
+les segments se la partagent à parts égales.
+
+<Canvas of={SegmentStories.Fluid} />
+
+## Disposition
+
+<Canvas of={SegmentStories.Vertical} />
+
+`orientation` décide aussi des flèches qui naviguent : gauche et droite en horizontal, haut et
+bas en vertical. La flèche de l'autre axe est laissée tranquille, pour qu'elle continue de
+faire son travail ailleurs dans la page.
+
+<Canvas of={SegmentStories.Small} />
+
+## Vider la sélection
+
+Par défaut, recliquer le segment choisi le désélectionne et le modèle passe à `null`.
+`allowEmpty={false}` retire cette possibilité, et garde toujours au moins un segment choisi,
+en simple comme en `multiple`.
+
+<Canvas of={SegmentStories.NoEmpty} />
+
+## États
+
+<Canvas of={SegmentStories.Disabled} />
+<Canvas of={SegmentStories.ReadOnly} />
+<Canvas of={SegmentStories.Invalid} />
+
+En **lecture seule** les segments restent atteignables au clavier, parce que la valeur doit
+rester consultable ; seule la sélection est refusée. **Désactivé**, ce sont les boutons natifs
+qui le portent, et le groupe l'annonce par `aria-disabled`.
+
+## Rendu personnalisé
+
+`renderItem` remplace le **contenu** d'un segment, jamais le bouton : le rôle, l'état choisi et
+l'arrêt de tabulation restent portés par lui.
+
+<Canvas of={SegmentStories.CustomItem} />
+
+## Theming
+
+<ConfigTable of="ui-segment-control" />

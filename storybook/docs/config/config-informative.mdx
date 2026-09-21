@@ -1,0 +1,21 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { SharedConfigTable } from '../../blocks/config-table';
+
+<Meta title="Components/configuration/Informative" />
+
+# Configuration : catégorie Informative
+
+Constantes de la famille **informative** (`$avatar-*`). Diamètres d'avatar (pas d'undefined ou de
+palier `--size-components-*` correspondant) et chevauchement de groupe, partagés par `ui-avatar`
+et `ui-avatar-group`.
+
+> Fichier source : `packages/ui-kit-react/src/styles/settings/_ui-config.scss` · exposé via `@use 'utils'`.
+> Consommée par : `ui-avatar`, `ui-avatar-group`. Retour au
+> [fonctionnement & sommaire](?path=/docs/components-configuration--docs).
+
+<SharedConfigTable group="informative" />
+
+> Les quatre diamètres sont des **nombres bruts** : ils passent par `rem-calc()`, qui refuse une
+> `var()`. Ils n'ont donc pas de hook à ce niveau : chacun reste atteignable par composant via
+> `--ui-avatar-size`, `--ui-avatar-size-tiny`, `--ui-avatar-size-small` et
+> `--ui-avatar-size-large`.

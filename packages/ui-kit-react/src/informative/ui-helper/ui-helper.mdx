@@ -1,0 +1,39 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as HelperStories from './ui-helper.stories';
+
+<Meta of={HelperStories} />
+
+# ui-helper
+
+Texte d'aide ou retour contextuel. Affiche un message précédé d'une icône dont le sens vient
+du `level`. Utilisé sous un champ, relié par `aria-describedby`, ou seul comme indication.
+
+<Canvas of={HelperStories.Levels} />
+
+## API
+
+<ArgTypes of={HelperStories} />
+
+## Accessibilité
+
+C'est le **texte** qui porte l'information. L'icône est décorative et masquée aux lecteurs
+d'écran : elle redouble le message pour un lecteur voyant, elle ne le remplace jamais.
+
+Un retour qui **apparaît ou change** en cours de saisie n'est pas annoncé si rien ne le
+demande. Passez `ariaLive="polite"`, ou `"assertive"` pour une erreur qui interrompt.
+
+<Canvas of={HelperStories.LiveError} />
+
+⚠️ `ariaLive` vaut `off` par défaut, et c'est volontaire : une région vivante posée sur un
+texte statique fait relire le message à chaque re-rendu, ce qui est plus gênant qu'utile.
+
+## Sous un champ
+
+Les champs en boîte n'instancient pas ce composant à la main : `ui-field` le fait, avec le
+niveau et le message déjà résolus, et pose l'`id` que le contrôle référence dans son
+`aria-describedby`.
+
+## Theming
+
+<ConfigTable of="ui-helper" />

@@ -1,0 +1,204 @@
+@use 'utils';
+@use 'sass:map';
+@use 'sass:meta';
+
+// =====================================================================
+// ui-button : co-located styles. All values come from design tokens.
+//
+// Copied near-verbatim from the Angular kit: this file carries no framework
+// notion at all. `.ui-button` was already the styling root there (no `:host`),
+// so the port is comments only. That is the point of decision D5.
+//
+// Extend:
+//   • Level (color)  → add a name to $levels (tokens --actions-<name>-*
+//                      must exist + add it to the `UiLevel` type).
+//   • Size           → add an entry to $sizes (+ the `ButtonSize` type).
+//   • Variant        → add a name to $variants + the matching token set
+//                      (--actions-<level><variant>-*, `<level><variant>` in
+//                      semantics.json) + the `ButtonVariant` type. `filled`
+//                      emits no class (it IS the bare $levels set).
+//   • onColor        → add a name to $polarities + the token sets
+//                      --actions-on<name>-{outlined,ghost,filled-<level>}-*
+//                      + the `ButtonOnColor` type.
+//
+// The three axes compose: level x variant x onColor, one token set each.
+// =====================================================================
+
+// --- Config (extension points) ---------------------------------------
+$levels: high, low, success, warning, error; /// Familles de couleur générées (spécifique bouton)
+$variants: outlined, ghost;                  /// Variantes composées avec `$levels` (`filled` = jeu nu, sans classe)
+$polarities: dark, light;                    /// Luminosités de fond gérées par `onColor` (jeux épinglés, insensibles au thème)
+
+$radius: var(--ui-button-radius, var(--radius-sm));                                     /// Rayon des coins, reformable par un hôte (`ui-button-split`).
+$radius-rounded: var(--ui-button-radius, var(--ui-button-radius-rounded, var(--radius-full))); /// Rayon des coins en présentation `rounded`.
+$gap: var(--ui-button-gap, var(--units-sm));                                             /// Espacement icône ↔ libellé.
+$stroke-width: var(--ui-button-stroke-width, #{utils.$control-stroke-width});            /// Épaisseur de la bordure.
+$focus-ring-width: var(--ui-button-focus-ring-width, #{utils.$action-focus-ring-width}); /// Épaisseur de l'anneau de focus.
+$font-family: var(--ui-button-font-family, var(--fontfamily-base));                      /// Famille typographique du libellé.
+$weight: var(--ui-button-weight, var(--weight-bold));                                    /// Graisse du libellé.
+
+$icon-stacked-gap: var(--ui-button-icon-stacked-gap, var(--units-xs));                   /// Espacement icône ↔ libellé quand l'icône est empilée (`iconPos` top / bottom).
+$icon-stacked-padding-y: var(--ui-button-icon-stacked-padding-y, var(--units-md));       /// Inset vertical en icône empilée (la hauteur passe en `auto`).
+$icon-stacked-padding-x: var(--ui-button-icon-stacked-padding-x, var(--units-default));  /// Inset horizontal en icône empilée.
+
+// `default` = base styles; other keys become `._<name>` modifiers.
+/// Dimensions par taille (spécifique bouton)
+$sizes: (
+  'default': (
+    height: var(--ui-button-height, var(--size-components-default)),
+    padding-x: var(--ui-button-padding-x, var(--units-default)),
+    font-size: var(--ui-button-font-size, var(--size-typography-text-default)),
+  ),
+  'small': (
+    height: var(--ui-button-height-small, var(--size-components-sm)),
+    padding-x: var(--ui-button-padding-x-small, var(--units-md)),
+    font-size: var(--ui-button-font-size-small, var(--size-typography-text-md)),
+  ),
+);
+$size-default: map.get($sizes, 'default');         /// Raccourci vers l'entrée `default` de `$sizes`.
+
+// A $sizes height is either a token reference (`var(...)`, passed through as-is)
+// or a raw px number, which goes through rem-calc.
+@function size-length($value) {
+  @if meta.type-of($value) == 'number' {
+    @return utils.rem-calc($value);
+  }
+
+  @return $value;
+}
+
+// Height/padding/font-size for a $sizes entry.
+@mixin button-size($size) {
+  height: size-length(map.get($size, height));
+  padding: 0 map.get($size, padding-x);
+  font-size: map.get($size, font-size);
+}
+
+// Full color set of an `--actions-<set>-*` token set (5 states x
+// content/surface/stroke). Every set honours the same contract, so a variant
+// needs no CSS of its own: transparency is carried by the token (an outlined
+// `surface-default` resolves to `transparent`, a ghost `stroke-hover` too),
+// never hardcoded here.
+@mixin action-colors($set) {
+  background-color: var(--ui-button-surface, var(--actions-#{$set}-surface-default)); /// Fond du bouton.
+  color: var(--ui-button-color, var(--actions-#{$set}-content-default));              /// Couleur du libellé et des icônes.
+  border-color: var(--ui-button-stroke, var(--actions-#{$set}-stroke-default));       /// Couleur de bordure.
+
+  &:hover:not(:disabled):not(._disabled) {
+    background-color: var(--ui-button-surface-hover, var(--actions-#{$set}-surface-hover)); /// Fond au survol.
+    color: var(--ui-button-color-hover, var(--actions-#{$set}-content-hover));              /// Couleur du libellé au survol.
+    border-color: var(--ui-button-stroke-hover, var(--actions-#{$set}-stroke-hover));       /// Couleur de bordure au survol.
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--ui-button-stroke-focus, var(--actions-#{$set}-stroke-focused)); /// Couleur de bordure au focus clavier ; elle teinte aussi l'anneau.
+    box-shadow: 0 0 0 $focus-ring-width var(--ui-button-stroke-focus, var(--actions-#{$set}-stroke-focused));
+  }
+
+  &:active:not(:disabled):not(._disabled) {
+    background-color: var(--ui-button-surface-pressed, var(--actions-#{$set}-surface-pressed)); /// Fond du bouton enfoncé.
+    color: var(--ui-button-color-pressed, var(--actions-#{$set}-content-pressed));              /// Couleur du libellé du bouton enfoncé.
+    border-color: var(--ui-button-stroke-pressed, var(--actions-#{$set}-stroke-pressed));       /// Couleur de bordure du bouton enfoncé.
+  }
+
+  &:disabled,
+  &._disabled {
+    background-color: var(--ui-button-surface-disabled, var(--actions-#{$set}-surface-disabled)); /// Fond du bouton désactivé.
+    color: var(--ui-button-color-disabled, var(--actions-#{$set}-content-disabled));              /// Couleur du libellé du bouton désactivé.
+    border-color: var(--ui-button-stroke-disabled, var(--actions-#{$set}-stroke-disabled));       /// Couleur de bordure du bouton désactivé.
+  }
+}
+
+.ui-button {
+  // --- Base ----------------------------------------------------------
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $gap;
+  border: $stroke-width solid transparent;
+  border-radius: $radius;
+  font-family: $font-family;
+  font-weight: $weight;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  text-decoration: none; // link mode (<a>): never underline a button-styled anchor
+  @include utils.control-transition(background-color, color, border-color, box-shadow);
+
+  @include button-size($size-default);
+
+  // --- Sub-elements --------------------------------------------------
+  &-icon { line-height: 0; }
+  &-label { display: inline-block; }
+
+  // Content wrapper (label + `children`): inline flow keeps whitespace.
+  &-content {
+    display: inline;
+    &:empty { display: none; } // empty → removed, avoids phantom gap
+  }
+
+  // --- Sizes (all but `default`) -------------------------------------
+  @each $name, $size in $sizes {
+    @if $name != 'default' {
+      &._#{$name} { @include button-size($size); }
+    }
+  }
+
+  // --- Layout --------------------------------------------------------
+  &._expanded { width: 100%; }
+
+  // Pill shape. Keeps the `--ui-button-radius` hook so a host (ui-button-split)
+  // can still reshape glued corners.
+  &._rounded { border-radius: $radius-rounded; }
+
+  // iconPos top | bottom
+  &._icon-top,
+  &._icon-bottom {
+    flex-direction: column;
+    gap: $icon-stacked-gap;
+    height: auto;
+    padding: $icon-stacked-padding-y $icon-stacked-padding-x;
+  }
+
+  // Icon-only: square (width = size height), no horizontal padding.
+  &._icon-only {
+    width: size-length(map.get($size-default, height));
+    padding: 0;
+
+    @each $name, $size in $sizes {
+      @if $name != 'default' {
+        &._#{$name} { width: size-length(map.get($size, height)); }
+      }
+    }
+  }
+
+  // Disabled: native (<button>) or via class (<a>, no native disabled).
+  &:disabled,
+  &._disabled { cursor: not-allowed; }
+  
+  @each $lvl in $levels {
+    &._#{$lvl} {
+      @include action-colors($lvl); // filled (no variant class)
+
+      // onColor + filled: opaque pill, level-independent chrome, but the label
+      // keeps the level's hue : hence a per-level token set.
+      @each $pol in $polarities {
+        &._on-#{$pol} { @include action-colors('on#{$pol}-filled-#{$lvl}'); }
+      }
+
+      @each $variant in $variants {
+        &._#{$variant} {
+          @include action-colors('#{$lvl}#{$variant}');
+
+          // onColor + outlined/ghost: the backdrop carries the colour, so the
+          // chrome is level-independent (white on dark, dark on light).
+          @each $pol in $polarities {
+            &._on-#{$pol} { @include action-colors('on#{$pol}-#{$variant}'); }
+          }
+        }
+      }
+    }
+  }
+}

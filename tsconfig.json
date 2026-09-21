@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    // Runtime JSX CLASSIQUE, contrairement au reste du dépôt.
+    //
+    // Ce projet ne couvre que le manager Storybook (`storybook/addons/**`,
+    // `preview.tsx`), et le builder du manager compile en `React.createElement`.
+    // Un addon sans `import React` s'y écroule à l'exécution sur « React is not
+    // defined » — sans que ni ESLint ni tsc ne le voient, puisqu'en runtime
+    // automatique cet import est effectivement inutile. Déclarer `react` ici
+    // remet les deux d'accord avec la réalité du build.
+    "jsx": "react",
+    "types": ["node", "vite/client"],
+    "paths": {
+      "@sb/*": ["./storybook/*"],
+      "@4sh/ui-kit-react/*": ["./packages/ui-kit-react/src/*"]
+    }
+  },
+  "include": ["storybook/**/*.ts", "storybook/**/*.tsx", "scripts/**/*.d.mts"],
+  "exclude": ["node_modules", "dist", "storybook-static"]
+}

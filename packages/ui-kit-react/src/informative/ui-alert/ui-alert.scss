@@ -1,0 +1,170 @@
+@use 'utils';
+@use 'sass:map';
+
+// =====================================================================
+// ui-alert : co-located styles for the inline message.
+//
+// Extend:
+//   • Level     → add to $levels (tokens --informative-{level}{sub}-* must
+//                 exist + extend the `UiFeedbackLevel` type).
+//   • Sub-level → add to $sublevels (+ the `UiSubLevel` type).
+//   • Size      → add an entry to $sizes (+ the `AlertSize` type + the
+//                 icon-size mapping in ui-alert.tsx).
+// =====================================================================
+
+// --- Config -----------------------------------------------------------
+$levels: default, highlight, success, warning, error; /// Niveaux sémantiques générant les modifiers `._<niveau>`.
+$sublevels: high, low;                                /// Intensités générant les modifiers `._<intensité>`.
+
+$gap: var(--ui-alert-gap, var(--units-sm));                         /// Espacement icône ↔ contenu ↔ fermeture.
+$padding-y: var(--ui-alert-padding-y, var(--units-sm));             /// Inset vertical.
+$padding-x: var(--ui-alert-padding-x, var(--units-md));             /// Inset horizontal.
+$radius: var(--ui-alert-radius, var(--radius-default));             /// Rayon des coins.
+$stroke-width: var(--ui-alert-stroke-width, var(--stroke-default)); /// Épaisseur de la bordure.
+
+$icon-padding-top: var(--ui-alert-icon-padding-top, var(--units-2xs));          /// Décalage vertical de l'icône, pour l'aligner sur la première ligne de texte.
+$content-gap: var(--ui-alert-content-gap, var(--units-2xs));                    /// Espacement titre ↔ message.
+$content-padding-right: var(--ui-alert-content-padding-right, var(--units-sm)); /// Réserve à droite du contenu, avant la fermeture.
+
+$close-radius: var(--ui-alert-close-radius, var(--radius-xs)); /// Rayon des coins du bouton de fermeture.
+$close-opacity: var(--ui-alert-close-opacity, 0.7);            /// Opacité au repos du bouton de fermeture.
+
+/// Hauteur minimale et typo, par taille.
+$sizes: (
+  'default': (
+    min-height: var(--ui-alert-min-height, #{utils.rem-calc(56)}),
+    title-size: var(--ui-alert-title-font-size, var(--size-typography-title-sm)),
+    text-size: var(--ui-alert-text-font-size, var(--size-typography-text-md)),
+  ),
+  'large': (
+    min-height: var(--ui-alert-min-height-large, #{utils.rem-calc(66)}),
+    title-size: var(--ui-alert-title-font-size-large, var(--size-typography-title-md)),
+    text-size: var(--ui-alert-text-font-size-large, var(--size-typography-text-lg)),
+  ),
+);
+$size-default: map.get($sizes, 'default'); /// Raccourci vers l'entrée `default` de `$sizes`.
+
+// Reused structural constant (kit-wide focus ring) as the default, never copied.
+$focus-ring-width: var(--ui-alert-focus-ring-width, #{utils.$focus-ring-width}); /// Épaisseur de l'anneau de focus.
+$focus-ring-offset: var(--ui-alert-focus-ring-offset, #{utils.rem-calc(2)});     /// Décalage de l'anneau de focus.
+
+@mixin alert-size($size) {
+  min-height: map.get($size, min-height);
+
+  .ui-alert-title {
+    font-size: map.get($size, title-size);
+  }
+
+  .ui-alert-text {
+    font-size: map.get($size, text-size);
+  }
+}
+
+.ui-alert {
+  // --- Base ----------------------------------------------------------
+  display: flex;
+  align-items: flex-start;
+  gap: $gap;
+  box-sizing: border-box;
+  width: 100%;
+  padding: $padding-y $padding-x;
+  border: $stroke-width solid transparent;
+  border-radius: $radius;
+  background-color: var(--ui-alert-surface, var(--informative-defaulthigh-surface-default));
+  color: var(--ui-alert-color, var(--informative-defaulthigh-content-default));
+  font-family: var(--ui-alert-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+
+  @include alert-size($size-default);
+
+  // --- Sub-elements --------------------------------------------------
+  &-icon {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    padding-top: $icon-padding-top;
+    line-height: 0;
+  }
+
+  &-content {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: $content-gap;
+    padding-right: $content-padding-right;
+  }
+
+  &-title {
+    font-family: var(--ui-alert-title-font-family, var(--fontfamily-title)); /// Famille typographique du titre.
+    font-weight: var(--ui-alert-title-weight, var(--weight-bold)); /// Graisse du titre.
+    line-height: 1.3;
+    overflow-wrap: break-word;
+  }
+
+  &-text {
+    font-weight: var(--ui-alert-text-weight, var(--weight-light)); /// Graisse du texte.
+    line-height: 1.3;
+    overflow-wrap: break-word;
+  }
+
+  // --- Dismiss button ------------------------------------------------
+  &-close {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: $close-radius;
+    background: transparent;
+    color: inherit;
+    line-height: 0;
+    cursor: pointer;
+    opacity: $close-opacity;
+    @include utils.motion-transition(opacity);
+
+    &:hover {
+      opacity: 1;
+    }
+
+    &:focus-visible {
+      outline: $focus-ring-width solid currentColor;
+      outline-offset: $focus-ring-offset;
+      opacity: 1;
+    }
+
+    @include utils.motion-reduce {
+      transition-duration: 0.01ms;
+    }
+  }
+
+  // --- Sizes ---------------------------------------------------------
+  @each $name, $size in $sizes {
+    @if $name != 'default' {
+      &._#{$name} {
+        @include alert-size($size);
+      }
+    }
+  }
+
+  &._title-only {
+    min-height: auto;
+    align-items: center;
+
+    .ui-alert-icon {
+      padding-top: 0;
+    }
+  }
+
+  // --- Colours (level × sub-level) -----------------------------------
+  @each $lvl in $levels {
+    @each $sub in $sublevels {
+      &._#{$lvl}._#{$sub} {
+        background-color: var(--ui-alert-surface, var(--informative-#{$lvl}#{$sub}-surface-default)); /// Fond du composant : un seul nom pour les 10 jeux (niveau × sous-niveau), la portée se choisit avec les classes de modificateur.
+        color: var(--ui-alert-color, var(--informative-#{$lvl}#{$sub}-content-default));              /// Couleur du texte et des icônes.
+        border-color: var(--ui-alert-stroke, var(--informative-#{$lvl}#{$sub}-stroke-default));       /// Couleur de bordure.
+      }
+    }
+  }
+}

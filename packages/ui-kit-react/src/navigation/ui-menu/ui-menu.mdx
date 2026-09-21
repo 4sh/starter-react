@@ -1,0 +1,301 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as MenuStories from './ui-menu.stories';
+
+<Meta of={MenuStories} />
+
+# ui-menu
+
+Menu de **navigation** et de **commandes**, statique ou en popup, piloté par un modèle
+déclaratif : sections titrées, séparateurs, groupes repliables, sous-menus en cascade,
+commandes et liens.
+
+<Canvas of={MenuStories.Basic} />
+
+## API
+
+<ArgTypes of={MenuStories} />
+
+## Le modèle : `UiMenuItem`
+
+Une entrée est **soit** un séparateur, **soit** une feuille, **soit** un groupe. C'est la
+présence de `items` qui fait un groupe, et celle de `separator` un filet : il n'y a pas de
+champ « type » à tenir à jour.
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Propriété</th>
+      <th>Type</th>
+      <th>Rôle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>id</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        Identifiant stable. Requis dès qu'on pilote l'entrée depuis <code>expandedKeys</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>label</code> · <code>icon</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>Libellé et icône de tête, rendue par `ui-icon`.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>items</code>
+      </td>
+      <td>
+        <code>UiMenuItem[]</code>
+      </td>
+      <td>Enfants : l'entrée devient un groupe, section titrée ou sous-menu.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>separator</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>Rend un filet à la place d'une entrée.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>toggleable</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>
+        Groupe repliable. Par défaut <code>true</code> pour un groupe imbriqué et{' '}
+        <code>false</code> au premier niveau ; la valeur explicite gagne dans les deux sens.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>expanded</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>
+        Le groupe s'ouvre au repos. Même sens dans les deux rendus : accordéon replié ou
+        panneau latéral fermé.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>command</code>
+      </td>
+      <td>
+        <code>{'(e: UiMenuItemCommandEvent) => void'}</code>
+      </td>
+      <td>Appelé au clic et à l'activation clavier.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>url</code> · <code>target</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        Ancre native. <code>target="_blank"</code> ajoute le <code>rel</code> de sécurité.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>render</code>
+      </td>
+      <td>
+        <code>{'(props, children) => ReactNode'}</code>
+      </td>
+      <td>
+        Rend l'entrée avec le composant de lien du projet. Remplace le{' '}
+        <code>routerLink</code> d'Angular : le kit n'impose aucun routeur.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>active</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>Entrée de la page courante. L'appelant connaît sa route, le kit non.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>disabled</code> · <code>visible</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>Entrée désactivée, sautée au clavier, ou entrée absente du rendu.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>title</code> · <code>ariaLabel</code> · <code>className</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        Infobulle native, nom accessible de l'entrée, classe(s) sur son <code>&lt;li&gt;</code>.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Groupes pilotés par le modèle
+
+Les cases et les points de cet exemple ne sont pas des composants : ce sont les **icônes des
+entrées**, recalculées depuis l'état que le `command` vient de basculer. Un menu ne porte pas
+d'état de sélection, il en rend un.
+
+<Canvas of={MenuStories.Group} />
+
+## Groupes repliables
+
+Un groupe **imbriqué** est repliable par défaut, un groupe de premier niveau non :
+`toggleable` force l'un ou l'autre. Le repli est animé par le système de motion, coupé par
+`motionDisabled` et par `prefers-reduced-motion`.
+
+<Canvas of={MenuStories.Toggleable} />
+
+## Popup
+
+`popup` déplace le panneau dans le **calque supérieur**, ancré au déclencheur que rend la prop
+`trigger`. Le composant est **contrôlé** (`open` / `defaultOpen` / `onOpenChange`) : là où la
+version Angular s'appelle par des méthodes, celle-ci reste dans le modèle de React et ne mute
+jamais le DOM du déclencheur.
+
+<Canvas of={MenuStories.Popup} />
+
+Ce que le calque supérieur apporte : le panneau échappe au rognage d'un ancêtre en
+`overflow: hidden` et n'a besoin d'aucun `z-index`. Fermeture au clic extérieur, sur `Échap`,
+et après activation d'une entrée, avec le focus rendu au déclencheur. Un `popover` manuel ne
+restitue pas le focus de lui-même, contrairement à un `popover="auto"` : le composant le fait.
+
+## Sous-menus en cascade
+
+`submenus="flyout"` transforme **chaque** groupe en panneau latéral, ouvert au survol, au clic
+ou par `→`. Chaque panneau vit lui aussi dans le calque supérieur, sans quoi le
+`overflow: auto` du panneau parent le rognerait. `←` et `Échap` referment le panneau courant
+et rendent le focus à son entrée parente, sans toucher au menu du dessus.
+
+Le clic **ouvre** le sous-menu, il ne le bascule pas : à la souris le survol l'a déjà ouvert
+avant que le clic arrive, et une bascule le refermerait aussitôt. Il se ferme en survolant un
+voisin, par `←`, par Échap, ou en activant une feuille. Son apparition est animée, sa
+disparition non : un panneau qu'`allow-discrete` garderait affiché le temps de sa sortie
+glisserait par-dessus son parent.
+
+<Canvas of={MenuStories.Flyout} />
+
+## Densité compacte
+
+<Canvas of={MenuStories.Compact} />
+
+## Contenu projeté
+
+`renderItem` et `renderHeader` remplacent le contenu d'une entrée ou d'un en-tête ; `start` et
+`end` encadrent la liste. Ce sont les équivalents des gabarits `#item`, `#submenuheader`,
+`#start` et `#end` d'Angular.
+
+> ⚠️ Un contenu d'entrée ne doit contenir **aucun élément interactif** : l'entrée est
+> elle-même un `role="menuitem"`, et un bouton imbriqué dedans est une violation
+> `nested-interactive` que le contrôle d'accessibilité refuse.
+
+<Canvas of={MenuStories.Slots} />
+
+## Commandes
+
+<Canvas of={MenuStories.Command} />
+
+## Liens
+
+<Canvas of={MenuStories.Links} />
+
+## Piloter les groupes depuis l'extérieur
+
+`expandedKeys` est un objet dont la clé est l'`id` de l'entrée. Renseigné, il rend le menu
+**contrôlé** : c'est alors au parent de répondre à `onExpandedKeysChange`, sinon rien ne
+bouge. Sans `id`, une clé positionnelle interne est générée : stable tant que le tableau
+`items` ne change pas, mais donnez un `id` dès que vous pilotez l'état.
+
+<Canvas of={MenuStories.Controlled} />
+
+## Niveau `low`
+
+<Canvas of={MenuStories.Low} />
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Implémentation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Rôles</td>
+      <td>
+        <code>role="menu"</code> sur la liste, <code>role="menuitem"</code> sur de{' '}
+        <strong>vrais</strong> <code>&lt;button&gt;</code> et <code>&lt;a&gt;</code>, jamais un{' '}
+        <code>&lt;div&gt;</code> cliquable. Sections en <code>role="group"</code> +{' '}
+        <code>aria-labelledby</code>, filets en <code>role="separator"</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>Clavier</td>
+      <td>
+        Motif menu de l'APG : un <strong>seul arrêt de tabulation</strong>, <code>↑</code> /{' '}
+        <code>↓</code> en boucle, <code>Début</code> / <code>Fin</code>, <code>Entrée</code> et{' '}
+        <code>Espace</code> activent, <code>→</code> / <code>←</code> ouvrent et ferment un
+        groupe, <code>Échap</code> ferme le popup.
+      </td>
+    </tr>
+    <tr>
+      <td>Sous-menus</td>
+      <td>
+        <code>aria-expanded</code> et <code>aria-controls</code> sur la bascule ; un accordéon
+        replié est <code>inert</code>, donc hors du clavier et des lecteurs d'écran. Un parent
+        de cascade porte <code>aria-haspopup="menu"</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>Focus</td>
+      <td>
+        <code>:focus-visible</code> distinct du survol, la famille <code>navigation</code>
+        n'ayant pas d'état focalisé. Ouverture du popup : focus sur la première entrée ;
+        fermeture : retour au déclencheur.
+      </td>
+    </tr>
+    <tr>
+      <td>Nom accessible</td>
+      <td>
+        <code>aria-label</code> ou <code>aria-labelledby</code>, posés sur la{' '}
+        <strong>liste</strong> et non sur le panneau : un élément sans rôle qui porte un nom
+        est refusé.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Theming
+
+Variables **locales** de `ui-menu.scss` :
+
+<ConfigTable of="ui-menu" />

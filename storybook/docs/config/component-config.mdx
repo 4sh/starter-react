@@ -1,0 +1,309 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Components/configuration" />
+
+# Configuration des styles composants
+
+Cette page explique **comment fonctionne** la configuration structurelle des composants `ui-*`,
+et sert de **sommaire** vers les groupes de variables et les sections de configuration de chaque
+composant.
+
+À ne pas confondre avec les deux autres leviers de configuration du design system :
+
+<table style={{ width: '100%', borderCollapse: 'collapse' }}>
+  <thead>
+    <tr style={{ textAlign: 'left', borderBottom: '2px solid rgba(128,128,128,.25)' }}>
+      <th style={{ padding: 8, width: 194}}>Axe</th>
+      <th style={{ padding: 8 }}>Quoi</th>
+      <th style={{ padding: 8 }}>Quand</th>
+      <th style={{ padding: 8 }}>Où</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style={{ borderBottom: '1px solid rgba(128,128,128,.15)' }}>
+      <td style={{ padding: 8 }}><strong>Theming runtime</strong></td>
+      <td style={{ padding: 8 }}>Couleurs (marque, clair/sombre), typo, espacements : via variables CSS</td>
+      <td style={{ padding: 8 }}>À l'exécution (attributs sur <code>&lt;html&gt;</code>)</td>
+      <td style={{ padding: 8 }}>Design tokens · <code>ThemeService</code> / <code>BrandService</code></td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid rgba(128,128,128,.15)' }}>
+      <td style={{ padding: 8 }}><strong>Structure (ui-config)</strong></td>
+      <td style={{ padding: 8 }}>Choix mutualisé d'un token pour un rôle : focus ring, bordure, taille des contrôles, transition</td>
+      <td style={{ padding: 8 }}>À la compilation (SASS)</td>
+      <td style={{ padding: 8 }}><code>packages/ui-kit-react/src/styles/settings/_ui-config.scss</code></td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid rgba(128,128,128,.15)' }}>
+      <td style={{ padding: 8 }}><strong>Hooks <code>--ui-*</code></strong></td>
+      <td style={{ padding: 8 }}>La même valeur structurelle, mais retouchable <strong>sans recompiler le SCSS</strong>, le seul levier disponible en mode package</td>
+      <td style={{ padding: 8 }}>À l'exécution (CSS)</td>
+      <td style={{ padding: 8 }}><code>@4sh/ui-kit-react/styles/component-vars.scss</code></td>
+    </tr>
+  </tbody>
+</table>
+
+> Pour le theming runtime, voir **Spécifications → Thème & Système de Tokens** et
+> **Foundations → Colors**. Cette page documente l'axe **structure**.
+
+<br/>
+
+## Principe : 3 niveaux, une variable locale par composant
+
+`_ui-config.scss` (exposé par <code>@use 'utils'</code>) déclare des constantes à 3 portées,
+de la plus large à la plus étroite :
+
+```
+GLOBAL UI  ──►  CATÉGORIE  ──►  COMPOSANT (variable locale)
+(tous)          (forms /        (un seul .scss)
+                 actions /
+                 informative)
+```
+
+- Les constantes sont regroupées par **portée** : certaines sont **globales** (partagées par plusieurs familles de composants / des concepts communs à l’ensemble de l’interface), d’autres sont propres à une **catégorie** (forms, actions, informative).
+- Chaque composant consomme ensuite les constantes dont il a besoin dans sa propre configuration SCSS (variables locales, maps, mixins, etc.), ce qui permet d’ajuster un composant sans impacter les autres.
+
+```scss
+// Exemple dans ui-radio.scss : la valeur commune arrive via une variable LOCALE :
+$focus-ring-width: utils.$form-focus-ring-width; // ← remplacer ici = ajuster CE composant
+```
+
+<br/>
+
+## Sommaire : groupes de variables partagées
+
+Le référentiel des constantes **mutualisées** (`_ui-config.scss`) est découpé par groupe. Chaque
+page liste les variables, leur rôle et leur valeur par défaut.
+
+<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+  <thead>
+    <tr style={{ textAlign: 'left', borderBottom: '2px solid rgba(128,128,128,.25)' }}>
+      <th style={{ padding: 8, width: 220 }}>Groupe</th>
+      <th style={{ padding: 8 }}>Préfixe</th>
+      <th style={{ padding: 8 }}>Portée</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style={{ borderBottom: '1px solid rgba(128,128,128,.15)' }}>
+      <td style={{ padding: 8 }}><a href="?path=/docs/components-configuration-global-ui--docs"><strong>Global UI</strong></a></td>
+      <td style={{ padding: 8 }}><code>$focus-ring-width</code>, <code>$control-{'*'}</code>, <code>$motion-{'*'}</code></td>
+      <td style={{ padding: 8 }}>Tous les composants interactifs / Concepts Globaux à l'interface (dont le système de motion)</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid rgba(128,128,128,.15)' }}>
+      <td style={{ padding: 8 }}><a href="?path=/docs/components-configuration-forms--docs"><strong>Forms</strong></a></td>
+      <td style={{ padding: 8 }}><code>$form-*</code></td>
+      <td style={{ padding: 8 }}>Éléments de formulaire</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid rgba(128,128,128,.15)' }}>
+      <td style={{ padding: 8 }}><a href="?path=/docs/components-configuration-actions--docs"><strong>Actions</strong></a></td>
+      <td style={{ padding: 8 }}><code>$action-*</code></td>
+      <td style={{ padding: 8 }}>Composants interactifs (ex : button) </td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid rgba(128,128,128,.15)' }}>
+      <td style={{ padding: 8 }}><a href="?path=/docs/components-configuration-informative--docs"><strong>Informative</strong></a></td>
+      <td style={{ padding: 8 }}><code>$avatar-*</code></td>
+      <td style={{ padding: 8 }}>Élements portant un message / non interactif</td>
+    </tr>
+  </tbody>
+</table>
+
+<br/>
+
+## Sommaire : configuration par composant
+
+Les variables **locales** de chaque composant (dont celles qui pointent vers `ui-config` =
+points d'ajustement per-composant) sont documentées dans la section **« Theming »** de la doc du
+composant. Cette table est **générée** depuis le `.scss` par `pnpm docs:config` : le rôle de
+chaque variable vient de son commentaire `///`, le binding et la chaîne vers `ui-config` sont
+déduits, et la valeur affichée est **mesurée** dans le thème, la marque et le viewport actifs.
+Rebinder une variable dans un projet ne demande donc aucune reprise de doc.
+
+<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+  <thead>
+    <tr style={{ textAlign: 'left', borderBottom: '2px solid rgba(128,128,128,.25)' }}>
+      <th style={{ padding: 8, width: 220 }}>Composant</th>
+      <th style={{ padding: 8 }}>Groupe(s) consommé(s)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style={{ borderBottom: '1px solid rgba(128,128,128,.15)' }}>
+      <td style={{ padding: 8 }}><a href="?path=/docs/components-ui-actions-ui-button--docs"><code>ui-button</code></a></td>
+      <td style={{ padding: 8 }}>Actions + local (<code>$sizes</code>, <code>$levels</code>)</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid rgba(128,128,128,.15)' }}>
+      <td style={{ padding: 8 }}><a href="?path=/docs/components-ui-forms-ui-checkbox--docs"><code>ui-checkbox</code></a></td>
+      <td style={{ padding: 8 }}>Forms</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid rgba(128,128,128,.15)' }}>
+      <td style={{ padding: 8 }}><a href="?path=/docs/components-ui-forms-ui-radio--docs"><code>ui-radio</code></a></td>
+      <td style={{ padding: 8 }}>Forms + local (<code>$dot-size</code>)</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid rgba(128,128,128,.15)' }}>
+      <td style={{ padding: 8 }}><a href="?path=/docs/components-ui-forms-ui-toggle--docs"><code>ui-toggle</code></a></td>
+      <td style={{ padding: 8 }}>Forms + local (<code>$sizes</code>)</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid rgba(128,128,128,.15)' }}>
+      <td style={{ padding: 8 }}><a href="?path=/docs/components-ui-forms-ui-input--docs"><code>ui-input</code></a> · <code>ui-input-mask</code> · <code>ui-input-number</code></td>
+      <td style={{ padding: 8 }}>Forms (via le shell <code>ui-field</code>)</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid rgba(128,128,128,.15)' }}>
+      <td style={{ padding: 8 }}><a href="?path=/docs/components-ui-informative-ui-avatar--docs"><code>ui-avatar</code></a> · <code>ui-avatar-group</code></td>
+      <td style={{ padding: 8 }}>Informative</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid rgba(128,128,128,.15)' }}>
+      <td style={{ padding: 8 }}><a href="?path=/docs/components-ui-informative-ui-accordion--docs"><code>ui-accordion</code></a></td>
+      <td style={{ padding: 8 }}>Global UI (motion + focus ring) + local (<code>$control-size</code>)</td>
+    </tr>
+  </tbody>
+</table>
+
+<br/>
+<br/>
+
+## Comment surcharger
+
+<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+  <thead>
+    <tr style={{ textAlign: 'left', borderBottom: '2px solid rgba(128,128,128,.25)' }}>
+      <th style={{ padding: 8 }}>Objectif</th>
+      <th style={{ padding: 8 }}>Où intervenir</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style={{ borderBottom: '1px solid rgba(128,128,128,.15)' }}>
+      <td style={{ padding: 8 }}><strong>Tout le kit</strong> (ex : focus ring de 2px → 3px partout)</td>
+      <td style={{ padding: 8 }}>Éditer la valeur globale dans <code>_ui-config.scss</code>. Tous les composants re-<code>@use</code> ce fichier, ils suivent.</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid rgba(128,128,128,.15)' }}>
+      <td style={{ padding: 8 }}><strong>Une catégorie</strong> (ex : contrôles de formulaire plus grands)</td>
+      <td style={{ padding: 8 }}>Éditer la variable `$form-*` (ou `$action-*` / `$avatar-*`) dans <code>_ui-config.scss</code>.</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid rgba(128,128,128,.15)' }}>
+      <td style={{ padding: 8 }}><strong>Un seul composant</strong> (ex : anneau plus épais sur le radio uniquement)</td>
+      <td style={{ padding: 8 }}>Remplacer la valeur de la variable locale en tête du <code>.scss</code> du composant.</td>
+    </tr>
+    <tr style={{ borderBottom: '1px solid rgba(128,128,128,.15)' }}>
+      <td style={{ padding: 8 }}><strong>Sans accès au SCSS</strong> (mode package) ou <strong>une seule zone de l'écran</strong></td>
+      <td style={{ padding: 8 }}>Poser le hook <code>--ui-*</code> de la valeur : sur <code>:root</code> pour tout le projet, sur un sélecteur pour cette zone. Voir ci-dessous.</td>
+    </tr>
+  </tbody>
+</table>
+
+> Les deux premiers leviers sont des leviers de **compilation** : ils supposent d'avoir le SCSS
+> du kit sous la main : donc le mode schematics, où le code des composants est copié dans le
+> projet. En mode package le SCSS est déjà compilé : c'est le rôle des hooks.
+
+<br/>
+
+## Mode package : les hooks `--ui-*`
+
+En mode package, `_ui-config.scss` et les variables locales des composants sont **déjà
+compilés** : les rebinder est impossible. Chaque valeur est donc lue *à travers* une custom
+property, dont le défaut est le réglage livré :
+
+```scss
+// dans ui-button.scss
+$radius: var(--ui-button-radius, var(--radius-sm));   // ← le hook, puis le défaut
+$sizes: ('small': (height: var(--ui-button-height-small, var(--size-components-sm)), …));
+```
+
+Le composant ne **déclare** jamais ces noms : il ne fait que les lire. Les poser n'importe où
+au-dessus suffit donc à gagner, du plus large au plus ciblé :
+
+```scss
+:root                  { --ui-button-height-small: 24px; }  /* tous les boutons small */
+.toolbar ui-button     { --ui-button-height-small: 24px; }   /* cette zone seulement */
+```
+
+Trois règles pour choisir le bon levier :
+
+- **Rethémer** (la marque change de bleu, le clair/sombre bouge) se fait par les **design
+  tokens** : eux seuls suivent les 3 marques et le mode, et leur contraste est vérifié.
+- **Une valeur partagée par tout le kit** (espacement, rayon, taille de contrôle) se retouche
+  par son token `--units-*` / `--radius-*` / `--size-components-*` : inutile de poser 40 hooks.
+- **Le hook** sert quand un seul composant, une seule taille ou une seule zone doit dévier,
+  couleur comprise.
+
+### Les hooks de couleur
+
+Les couleurs ont aussi leur hook, mais il est posé **sur le site d'usage** et non sur une
+variable de config : le jeu de jetons d'une couleur dépend de la variante rendue, et la
+remonter en config le figerait.
+
+```scss
+// dans ui-button.scss : un seul nom de hook pour les 15 jeux (niveau × variante × polarité)
+background-color: var(--ui-button-surface, var(--actions-#{$set}-surface-default));
+```
+
+```scss
+:root                      { --ui-button-surface: #123456; }  /* tous les boutons */
+.toolbar .ui-button._high  { --ui-button-surface: #123456; }  /* un seul jeu, une seule zone */
+```
+
+Sans hook posé, rien ne change : le repli reste le token sémantique. Ces hooks portent le
+repère **« selon la variante »** dans la colonne « Défaut (starter) », et ne figurent pas
+dans `component-vars.scss` : y déclarer une valeur écraserait les autres variantes.
+
+Les couleurs peintes par un **mixin partagé** (champs de formulaire, contrôles de sélection)
+font exception : le mixin ignore quel composant l'a inclus, donc leur hook porte le nom de la
+catégorie et se déclare dans `_ui-config.scss` (`--ui-form-field-color`,
+`--ui-form-control-surface-checked`…). Les poser vaut pour tous les champs à la fois.
+
+`@4sh/ui-kit-react/styles/component-vars.scss` rassemble **tous** les hooks réglables, déclarés à la valeur
+livrée, groupés par catégorie → composant → type de propriété, valeurs alignées. On copie le
+fichier dans le projet, on le charge après `styles.css`, et on change ce qu'on veut. Tel quel il
+ne change rien : il redéclare les défauts. Il est téléchargeable depuis
+**Spécifications → Thème & Système de Tokens**.
+
+Le fichier est **généré** depuis les `.scss` (`pnpm docs:config`), et ses valeurs sont lues
+dans le CSS réellement compilé : donc jamais périmées. Quelques hooks n'y figurent pas, parce
+qu'un réglage global n'a pas de sens pour eux : ceux dont le défaut dépend de la variante rendue
+(`--ui-button-radius` vaut un autre rayon en `rounded`) et ceux que le composant se pose
+lui-même. La colonne « Hook exposé » de chaque composant les donne quand même.
+
+Chaque section « Theming » de composant affiche le hook de chaque valeur dans sa colonne
+**« Hook exposé »**. Une poignée de custom properties `--ui-*` n'y figure pas : celles que le
+composant se pose **à lui-même** pour piloter ses sous-éléments (les surcharger revient à lutter
+contre lui) : `component-vars.scss` ne les propose pas.
+
+<br/>
+
+## Mixin `control-transition()`
+
+Applique la recette de transition mutualisée à une liste de propriétés (durée + easing pris
+dans `ui-config`), en une déclaration :
+
+```scss
+@use 'utils';
+
+.ui-checkbox-box {
+  @include utils.control-transition(background-color, border-color, box-shadow);
+}
+// → transition: background-color 80ms ease-in-out, border-color 80ms ease-in-out, box-shadow 80ms ease-in-out;
+```
+
+Changer la durée/courbe pour tous les composants = éditer `$control-transition-duration` /
+`$control-transition-easing` dans `ui-config`.
+
+Pour les **animations d'apparition/disparition et les transitions d'état** (accordéon,
+tooltip, overlays…), voir le **système de motion** dédié : mixin `utils.motion-transition()`,
+garde `utils.motion-reduce`, presets `ui-motion-*` et directive `[uiMotion]`, documentés dans
+**Foundations → Motion** (timing dans le groupe `$motion-*` ci-dessus).
+
+<br/>
+
+## Gouvernance : quand créer une constante partagée
+
+- Valeur utilisée par **≥ 2 composants** → la remonter dans `ui-config` (niveau **catégorie**
+  si propre à une famille `forms`/`actions`/`informative`, **global** sinon), et l'ajouter à la
+  page de groupe correspondante ci-dessus.
+- Valeur d'un **seul** composant → elle reste **locale** à son `.scss` (documentée dans la
+  section « Theming » de sa doc).
+- `ui-config` porte des **choix de tokens**. Les couleurs n'y entrent que dans un cas : celles
+  qu'un **mixin partagé** peint, dont le hook doit porter un nom de catégorie. Toutes les
+  autres se déclarent sur leur site d'usage, dans le `.scss` du composant.
+
+<br/>
+
+> **Recherche Storybook** : la barre de recherche indexe les **titres** de l'arborescence
+> (nom / chemin), pas le contenu des pages. Pour retrouver une variable, cherchez son **groupe**
+> (`Global UI`, `Forms`, `Actions`, `Informative`) ou le **composant** qui la consomme
+> (`ui-radio`, `ui-avatar`…), puis sa section « Theming ».

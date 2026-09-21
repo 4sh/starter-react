@@ -1,0 +1,371 @@
+import { Meta, Story } from "@storybook/addon-docs/blocks";
+// Généré par `pnpm build-info`, même mécanique que
+// `generated/ui-config.json` (voir `scripts/docs.config.mjs`).
+import buildInfo from "../generated/build-info.json";
+import * as ButtonStories from "../../packages/ui-kit-react/src/actions/ui-button/ui-button.stories";
+import * as CheckboxStories from "../../packages/ui-kit-react/src/forms/ui-checkbox/ui-checkbox.stories";
+import * as FieldStories from "../../packages/ui-kit-react/src/forms/ui-field/ui-field.stories";
+import * as InputStories from "../../packages/ui-kit-react/src/forms/ui-input/ui-input.stories";
+import * as InputDateStories from "../../packages/ui-kit-react/src/forms/ui-input-date/ui-input-date.stories";
+import * as InputMaskStories from "../../packages/ui-kit-react/src/forms/ui-input-mask/ui-input-mask.stories";
+import * as InputNumberStories from "../../packages/ui-kit-react/src/forms/ui-input-number/ui-input-number.stories";
+import * as LabelStories from "../../packages/ui-kit-react/src/forms/ui-label/ui-label.stories";
+import * as AutocompleteStories from "../../packages/ui-kit-react/src/forms/ui-autocomplete/ui-autocomplete.stories";
+import * as DatepickerStories from "../../packages/ui-kit-react/src/forms/ui-datepicker/ui-datepicker.stories";
+import * as NudgerStories from "../../packages/ui-kit-react/src/forms/ui-nudger/ui-nudger.stories";
+import * as RatingStories from "../../packages/ui-kit-react/src/forms/ui-rating/ui-rating.stories";
+import * as SliderStories from "../../packages/ui-kit-react/src/forms/ui-slider/ui-slider.stories";
+import * as ToggleBlockStories from "../../packages/ui-kit-react/src/forms/ui-toggle-block/ui-toggle-block.stories";
+import * as SegmentStories from "../../packages/ui-kit-react/src/forms/ui-segment-control/ui-segment-control.stories";
+import * as ToggleButtonStories from "../../packages/ui-kit-react/src/forms/ui-toggle-button/ui-toggle-button.stories";
+import * as InputTagsStories from "../../packages/ui-kit-react/src/forms/ui-input-tags/ui-input-tags.stories";
+import * as SelectStories from "../../packages/ui-kit-react/src/forms/ui-select/ui-select.stories";
+import * as RadioStories from "../../packages/ui-kit-react/src/forms/ui-radio/ui-radio.stories";
+import * as TextareaStories from "../../packages/ui-kit-react/src/forms/ui-textarea/ui-textarea.stories";
+import * as ToggleStories from "../../packages/ui-kit-react/src/forms/ui-toggle/ui-toggle.stories";
+import * as AvatarStories from "../../packages/ui-kit-react/src/informative/ui-avatar/ui-avatar.stories";
+import * as ChipStories from "../../packages/ui-kit-react/src/informative/ui-chip/ui-chip.stories";
+import * as DrawerStories from "../../packages/ui-kit-react/src/layout/ui-drawer/ui-drawer.stories";
+import * as PopoverStories from "../../packages/ui-kit-react/src/layout/ui-popover/ui-popover.stories";
+import * as TooltipStories from "../../packages/ui-kit-react/src/informative/ui-tooltip/ui-tooltip.stories";
+import * as ModalStories from "../../packages/ui-kit-react/src/layout/ui-modal/ui-modal.stories";
+import * as MenuStories from "../../packages/ui-kit-react/src/navigation/ui-menu/ui-menu.stories";
+import * as ContextMenuStories from "../../packages/ui-kit-react/src/navigation/ui-context-menu/ui-context-menu.stories";
+import * as TabsStories from "../../packages/ui-kit-react/src/navigation/ui-tabs/ui-tabs.stories";
+import * as PaginatorStories from "../../packages/ui-kit-react/src/table/ui-paginator/ui-paginator.stories";
+import * as TableStories from "../../packages/ui-kit-react/src/table/ui-table/ui-table.stories";
+import * as CardStories from "../../packages/ui-kit-react/src/layout/ui-card/ui-card.stories";
+import * as EmptyStateStories from "../../packages/ui-kit-react/src/informative/ui-empty-state/ui-empty-state.stories";
+import * as LinkStories from "../../packages/ui-kit-react/src/actions/ui-link/ui-link.stories";
+import * as ReadOnlyStories from "../../packages/ui-kit-react/src/informative/ui-read-only/ui-read-only.stories";
+import * as BadgeStories from "../../packages/ui-kit-react/src/informative/ui-badge/ui-badge.stories";
+import * as ProgressBarStories from "../../packages/ui-kit-react/src/informative/ui-progress-bar/ui-progress-bar.stories";
+import * as SkeletonStories from "../../packages/ui-kit-react/src/informative/ui-skeleton/ui-skeleton.stories";
+import * as SpinnerStories from "../../packages/ui-kit-react/src/informative/ui-spinner/ui-spinner.stories";
+import * as HelperStories from "../../packages/ui-kit-react/src/informative/ui-helper/ui-helper.stories";
+import * as SeparatorStories from "../../packages/ui-kit-react/src/informative/ui-separator/ui-separator.stories";
+import * as TagStories from "../../packages/ui-kit-react/src/informative/ui-tag/ui-tag.stories";
+import * as AlertStories from "../../packages/ui-kit-react/src/informative/ui-alert/ui-alert.stories";
+import * as IconStories from "../../packages/ui-kit-react/src/base/ui-icon/ui-icon.stories";
+
+<Meta title="Overview" />
+
+# Composants
+
+Bibliothèque de composants React, accessibles, stylés via design tokens.
+Vue d'ensemble par catégorie.
+
+{/*
+  Cette page est l'une des six qui énumèrent le kit, et `pnpm components:check`
+  échoue si un composant présent dans `packages/ui-kit-react/src/` n'y figure
+  pas. Elle se remplit donc au fil des composants livrés : les catégories
+  vides sont là pour que l'ordre des sections reste stable, il est aligné sur
+  celui du Storybook Angular (invariant du Dual-Engine).
+*/}
+
+export const CATEGORIES = [
+  {
+    title: 'Actions',
+    anchor: 'actions',
+    components: [
+      {
+        name: 'ui-button',
+        description:
+          "Bouton d'action (level × variant × onColor, deux tailles, icône sur quatre côtés, icône seule, chargement, mode lien href ou routeur).",
+        link: '?path=/docs/components-ui-actions-ui-button--docs',
+        story: ButtonStories.High,
+      },
+      { name: 'ui-link', description: "Lien textuel en ligne. Le sens décide : ce qui navigue est un lien, ce qui agit est un bouton. `render` branche le routeur du projet.", link: '?path=/docs/components-ui-actions-ui-link--docs', story: LinkStories.Default },
+    ],
+  },
+  {
+    title: 'Forms',
+    anchor: 'forms',
+    components: [
+      { name: 'ui-field', description: "Coquille partagée des champs en boîte : libellé, boîte bordée, message. Purement visuelle, le contrôle est projeté.", link: '?path=/docs/components-ui-forms-ui-field--docs', story: FieldStories.WithMessage },
+      { name: 'ui-input', description: 'Champ texte composé (contrôlé ou non, icônes, zone d\'action, unité, libellé flottant, validation).', link: '?path=/docs/components-ui-forms-ui-input--docs', story: InputStories.WithHelper },
+      { name: 'ui-label', description: 'Libellé de champ (marqueur requis, tailles, couleur pilotable par le parent).', link: '?path=/docs/components-ui-forms-ui-label--docs', story: LabelStories.Required },
+      { name: 'ui-input-number', description: "Champ numérique (saisie permissive, formatage riche à la sortie, min/max/step, pavé d'incrément, role spinbutton).", link: '?path=/docs/components-ui-forms-ui-input-number--docs', story: InputNumberStories.MinMax },
+      { name: 'ui-input-mask', description: "Champ masqué (littéraux insérés à la frappe, bornes par segment, valeur masquée ou brute). Moteur porté tel quel du kit Angular.", link: '?path=/docs/components-ui-forms-ui-input-mask--docs', story: InputMaskStories.Date },
+      { name: 'ui-input-date', description: "Champ date/heure natif : le sélecteur est celui de l'OS. Même valeur qu'ui-datepicker, pour basculer de l'un à l'autre selon le viewport.", link: '?path=/docs/components-ui-forms-ui-input-date--docs', story: InputDateStories.WithValue },
+      { name: 'ui-autocomplete', description: "Saisie assistée. Le composant ne filtre rien : il émet une requête, et l'appelant fournit les suggestions.", link: '?path=/docs/components-ui-forms-ui-autocomplete--docs', story: AutocompleteStories.WithDropdown },
+      { name: 'ui-datepicker', description: "Sélecteur de date, mois ou année, heure en option. Tout le formatage passe par Intl : aucune librairie de dates.", link: '?path=/docs/components-ui-forms-ui-datepicker--docs', story: DatepickerStories.Inline, previewHeight: 300, previewScale: 0.62 },
+      { name: 'ui-nudger', description: "Compteur numérique. Les états « au minimum » et « au maximum » sont dérivés de la valeur, jamais des props.", link: '?path=/docs/components-ui-forms-ui-nudger--docs', story: NudgerStories.Default },
+      { name: 'ui-rating', description: "Note en étoiles posée sur un curseur natif : focus, clavier et sémantique de valeur viennent du navigateur.", link: '?path=/docs/components-ui-forms-ui-rating--docs', story: RatingStories.AllowHalf },
+      { name: 'ui-slider', description: "Curseur simple ou de plage. Le pointeur est capturé, donc le glissement continue hors de la piste.", link: '?path=/docs/components-ui-forms-ui-slider--docs', story: SliderStories.Default },
+      { name: 'ui-toggle-block', description: "Bloc sélectionnable. Un label étiré rend toute la surface activante, sans gestionnaire de clic.", link: '?path=/docs/components-ui-forms-ui-toggle-block--docs', story: ToggleBlockStories.Checked },
+      { name: 'ui-segment-control', description: "Contrôle segmenté. La sémantique change avec multiple : radiogroup en simple, group en bascules.", link: '?path=/docs/components-ui-forms-ui-segment-control--docs', story: SegmentStories.WithIcons },
+      { name: 'ui-toggle-button', description: "Bouton à état pressé, seul ou en groupe. Le groupe est toujours multi-sélection, à dessein.", link: '?path=/docs/components-ui-forms-ui-toggle-button--docs', story: ToggleButtonStories.GroupIconOnly },
+      { name: 'ui-input-tags', description: "Saisie multi-valeurs en tags. La listbox n'enveloppe que les tags : une liste ne peut pas contenir de champ texte.", link: '?path=/docs/components-ui-forms-ui-input-tags--docs', story: InputTagsStories.WithTags },
+      { name: 'ui-select', description: "Liste déroulante suivant le motif combobox : le focus reste sur le déclencheur, l'option courante est désignée par aria-activedescendant.", link: '?path=/docs/components-ui-forms-ui-select--docs', story: SelectStories.WithValue },
+      { name: 'ui-textarea', description: "Champ texte multiligne (coquille en mode multiligne, autoResize ou poignée native, compteur de caractères chaîné à aria-describedby).", link: '?path=/docs/components-ui-forms-ui-textarea--docs', story: TextareaStories.WithCount },
+      { name: 'ui-checkbox', description: "Case à cocher sur input natif (modèle non booléen via trueValue/falseValue, indéterminé visuel, lecture seule annoncée).", link: '?path=/docs/components-ui-forms-ui-checkbox--docs', story: CheckboxStories.Checked },
+      { name: 'ui-radio', description: "Bouton radio sur input natif. Le groupe porte la valeur : contrôlé par groupValue, ou non contrôlé en laissant le name au navigateur.", link: '?path=/docs/components-ui-forms-ui-radio--docs', story: RadioStories.Checked },
+      { name: 'ui-toggle', description: "Interrupteur (role=switch, annoncé activé/désactivé), pastille personnalisable, modèle non booléen.", link: '?path=/docs/components-ui-forms-ui-toggle--docs', story: ToggleStories.On },
+    ],
+  },
+  {
+    title: 'Informative',
+    anchor: 'informative',
+    components: [
+      { name: 'ui-avatar', description: "Personne ou entité en image, initiales ou icône. Le mode se déduit des props, avec un badge de statut posé en haut à droite.", link: '?path=/docs/components-ui-informative-ui-avatar--docs', story: AvatarStories.Default },
+      { name: 'ui-chip', description: "Entité manipulable : retirable par un vrai bouton, ou sélectionnable en devenant elle-même un bouton à état.", link: '?path=/docs/components-ui-informative-ui-chip--docs', story: ChipStories.Removable },
+      { name: 'ui-empty-state', description: "Absence de contenu : un visuel, un titre, une description et des actions pour offrir une suite.", link: '?path=/docs/components-ui-informative-ui-empty-state--docs', story: EmptyStateStories.Default },
+      { name: 'ui-badge', description: "Compte ou statut. Trois formes selon le contenu : capsule, glyphe unique carré, ou point de notification.", link: '?path=/docs/components-ui-informative-ui-badge--docs', story: BadgeStories.Default },
+      { name: 'ui-helper', description: "Texte d'aide ou retour contextuel (icône déduite du niveau, région vivante optionnelle).", link: '?path=/docs/components-ui-informative-ui-helper--docs', story: HelperStories.Default },
+      { name: 'ui-read-only', description: "Valeur étiquetée en lecture seule. Rend une vraie liste de définition dès qu'un libellé est donné.", link: '?path=/docs/components-ui-informative-ui-read-only--docs', story: ReadOnlyStories.Default },
+      { name: 'ui-tooltip', description: "Bulle d'aide au survol et au focus. Rejetable par Échap, survolable, persistante : WCAG 1.4.13.", link: '?path=/docs/components-ui-informative-ui-tooltip--docs', story: TooltipStories.Default },
+      { name: 'ui-separator', description: "Filet role=separator entre deux contenus, titrable, horizontal ou vertical.", link: '?path=/docs/components-ui-informative-ui-separator--docs', story: SeparatorStories.Labelled },
+      { name: 'ui-progress-bar', description: "Avancement d'un traitement : valeur suivie, boucle indéterminée, ou étapes discrètes.", link: '?path=/docs/components-ui-informative-ui-progress-bar--docs', story: ProgressBarStories.Default },
+      { name: 'ui-skeleton', description: "Bloc affiché à la place d'un contenu en cours de chargement (3 formes, reflet ou clignotement).", link: '?path=/docs/components-ui-informative-ui-skeleton--docs', story: SkeletonStories.Default },
+      { name: 'ui-spinner', description: "Chargement indéterminé. Marqueur remplaçable et délai de grâce contre le clignotement.", link: '?path=/docs/components-ui-informative-ui-spinner--docs', story: SpinnerStories.Default },
+      { name: 'ui-tag', description: "Étiquette informative colorée par level × subLevel, pilule ou rectangle, icône de chaque côté.", link: '?path=/docs/components-ui-informative-ui-tag--docs', story: TagStories.Default },
+      { name: 'ui-alert', description: "Message en ligne annoncé dès son apparition. Sévérité, icône déduite, fermeture et disparition automatique.", link: '?path=/docs/components-ui-informative-ui-alert--docs', story: AlertStories.Default },
+    ],
+  },
+  {
+    title: 'Layout',
+    anchor: 'layout',
+    components: [
+      { name: 'ui-drawer', description: "Panneau glissant ancré à un bord. Même <dialog> natif que ui-modal, quatre bords et un mode plein écran.", link: '?path=/docs/components-ui-layout-ui-drawer--docs', story: DrawerStories.Opened, previewHeight: 300, previewScale: 0.8 },
+      { name: 'ui-modal', description: "Dialogue bâti sur le <dialog> natif : piège de focus, empilement et arrière-plan pris en charge par le navigateur.", link: '?path=/docs/components-ui-layout-ui-modal--docs', story: ModalStories.Opened, previewHeight: 300, previewScale: 0.8  },
+      { name: 'ui-popover', description: "Panneau flottant ancré. Vit dans le calque supérieur, donc aucun ancêtre en overflow: hidden ne le rogne.", link: '?path=/docs/components-ui-layout-ui-popover--docs', story: PopoverStories.Default },
+      { name: 'ui-card', description: "Conteneur à cinq zones optionnelles : visuel, titre, sous-titre, corps et pied. Une zone vide n'est pas rendue.", link: '?path=/docs/components-ui-layout-ui-card--docs', story: CardStories.Default, previewScale: 0.7 },
+    ],
+  },
+  {
+    title: 'Navigation',
+    anchor: 'navigation',
+    components: [
+      { name: 'ui-menu', description: "Menu de navigation et de commandes, statique ou en popup : sections, groupes repliables, sous-menus en cascade.", link: '?path=/docs/components-ui-navigation-ui-menu--docs', story: MenuStories.Basic, previewHeight: 300, previewScale: 0.85 },
+      { name: 'ui-context-menu', description: "Menu ouvert au clic droit, ancré sur le pointeur et non sur un élément. Même modèle et même clavier que ui-menu.", link: '?path=/docs/components-ui-navigation-ui-context-menu--docs', story: ContextMenuStories.Inline, previewHeight: 300},
+      { name: 'ui-tabs', description: "Onglets headless composés : bande à focus glissant, indicateur mesuré, défilement, panneaux paresseux.", link: '?path=/docs/components-ui-navigation-ui-tabs--docs', story: TabsStories.Default, previewHeight: 300 },
+    ],
+  },
+  {
+    title: 'Table',
+    anchor: 'table',
+    components: [
+      { name: 'ui-paginator', description: "Barre de pagination autonome : numéros fenêtrés ou repliés, compte rendu, lignes par page.", link: '?path=/docs/components-ui-table-ui-paginator--docs', story: PaginatorStories.Basic },
+      { name: 'ui-table', description: "Tableau headless : l'appelant possède le balisage des lignes, le composant le tri, la pagination, la sélection et le défilement.", link: '?path=/docs/components-ui-table-ui-table--docs', story: TableStories.Basic, previewHeight: 300, previewScale: 0.7 },
+    ],
+  },
+  {
+    title: 'Base',
+    anchor: 'base',
+    components: [
+      { name: 'ui-icon', description: 'Icône FontAwesome (sm→xl, solid/outline), décorative par défaut, famille configurable.', link: '?path=/docs/components-ui-base-ui-icon--docs', story: IconStories.Solid },
+    ],
+  },
+];
+
+export const managerHref = (link) => {
+  // Storybook vit dans la fenetre du haut, cette page de doc dans son iframe
+  // `/iframe.html`. Une URL relative se resout contre le document qui la
+  // porte, donc contre `/iframe.html` et non contre la racine, y compris dans
+  // un `<a target="_top">` : un `?path=` relatif devenait `/iframe.html?path=`,
+  // la fenetre du haut chargeait la coquille de preview, et la doc s'affichait
+  // sans le menu ni la barre d'outils. Il faut donc un lien absolu.
+  //
+  // Le pathname prive de son dernier segment donne la racine du Storybook :
+  // `/` reste `/`, `/iframe.html` redevient `/`, et un deploiement
+  // sous-chemin (`/storybook/`) est conserve.
+  const top = window.top.location;
+  const root = top.pathname.slice(0, top.pathname.lastIndexOf('/') + 1);
+  return `${top.origin}${root}${link}`;
+};
+
+export const ComponentCard = ({ name, description, link, story, previewHeight = 154, previewScale = 0.9 }) => {
+  const handleCardClick = (e) => {
+    // La preview est interactive, et le lien navigue deja tout seul.
+    const previewArea = e.currentTarget.querySelector('[data-preview-area]');
+    if (previewArea && previewArea.contains(e.target)) return;
+    if (e.target.closest('a')) return;
+
+    window.top.location.href = managerHref(link);
+  };
+
+  return (
+    <div
+      style={{
+        display: 'flex', flexDirection: 'column', padding: 20, borderRadius: 12,
+        background: 'var(--sb-bg-subtle)', border: '1px solid var(--sb-border)',
+        transition: 'all .2s ease', cursor: 'pointer'
+      }}
+      onClick={handleCardClick}
+      onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--sb-accent)'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,.1)'; }}
+      onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--sb-border)'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+    >
+      <div
+        data-preview-area="true"
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: previewHeight, background: 'var(--sb-bg)', borderRadius: 8, marginBottom: 16, overflow: 'hidden', border: '1px solid var(--sb-border-subtle)' }}
+      >
+        <div style={{ transform: `scale(${previewScale})` }}><Story of={story} /></div>
+      </div>
+      <div style={{ fontWeight: 'bold', fontSize: 15, marginBottom: 6 }}>{name}</div>
+      <div style={{ fontSize: 12, color: 'var(--sb-text-subtle)', lineHeight: 1.4, marginBottom: 12 }}>{description}</div>
+      <a
+        href={managerHref(link)}
+        target="_top"
+        style={{ marginTop: 'auto', paddingTop: 8, fontSize: 11, color: 'var(--sb-accent)', fontWeight: 'bold', textDecoration: 'none', alignSelf: 'flex-start' }}
+      >
+        Voir la documentation →
+      </a>
+    </div>
+  );
+};
+
+export const CategorySection = ({ title, anchor, components }) => (
+  <div id={anchor} style={{ display: "block", marginTop: 48, marginBottom: 48 }}>
+    <h2 style={{ fontSize: 20, marginBottom: 24, paddingBottom: 12, borderBottom: '2px solid var(--sb-border)', textTransform: 'capitalize' }}>{title}</h2>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 24 }}>
+      {components.map((c) => <ComponentCard key={c.name} {...c} />)}
+    </div>
+  </div>
+);
+
+export const StatsCards = ({ categories }) => {
+  const totalComponents = categories.reduce((acc, cat) => acc + cat.components.length, 0);
+
+  const card1 = (
+    <div style={{
+      flex: '1 1 260px',
+      minWidth: 0,
+      padding: '28px 32px',
+      borderRadius: 16,
+      background: 'linear-gradient(135deg, var(--sb-hero-from) 0%, var(--sb-hero-to) 100%)',
+      color: 'var(--sb-hero-text)',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 8,
+      boxShadow: '0 8px 32px rgba(0,0,0,.28)',
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        position: 'absolute', top: -40, right: -40,
+        width: 140, height: 140, borderRadius: '50%',
+        background: 'rgba(255,255,255,.08)',
+        pointerEvents: 'none',
+      }} />
+      <div style={{
+        position: 'absolute', bottom: -24, left: -16,
+        width: 90, height: 90, borderRadius: '50%',
+        background: 'rgba(255,255,255,.05)',
+        pointerEvents: 'none',
+      }} />
+      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', opacity: .78 }}>
+        Composants
+      </div>
+      <div style={{ fontSize: 72, fontWeight: 900, lineHeight: 1, letterSpacing: '-3px', margin: '4px 0' }}>
+        {totalComponents}
+      </div>
+      <div style={{ fontSize: 13, opacity: .72, fontWeight: 500 }}>
+        dans {categories.length} catégorie{categories.length > 1 ? 's' : ''}
+      </div>
+    </div>
+  );
+
+  const card2 = (
+    <div style={{
+      flex: '2 1 340px',
+      minWidth: 0,
+      padding: '24px 28px',
+      borderRadius: 16,
+      background: 'var(--sb-bg-subtle)',
+      border: '1px solid var(--sb-border)',
+      display: 'flex',
+      flexDirection: 'column',
+      boxShadow: '0 4px 16px rgba(0,0,0,.06)',
+    }}>
+      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--sb-text-subtle)', marginBottom: 16 }}>
+        Catégories
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        {categories.map((cat, index) => (
+          <div key={cat.anchor} style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '9px 0',
+            borderBottom: index < categories.length - 1 ? '1px solid var(--sb-border)' : 'none',
+            gap: 12,
+          }}>
+            <a
+              href={'#' + cat.anchor}
+              onClick={(e) => { e.preventDefault(); const el = document.getElementById(cat.anchor); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
+              style={{
+                fontSize: 14,
+                fontWeight: 500,
+                color: 'var(--sb-accent)',
+                textDecoration: 'none',
+                cursor: 'pointer',
+              }}
+              onMouseOver={(e) => { e.currentTarget.style.textDecoration = 'underline'; }}
+              onMouseOut={(e) => { e.currentTarget.style.textDecoration = 'none'; }}
+            >
+              {cat.title}
+            </a>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minWidth: 24,
+              height: 20,
+              padding: '0 7px',
+              borderRadius: 999,
+              background: 'var(--sb-accent)',
+              color: 'var(--sb-accent-contrast)',
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: '.02em',
+              flexShrink: 0,
+            }}>
+              {cat.components.length}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: 20,
+      marginTop: 32,
+      marginBottom: 8,
+    }}>
+      {card1}
+      {card2}
+    </div>
+  );
+};
+
+{/* FSHSP-101 : ce Storybook est redéployé à chaque push `main`, il documente donc
+    potentiellement du code en avance sur ce qui est installable depuis npm. Cet
+    encart rend l'écart visible plutôt que silencieux. Écrit en JSX inline (pas de
+    `export const` séparé) : un nouveau composant top-level nommé casse le rendu
+    de cette page : l'indexeur MDX de Storybook le traite comme une story CSF
+    manquante plutôt qu'un composant local, cf. commit de ce fichier. */}
+<div style={{
+  display: 'flex', alignItems: 'center', gap: 10,
+  padding: '10px 16px', marginTop: 24, marginBottom: 8,
+  borderRadius: 8, background: 'var(--sb-bg-subtle)', border: '1px solid var(--sb-border)',
+  fontSize: 13, color: 'var(--sb-text-subtle)',
+}}>
+  <span aria-hidden="true">📦</span>
+  <span>
+    Version documentée : <strong style={{ color: 'var(--sb-text)' }}>{buildInfo.label}</strong>
+    {!buildInfo.isReleased && buildInfo.lastPublished && (
+      <>, en avance sur la <strong style={{ color: 'var(--sb-text)' }}>{buildInfo.lastPublished}</strong> publiée sur npm.</>
+    )}
+  </span>
+</div>
+
+<StatsCards categories={CATEGORIES} />
+
+{CATEGORIES.map((cat) => (
+  <CategorySection key={cat.anchor} title={cat.title} anchor={cat.anchor} components={cat.components} />
+))}

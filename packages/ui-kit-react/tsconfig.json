@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // Aucune émission : les déclarations publiées sont produites par
+    // `vite-plugin-dts` pendant le build. Ce projet ne sert qu'à VÉRIFIER.
+    "noEmit": true,
+    "types": ["vite/client"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts"],
+  "exclude": ["dist", "node_modules"]
+}

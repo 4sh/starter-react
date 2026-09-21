@@ -1,0 +1,257 @@
+@use 'utils';
+@use 'sass:map';
+
+// =====================================================================
+// ui-segment-control : styles co-localisés. Toutes les valeurs viennent des
+// jetons.
+//
+// Étendre :
+//   - une taille : ajouter une entrée à `$sizes` (et au type
+//     `SegmentControlSize`).
+// =====================================================================
+
+$gutter: var(--ui-segment-control-padding, var(--units-xs)); /// Gouttière interne autour des segments.
+$gutter-size: 4px; /// Miroir numérique de la gouttière, pour le calcul des tailles.
+
+/// Hauteur, inset et taille de police par taille.
+$sizes: (
+  'default': (
+    height: var(--ui-segment-control-min-height, #{utils.rem-calc(44px)}),
+    option-h: var(
+      --ui-segment-control-option-min-height,
+      #{utils.rem-calc(44px - 2 * $gutter-size)}
+    ),
+    option-w: var(
+      --ui-segment-control-option-min-width,
+      #{utils.rem-calc(44px - 2 * $gutter-size)}
+    ),
+    padding-x: var(--ui-segment-control-option-padding-x, var(--units-default)),
+    font-size: var(--ui-segment-control-font-size, var(--size-typography-text-default)),
+  ),
+  'small': (
+    height: var(--ui-segment-control-min-height-small, #{utils.rem-calc(40px)}),
+    option-h: var(
+      --ui-segment-control-option-min-height-small,
+      #{utils.rem-calc(40px - 2 * $gutter-size)}
+    ),
+    option-w: var(
+      --ui-segment-control-option-min-width-small,
+      #{utils.rem-calc(40px - 2 * $gutter-size)}
+    ),
+    padding-x: var(--ui-segment-control-option-padding-x-small, var(--units-md)),
+    font-size: var(--ui-segment-control-font-size-small, var(--size-typography-text-md)),
+  ),
+);
+$size-default: map.get($sizes, 'default'); /// Raccourci vers l'entrée `default` de `$sizes`.
+
+$stroke-width: var(--ui-segment-control-stroke-width, #{utils.$control-stroke-width}); /// Épaisseur de la bordure de la piste.
+$focus-ring-width: var(--ui-segment-control-focus-ring-width, #{utils.$action-focus-ring-width}); /// Épaisseur de l'anneau de focus des segments.
+
+$radius: var(--ui-segment-control-radius, var(--radius-md)); /// Rayon des coins de la piste.
+$gap: var(--ui-segment-control-gap, 0); /// Espacement entre les segments.
+
+$thumb-radius: var(--ui-segment-control-thumb-radius, var(--radius-sm)); /// Rayon des coins de l'indicateur glissant.
+$option-radius: var(--ui-segment-control-option-radius, var(--radius-sm)); /// Rayon des coins d'un segment.
+$option-gap: var(--ui-segment-control-option-gap, var(--units-sm)); /// Espacement icône et libellé dans un segment.
+
+@mixin segment-size($size) {
+  min-height: map.get($size, height);
+
+  .ui-segment-control-option {
+    min-height: map.get($size, option-h);
+    min-width: map.get($size, option-w);
+    padding: 0 map.get($size, padding-x);
+    font-size: map.get($size, font-size);
+  }
+}
+
+.ui-segment-control {
+  // --- La piste -------------------------------------------------------
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  // `inline-flex` promet de se dimensionner au contenu, mais un parent flex ou
+  // grid **bloquifie** ses enfants et les étire dans l'axe transverse : le
+  // `display` calculé devient `flex`, et la piste part à la largeur du parent
+  // pendant que les segments, eux, restent collés à leur contenu. Mesuré :
+  // piste de 420 px pour 326 px de contenu, donc 94 px de vide à droite.
+  //
+  // Une largeur EXPLICITE bat l'étirement (il ne s'applique qu'à une taille
+  // transverse `auto`), et contrairement à `align-self: start` elle ne touche
+  // que l'axe horizontal : la piste garde donc son alignement vertical à côté
+  // d'un champ plus haut. `_fluid` reste le moyen explicite de remplir.
+  width: fit-content;
+  box-sizing: border-box;
+  padding: $gutter;
+  gap: $gap;
+  border-radius: $radius;
+  // La bordure est une ombre INTÉRIEURE et non un `border` : elle n'occupe donc
+  // aucune boîte de mise en page, et le calcul de position de l'indicateur
+  // (`offsetLeft`, `offsetTop`) reste exact quelle que soit son épaisseur.
+  box-shadow: inset 0 0 0 $stroke-width var(--ui-segment-control-stroke, var(--global-border-default)); /// Couleur de bordure de la piste.
+  font-family: var(--ui-segment-control-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+  user-select: none;
+  vertical-align: middle;
+
+  @include segment-size($size-default);
+
+  // --- Tailles, toutes sauf `default` ---------------------------------
+  @each $name, $size in $sizes {
+    @if $name != 'default' {
+      &._#{$name} {
+        @include segment-size($size);
+      }
+    }
+  }
+
+  // --- Indicateur glissant --------------------------------------------
+  &-thumb {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    border-radius: $thumb-radius;
+    background-color: var(--ui-segment-control-thumb-surface, var(--actions-high-surface-default)); /// Fond de l'indicateur glissant.
+    pointer-events: none;
+    @include utils.motion-transition(transform, width, height);
+
+    @include utils.motion-reduce {
+      transition: none;
+    }
+  }
+
+  // Renoncement explicite, par `motion={false}`.
+  &._no-motion &-thumb {
+    transition: none;
+  }
+
+  // --- Icône et libellé -----------------------------------------------
+  &-icon {
+    line-height: 0;
+  }
+
+  // Le libellé réserve sa largeur EN GRAS dans tous les états, par un fantôme
+  // caché : passer en `_selected`, donc en gras, ne décale alors jamais le
+  // segment ni la piste.
+  &-label {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+
+    &::after {
+      content: attr(data-label);
+      height: 0;
+      overflow: hidden;
+      font-weight: var(--ui-segment-control-weight-selected, var(--weight-bold)); /// Graisse du texte.
+      visibility: hidden;
+      pointer-events: none;
+      user-select: none;
+    }
+  }
+
+  // --- Le bouton d'un segment -----------------------------------------
+  &-option {
+    position: relative;
+    z-index: 1; // au-dessus de l'indicateur
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: $option-gap;
+    box-sizing: border-box;
+    border: 0;
+    border-radius: $option-radius;
+    background-color: transparent;
+    color: var(--ui-segment-control-option-color, var(--actions-low-content-default)); /// Couleur du texte d'un segment non sélectionné.
+    font-family: inherit;
+    font-weight: var(--ui-segment-control-weight, var(--weight-regular)); /// Graisse du texte.
+    line-height: 1.2;
+    white-space: nowrap;
+    cursor: pointer;
+    @include utils.control-transition(background-color, color, box-shadow);
+
+    // États interactifs d'un segment non choisi : palette `low`.
+    &:hover:not(:disabled):not(._selected) {
+      background-color: var(--ui-segment-control-option-surface-hover, var(--actions-low-surface-hover)); /// Fond d'un segment au survol.
+      color: var(--ui-segment-control-option-color-hover, var(--actions-low-content-hover));              /// Couleur du texte au survol.
+    }
+    &:active:not(:disabled):not(._selected) {
+      background-color: var(--ui-segment-control-option-surface-pressed, var(--actions-low-surface-pressed)); /// Fond d'un segment enfoncé.
+      color: var(--ui-segment-control-option-color-pressed, var(--actions-low-content-pressed));              /// Couleur du texte d'un segment enfoncé.
+    }
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 $focus-ring-width var(--ui-segment-control-option-focus-ring-color, var(--actions-low-stroke-focused)); /// Couleur de l'anneau de focus d'un segment.
+    }
+
+    &._selected {
+      color: var(--ui-segment-control-option-color-selected, var(--actions-high-content-default)); /// Couleur du texte d'un segment sélectionné.
+      font-weight: var(--ui-segment-control-weight-selected, var(--weight-bold)); /// Graisse du texte.
+
+      &:focus-visible {
+        box-shadow: 0 0 0 $focus-ring-width var(--ui-segment-control-option-focus-ring-color, var(--actions-high-stroke-focused));
+      }
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      color: var(--ui-segment-control-option-color-disabled, var(--actions-low-content-disabled)); /// Couleur du texte d'un segment désactivé.
+
+      &._selected {
+        color: var(--ui-segment-control-option-color-selected-disabled, var(--actions-high-content-disabled)); /// Couleur du texte d'un segment sélectionné et désactivé.
+      }
+    }
+  }
+
+  // --- Mode multiple : pas d'indicateur, chaque segment choisi peint sa
+  // propre surface.
+  &._multiple &-option._selected {
+    background-color: var(--ui-segment-control-option-surface-selected, var(--actions-high-surface-default)); /// Fond d'un segment sélectionné, mode `multiple` (sans indicateur glissant).
+
+    &:hover:not(:disabled) {
+      background-color: var(--ui-segment-control-option-surface-hover, var(--actions-high-surface-hover));
+      color: var(--ui-segment-control-option-color-hover, var(--actions-high-content-hover));
+    }
+    &:active:not(:disabled) {
+      background-color: var(--ui-segment-control-option-surface-pressed, var(--actions-high-surface-pressed));
+      color: var(--ui-segment-control-option-color-pressed, var(--actions-high-content-pressed));
+    }
+    &:disabled {
+      background-color: var(--ui-segment-control-option-surface-disabled, var(--actions-high-surface-disabled)); /// Fond d'un segment sélectionné et désactivé.
+    }
+  }
+
+  // --- Fluide : remplit le parent, les segments se partagent la largeur.
+  &._fluid {
+    display: flex;
+    width: 100%;
+    align-self: stretch;
+
+    .ui-segment-control-option {
+      flex: 1 1 0;
+    }
+  }
+
+  // --- Axe vertical ---------------------------------------------------
+  &._vertical {
+    flex-direction: column;
+    align-items: stretch;
+
+    .ui-segment-control-option {
+      width: 100%;
+    }
+  }
+
+  // --- Invalide -------------------------------------------------------
+  &._invalid {
+    box-shadow: inset 0 0 0 $stroke-width var(--ui-segment-control-stroke-invalid, var(--form-error-stroke-default)); /// Couleur de bordure de la piste en erreur.
+  }
+
+  // --- Désactivé ------------------------------------------------------
+  &._disabled {
+    cursor: not-allowed;
+
+    .ui-segment-control-thumb {
+      background-color: var(--ui-segment-control-thumb-surface-disabled, var(--actions-high-surface-disabled)); /// Fond de l'indicateur glissant désactivé.
+    }
+  }
+}
