@@ -1,10 +1,4 @@
-# Starter React Web
-
-React **headless** components, accessible, styled exclusively by **design tokens**. Second engine of the Dual-Engine strategy, alongside [`starter-angular`](https://github.com/4sh/starter-angular).
-
-**Documentation (Storybook)**: to be deployed in phase 5.
-
----
+# Starter React
 
 ## Getting Started
 
@@ -58,7 +52,3 @@ scripts/           tokens pipeline, doc pipeline, guardrails
 Bootstrapping. The complete pipeline is in place and verified end-to-end: tokens, SCSS foundation, multi-entry build with generated `exports` table, Storybook, doc generated from SCSS, tests in a real browser: on **one** reference component, `ui-icon`.
 
 What remains is written in `docs/components-index.md` (the components) and `docs/DECISIONS.md` (phases 4 to 6: copy mode, MCP server, parity check).
-
-## License
-
-Apache-2.0. See `LICENSE`.
