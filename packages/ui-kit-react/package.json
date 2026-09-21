@@ -273,6 +273,6 @@
   },
   "dependencies": {
     "@floating-ui/react-dom": "2.1.9",
-    "@tanstack/react-virtual": "3.14.10"
+    "@tanstack/react-virtual": "3.14.13"
   }
 }
