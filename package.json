@@ -43,14 +43,14 @@
     "@storybook/addon-docs": "10.6.0",
     "@storybook/addon-vitest": "10.6.0",
     "@storybook/react-vite": "10.6.0",
-    "@testing-library/dom": "10.4.1",
+    "@testing-library/dom": "10.4.2",
     "@testing-library/react": "16.3.3",
     "@types/node": "26.4.1",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.7",
     "@vitejs/plugin-react": "6.1.1",
-    "@vitest/browser": "5.0.0",
-    "@vitest/browser-playwright": "5.0.0",
+    "@vitest/browser": "5.0.1",
+    "@vitest/browser-playwright": "5.0.1",
     "eslint": "10.10.0",
     "eslint-plugin-jsx-a11y": "6.10.2",
     "eslint-plugin-react-hooks": "7.1.1",
@@ -70,7 +70,7 @@
     "unified": "11.0.5",
     "unist-util-visit": "5.1.0",
     "vite": "8.2.2",
-    "vitest": "5.0.0",
+    "vitest": "5.0.1",
     "vitest-browser-react": "2.3.0"
   }
 }
