@@ -51,13 +51,13 @@ jobs:
       - name: Lint
         run: pnpm lint:check
 
-      - name: Typecheck
-        run: pnpm typecheck
-
-      # Le paquet doit se construire AVANT les tests : rien ne dépend de `dist/`
-      # côté tests, mais un build cassé doit échouer tôt et pour la bonne raison.
+      # Le paquet doit se construire AVANT les tests et le typecheck : 
+      # la démo dépend du paquet construit.
       - name: Build the package
         run: pnpm kit:build
+
+      - name: Typecheck
+        run: pnpm typecheck
 
       # Playwright est une devDependency DÉCLARÉE, et doit le rester. Ne pas
       # « simplifier » en `pnpm dlx playwright` : dlx tire `latest`, donc les
