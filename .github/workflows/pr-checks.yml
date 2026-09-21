@@ -56,6 +56,9 @@ jobs:
       - name: Build the package
         run: pnpm kit:build
 
+      - name: Generate Storybook required files
+        run: pnpm build-info && pnpm docs:config
+
       - name: Typecheck
         run: pnpm typecheck
 
