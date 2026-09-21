@@ -1,70 +1,64 @@
-# Starter React Web : Design System 4SH
+# Starter React Web
 
-Composants React **headless**, accessibles, stylés exclusivement par des **jetons de
-design**. Second moteur de la stratégie Dual-Engine, aux côtés de
-[`starter-angular`](https://github.com/4sh/starter-angular).
+React **headless** components, accessible, styled exclusively by **design tokens**. Second engine of the Dual-Engine strategy, alongside [`starter-angular`](https://github.com/4sh/starter-angular).
 
-**Documentation (Storybook)** : à déployer en phase 5.
+**Documentation (Storybook)**: to be deployed in phase 5.
 
 ---
 
-## Démarrer
+## Getting Started
 
 ```bash
-pnpm install     # installe, génère les jetons et la table `exports`
-pnpm storybook   # la source de vérité, sur http://localhost:6006
+pnpm install     # installs dependencies, generates tokens and the `exports` table
+pnpm storybook   # the source of truth, at http://localhost:6006
 ```
 
-| Commande                 | Ce qu'elle fait                                              |
+| Command                  | What it does                                                 |
 | ------------------------ | ------------------------------------------------------------ |
-| `pnpm storybook`         | Storybook (lit les **sources** du kit, rechargement à chaud) |
-| `pnpm serve`             | Application de démo (consomme le **paquet construit**)       |
-| `pnpm kit:build`         | Construit `@4sh/ui-kit-react`                                |
-| `pnpm test`              | Tests de composants dans Chromium (Playwright)               |
-| `pnpm lint:check`        | ESLint, sans `--fix`                                         |
-| `pnpm typecheck`         | `tsc` sur les trois projets                                  |
-| `pnpm tokens:build`      | Régénère les variables CSS depuis `design-tokens/*.json`     |
-| `pnpm docs:config:check` | Garde-fou : la doc écrite à la main contre le code           |
+| `pnpm storybook`         | Storybook (reads the kit's **sources**, hot reload)          |
+| `pnpm serve`             | Demo application (consumes the **built package**)            |
+| `pnpm kit:build`         | Builds `@4sh/ui-kit-react`                                   |
+| `pnpm test`              | Component tests in Chromium (Playwright)                     |
+| `pnpm lint:check`        | ESLint, without `--fix`                                      |
+| `pnpm typecheck`         | `tsc` across all three projects                              |
+| `pnpm tokens:build`      | Regenerates CSS variables from `design-tokens/*.json`        |
+| `pnpm docs:config:check` | Guardrail: matches handwritten doc against the code          |
 
-Node : voir `.nvmrc`. Gestionnaire de paquets : pnpm (version épinglée dans
-`package.json`).
+Node: see `.nvmrc`. Package manager: pnpm (version pinned in `package.json`).
 
-## Où lire quoi
+## Where to read what
 
-| Sujet                                          | Fichier                      |
+| Topic                                          | File                         |
 | ---------------------------------------------- | ---------------------------- |
-| **Reprise : état, prochaine tâche, journal**   | `docs/ROADMAP.md`            |
-| **Conventions de code**                        | `AGENTS.md`                  |
-| Décisions d'architecture et leur justification | `docs/DECISIONS.md`          |
-| Ce qui doit rester identique entre les stacks  | `docs/DUAL-ENGINE.md`        |
-| Composants faits / à faire                     | `docs/components-index.md`   |
+| **Resumption: status, next task, journal**     | `docs/ROADMAP.md`            |
+| **Code conventions**                           | `AGENTS.md`                  |
+| Architectural decisions and their rationale    | `docs/DECISIONS.md`          |
+| What must remain identical across stacks       | `docs/DUAL-ENGINE.md`        |
+| Components done / to do                        | `docs/components-index.md`   |
 | Versions, branches, CHANGELOG                  | `docs/VERSIONING.md`         |
-| Publication npm                                | `docs/PUBLISHING.md`         |
-| Sécurité et registre des exceptions            | `docs/SECURITY-PRACTICES.md` |
-| Volet Figma                                    | `CLAUDE.md`                  |
+| npm publishing                                 | `docs/PUBLISHING.md`         |
+| Security and exceptions registry               | `docs/SECURITY-PRACTICES.md` |
+| Figma part                                     | `CLAUDE.md`                  |
 
-## Où sont les choses
+## Where things are
 
 ```
-design-tokens/     jetons DTCG (JSON) : la copie locale de ce starter
+design-tokens/     DTCG tokens (JSON): the local copy of this starter
 packages/
-  ui-kit-react/    le paquet publié : composants + fondation SCSS
-  ui-kit-react-cli/  mode copie des sources (phase 4)
-  ui-kit-react-mcp/  serveur MCP pour les agents (phase 5)
-apps/demo/         application de démo + composants métier
-storybook/         config, addons locaux, doc globale
-scripts/           chaîne de jetons, chaîne de doc, garde-fous
+  ui-kit-react/    the published package: components + SCSS foundation
+  ui-kit-react-cli/  source copy mode (phase 4)
+  ui-kit-react-mcp/  MCP server for agents (phase 5)
+apps/demo/         demo application + business components
+storybook/         config, local addons, global doc
+scripts/           tokens pipeline, doc pipeline, guardrails
 ```
 
-## État
+## Status
 
-Amorçage. La chaîne complète est en place et vérifiée de bout en bout : jetons, fondation
-SCSS, build multi-entrées à table `exports` générée, Storybook, doc générée depuis le SCSS,
-tests en navigateur réel : sur **un** composant de référence, `ui-icon`.
+Bootstrapping. The complete pipeline is in place and verified end-to-end: tokens, SCSS foundation, multi-entry build with generated `exports` table, Storybook, doc generated from SCSS, tests in a real browser: on **one** reference component, `ui-icon`.
 
-Ce qui reste est écrit dans `docs/components-index.md` (les composants) et
-`docs/DECISIONS.md` (les phases 4 à 6 : mode copie, serveur MCP, contrôle de parité).
+What remains is written in `docs/components-index.md` (the components) and `docs/DECISIONS.md` (phases 4 to 6: copy mode, MCP server, parity check).
 
-## Licence
+## License
 
-Apache-2.0. Voir `LICENSE`.
+Apache-2.0. See `LICENSE`.
