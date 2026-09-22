@@ -26,7 +26,9 @@
 - ✅ `ui-button-split` : Bouton d'action accolé à un déclencheur déroulant. Les options
   sont le `UiMenuItem[]` de `ui-menu`, et les deux moitiés se désactivent séparément
 - ✅ `ui-link` : Lien textuel en ligne, `render` pour brancher un routeur
-- ⬜ `ui-speed-dial` : Bouton flottant déployant ses actions
+- ✅ `ui-speed-dial` : Bouton flottant qui déploie ses actions autour de lui. Quatre
+  dispositions, empilée ou sur un arc ; les entrées sont le sous-ensemble feuille de `ui-menu`.
+  Fermé, aucune action n'est rendue, donc rien à masquer aux technologies d'assistance
 
 ## forms
 
@@ -79,7 +81,9 @@
 - ✅ `ui-slider` : Curseur simple ou de plage, motif slider WAI-ARIA, repères de pas
 - ✅ `ui-knob` : Cadran circulaire, arc SVG de 300° en viewBox, motif curseur de l'APG.
   Pointeur et clavier par le même chemin, épaisseur de trait à l'échelle du diamètre
-- ⬜ `ui-swatch-picker`
+- ✅ `ui-swatch-picker` : Grille de couleurs, en ligne ou en popup du calque supérieur.
+  Chaque pastille pointe une variable `--primitives-*`, donc la marque change la grille.
+  Motif listbox, clavier de grille à deux axes, `trigger` pour le déclencheur
 - ⬜ `ui-file-upload` · `ui-editor`
 
 ## informative
@@ -114,6 +118,9 @@
 - ✅ `ui-modal` : Dialogue bâti sur le `<dialog>` natif (piège de focus et empilement natifs)
 - ✅ `ui-popover` : Panneau ancré, contrôlé, calque supérieur (`popover` ou `<dialog>`)
 - ✅ `ui-drawer` : Panneau glissant ancré à un bord, même `<dialog>` que `ui-modal`
+- ✅ `ui-bottom-sheet` : Panneau glissant depuis le bord bas, même `<dialog>` natif. Paliers de
+  hauteur, fermeture en le tirant vers le bas, et passage de `half` à `full` en le tirant vers
+  le haut
 
 ## navigation
 
@@ -129,8 +136,17 @@
   indicateur mesuré, bande défilante à navigateurs, panneaux paresseux, axe vertical.
   Sans `UiTabPanels`, les onglets deviennent un menu de navigation et n'annoncent plus
   d'`aria-controls`
-- ⬜ `ui-breadcrumb` · `ui-stepper`
-- ⬜ `ui-sidebar` · `ui-bottom-tab-bar`
+- ✅ `ui-breadcrumb` : Fil d'Ariane. Chaque maillon rend l'élément natif de sa sémantique,
+  ancre, bouton ou texte ; `render` branche le lien d'un routeur. Repli du milieu derrière un
+  bouton au-delà de `maxItems`
+- ✅ `ui-stepper` : Progression numérotée, en assistant ou en simple indicateur. La séquence
+  se lit dans les `children`, donc juste dès le premier rendu ; la sémantique ARIA suit la
+  disposition, onglets en horizontal et accordéon en vertical. `useUiStepper` pilote depuis un
+  panneau
+- ✅ `ui-bottom-tab-bar` : Barre de navigation basse des appareils tactiles, avec son bouton
+  d'action surélevé. Réserve l'incrustation système, cible tactile de 44 px, et
+  `aria-current="page"` plutôt que `role="tab"`, qui exigerait un panneau
+- ⬜ `ui-sidebar`
 
 ## table
 

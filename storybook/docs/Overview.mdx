@@ -4,6 +4,7 @@ import { Meta, Story } from "@storybook/addon-docs/blocks";
 import buildInfo from "../generated/build-info.json";
 import * as ButtonStories from "../../packages/ui-kit-react/src/actions/ui-button/ui-button.stories";
 import * as ButtonSplitStories from "../../packages/ui-kit-react/src/actions/ui-button-split/ui-button-split.stories";
+import * as SpeedDialStories from "../../packages/ui-kit-react/src/actions/ui-speed-dial/ui-speed-dial.stories";
 import * as CheckboxStories from "../../packages/ui-kit-react/src/forms/ui-checkbox/ui-checkbox.stories";
 import * as FieldStories from "../../packages/ui-kit-react/src/forms/ui-field/ui-field.stories";
 import * as InputStories from "../../packages/ui-kit-react/src/forms/ui-input/ui-input.stories";
@@ -16,6 +17,7 @@ import * as DatepickerStories from "../../packages/ui-kit-react/src/forms/ui-dat
 import * as NudgerStories from "../../packages/ui-kit-react/src/forms/ui-nudger/ui-nudger.stories";
 import * as InputOtpStories from "../../packages/ui-kit-react/src/forms/ui-input-otp/ui-input-otp.stories";
 import * as KnobStories from "../../packages/ui-kit-react/src/forms/ui-knob/ui-knob.stories";
+import * as SwatchStories from "../../packages/ui-kit-react/src/forms/ui-swatch-picker/ui-swatch-picker.stories";
 import * as RatingStories from "../../packages/ui-kit-react/src/forms/ui-rating/ui-rating.stories";
 import * as SliderStories from "../../packages/ui-kit-react/src/forms/ui-slider/ui-slider.stories";
 import * as ToggleBlockStories from "../../packages/ui-kit-react/src/forms/ui-toggle-block/ui-toggle-block.stories";
@@ -31,12 +33,16 @@ import * as AvatarStories from "../../packages/ui-kit-react/src/informative/ui-a
 import * as AvatarGroupStories from "../../packages/ui-kit-react/src/informative/ui-avatar-group/ui-avatar-group.stories";
 import * as ChipStories from "../../packages/ui-kit-react/src/informative/ui-chip/ui-chip.stories";
 import * as DrawerStories from "../../packages/ui-kit-react/src/layout/ui-drawer/ui-drawer.stories";
+import * as BottomSheetStories from "../../packages/ui-kit-react/src/layout/ui-bottom-sheet/ui-bottom-sheet.stories";
 import * as PopoverStories from "../../packages/ui-kit-react/src/layout/ui-popover/ui-popover.stories";
 import * as TooltipStories from "../../packages/ui-kit-react/src/informative/ui-tooltip/ui-tooltip.stories";
 import * as ModalStories from "../../packages/ui-kit-react/src/layout/ui-modal/ui-modal.stories";
 import * as MenuStories from "../../packages/ui-kit-react/src/navigation/ui-menu/ui-menu.stories";
 import * as ContextMenuStories from "../../packages/ui-kit-react/src/navigation/ui-context-menu/ui-context-menu.stories";
 import * as TabsStories from "../../packages/ui-kit-react/src/navigation/ui-tabs/ui-tabs.stories";
+import * as BreadcrumbStories from "../../packages/ui-kit-react/src/navigation/ui-breadcrumb/ui-breadcrumb.stories";
+import * as BottomTabBarStories from "../../packages/ui-kit-react/src/navigation/ui-bottom-tab-bar/ui-bottom-tab-bar.stories";
+import * as StepperStories from "../../packages/ui-kit-react/src/navigation/ui-stepper/ui-stepper.stories";
 import * as PaginatorStories from "../../packages/ui-kit-react/src/table/ui-paginator/ui-paginator.stories";
 import * as TableStories from "../../packages/ui-kit-react/src/table/ui-table/ui-table.stories";
 import * as CardStories from "../../packages/ui-kit-react/src/layout/ui-card/ui-card.stories";
@@ -83,6 +89,7 @@ export const CATEGORIES = [
         story: ButtonStories.High,
       },
       { name: 'ui-button-split', description: "Bouton d'action accolé à un déclencheur déroulant : les autres options vivent dans un ui-menu.", link: '?path=/docs/components-ui-actions-ui-button-split--docs', story: ButtonSplitStories.Default },
+      { name: 'ui-speed-dial', description: "Bouton flottant qui déploie ses actions. Fermées, elles ne sont pas rendues du tout.", link: '?path=/docs/components-ui-actions-ui-speed-dial--docs', story: SpeedDialStories.Default, previewHeight: 300 },
       { name: 'ui-link', description: "Lien textuel en ligne. Le sens décide : ce qui navigue est un lien, ce qui agit est un bouton. `render` branche le routeur du projet.", link: '?path=/docs/components-ui-actions-ui-link--docs', story: LinkStories.Default },
     ],
   },
@@ -102,6 +109,7 @@ export const CATEGORIES = [
       { name: 'ui-rating', description: "Note en étoiles posée sur un curseur natif : focus, clavier et sémantique de valeur viennent du navigateur.", link: '?path=/docs/components-ui-forms-ui-rating--docs', story: RatingStories.AllowHalf },
       { name: 'ui-slider', description: "Curseur simple ou de plage. Le pointeur est capturé, donc le glissement continue hors de la piste.", link: '?path=/docs/components-ui-forms-ui-slider--docs', story: SliderStories.Default },
       { name: 'ui-knob', description: "Cadran circulaire. Un arc SVG de 300° en viewBox, donc le trait suit le diamètre rendu.", link: '?path=/docs/components-ui-forms-ui-knob--docs', story: KnobStories.Basic },
+      { name: 'ui-swatch-picker', description: "Grille de couleurs, en ligne ou en popup. Chaque pastille pointe un jeton, donc la marque la repeint.", link: '?path=/docs/components-ui-forms-ui-swatch-picker--docs', story: SwatchStories.Small },
       { name: 'ui-input-otp', description: "Code à usage unique, une case par caractère. Un seul arrêt de tabulation, et le collage se répartit.", link: '?path=/docs/components-ui-forms-ui-input-otp--docs', story: InputOtpStories.Basic },
       { name: 'ui-toggle-block', description: "Bloc sélectionnable. Un label étiré rend toute la surface activante, sans gestionnaire de clic.", link: '?path=/docs/components-ui-forms-ui-toggle-block--docs', story: ToggleBlockStories.Checked },
       { name: 'ui-segment-control', description: "Contrôle segmenté. La sémantique change avec multiple : radiogroup en simple, group en bascules.", link: '?path=/docs/components-ui-forms-ui-segment-control--docs', story: SegmentStories.WithIcons },
@@ -142,6 +150,7 @@ export const CATEGORIES = [
     anchor: 'layout',
     components: [
       { name: 'ui-drawer', description: "Panneau glissant ancré à un bord. Même <dialog> natif que ui-modal, quatre bords et un mode plein écran.", link: '?path=/docs/components-ui-layout-ui-drawer--docs', story: DrawerStories.Opened, previewHeight: 300, previewScale: 0.8 },
+      { name: 'ui-bottom-sheet', description: "Panneau glissant depuis le bas. On le referme en le tirant, et le geste coule dans l'animation.", link: '?path=/docs/components-ui-layout-ui-bottom-sheet--docs', story: BottomSheetStories.Basic },
       { name: 'ui-modal', description: "Dialogue bâti sur le <dialog> natif : piège de focus, empilement et arrière-plan pris en charge par le navigateur.", link: '?path=/docs/components-ui-layout-ui-modal--docs', story: ModalStories.Opened, previewHeight: 300, previewScale: 0.8  },
       { name: 'ui-popover', description: "Panneau flottant ancré. Vit dans le calque supérieur, donc aucun ancêtre en overflow: hidden ne le rogne.", link: '?path=/docs/components-ui-layout-ui-popover--docs', story: PopoverStories.Default },
       { name: 'ui-card', description: "Conteneur à cinq zones optionnelles : visuel, titre, sous-titre, corps et pied. Une zone vide n'est pas rendue.", link: '?path=/docs/components-ui-layout-ui-card--docs', story: CardStories.Default, previewScale: 0.7 },
@@ -154,6 +163,9 @@ export const CATEGORIES = [
       { name: 'ui-menu', description: "Menu de navigation et de commandes, statique ou en popup : sections, groupes repliables, sous-menus en cascade.", link: '?path=/docs/components-ui-navigation-ui-menu--docs', story: MenuStories.Basic, previewHeight: 300, previewScale: 0.85 },
       { name: 'ui-context-menu', description: "Menu ouvert au clic droit, ancré sur le pointeur et non sur un élément. Même modèle et même clavier que ui-menu.", link: '?path=/docs/components-ui-navigation-ui-context-menu--docs', story: ContextMenuStories.Inline, previewHeight: 300},
       { name: 'ui-tabs', description: "Onglets headless composés : bande à focus glissant, indicateur mesuré, défilement, panneaux paresseux.", link: '?path=/docs/components-ui-navigation-ui-tabs--docs', story: TabsStories.Default, previewHeight: 300 },
+      { name: 'ui-breadcrumb', description: "Fil d'Ariane. Chaque maillon rend l'élément natif de sa sémantique : ancre, bouton, ou simple texte.", link: '?path=/docs/components-ui-navigation-ui-breadcrumb--docs', story: BreadcrumbStories.Basic },
+      { name: 'ui-bottom-tab-bar', description: "Navigation basse des appareils tactiles. Réserve l'incrustation système et garde la cible tactile.", link: '?path=/docs/components-ui-navigation-ui-bottom-tab-bar--docs', story: BottomTabBarStories.Basic, previewHeight: 300 },
+      { name: 'ui-stepper', description: "Progression numérotée. La sémantique ARIA suit la disposition : onglets à plat, accordéon en colonne.", link: '?path=/docs/components-ui-navigation-ui-stepper--docs', story: StepperStories.Basic },
     ],
   },
   {

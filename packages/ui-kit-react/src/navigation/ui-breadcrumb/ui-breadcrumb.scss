@@ -1,0 +1,161 @@
+@use 'utils';
+@use 'sass:map';
+
+// =====================================================================
+// ui-breadcrumb : co-located styles. All values come from design tokens.
+//
+// No host element here, so `.ui-breadcrumb` IS the `<nav>` landmark.
+//
+// Extend:
+//   • Size → add an entry to $sizes (+ the `BreadcrumbSize` type).
+// =====================================================================
+
+// --- Config (extension points) ---------------------------------------
+// `default` = base styles; other keys become `._<name>` modifiers.
+/// Dimensions par densité, héritées par les maillons, le texte et le séparateur.
+$sizes: (
+  'default': (
+    font-size: var(--ui-breadcrumb-font-size, var(--size-typography-text-default)),
+  ),
+  'small': (
+    font-size: var(--ui-breadcrumb-font-size-small, var(--size-typography-text-md)),
+  ),
+);
+$size-default: map.get($sizes, 'default'); /// Raccourci vers l'entrée `default` de `$sizes`.
+$item-gap: var(--ui-breadcrumb-item-gap, var(--spacing-default)); /// Espacement entre maillons et séparateurs.
+$content-gap: var(--ui-breadcrumb-content-gap, var(--units-sm)); /// Espacement entre l'icône et le libellé d'un maillon.
+$weight: var(--ui-breadcrumb-weight, var(--weight-bold)); /// Graisse des maillons, liens comme page courante.
+$line-height: var(--ui-breadcrumb-line-height, 1.4); /// Interlignage des maillons.
+$radius: var(--ui-breadcrumb-radius, var(--radius-2xs)); /// Rayon des maillons interactifs, pour l'anneau de focus.
+$focus-ring-width: var(
+  --ui-breadcrumb-focus-ring-width,
+  #{utils.$action-focus-ring-width}
+); /// Épaisseur de l'anneau de focus des maillons interactifs.
+
+.ui-breadcrumb {
+  display: block;
+  font-family: var(--ui-breadcrumb-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+
+  &-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $item-gap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: map.get($size-default, font-size);
+  }
+
+  // --- Sizes (all but `default`) --------------------------------------
+  @each $name, $size in $sizes {
+    @if $name != 'default' {
+      &._#{$name} .ui-breadcrumb-list {
+        font-size: map.get($size, font-size);
+      }
+    }
+  }
+
+  // --- Sub-elements ---------------------------------------------------
+  &-item {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  &-link {
+    display: inline-flex;
+    align-items: center;
+    gap: $content-gap;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: $radius;
+    background: none;
+    color: var(--ui-breadcrumb-link-color, var(--global-text-muted)); /// Couleur d'un maillon navigable.
+    font: inherit; // un <button> n'hérite pas de la typographie de la liste
+    font-weight: $weight;
+    line-height: $line-height;
+    text-align: inherit;
+    text-decoration: none;
+    text-decoration-thickness: from-font;
+    text-underline-offset: 0.15em;
+    cursor: pointer;
+    @include utils.control-transition(color, text-decoration-color, box-shadow);
+
+    &:hover {
+      color: var(--ui-breadcrumb-link-color-hover, var(--actions-low-content-hover)); /// Couleur d'un maillon au survol.
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 $focus-ring-width
+        var(--ui-breadcrumb-link-color-focus, var(--actions-low-content-focused));
+      color: var(--ui-breadcrumb-link-color-focus, var(--actions-low-content-focused)); /// Couleur d'un maillon au focus clavier ; elle teinte aussi l'anneau.
+      text-decoration: underline;
+    }
+
+    &:active {
+      color: var(--ui-breadcrumb-link-color-pressed, var(--actions-low-content-pressed)); /// Couleur d'un maillon enfoncé.
+    }
+  }
+
+  // Maillon non navigable : la page courante, ou un maillon désactivé.
+  &-text {
+    display: inline-flex;
+    align-items: center;
+    gap: $content-gap;
+    min-width: 0;
+    color: var(--ui-breadcrumb-text-color, var(--global-text-default)); /// Couleur d'un maillon non navigable, dont la page courante.
+    font-weight: $weight;
+    line-height: $line-height;
+
+    &._disabled {
+      color: var(--ui-breadcrumb-text-color-disabled, var(--actions-low-content-disabled)); /// Couleur d'un maillon désactivé.
+      cursor: not-allowed;
+    }
+  }
+
+  &-icon {
+    line-height: 0;
+  }
+
+  &-separator {
+    display: inline-flex;
+    align-items: center;
+    color: var(--ui-breadcrumb-separator-color, var(--global-text-default)); /// Couleur du séparateur entre maillons.
+    user-select: none;
+  }
+
+  // Le débordement : un vrai bouton, qui révèle les maillons masqués.
+  &-ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    border-radius: $radius;
+    background: none;
+    color: var(--ui-breadcrumb-ellipsis-color, var(--global-text-default)); /// Couleur du bouton de débordement.
+    line-height: 0;
+    cursor: pointer;
+    @include utils.control-transition(color, box-shadow);
+
+    &:hover {
+      color: var(--ui-breadcrumb-ellipsis-color-hover, var(--actions-low-content-hover)); /// Couleur du bouton de débordement au survol.
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 $focus-ring-width
+        var(--ui-breadcrumb-ellipsis-color-focus, var(--actions-low-content-focused));
+      color: var(--ui-breadcrumb-ellipsis-color-focus, var(--actions-low-content-focused)); /// Couleur du bouton de débordement au focus clavier ; elle teinte aussi l'anneau.
+    }
+
+    &:active {
+      color: var(--ui-breadcrumb-ellipsis-color-pressed, var(--actions-low-content-pressed)); /// Couleur du bouton de débordement enfoncé.
+    }
+  }
+}

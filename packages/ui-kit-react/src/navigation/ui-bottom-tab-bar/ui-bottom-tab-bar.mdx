@@ -1,0 +1,214 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as BarStories from './ui-bottom-tab-bar.stories';
+
+<Meta of={BarStories} />
+
+# ui-bottom-tab-bar
+
+La barre de navigation basse des appareils tactiles : un repère `<nav>` épinglé en bas de
+l'écran, trois à cinq destinations, et au besoin un bouton d'action surélevé.
+
+<Canvas of={BarStories.Basic} />
+
+## API
+
+### UiBottomTabBar
+
+<ArgTypes of={BarStories} />
+
+### UiBottomTab
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Prop</th>
+      <th>Type</th>
+      <th>Rôle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>value</code> (requise)
+      </td>
+      <td>
+        <code>string | number</code>
+      </td>
+      <td>Identifiant de la destination, comparé à la valeur de la barre.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>label</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>Libellé sous l'icône. Absent, l'onglet exige un `aria-label`.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>icon</code>, <code>activeIcon</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>Icône au repos, et celle qui la remplace une fois la destination courante.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>iconType</code>, <code>activeIconType</code>
+      </td>
+      <td>
+        <code>'solid' | 'outline'</code>
+      </td>
+      <td>Variante du glyphe, pour l'échange contour vers plein à l'activation.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>href</code>, <code>target</code>, <code>rel</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        Destination. Le contrôle devient une ancre, et <code>rel</code> prend un défaut sûr avec{' '}
+        <code>target="_blank"</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>render</code>
+      </td>
+      <td>
+        <code>(props, children) =&gt; ReactNode</code>
+      </td>
+      <td>Rend le contrôle soi-même, pour brancher le lien d'un routeur.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>children</code>
+      </td>
+      <td>
+        <code>ReactNode</code>
+      </td>
+      <td>Ornement posé sur l'icône : un badge de compteur, une pastille.</td>
+    </tr>
+  </tbody>
+</table>
+
+### UiBottomTabAction
+
+Une **commande**, pas une destination : elle ne porte jamais l'état actif. Elle prend `icon`,
+`iconType`, `level`, `disabled` et un `aria-label` obligatoire, le bouton n'ayant aucun texte
+visible. Elle se place où on veut parmi les onglets, entre le deuxième et le troisième pour la
+disposition centrée classique.
+
+<Canvas of={BarStories.FloatAction} />
+
+## Le contrôle rend sa sémantique
+
+Sans destination, un onglet est un `<button>` natif. Avec, c'est un `<a>` : le clic milieu et
+« ouvrir dans un nouvel onglet » continuent alors de marcher, ce qu'un bouton ne sait pas
+faire. Une ancre n'ayant pas de `disabled` natif, un onglet désactivé perd sa destination et
+sort du parcours clavier.
+
+<Canvas of={BarStories.States} />
+
+## Libellés et icônes
+
+`showLabels={false}` donne une barre d'icônes seules, et chaque onglet **garde son `label`
+comme nom accessible**. Un onglet peut aussi n'avoir jamais eu de libellé et porter un
+`aria-label`.
+
+<Canvas of={BarStories.NoLabel} />
+
+L'icône change à l'activation, ce qui donne le classique contour vers plein. Vérifiez d'abord
+que le glyphe existe dans le jeu contour de la famille : FontAwesome Free n'en livre qu'une
+poignée.
+
+<Canvas of={BarStories.ActiveIcon} />
+
+## Ornement
+
+Le contenu projeté se pose **sur** l'icône, en haut à droite, là où un compteur de
+notifications se lit. Il ne prend jamais le pointeur, pour qu'une frappe atteigne toujours le
+contrôle.
+
+<Canvas of={BarStories.Adornment} />
+
+## État courant
+
+La valeur suit le contrat contrôlé du kit : `value` la fixe, `defaultValue` l'amorce,
+`onValueChange` la rapporte, et `onTabChange` ajoute l'événement d'origine.
+
+<Canvas of={BarStories.Controlled} />
+
+## Les contraintes de l'appareil
+
+La barre est bâtie pour l'écran sur lequel elle vit :
+
+- elle **réserve l'incrustation du système** sous elle, la barre d'accueil iOS et la barre de
+  gestes Android, par `env(safe-area-inset-bottom)`, qui vaut zéro partout ailleurs ;
+- ses items ne descendent jamais sous la cible tactile de 44 px ;
+- le délai de double frappe et le flash de tapotement natif sont coupés ;
+- elle disparaît à l'impression, un chrome de navigation ne portant rien sur papier.
+
+Elle se place seule en `fixed` ; `contained` la pose dans le plus proche ancêtre positionné,
+ce dont les exemples de cette page se servent pour rester dans leur maquette.
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Implémentation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Repère</td>
+      <td>
+        Un <code>&lt;nav&gt;</code> nommé. La destination courante s'annonce par{' '}
+        <code>aria-current="page"</code>, et non par <code>role="tab"</code>, qui exigerait un
+        panneau associé.
+      </td>
+    </tr>
+    <tr>
+      <td>Nom d'un onglet</td>
+      <td>
+        Le libellé visible nomme le contrôle. Sans libellé visible, <code>aria-label</code> prend
+        le relais, et son absence lève un avertissement en développement.
+      </td>
+    </tr>
+    <tr>
+      <td>Clavier</td>
+      <td>
+        Les flèches parcourent les contrôles en bouclant, <code>Début</code> et <code>Fin</code>{' '}
+        vont aux extrémités. C'est <strong>additif</strong> : contrairement au focus glissant du
+        motif onglets, chaque contrôle garde sa place dans l'ordre de tabulation, ce qu'un repère
+        de navigation doit à ses utilisateurs.
+      </td>
+    </tr>
+    <tr>
+      <td>Onglet désactivé</td>
+      <td>
+        <code>disabled</code> natif sur un bouton ; sur une ancre,{' '}
+        <code>aria-disabled</code>, plus la perte du <code>href</code> et de l'arrêt de
+        tabulation.
+      </td>
+    </tr>
+    <tr>
+      <td>Ornement</td>
+      <td>
+        Hors du parcours du pointeur : un badge posé sur l'icône ne doit jamais intercepter une
+        frappe destinée au contrôle.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Theming
+
+<ConfigTable of="ui-bottom-tab-bar" />

@@ -1,0 +1,154 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as SpeedDialStories from './ui-speed-dial.stories';
+
+<Meta of={SpeedDialStories} />
+
+# ui-speed-dial
+
+Un bouton flottant qui déploie ses actions autour de lui. Les entrées sont le même
+sous-ensemble feuille que [`ui-menu`](?path=/docs/components-ui-navigation-ui-menu--docs), donc
+le modèle d'un menu alimente un bouton sans être remodelé.
+
+<Canvas of={SpeedDialStories.Default} />
+
+## API
+
+<ArgTypes of={SpeedDialStories} />
+
+Une action porte `label`, `icon`, `command`, `disabled`, `url`, `target`, `ariaLabel`, et
+`render` pour brancher le lien d'un routeur.
+
+## Disposition
+
+`linear` empile les actions le long de `direction`, la plus proche du déclencheur en premier.
+
+<Canvas of={SpeedDialStories.Directions} />
+
+Les trois autres les posent sur un arc, à `radius` du déclencheur : l'anneau entier, une
+moitié centrée sur `direction`, ou le quart du coin qu'elle nomme. `circle` ignore
+`direction`, un anneau n'ayant pas de côté ; `quarter-circle` lit les **coins** et retombe sur
+`up-right` si on lui donne un cardinal.
+
+<Canvas of={SpeedDialStories.Circle} />
+<Canvas of={SpeedDialStories.SemiCircle} />
+<Canvas of={SpeedDialStories.QuarterCircle} />
+
+## Masque et fermeture
+
+Le masque assombrit la page, avec le même jeton que le voile de `ui-modal`, et le clic dessus
+referme. En dehors du masque, `hideOnClickOutside` suffit.
+
+<Canvas of={SpeedDialStories.Mask} />
+
+## Infobulles
+
+Une action n'a qu'une icône : `showTooltips` lui donne son libellé en bulle d'aide, posée à
+l'opposé du déploiement pour ne jamais couvrir une voisine.
+
+<Canvas of={SpeedDialStories.Tooltips} />
+
+## Déclencheur
+
+Sans `hideIcon`, l'icône de départ **pivote de 45°** sur place, ce qui fait passer le plus à la
+croix sans changer de glyphe. La rotation vit sur l'icône et non sur le bouton : le contrôle
+entier emporterait son anneau de focus et son ombre.
+
+<Canvas of={SpeedDialStories.CustomIcons} />
+
+## Niveaux et états
+
+Le niveau des actions se règle à part de celui du déclencheur, et vaut `low` par défaut : une
+action en `high` se lirait comme un second bouton principal plutôt que comme une option
+révélée.
+
+<Canvas of={SpeedDialStories.ItemLevel} />
+<Canvas of={SpeedDialStories.DisabledItem} />
+<Canvas of={SpeedDialStories.Disabled} />
+
+## Positionnement
+
+Le composant ne se place pas lui-même : sa racine est une enveloppe positionnée ordinaire.
+Pour le bouton d'action flottant classique, c'est à l'appelant de l'épingler.
+
+```tsx
+<div style={{ position: 'fixed', right: 24, bottom: 24 }}>
+  <UiSpeedDial items={actions} aria-label="Actions" />
+</div>
+```
+
+## Mouvement
+
+Les actions **entrent** une par une, décalées selon leur rang, et **sortent ensemble**.
+
+Ce n'est pas une inattention : une sortie décalée a été essayée puis annulée côté Angular. Une
+action dont le délai est plus court finit avant ses voisines, perd sa classe de sortie et
+revient à pleine opacité le temps qu'elles terminent, ce qui se lit comme un clignotement.
+Ici c'est la **liste entière** qui disparaît, ce qui donne le départ groupé gratuitement.
+
+Sur un arc, chaque action porte déjà sa place angulaire en `transform`. Le préréglage d'entrée
+est donc `fade` et pas autre chose : une animation CSS gagne sur un style en ligne pour la même
+propriété, et un `zoom` ou un glissement effacerait la position le temps de l'animation.
+
+<Canvas of={SpeedDialStories.Closed} />
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Implémentation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Fermé, rien n'existe</td>
+      <td>
+        Les actions ne sont pas rendues tant que le bouton est fermé : ni lues par un lecteur
+        d'écran, ni atteignables au clavier, donc aucun <code>aria-hidden</code> ni{' '}
+        <code>inert</code> à tenir à jour.
+      </td>
+    </tr>
+    <tr>
+      <td>Déclencheur</td>
+      <td>
+        <code>aria-haspopup</code>, <code>aria-expanded</code>, et <code>aria-controls</code> vers
+        la liste seulement quand elle existe.
+      </td>
+    </tr>
+    <tr>
+      <td>Motif menu</td>
+      <td>
+        Un <code>role="menu"</code> nommé, dont chaque action est un{' '}
+        <code>role="menuitem"</code>. Elles forment <strong>un seul</strong> arrêt de tabulation :
+        les flèches circulent dedans, en bouclant, <code>Début</code> et <code>Fin</code> vont aux
+        extrémités, et les actions désactivées sont sautées.
+      </td>
+    </tr>
+    <tr>
+      <td>Ouverture au clavier</td>
+      <td>
+        Une flèche sur le déclencheur fermé déploie <strong>et</strong> entre dans les actions.
+      </td>
+    </tr>
+    <tr>
+      <td>Fermeture</td>
+      <td>
+        <code>Échap</code>, un clic en dehors ou une action activée referment, et le focus revient
+        au déclencheur s'il était dans la liste.
+      </td>
+    </tr>
+    <tr>
+      <td>Clics de la page</td>
+      <td>
+        Sur un arc, la boîte de la liste recouvre exactement le déclencheur : elle laisse donc
+        passer le pointeur, et seules les actions le reprennent.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Theming
+
+<ConfigTable of="ui-speed-dial" />

@@ -1,0 +1,157 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as SheetStories from './ui-bottom-sheet.stories';
+
+<Meta of={SheetStories} />
+
+# ui-bottom-sheet
+
+Un panneau qui glisse depuis le bord bas de l'écran. Pensé pour le tactile : on le referme en
+le tirant vers le bas, et il peut passer d'un palier à l'autre du même geste.
+
+<Canvas of={SheetStories.Basic} />
+
+## API
+
+<ArgTypes of={SheetStories} />
+
+## Le socle est le `<dialog>` natif
+
+Même choix que [`ui-modal`](?path=/docs/components-ui-layout-ui-modal--docs) et
+[`ui-drawer`](?path=/docs/components-ui-layout-ui-drawer--docs) : le piège de focus, la
+restitution du focus, l'inertie de l'arrière-plan, `Échap` et l'empilement viennent du
+navigateur. Le voile et le positionneur que le kit Angular construit à la main disparaissent :
+`::backdrop` fait le premier, les insets du dialogue font le second.
+
+Ce qui reste écrit à la main est ce qui appartient vraiment à ce composant : les paliers de
+hauteur, le glissement vers le bas qui referme, et le passage de `half` à `full`.
+
+<div className="sb-callout">
+
+**L'état est la source de vérité, le DOM suit.** Un `<dialog>` s'ouvre par une **méthode**, pas
+par un attribut : `open` posé en JSX rendrait le panneau hors du calque supérieur, sans
+arrière-plan et sans piège de focus.
+
+</div>
+
+## Hauteur
+
+Trois paliers nommés, `auto`, `half` et `full`, ou n'importe quelle longueur CSS. Un palier
+nommé passe par sa **classe**, pour que le crochet SCSS reste maître de sa valeur ; une
+longueur libre s'écrit en ligne.
+
+<Canvas of={SheetStories.Heights} />
+
+## Le glissement
+
+Tirer le panneau vers le bas au-delà de `dragThreshold` le referme. C'est une transition sur
+`translate` des deux côtés, l'ouverture comme le geste : le glissement **coule** donc dans
+l'animation de fermeture au lieu de s'y ajouter.
+
+Seules la poignée et l'en-tête sont saisissables, jamais le corps, qui garde son défilement
+natif. Un contrôle posé dans la zone de préhension, comme le bouton de fermeture, garde son
+propre geste.
+
+<Canvas of={SheetStories.NoDrag} />
+
+### Paliers
+
+`enableSnapping` laisse un panneau `half` grandir jusqu'à `full` quand on le tire vers le haut,
+et redescendre ensuite. La poignée devient alors un vrai **bouton**, nommé et assez grand pour
+être une cible (WCAG 2.5.8), et les flèches haut et bas font au clavier ce que le doigt fait à
+l'écran.
+
+Depuis `full`, un geste vers le bas redescend d'abord à `half` : il faut un second geste pour
+refermer.
+
+<Canvas of={SheetStories.Snapping} />
+
+## Zones
+
+Trois zones, disposées en colonne : l'en-tête et le pied restent en place pendant que le corps
+défile.
+
+<Canvas of={SheetStories.Actions} />
+<Canvas of={SheetStories.ScrollingContent} />
+
+`autoFocusElement` prend un sélecteur CSS et dirige le focus à l'ouverture, là où le navigateur
+choisirait la première cible venue.
+
+<Canvas of={SheetStories.Search} />
+
+## Modal, ou pas
+
+Sans `modal`, le panneau s'ouvre par `show()` plutôt que `showModal()` : plus de calque
+supérieur, donc plus d'arrière-plan assombri, plus de piège de focus, et la page reste
+utilisable.
+
+<Canvas of={SheetStories.NoBackdrop} />
+
+`contained` cantonne le panneau au premier ancêtre positionné, pour l'embarquer dans un cadre
+borné, et les paliers deviennent des fractions de ce conteneur. Il est alors **toujours non
+modal** : le calque supérieur est relatif à la fenêtre, jamais à un ancêtre.
+
+<Canvas of={SheetStories.Contained} />
+
+## Les contraintes de l'appareil
+
+Le panneau est bâti pour l'écran sur lequel il vit : il réserve l'incrustation du système sous
+lui, barre d'accueil iOS et barre de gestes Android, coupe le délai de double frappe et le
+flash de tapotement, et garde le défilement, tirer-pour-rafraîchir compris, à l'intérieur de
+son corps.
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Implémentation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Dialogue natif</td>
+      <td>
+        Piège de focus, restitution du focus, inertie de l'arrière-plan et <code>Échap</code>{' '}
+        viennent du navigateur. <code>Échap</code> arrive par <code>cancel</code>, qu'on annule
+        toujours pour passer par l'état : une seule voie de fermeture.
+      </td>
+    </tr>
+    <tr>
+      <td>Nom</td>
+      <td>
+        Le titre nomme le panneau par <code>aria-labelledby</code> ; sans titre,{' '}
+        <code>aria-label</code> prend le relais, et son absence lève un avertissement en
+        développement.
+      </td>
+    </tr>
+    <tr>
+      <td>Poignée</td>
+      <td>
+        Décorative et <code>aria-hidden</code> par défaut. En mode palier elle devient un bouton
+        nommé, portant <code>aria-expanded</code>, manipulable aux flèches.
+      </td>
+    </tr>
+    <tr>
+      <td>Corps défilant</td>
+      <td>
+        Il ne devient un arrêt de tabulation que s'il <strong>déborde</strong> et ne contient rien
+        de focalisable : axe exige qu'une région défilante soit atteignable, mais un arrêt de plus
+        sur une zone déjà parcourable n'encombre que le clavier. Même contrat que{' '}
+        <code>ui-modal</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>Mouvement</td>
+      <td>
+        Entrée et sortie neutralisées sous <code>prefers-reduced-motion</code> et{' '}
+        <code>data-motion="off"</code>, et <code>motionDisabled</code> les coupe pour un panneau.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Theming
+
+<ConfigTable of="ui-bottom-sheet" />

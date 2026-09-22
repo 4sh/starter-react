@@ -27,12 +27,12 @@ export const LinkIcon = () => (
 
         <div className="stack-grid">
             <div className="stack-card">
-                <h3>Angular 22</h3>
-                <p>Framework principal : architecture <strong>standalone</strong> et API <strong>signals</strong> native.</p>
+                <h3>React 19</h3>
+                <p>Composants <strong>headless</strong>, props typées, <code>ref</code> transmise comme une prop ordinaire. Construits par <strong>Vite</strong>.</p>
             </div>
             <div className="stack-card">
-                <h3>Composants</h3>
-                <p>Composants + <strong>[Angular CDK](https://material.angular.io/cdk/categories)</strong> (overlay, a11y, focus-trap). Style co-localisé, zéro librairie UI propriétaire.</p>
+                <h3>Zéro librairie UI</h3>
+                <p>Le comportement est <strong>écrit à la main</strong> : exactement <strong>deux dépendances runtime</strong>, un positionneur et un virtualiseur, chacune importée par un seul fichier. Vérifié en CI.</p>
             </div>
             <div className="stack-card">
                 <h3>Storybook 10</h3>
@@ -100,10 +100,12 @@ export const LinkIcon = () => (
     <div className="sb-section">
         ## Application de démonstration
 
-        Le kit intégré dans une vraie application Angular : layout, navigation, formulaires,
-        tableau, thèmes et marques. Déployée avec ce Storybook, à chaque push sur `main`.
+        Le kit intégré dans une vraie application React : layout, navigation, formulaires,
+        tableau, thèmes et marques. Elle consomme le paquet **construit**, et non les sources :
+        c'est la seule chose qui vérifie que la table `exports` est juste. Déployée avec ce
+        Storybook, à chaque push sur `main`.
 
-        <a className="link-item" href="https://4sh.github.io/starter-angular/demo/" target="_blank">
+        <a className="link-item" href="https://4sh.github.io/starter-react/demo/" target="_blank">
             <LinkIcon />
             <span>Ouvrir la démo</span>
         </a>

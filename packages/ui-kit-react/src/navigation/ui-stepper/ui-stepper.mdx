@@ -1,0 +1,209 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as StepperStories from './ui-stepper.stories';
+
+<Meta of={StepperStories} />
+
+# ui-stepper
+
+Une progression numérotée : un assistant en plusieurs étapes, ou un simple indicateur
+d'avancement. API de composition calquée sur
+[`ui-tabs`](?path=/docs/components-ui-navigation-ui-tabs--docs).
+
+<Canvas of={StepperStories.Basic} />
+
+## API
+
+### UiStepper, le conteneur
+
+<ArgTypes of={StepperStories} />
+
+### Les pièces
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Composant</th>
+      <th>Rôle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>UiStepList</code>
+      </td>
+      <td>La bande horizontale des en-têtes. Seule, elle fait un indicateur d'avancement.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>UiStep</code>
+      </td>
+      <td>
+        Un en-tête, avec son marqueur numéroté. Prend <code>value</code>,{' '}
+        <code>disabled</code>, <code>icon</code> et un titre projeté.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>UiStepPanels</code>
+      </td>
+      <td>L'enveloppe des panneaux, sous la bande.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>UiStepPanel</code>
+      </td>
+      <td>
+        La zone de contenu, appariée par <code>value</code>. Prend aussi <code>lazy</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>UiStepItem</code>
+      </td>
+      <td>
+        En vertical seulement : il enveloppe une étape et son panneau, et porte la{' '}
+        <code>value</code> pour les deux.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>useUiStepper()</code>
+      </td>
+      <td>
+        Ce qu'un contenu peut piloter : <code>next</code>, <code>prev</code>, <code>goTo</code>,{' '}
+        <code>isFirst</code>, <code>isLast</code>.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## La séquence se lit dans les enfants
+
+L'avancement d'une étape se **déduit** de sa place : avant l'étape courante elle est franchie,
+après elle est à venir. C'est ce qui distingue un stepper d'une bande d'onglets, et cela
+suppose de connaître l'ordre.
+
+Là où le kit Angular interroge sa projection, React a ses enfants sous la main comme une
+**valeur** : la séquence est une fonction pure des `children`, sans état ni effet, et elle est
+juste dès le premier rendu. La contrepartie est qu'un `UiStep` enveloppé dans un composant à
+vous n'est pas vu ; déclarez-les directement sous `UiStepList` ou `UiStepper`.
+
+## Deux dispositions
+
+En **horizontal**, la bande est au-dessus et les panneaux en dessous.
+
+En **vertical**, chaque `UiStepItem` porte son en-tête et son panneau, qui paraît juste
+dessous, et le rail relie une étape à la suivante.
+
+<Canvas of={StepperStories.Vertical} />
+
+<div className="sb-callout">
+
+**La sémantique ARIA suit la disposition.** En horizontal, c'est le motif onglets :
+`role="tablist"`, `role="tab"` et `role="tabpanel"`. En vertical, le panneau est imbriqué sous
+son propre en-tête, et un onglet qui contiendrait son panneau est de l'ARIA **invalide** : le
+motif devient celui de l'accordéon, `aria-expanded` sur l'en-tête et `role="region"` sur le
+panneau, le conteneur passant à `role="group"`. Dans les deux cas, l'étape courante porte
+`aria-current="step"`, qui dit où l'on en est, ce qu'`aria-selected` ne dit pas.
+
+</div>
+
+## Mode linéaire
+
+`linear` désactive les étapes situées **après** la courante : on ne saute pas en avant, mais on
+revient toujours en arrière. On avance alors depuis le panneau, avec `useUiStepper`.
+
+<Canvas of={StepperStories.Linear} />
+
+```tsx
+function Navigation() {
+  const { next, prev, isFirst, isLast } = useUiStepper();
+
+  return (
+    <>
+      <UiButton label="Précédent" level="low" disabled={isFirst} onClick={prev} />
+      <UiButton label="Suivant" disabled={isLast} onClick={next} />
+    </>
+  );
+}
+```
+
+⚠️ Un panneau qui n'est plus courant devient **inerte** : posez une navigation dans **chaque**
+panneau, et non dans un seul, sinon elle cesse d'être atteignable dès la première étape
+franchie.
+
+## Indicateur d'avancement
+
+Sans panneaux, la bande seule suffit. Aucun `aria-controls` n'est alors posé : un attribut qui
+pointe sur un identifiant absent est pire qu'un attribut manquant.
+
+<Canvas of={StepperStories.StepsOnly} />
+
+## Marqueurs
+
+`completedIcon` remplace le numéro des étapes franchies ; l'`icon` d'une étape gagne sur les
+deux, quel que soit son état.
+
+<Canvas of={StepperStories.CustomMarkers} />
+<Canvas of={StepperStories.DisabledStep} />
+
+## État courant
+
+La valeur suit le contrat contrôlé du kit : `value` la fixe, `defaultValue` l'amorce,
+`onValueChange` la rapporte, et `onStepChange` ajoute l'événement d'origine.
+
+<Canvas of={StepperStories.Controlled} />
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Implémentation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>En-tête natif</td>
+      <td>
+        Un <code>&lt;button&gt;</code> : chaque en-tête atteignable est un arrêt de tabulation
+        naturel, donc <code>Tab</code> les parcourt et <code>Entrée</code> ou <code>Espace</code>{' '}
+        activent celui qui a le focus. Aucun clavier sur mesure.
+      </td>
+    </tr>
+    <tr>
+      <td>Étape courante</td>
+      <td>
+        <code>aria-current="step"</code>, en plus de la sémantique de la disposition.
+      </td>
+    </tr>
+    <tr>
+      <td>Panneau quitté</td>
+      <td>
+        Il reste monté mais devient <code>inert</code> : l'état d'un formulaire survit au passage
+        d'une étape à l'autre, sans rester atteignable. Seul le panneau courant est dans le
+        parcours clavier.
+      </td>
+    </tr>
+    <tr>
+      <td>Marqueur</td>
+      <td>
+        <code>aria-hidden</code> : le numéro et l'icône sont décoratifs, l'avancement passant par
+        les attributs ARIA.
+      </td>
+    </tr>
+    <tr>
+      <td>Mouvement</td>
+      <td>
+        Transition neutralisée sous <code>prefers-reduced-motion</code> et{' '}
+        <code>data-motion="off"</code>. Voir <strong>Foundations → Motion</strong>.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Theming
+
+<ConfigTable of="ui-stepper" />

@@ -1,0 +1,299 @@
+@use 'utils';
+
+// =====================================================================
+// ui-bottom-tab-bar : co-located styles for the whole family (bar, tab and
+// the raised action). All values come from the `navigation` and `actions`
+// tokens.
+//
+// No host element here, so `.ui-bottom-tab-bar` IS the <nav> landmark and
+// `.ui-bottom-tab` IS the native control: the three `display: contents`
+// hosts of the Angular kit have nowhere left to live.
+//
+// The touch rules sit on the bar rather than on the items: they must hold
+// for the gaps and for the raised action too.
+// =====================================================================
+
+// --- Config : the bar --------------------------------------------------
+$bar-surface: var(--ui-bottom-tab-bar-surface, var(--global-background-default)); /// Fond de la barre.
+$bar-min-height: var(--ui-bottom-tab-bar-min-height, #{utils.rem-calc(56)}); /// Hauteur minimale de la barre.
+$bar-gap: var(--ui-bottom-tab-bar-gap, 0); /// Espace entre les items.
+$bar-padding-x: var(--ui-bottom-tab-bar-padding-x, 0); /// Retrait horizontal de la barre.
+$bar-z-index: var(--ui-bottom-tab-bar-z-index, 100); /// Plan d'empilement de la barre.
+$bar-shadow: var(--ui-bottom-tab-bar-shadow, none); /// Ombre portée de la barre.
+$bar-stroke-width: var(--ui-bottom-tab-bar-stroke-width, var(--stroke-sm)); /// Épaisseur du filet supérieur.
+$bar-stroke: var(--ui-bottom-tab-bar-stroke, var(--global-border-default)); /// Couleur du filet supérieur.
+
+// Réserve du système en bas de l'écran : barre d'accueil iOS, gestes Android.
+// Vaut zéro partout ailleurs, chrome du navigateur compris.
+$bar-safe-area: var(
+  --ui-bottom-tab-bar-safe-area-offset,
+  env(safe-area-inset-bottom, 0px)
+); /// Réserve sous la barre pour l'incrustation système.
+
+// --- Config : un onglet ------------------------------------------------
+$tab-min-height: var(--ui-bottom-tab-bar-item-min-height, #{utils.rem-calc(56)}); /// Hauteur minimale d'un item, qui est aussi sa cible tactile.
+$tab-padding-y: var(--ui-bottom-tab-bar-item-padding-y, var(--units-md)); /// Retrait vertical d'un item.
+// Retrait horizontal volontairement étroit : les items se partagent la largeur,
+// donc tout ce qu'on prend ici est retiré au libellé, qui tronque plus tôt.
+$tab-padding-x: var(--ui-bottom-tab-bar-item-padding-x, var(--units-xs)); /// Retrait horizontal d'un item.
+$tab-gap: var(--ui-bottom-tab-bar-item-gap, var(--units-sm)); /// Espace entre l'icône et le libellé.
+$tab-radius: var(--ui-bottom-tab-bar-item-radius, 0); /// Rayon des coins d'un item.
+$tab-icon-size: var(--ui-bottom-tab-bar-icon-size, var(--size-typography-icon-default)); /// Taille du glyphe de l'icône.
+$tab-label-size: var(--ui-bottom-tab-bar-label-font-size, var(--size-typography-text-sm)); /// Taille du libellé.
+$tab-label-weight: var(--ui-bottom-tab-bar-label-weight, var(--weight-regular)); /// Graisse du libellé.
+$tab-focus-ring-width: var(
+  --ui-bottom-tab-bar-item-focus-ring-width,
+  #{utils.$focus-ring-width}
+); /// Épaisseur de l'anneau de focus d'un item.
+// Décalage négatif : il tire le badge hors de la boîte du glyphe, là où un
+// compteur de notifications se lit.
+$tab-adornment-offset: var(
+  --ui-bottom-tab-bar-adornment-offset,
+  #{utils.rem-calc(-6)}
+); /// Décalage de l'ornement par rapport à l'icône.
+
+// --- Config : l'action surélevée ---------------------------------------
+$levels: high, low, success, warning, error; /// Familles de couleur générées pour le bouton flottant.
+$action-size: var(--ui-bottom-tab-bar-action-size, #{utils.rem-calc(64)}); /// Diamètre du bouton flottant.
+$action-offset-y: var(--ui-bottom-tab-bar-action-offset-y, #{utils.rem-calc(20)}); /// Débordement du bouton au-dessus de la barre.
+$action-gap: var(--ui-bottom-tab-bar-action-gap, var(--units-2xs)); /// Dégagement latéral autour du bouton.
+$action-radius: var(--ui-bottom-tab-bar-action-radius, var(--radius-full)); /// Rayon des coins du bouton.
+$action-shadow: var(--ui-bottom-tab-bar-action-shadow, var(--shadow-default-md)); /// Ombre portée du bouton.
+$action-icon-size: var(--ui-bottom-tab-bar-action-icon-size, var(--size-typography-icon-xl)); /// Taille du glyphe du bouton.
+$action-focus-ring-width: var(
+  --ui-bottom-tab-bar-action-focus-ring-width,
+  #{utils.$action-focus-ring-width}
+); /// Épaisseur de l'anneau de focus du bouton flottant.
+
+// --- The bar -----------------------------------------------------------
+.ui-bottom-tab-bar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: $bar-z-index;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  gap: $bar-gap;
+  min-height: calc(#{$bar-min-height} + #{$bar-safe-area});
+  padding: 0 $bar-padding-x $bar-safe-area;
+  border-top: $bar-stroke-width solid $bar-stroke;
+  background-color: $bar-surface;
+  box-shadow: $bar-shadow;
+  overflow: visible;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  &._contained {
+    position: absolute;
+  }
+
+  &._no-safe-area {
+    min-height: $bar-min-height;
+    padding-bottom: 0;
+  }
+}
+
+// Un chrome de navigation ne porte aucune information sur papier.
+@media print {
+  .ui-bottom-tab-bar {
+    display: none;
+  }
+}
+
+// --- A tab -------------------------------------------------------------
+.ui-bottom-tab {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  gap: $tab-gap;
+  min-width: 0;
+  min-height: $tab-min-height;
+  margin: 0;
+  padding: $tab-padding-y $tab-padding-x;
+  border: 0;
+  border-radius: $tab-radius;
+  background-color: var(--ui-bottom-tab-bar-tab-surface, var(--navigation-high-surface-default)); /// Fond d'un onglet.
+  color: var(--ui-bottom-tab-bar-tab-color, var(--navigation-high-content-default)); /// Couleur du libellé d'un onglet.
+  font-family: var(--ui-bottom-tab-bar-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+  font-size: $tab-label-size;
+  font-weight: $tab-label-weight;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  @include utils.control-transition(color, background-color, box-shadow);
+
+  &:hover:not(:disabled, [aria-disabled='true']) {
+    background-color: var(
+      --ui-bottom-tab-bar-tab-surface-hover,
+      var(--navigation-high-surface-hover)
+    ); /// Fond d'un onglet au survol.
+    color: var(--ui-bottom-tab-bar-tab-color-hover, var(--navigation-high-content-hover)); /// Couleur du libellé au survol.
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 $tab-focus-ring-width
+      var(--ui-bottom-tab-bar-tab-focus-ring-color, var(--global-border-focus)); /// Couleur de l'anneau de focus d'un onglet.
+    background-color: var(
+      --ui-bottom-tab-bar-tab-surface-focus,
+      var(--navigation-high-surface-focused)
+    ); /// Fond d'un onglet au focus clavier.
+    color: var(--ui-bottom-tab-bar-tab-color-focus, var(--navigation-high-content-focused)); /// Couleur du libellé au focus clavier.
+  }
+
+  &:active:not(:disabled, [aria-disabled='true']) {
+    background-color: var(
+      --ui-bottom-tab-bar-tab-surface-pressed,
+      var(--navigation-high-surface-pressed)
+    ); /// Fond d'un onglet enfoncé.
+    color: var(--ui-bottom-tab-bar-tab-color-pressed, var(--navigation-high-content-pressed)); /// Couleur du libellé enfoncé.
+  }
+
+  &:disabled,
+  &._disabled {
+    background-color: var(
+      --ui-bottom-tab-bar-tab-surface-disabled,
+      var(--navigation-high-surface-disabled)
+    ); /// Fond d'un onglet désactivé.
+    color: var(--ui-bottom-tab-bar-tab-color-disabled, var(--navigation-high-content-disabled)); /// Couleur du libellé désactivé.
+    cursor: not-allowed;
+  }
+
+  // La destination courante en dernier, pour gagner sur le survol et l'appui :
+  // l'onglet choisi garde son fond plein sous le pointeur, ce qui est justement
+  // ce qui dit où l'on est.
+  &._active {
+    background-color: var(
+      --ui-bottom-tab-bar-tab-surface-active,
+      var(--navigation-high-surface-active)
+    ); /// Fond de l'onglet de la destination courante.
+    color: var(--ui-bottom-tab-bar-tab-color-active, var(--navigation-high-content-active)); /// Couleur du libellé courant : elle n'est lisible que sur le fond qui l'accompagne.
+  }
+}
+
+.ui-bottom-tab-icon-box {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.ui-bottom-tab-icon {
+  --ui-icon-size: #{$tab-icon-size};
+}
+
+.ui-bottom-tab-adornment {
+  position: absolute;
+  top: $tab-adornment-offset;
+  left: 100%;
+  display: flex;
+  align-items: center;
+  transform: translateX($tab-adornment-offset);
+  pointer-events: none;
+}
+
+// Un nom de destination long reste sur une ligne et tronque : une barre qui
+// passe à deux lignes décale toutes les icônes de la rangée.
+.ui-bottom-tab-label {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+// --- The raised action -------------------------------------------------
+// Une commande, pas une destination : elle lit les familles `actions` comme
+// n'importe quel bouton, jamais `navigation`. Elle est soulevée par une
+// transformation et non par une marge négative, pour que la hauteur de la barre
+// reste exactement celle que ses items demandent.
+.ui-bottom-tab-action {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  align-self: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: $action-size;
+  height: $action-size;
+  margin: 0 $action-gap;
+  padding: 0;
+  border: 0;
+  border-radius: $action-radius;
+  box-shadow: $action-shadow;
+  transform: translateY(calc(-1 * #{$action-offset-y}));
+  cursor: pointer;
+  @include utils.control-transition(color, background-color, box-shadow);
+
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      $action-shadow,
+      0 0 0 $action-focus-ring-width
+        var(--ui-bottom-tab-bar-action-focus-ring-color, var(--global-border-focus)); /// Couleur de l'anneau de focus du bouton flottant.
+  }
+
+  &:disabled {
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  @each $lvl in $levels {
+    &._#{$lvl} {
+      background-color: var(
+        --ui-bottom-tab-bar-action-surface,
+        var(--actions-#{$lvl}-surface-default)
+      ); /// Fond du bouton flottant.
+      color: var(--ui-bottom-tab-bar-action-color, var(--actions-#{$lvl}-content-default)); /// Couleur du contenu du bouton flottant.
+
+      &:hover:not(:disabled) {
+        background-color: var(
+          --ui-bottom-tab-bar-action-surface-hover,
+          var(--actions-#{$lvl}-surface-hover)
+        ); /// Fond du bouton flottant au survol.
+        color: var(--ui-bottom-tab-bar-action-color-hover, var(--actions-#{$lvl}-content-hover)); /// Couleur du contenu au survol.
+      }
+
+      &:focus-visible {
+        background-color: var(
+          --ui-bottom-tab-bar-action-surface-focus,
+          var(--actions-#{$lvl}-surface-focused)
+        ); /// Fond du bouton flottant au focus clavier.
+        color: var(--ui-bottom-tab-bar-action-color-focus, var(--actions-#{$lvl}-content-focused)); /// Couleur du contenu au focus clavier.
+      }
+
+      &:active:not(:disabled) {
+        background-color: var(
+          --ui-bottom-tab-bar-action-surface-pressed,
+          var(--actions-#{$lvl}-surface-pressed)
+        ); /// Fond du bouton flottant enfoncé.
+        color: var(
+          --ui-bottom-tab-bar-action-color-pressed,
+          var(--actions-#{$lvl}-content-pressed)
+        ); /// Couleur du contenu enfoncé.
+      }
+
+      &:disabled {
+        background-color: var(
+          --ui-bottom-tab-bar-action-surface-disabled,
+          var(--actions-#{$lvl}-surface-disabled)
+        ); /// Fond du bouton flottant désactivé.
+        color: var(
+          --ui-bottom-tab-bar-action-color-disabled,
+          var(--actions-#{$lvl}-content-disabled)
+        ); /// Couleur du contenu désactivé.
+      }
+    }
+  }
+}
+
+.ui-bottom-tab-action-icon {
+  --ui-icon-size: #{$action-icon-size};
+}
