@@ -1,0 +1,246 @@
+@use 'utils';
+
+// =====================================================================
+// ui-toast : co-located styles for the whole family (card and region).
+// Every colour is an `informative` token; the region owns positioning,
+// stacking and spacing only.
+//
+// The region lives in the TOP LAYER (`popover="manual"`), so no z-index
+// can bury it under a native `<dialog>`. `_contained` opts out and falls
+// back to an absolutely placed stack, where the z-index hook applies.
+//
+// Extend:
+//   • Level     → add to $levels (tokens --informative-{level}{sub}-* must
+//                 exist + extend the `UiFeedbackLevel` type).
+//   • Sub-level → add to $sublevels (+ the `UiSubLevel` type).
+// =====================================================================
+
+// --- Config -----------------------------------------------------------
+$levels: default, highlight, success, warning, error; /// Niveaux sémantiques générant les modifieurs `._<niveau>`.
+$sublevels: high, low;                                /// Intensités générant les modifieurs `._<intensité>`.
+
+$align: var(--ui-toast-align, flex-start);       /// Alignement vertical de la rangée : icône, contenu, fermeture.
+$icon-align: var(--ui-toast-icon-align, auto);   /// Alignement vertical de l'icône seule ; `auto` suit la rangée.
+$close-align: var(--ui-toast-close-align, auto); /// Alignement vertical de la fermeture seule ; `auto` suit la rangée.
+
+$icon-padding-top: var(--ui-toast-icon-padding-top, var(--units-2xs)); /// Décalage vertical de l'icône, pour la caler sur la première ligne de texte ; à remettre à zéro en alignement centré.
+
+$focus-ring-width: var(--ui-toast-focus-ring-width, #{utils.$focus-ring-width}); /// Épaisseur de l'anneau de focus.
+
+$z-index: var(--ui-toast-z-index, 1100);                                 /// Plan d'empilement de la pile `contained`, la pile ordinaire vivant dans le calque supérieur.
+$width: var(--ui-toast-width, #{utils.rem-calc(360)});                   /// Largeur d'une carte empilée.
+$width-expanded: var(--ui-toast-width-expanded, #{utils.rem-calc(480)}); /// Largeur en mode bannière.
+$edge-gap: var(--ui-toast-edge-gap, var(--units-lg));                    /// Marge par rapport aux bords.
+$stack-gap: var(--ui-toast-stack-gap, var(--units-sm));                  /// Espacement entre deux cartes.
+
+// --- Card -------------------------------------------------------------
+.ui-toast {
+  display: inline-flex;
+  align-items: $align;
+  gap: var(--units-sm);
+  box-sizing: border-box;
+  width: auto;
+  max-width: 100%;
+  padding: var(--units-sm) var(--units-md);
+  border: var(--stroke-default) solid transparent;
+  border-radius: var(--radius-default);
+  background-color: var(--ui-toast-surface, var(--informative-defaulthigh-surface-default));
+  color: var(--ui-toast-color, var(--informative-defaulthigh-content-default));
+  box-shadow: var(--shadow-default-md); // une notification flotte au-dessus de la page
+  font-family: var(--ui-toast-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+
+  // Banner mode: fill the region width instead of hugging the content.
+  &._expanded {
+    display: flex;
+    width: 100%;
+  }
+
+  &-icon {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    align-self: $icon-align;
+    padding-top: $icon-padding-top;
+    line-height: 0;
+  }
+
+  &-content {
+    flex: 1 1 auto;
+    min-width: 0; // laisse un texte long passer à la ligne au lieu de déborder
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--units-2xs);
+    padding-right: var(--units-sm);
+  }
+
+  &-title {
+    font-family: var(--ui-toast-title-font-family, var(--fontfamily-title)); /// Famille typographique du titre.
+    font-weight: var(--ui-toast-title-weight, var(--weight-bold));           /// Graisse du titre.
+    font-size: var(--size-typography-title-sm);
+    line-height: 1.3;
+    overflow-wrap: break-word;
+  }
+
+  &-text {
+    font-weight: var(--ui-toast-text-weight, var(--weight-light)); /// Graisse du texte.
+    font-size: var(--size-typography-text-md);
+    line-height: 1.3;
+    overflow-wrap: break-word;
+  }
+
+  &-close {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    align-self: $close-align;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-xs);
+    background: transparent;
+    color: inherit;
+    line-height: 0;
+    cursor: pointer;
+    opacity: 0.7;
+    @include utils.motion-transition(opacity);
+
+    &:hover {
+      opacity: 1;
+    }
+
+    &:focus-visible {
+      outline: $focus-ring-width solid currentColor;
+      outline-offset: utils.rem-calc(2);
+      opacity: 1;
+    }
+
+    @include utils.motion-reduce {
+      transition-duration: 0.01ms;
+    }
+  }
+
+  // --- Colours (level × sub-level) ------------------------------------
+  @each $lvl in $levels {
+    @each $sub in $sublevels {
+      &._#{$lvl}._#{$sub} {
+        background-color: var(
+          --ui-toast-surface,
+          var(--informative-#{$lvl}#{$sub}-surface-default)
+        ); /// Fond de la carte : un seul nom pour les dix jeux (niveau × intensité), la portée se choisit avec les classes de modifieur.
+        color: var(--ui-toast-color, var(--informative-#{$lvl}#{$sub}-content-default)); /// Couleur du texte et des icônes.
+        border-color: var(--ui-toast-stroke, var(--informative-#{$lvl}#{$sub}-stroke-default)); /// Couleur de bordure.
+      }
+    }
+  }
+}
+
+// --- Region -----------------------------------------------------------
+.ui-toast-region {
+  // Le calque supérieur pose sa propre feuille sur `[popover]` : cadre, fond,
+  // marge automatique et `inset: 0` la centreraient. Tout est repris ici, comme
+  // sur `ui-tooltip`.
+  position: fixed;
+  inset: auto;
+  z-index: $z-index;
+  display: flex;
+  flex-direction: column;
+  gap: $stack-gap;
+  width: min(#{$width}, calc(100vw - #{$edge-gap} * 2));
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: visible;
+  background: none;
+  color: inherit;
+  // Une région vide ne doit pas avaler les clics destinés à la page.
+  pointer-events: none;
+
+  &._contained {
+    position: absolute;
+  }
+
+  &._expanded {
+    width: min(#{$width-expanded}, calc(100vw - #{$edge-gap} * 2));
+
+    // Mode bannière : chaque carte occupe toute la largeur de la région.
+    .ui-toast-region-item > .ui-toast {
+      flex: 1 1 auto;
+    }
+  }
+
+  // Ancrée en bas, la pile pousse vers le haut : la dernière carte reste au bord.
+  &._reverse {
+    flex-direction: column-reverse;
+  }
+
+  &-item {
+    display: flex;
+    // La bande fait toute la largeur de la région, la carte seulement sa
+    // largeur de contenu. Rendre le pointeur à la bande lui ferait donc avaler
+    // les clics destinés à la page à côté de la carte, et suspendrait le compte
+    // à rebours dès que le pointeur passe sur la même ligne.
+    pointer-events: none;
+
+    > .ui-toast {
+      pointer-events: auto;
+    }
+  }
+
+  // --- Horizontal alignment of hugging cards --------------------------
+  &._top-left &-item,
+  &._bottom-left &-item {
+    justify-content: flex-start;
+  }
+
+  &._top-right &-item,
+  &._bottom-right &-item {
+    justify-content: flex-end;
+  }
+
+  &._top-center &-item,
+  &._bottom-center &-item,
+  &._center &-item {
+    justify-content: center;
+  }
+
+  // --- Anchoring ------------------------------------------------------
+  &._top-left {
+    top: $edge-gap;
+    left: $edge-gap;
+  }
+
+  &._top-right {
+    top: $edge-gap;
+    right: $edge-gap;
+  }
+
+  &._top-center {
+    top: $edge-gap;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  &._bottom-left {
+    bottom: $edge-gap;
+    left: $edge-gap;
+  }
+
+  &._bottom-right {
+    bottom: $edge-gap;
+    right: $edge-gap;
+  }
+
+  &._bottom-center {
+    bottom: $edge-gap;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  &._center {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}

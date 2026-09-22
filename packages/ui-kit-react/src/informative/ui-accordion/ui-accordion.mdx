@@ -1,0 +1,232 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as AccordionStories from './ui-accordion.stories';
+
+<Meta of={AccordionStories} />
+
+# ui-accordion
+
+Accordéon **headless** : un groupe de sections repliables. API de composition, un conteneur
+`UiAccordion` qui porte l'état d'ouverture et les défauts du groupe, et des
+`UiAccordionPanel` appariés par leur `value`.
+
+<Canvas of={AccordionStories.Default} />
+
+## API
+
+### UiAccordion, le conteneur
+
+<ArgTypes of={AccordionStories} />
+
+### UiAccordionPanel
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Prop</th>
+      <th>Type</th>
+      <th>Défaut</th>
+      <th>Rôle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>value</code> (requise)
+      </td>
+      <td>
+        <code>string | number</code>
+      </td>
+      <td></td>
+      <td>
+        Identifiant du panneau, comparé à la <code>value</code> du conteneur.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>header</code>
+      </td>
+      <td>
+        <code>ReactNode</code>
+      </td>
+      <td>
+        <code>undefined</code>
+      </td>
+      <td>En-tête du panneau : un titre texte, ou n'importe quel nœud.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>disabled</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>
+        <code>false</code>
+      </td>
+      <td>Panneau non repliable, et sauté par les flèches.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>separator</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>
+        <code>undefined</code>
+      </td>
+      <td>Surcharge locale du trait. Sinon, le défaut du groupe.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>control</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>
+        <code>undefined</code>
+      </td>
+      <td>Surcharge locale du chevron. Sinon, le défaut du groupe.</td>
+    </tr>
+  </tbody>
+</table>
+
+## Modes
+
+Mode **simple** par défaut : un seul panneau ouvert à la fois, et recliquer l'en-tête actif
+le referme. Avec `multiple`, plusieurs panneaux restent ouverts et la valeur devient un
+tableau.
+
+<Canvas of={AccordionStories.Multiple} />
+
+La valeur suit le contrat contrôlé du kit : `value` la fixe, `defaultValue` l'amorce,
+`onValueChange` la rapporte. **`null` veut dire « rien d'ouvert »**, là où `undefined`
+voudrait dire « non contrôlé », ce qui n'est pas la même chose. Pour observer les
+transitions une par une, `onPanelOpen` et `onPanelClose` portent la valeur du panneau et
+l'événement qui l'a provoquée.
+
+<Canvas of={AccordionStories.Controlled} />
+
+## En-tête
+
+`header` accepte n'importe quel nœud : un titre texte suffit dans le cas courant, mais un
+`UiTag`, une icône ou un compteur y tiennent tout autant. Là où le kit Angular a un slot
+`uiAccordionHeader` en plus de son entrée texte, une seule prop couvre les deux cas.
+
+<Canvas of={AccordionStories.RichHeader} />
+
+## États
+
+Un panneau `disabled` n'est pas repliable, et les flèches le sautent. Le trait et le
+chevron se coupent par groupe ou par panneau.
+
+<Canvas of={AccordionStories.DisabledPanel} />
+<Canvas of={AccordionStories.Minimal} />
+
+## Animation
+
+Le pliage passe par le **système de motion** partagé : la technique `grid-template-rows`
+sur un élément qui reste monté, donc `utils.motion-transition`. Coupez-la localement avec
+`motion={false}`, globalement avec `data-motion="off"`, ou laissez la préférence système
+`reduced-motion` la neutraliser. Voir **Foundations → Motion**.
+
+<Canvas of={AccordionStories.MotionOff} />
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Implémentation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>En-tête natif</td>
+      <td>
+        L'en-tête entier est un <code>&lt;button&gt;</code> (motif accordéon de l'APG) : cible de
+        clic large, focalisable, <code>disabled</code> natif.
+      </td>
+    </tr>
+    <tr>
+      <td>Liaison ARIA</td>
+      <td>
+        <code>aria-expanded</code> sur l'en-tête, <code>aria-controls</code> vers la région de
+        contenu, qui porte <code>role="region"</code> et <code>aria-labelledby</code> en retour.
+      </td>
+    </tr>
+    <tr>
+      <td>Clavier</td>
+      <td>
+        <code>Entrée</code> et <code>Espace</code> basculent ; <code>↑</code> et <code>↓</code>
+        déplacent le focus entre en-têtes, en boucle ; <code>Début</code> et <code>Fin</code> vont
+        au premier et au dernier. Les en-têtes d'un accordéon imbriqué appartiennent à leur propre
+        groupe.
+      </td>
+    </tr>
+    <tr>
+      <td>Contenu replié</td>
+      <td>
+        Le contenu reste monté mais devient <code>inert</code> et de hauteur nulle : l'état d'un
+        formulaire survit au pliage sans rester atteignable.
+      </td>
+    </tr>
+    <tr>
+      <td>Chevron décoratif</td>
+      <td>
+        <code>aria-hidden</code> sur l'affordance : le sens passe par <code>aria-expanded</code>,
+        jamais par la seule icône.
+      </td>
+    </tr>
+    <tr>
+      <td>Mouvement</td>
+      <td>
+        Transition neutralisée sous <code>prefers-reduced-motion</code> et{' '}
+        <code>data-motion="off"</code>.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Exemples
+
+```tsx
+// Simple : un panneau ouvert à la fois.
+<UiAccordion defaultValue="a">
+  <UiAccordionPanel value="a" header="Section A">
+    Contenu A…
+  </UiAccordionPanel>
+  <UiAccordionPanel value="b" header="Section B">
+    Contenu B…
+  </UiAccordionPanel>
+</UiAccordion>;
+
+// Multiple, en-tête riche, panneau désactivé.
+<UiAccordion multiple defaultValue={['a']}>
+  <UiAccordionPanel
+    value="a"
+    header={
+      <>
+        Facturation <UiTag label="À jour" level="success" size="small" />
+      </>
+    }
+  >
+    Contenu…
+  </UiAccordionPanel>
+  <UiAccordionPanel value="b" header="Archivé" disabled>
+    Contenu…
+  </UiAccordionPanel>
+</UiAccordion>;
+
+// Contrôlé, sans animation.
+<UiAccordion value={open} onValueChange={setOpen} motion={false}>
+  …
+</UiAccordion>;
+```
+
+## Theming
+
+<ConfigTable of="ui-accordion" />

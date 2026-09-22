@@ -1,0 +1,163 @@
+@use 'utils';
+
+// =====================================================================
+// ui-accordion : co-located styles for the whole family (container and
+// panel). All values come from tokens.
+//
+// The whole header is the toggle button; the chevron sits in a circular
+// "control" affordance whose surface reacts to the header state.
+// The body collapses with the grid-rows technique, timed by the motion
+// system (utils.motion-transition), and stays in the DOM (form state kept).
+//
+// No host element here, so `.ui-accordion-panel` is the panel's own root:
+// the `:host` rules of the Angular kit fold into it.
+// =====================================================================
+
+// --- Config -----------------------------------------------------------
+$control-size: var(--ui-accordion-control-size, #{utils.rem-calc(40)});                    /// Diamètre du chevron circulaire.
+$focus-ring-width: var(--ui-accordion-focus-ring-width, #{utils.$action-focus-ring-width}); /// Épaisseur de l'anneau de focus de l'en-tête.
+
+// --- Container --------------------------------------------------------
+.ui-accordion {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  &-panel {
+    display: block;
+    width: 100%;
+  }
+
+  // --- Header (the button) --------------------------------------------
+  &-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--units-md);
+    width: 100%;
+    margin: 0;
+    padding: var(--units-sm) 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--ui-accordion-header-color, var(--informative-defaultlow-content-default)); /// Couleur du libellé d'en-tête.
+    font-family: var(--ui-accordion-font-family, var(--fontfamily-base));                   /// Famille typographique de l'en-tête et du corps.
+    text-align: left;
+    cursor: pointer;
+    @include utils.control-transition(color, box-shadow);
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 $focus-ring-width
+        var(--ui-accordion-header-focus-ring-color, var(--navigation-high-stroke-focused)); /// Couleur de l'anneau de focus de l'en-tête.
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+
+  &-header-slot {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-weight: var(--ui-accordion-weight, var(--weight-bold)); /// Graisse de l'en-tête.
+    font-size: var(--size-typography-text-xl);
+    line-height: 1.2;
+  }
+
+  // --- Chevron control affordance -------------------------------------
+  &-header-control {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: $control-size;
+    height: $control-size;
+    border-radius: var(--radius-default);
+    background-color: var(--ui-accordion-control-surface, var(--navigation-high-surface-default)); /// Fond du chevron.
+    color: var(--ui-accordion-control-color, var(--navigation-high-content-default));              /// Couleur du chevron.
+    @include utils.control-transition(background-color, color, box-shadow);
+  }
+
+  // Header states drive the control surface (single hit target = the header).
+  &-header:hover:not(:disabled) &-header-control {
+    background-color: var(
+      --ui-accordion-control-surface-hover,
+      var(--navigation-high-surface-hover)
+    ); /// Fond du chevron au survol de l'en-tête.
+    color: var(--ui-accordion-control-color-hover, var(--navigation-high-content-hover)); /// Couleur du chevron au survol de l'en-tête.
+  }
+
+  &-header:active:not(:disabled) &-header-control {
+    background-color: var(
+      --ui-accordion-control-surface-pressed,
+      var(--navigation-high-surface-pressed)
+    ); /// Fond du chevron, en-tête enfoncé.
+    color: var(--ui-accordion-control-color-pressed, var(--navigation-high-content-pressed)); /// Couleur du chevron, en-tête enfoncé.
+  }
+
+  &-header:focus-visible &-header-control {
+    background-color: var(
+      --ui-accordion-control-surface-focus,
+      var(--navigation-high-surface-focused)
+    ); /// Fond du chevron au focus clavier.
+    color: var(--ui-accordion-control-color-focus, var(--navigation-high-content-focused)); /// Couleur du chevron au focus clavier.
+    box-shadow: inset 0 0 0 var(--stroke-default)
+      var(--ui-accordion-control-stroke-focus, var(--navigation-high-stroke-focused)); /// Couleur du liseré intérieur du chevron au focus clavier.
+  }
+
+  // --- Divider ---------------------------------------------------------
+  &-separator {
+    width: 100%;
+  }
+
+  // --- Collapsible body (grid-rows technique) --------------------------
+  &-content {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    @include utils.motion-transition(grid-template-rows, opacity);
+
+    &._open {
+      grid-template-rows: 1fr;
+      opacity: 1;
+    }
+
+    // Group opt-out (`motion={false}`).
+    &._no-motion {
+      transition: none;
+    }
+
+    @include utils.motion-reduce {
+      transition-duration: 0.01ms;
+    }
+  }
+
+  &-content-inner {
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  &-content-body {
+    padding-block: var(--units-default);
+    color: var(--ui-accordion-content-color, var(--informative-defaultlow-content-default)); /// Couleur du corps du panneau.
+    font-family: var(--ui-accordion-font-family, var(--fontfamily-base));
+    font-size: var(--size-typography-text-default);
+    line-height: 1.5;
+  }
+}
+
+// --- Disabled panel ----------------------------------------------------
+.ui-accordion-panel._disabled {
+  .ui-accordion-header {
+    color: var(--ui-accordion-header-color-disabled, var(--navigation-high-content-disabled)); /// Couleur du libellé d'en-tête désactivé.
+  }
+
+  .ui-accordion-header-control {
+    background-color: var(
+      --ui-accordion-control-surface-disabled,
+      var(--navigation-high-surface-disabled)
+    ); /// Fond du chevron désactivé.
+    color: var(--ui-accordion-control-color-disabled, var(--navigation-high-content-disabled)); /// Couleur du chevron désactivé.
+  }
+}

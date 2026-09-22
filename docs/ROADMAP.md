@@ -39,12 +39,12 @@ La liste est longue parce que chaque entrée a coûté du temps une fois.
 | 0     | Socle et décisions              | ✅ terminée                               |
 | 1     | Le patron, de bout en bout      | ✅ terminée (`ui-icon`, puis `ui-button`) |
 | 2     | Fondation transverse            | 🟡 **en cours** : voir ci-dessous         |
-| 3     | La vague des composants         | 🟡 48 sur 62                              |
+| 3     | La vague des composants         | 🟡 50 sur 62                              |
 | 4     | Mode copie et registry          | ⬜ pas commencée                          |
 | 5     | MCP, doc publique, publication  | ⬜ pas commencée                          |
 | 6     | Contrôle de parité entre stacks | ⬜ pas commencée                          |
 
-**Chiffres du jour** : 48 composants, 57 points d'entrée publics, 7 garde-fous en CI,
+**Chiffres du jour** : 50 composants, 59 points d'entrée publics, 7 garde-fous en CI,
 **deux** dépendances runtime (`@floating-ui/react-dom` et `@tanstack/react-virtual`, un seul
 fichier chacune).
 
@@ -89,7 +89,7 @@ elles, ont été exécutées avant d'y être écrites.
 les vingt composants listés dans `docs/components-index.md` sont tous portés. Le kit couvre
 donc la majorité des écrans d'un projet réel.
 
-**Il reste 14 composants sur les 62.** Ne pas confondre les deux comptes, ce qui a déjà induit
+**Il reste 12 composants sur les 62.** Ne pas confondre les deux comptes, ce qui a déjà induit
 en erreur : le kit COMPLET, encore loin, et ce noyau, désormais atteint.
 
 **La vague continue**, décidée le 21 septembre plutôt que de sortir le `0.1.0` tout de suite.
@@ -103,7 +103,7 @@ mesurée sur le starter Angular, `.ts` (hors `.spec`) + `.html` + `.scss` :
 | ✅ `ui-avatar-group` | 53     | `informative` | `ui-avatar` ✅. Fait le 21 septembre                               |
 | ✅ `ui-input-group`  | 199    | `forms`       | `core/forms` ✅. Fait le 21 septembre                              |
 | ✅ `ui-button-split` | 249    | `actions`     | `ui-button` ✅, `ui-menu` ✅. Fait le 21 septembre                 |
-| `ui-accordion`       | 432    | `informative` | `ui-icon` ✅, `ui-separator` ✅, `core/motion` ✅                  |
+| ✅ `ui-accordion`    | 432    | `informative` | `ui-icon` ✅, `ui-separator` ✅. Fait le 22 septembre              |
 | `ui-input-otp`       | 485    | `forms`       | `core/forms` ✅                                                    |
 | `ui-knob`            | 489    | `forms`       | `core/forms` ✅                                                    |
 | `ui-breadcrumb`      | 523    | `navigation`  | `ui-icon` ✅, routeur → prop `render` comme `ui-link`              |
@@ -111,7 +111,7 @@ mesurée sur le starter Angular, `.ts` (hors `.spec`) + `.html` + `.scss` :
 | `ui-speed-dial`      | 703    | `actions`     | `ui-button` ✅, `ui-tooltip` ✅, `ui-menu` ✅, `core/overlay` ✅   |
 | `ui-bottom-tab-bar`  | 720    | `navigation`  | `ui-icon` ✅, routeur → prop `render`                              |
 | `ui-stepper`         | 773    | `navigation`  | `ui-icon` ✅                                                       |
-| `ui-toast`           | 780    | `informative` | `ui-icon` ✅, `core/motion` ✅, plus une file d’avis               |
+| ✅ `ui-toast`        | 780    | `informative` | `ui-icon` ✅, `core/motion` ✅. Fait le 22 septembre               |
 | `ui-bottom-sheet`    | 1041   | `layout`      | `core/overlay` ✅. **Nouveau côté Angular**, jamais listé ici      |
 | `ui-image`           | 1167   | `base`        | rien, mais gros                                                    |
 | `ui-file-upload`     | 1227   | `forms`       | `ui-button` ✅, `ui-progress-bar` ✅                               |
@@ -121,7 +121,8 @@ mesurée sur le starter Angular, `.ts` (hors `.spec`) + `.html` + `.scss` :
 Un seul verrou reste :
 
 - ✅ **`core/motion` hors calque supérieur** est levé le 22 septembre : `useUiMotion` retient
-  le nœud sortant le temps de son animation. `ui-accordion` et `ui-toast` sont débloqués.
+  le nœud sortant le temps de son animation. `ui-accordion` et `ui-toast`, qui l'attendaient,
+  sont portés le même jour.
 - **`ui-editor` demande un arbitrage de dépendance** au sens de D6 : aucun éditeur riche ne
   s'écrit dans `core/`, donc c'est une décision d'architecture, pas une tâche de portage.
   À garder pour la fin.
@@ -470,37 +471,41 @@ Ne pas les repayer. Chacun est documenté sur place, dans le fichier concerné.
   enregistrement depuis chaque enfant, c'est-à-dire un `setState` dans un effet. L'ordre des
   onglets est de toute façon une propriété du DOM : `querySelectorAll('[role="tab"]')` le
   donne juste, quelle que soit la façon dont l'appelant les compose.
+- **Le repère d'un état ajusté au rendu est un ÉTAT, jamais une ref.** `react-hooks` refuse de
+  lire ou d'écrire `ref.current` au fil du rendu, et c'est justement au rendu que la
+  comparaison doit se faire. Le motif documenté par React garde donc la valeur précédente dans
+  un `useState`, réécrit juste avant l'ajustement. Rencontré sur la file de `ui-toast`.
+- **Une prop nommée `key` n'atteint jamais un composant React.** Le nom est réservé pour
+  l'identité d'un élément, et il disparaît silencieusement des props. Tout ce que le kit
+  Angular route par `key` se renomme donc ici, `ui-toast` en `channel`.
+- **Ce qui flotte au-dessus de la page ne doit rendre le pointeur qu'à ce qui est PEINT.** Une
+  bande de mise en page aussi large que sa région, mais qui ne porte qu'une carte à sa largeur
+  de contenu, avale les clics du vide qui l'entoure. Deuxième occurrence après `ui-tooltip`,
+  sur `ui-toast` cette fois : `pointer-events: none` sur la bande, `auto` sur la carte. Et le
+  symptôme n'est pas qu'un clic perdu : un `onMouseEnter` posé sur la bande suspend aussi le
+  compte à rebours dès que le pointeur passe sur la même LIGNE que la carte.
+- **Le pointeur de Playwright reste où le test précédent l'a laissé.** Une carte qui paraît
+  dessous se croit survolée, ce qui est le bon comportement, et toute mesure de durée devient
+  fausse. Coûté une demi-heure sur `ui-toast`, où seuls les tests de `life` échouaient, et
+  seulement dans l'ordre du fichier. Garer le pointeur dans un `beforeEach`, sur un élément
+  posé hors du chemin.
+- **`vitest/browser`, et non `@vitest/browser/context`.** Le second existe encore mais jette
+  « can be imported only inside the Browser Mode » depuis le pool navigateur, et le fichier de
+  test ne s'importe plus du tout. Le message désigne la mauvaise cause.
+- **Un `<dialog>` modal rend INERTE tout le reste du document, calque supérieur compris.** Un
+  `popover` affiché après lui est bien peint par-dessus, l'ordre d'affichage décidant de
+  l'empilement, mais il ne reçoit plus le pointeur : `elementFromPoint` ne le voit pas. Une
+  mesure de superposition par test doit donc passer par un voile à z-index, pas par un
+  dialogue modal. Vérifié à l'écran avant d'être écrit.
 
 ---
 
-## État du dépôt à la reprise
-
-> **Section transitoire.** À supprimer dès que les lots ci-dessous sont committés.
-
-Rien n'est committé depuis `d29abf0` (7 septembre) : le travail de trois sessions vit dans
-l'arbre de travail, soit une trentaine de composants et de briques non suivis. Le dépôt est
-**vert** (`pnpm test`, `pnpm docs:config:check`, `pnpm typecheck`, `pnpm lint:check`, et
-`pnpm kit:build`), mais un `git log` ne le raconte pas.
-
-Les conventions de `.claude/rules/git-conventions.md` veulent une clé Jira en tête de message,
-et un `git add` par fichier nommé. Découpage proposé, du plus ancien au plus récent :
-
-| Lot | Contenu                                                                                                                                                                                                                  | Message                                                                          |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
-| 1   | `core/focus`, `core/overlay`, `core/virtual`, `core/forms` (`format-label`, `option-resolver`)                                                                                                                           | `feat(core): ajouter les briques focus, overlay, virtual et resolveur d'options` |
-| 2   | `ui-link`, `ui-avatar`, `ui-chip`, `ui-empty-state`, `ui-progress-bar`, `ui-read-only`, `ui-skeleton`, `ui-spinner`, `ui-tooltip`                                                                                        | `feat(informative): ajouter les composants presentationnels`                     |
-| 3   | `layout/` (`ui-card`, `ui-modal`, `ui-popover`, `ui-drawer`), `styles/utils/_motion.scss`, `storybook/docs/specifications/overlays.mdx`                                                                                  | `feat(layout): ajouter les panneaux du calque superieur`                         |
-| 4   | `ui-select`, `ui-autocomplete`, `ui-input-tags`, `ui-datepicker`, `ui-nudger`, `ui-rating`, `ui-slider`, `ui-segment-control`, `ui-toggle-block`, `ui-toggle-button`, plus `ui-field` / `ui-radio` / `ui-badge` modifiés | `feat(forms): completer la famille formulaires`                                  |
-| 5   | `navigation/` (`ui-menu`, `ui-context-menu`)                                                                                                                                                                             | `feat(navigation): ajouter ui-menu et ui-context-menu`                           |
-| 6   | les quatre correctifs de panneaux, `data-unpositioned` sur les huit panneaux, `_motion.scss`                                                                                                                             | `fix(overlay): corriger ombre, empilement, position et clic des panneaux`        |
-| 7   | `table/` (`ui-paginator`, `ui-table`), `core/utils/get-field-path`                                                                                                                                                       | `feat(table): ajouter ui-paginator et ui-table`                                  |
-| 8   | `scripts/*.check.mjs`, `AGENTS.md`, `CHANGELOG.md`, `docs/*`, README, `Overview.mdx`, fichiers générés                                                                                                                   | `chore(tooling): garde-fous de prose, de tableaux et de decomptes`               |
-| 9   | `informative/ui-alert`, `navigation/ui-tabs`                                                                                                                                                                             | `feat(informative): ajouter ui-alert` puis `feat(navigation): ajouter ui-tabs`   |
+## Avant chaque commit
 
 Quatre fichiers sont **générés mais committés**, et la CI les vérifie par un
-`git diff --exit-code` après build. Ils s'accumulent au fil des lots plutôt que d'appartenir à
-l'un d'eux : les régénérer et les mettre en scène **avant chaque commit** est donc la marche à
-suivre.
+`git diff --exit-code` après build. Ils s'accumulent au fil du travail plutôt que
+d'appartenir à un lot : les régénérer et les mettre en scène avant chaque commit est donc la
+marche à suivre.
 
 ```bash
 pnpm exports:build && pnpm docs:config   # avant CHAQUE commit
@@ -510,7 +515,10 @@ git add packages/ui-kit-react/package.json \
 ```
 
 Le premier porte la table `exports`, les deux suivants les hooks de theming, le dernier leurs
-décomptes.
+décomptes, écrits à la main mais confrontés aux chiffres calculés.
+
+Les conventions de message et de branche vivent dans `.claude/rules/git-conventions.md` : clé
+Jira en tête, et un `git add` par fichier nommé, jamais `git add .`.
 
 ---
 
@@ -1542,3 +1550,49 @@ montent dans un overlay CDK côté Angular (`ui-speed-dial`, `ui-swatch-picker`,
 
 Deux déclarations `position` contradictoires dans le même bloc du même fichier, trouvées au
 passage, que seul le style en ligne du positionneur masquait.
+
+### 2026-09-22 : `ui-accordion` et `ui-toast`, les deux que motion bloquait
+
+**`ui-accordion` n'avait en fait aucun besoin du verrou.** Son pliage est une transition sur
+`grid-template-rows` d'un élément qui reste monté, donc `utils.motion-transition`, pas un
+préréglage d'entrée et de sortie : la fiche de la vague le disait à tort. Le portage a été
+direct, et une seule chose a été repensée. Le clavier du groupe lit les en-têtes dans le DOM,
+comme la bande de `ui-tabs` lit ses onglets, mais il filtre en plus sur l'accordéon
+propriétaire : sans ça les flèches d'un groupe emportent les en-têtes d'un accordéon imbriqué,
+ce que la requête de contenu d'Angular évite naturellement. Vérifié en retirant le filtre, le
+test tombe.
+
+Côté API, une seule prop `header` de type `ReactNode` remplace le couple slot `uiAccordionHeader`
+plus entrée texte : elle couvre le titre simple et l'en-tête riche du même coup.
+
+**`ui-toast` est le premier vrai consommateur de `useUiMotion`.** La pile doit continuer à
+rendre une carte dont le message a déjà quitté le magasin, donc elle tient une liste
+réconciliée où chaque entrée porte son `open`. Cette réconciliation se fait **au rendu**, et
+son repère de comparaison est un état et non une ref, `react-hooks` refusant de lire une ref à
+cet endroit. Le compte à rebours, lui, vit dans la carte : le nettoyage de l'effet met en
+banque le temps déjà passé, ce qui rend la pause au survol gratuite.
+
+**Le magasin est un module, pas un contexte.** Une notification se déclenche aussi depuis un
+intercepteur HTTP ou un gestionnaire d'erreurs, donc hors de tout composant : un contexte
+obligerait à poser un fournisseur à la racine tout en restant inatteignable de là.
+`useSyncExternalStore` le relie à React, avec un instantané serveur figé à vide puisque le
+module est partagé par toutes les requêtes d'un serveur.
+
+**La pile vit dans le calque supérieur, et c'est une mesure qui l'a décidé.** `ui-modal` est
+ici un `<dialog>` natif : aucun z-index ne passe devant, donc une pile en `fixed` serait
+enterrée exactement au moment où l'on notifie. En `popover="manual"` elle passe devant, et
+comme le calque empile dans l'ordre d'affichage, elle s'y remontre à chaque nouveau message.
+Vérifié à l'écran, un popover rouge sur un dialogue modal bleu plein écran. Ce qui n'était pas
+prévu : le dialogue modal rend inerte tout le reste du document, la pile comprise. Elle reste
+lisible et redevient manipulable à la fermeture, mais `elementFromPoint` ne la voit plus, donc
+le test de superposition passe par un voile à z-index et non par un dialogue.
+
+**Deux défauts hérités d'Angular, tous deux mesurés.** La bande qui porte chaque carte fait
+toute la largeur de la pile alors que la carte fait sa largeur de contenu : lui rendre le
+pointeur lui fait avaler les clics de la page à côté de la carte, et suspend le compte à
+rebours dès que le pointeur passe sur la même ligne. C'est le même piège que `ui-tooltip`, la
+veille, et c'est d'ailleurs comme ça qu'il a été trouvé, trois tests de durée échouant
+seulement dans l'ordre du fichier. Second défaut : côté Angular, un message au-delà de
+`stackVisibleLimit` voit son délai armé dès l'arrivée, donc il expire sans avoir jamais été
+affiché, alors que la doc promet qu'il attend son tour. Ici le compte démarre quand la carte
+paraît.

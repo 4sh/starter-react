@@ -177,6 +177,10 @@
       "types": "./dist/forms/ui-toggle-button/index.d.ts",
       "import": "./dist/ui-toggle-button.js"
     },
+    "./ui-accordion": {
+      "types": "./dist/informative/ui-accordion/index.d.ts",
+      "import": "./dist/ui-accordion.js"
+    },
     "./ui-alert": {
       "types": "./dist/informative/ui-alert/index.d.ts",
       "import": "./dist/ui-alert.js"
@@ -228,6 +232,10 @@
     "./ui-tag": {
       "types": "./dist/informative/ui-tag/index.d.ts",
       "import": "./dist/ui-tag.js"
+    },
+    "./ui-toast": {
+      "types": "./dist/informative/ui-toast/index.d.ts",
+      "import": "./dist/ui-toast.js"
     },
     "./ui-tooltip": {
       "types": "./dist/informative/ui-tooltip/index.d.ts",

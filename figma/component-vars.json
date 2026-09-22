@@ -10,10 +10,10 @@
         "Mode 1"
       ],
       "counts": {
-        "tokens": 983,
-        "alias": 872,
-        "literal": 111,
-        "skipped": 38,
+        "tokens": 1015,
+        "alias": 901,
+        "literal": 114,
+        "skipped": 42,
         "derivedDescriptions": 185
       },
       "aliasTargets": [
@@ -213,8 +213,462 @@
           "cssVar": "--ui-textarea-padding-block-small",
           "component": "ui-textarea",
           "reason": "expression calc() : une variable Figma ne porte pas de calcul."
+        },
+        {
+          "cssVar": "--ui-toast-align",
+          "component": "ui-toast",
+          "reason": "sans équivalent variable Figma (durée, easing, curseur, plan d’empilement, ratio)."
+        },
+        {
+          "cssVar": "--ui-toast-close-align",
+          "component": "ui-toast",
+          "reason": "sans équivalent variable Figma (durée, easing, curseur, plan d’empilement, ratio)."
+        },
+        {
+          "cssVar": "--ui-toast-icon-align",
+          "component": "ui-toast",
+          "reason": "sans équivalent variable Figma (durée, easing, curseur, plan d’empilement, ratio)."
+        },
+        {
+          "cssVar": "--ui-toast-z-index",
+          "component": "ui-toast",
+          "reason": "sans équivalent variable Figma (durée, easing, curseur, plan d’empilement, ratio)."
         }
       ]
+    }
+  },
+  "accordion": {
+    "content": {
+      "color": {
+        "$value": "{semantics.informative.defaultLow.content.default}",
+        "$type": "color",
+        "$description": "Couleur du corps du panneau.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "TEXT_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-accordion-content-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-accordion-content-color",
+            "component": "ui-accordion",
+            "entryPoint": "@4sh/ui-kit-react/ui-accordion",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "control": {
+      "color": {
+        "$value": "{semantics.navigation.high.content.default}",
+        "$type": "color",
+        "$description": "Couleur du chevron.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-accordion-control-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-accordion-control-color",
+            "component": "ui-accordion",
+            "entryPoint": "@4sh/ui-kit-react/ui-accordion",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-disabled": {
+        "$value": "{semantics.navigation.high.content.disabled}",
+        "$type": "color",
+        "$description": "Couleur du chevron désactivé.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-accordion-control-color-disabled)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-accordion-control-color-disabled",
+            "component": "ui-accordion",
+            "entryPoint": "@4sh/ui-kit-react/ui-accordion",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-focus": {
+        "$value": "{semantics.navigation.high.content.focused}",
+        "$type": "color",
+        "$description": "Couleur du chevron au focus clavier.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-accordion-control-color-focus)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-accordion-control-color-focus",
+            "component": "ui-accordion",
+            "entryPoint": "@4sh/ui-kit-react/ui-accordion",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-hover": {
+        "$value": "{semantics.navigation.high.content.hover}",
+        "$type": "color",
+        "$description": "Couleur du chevron au survol de l'en-tête.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-accordion-control-color-hover)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-accordion-control-color-hover",
+            "component": "ui-accordion",
+            "entryPoint": "@4sh/ui-kit-react/ui-accordion",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-pressed": {
+        "$value": "{semantics.navigation.high.content.pressed}",
+        "$type": "color",
+        "$description": "Couleur du chevron, en-tête enfoncé.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-accordion-control-color-pressed)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-accordion-control-color-pressed",
+            "component": "ui-accordion",
+            "entryPoint": "@4sh/ui-kit-react/ui-accordion",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "size": {
+        "$value": "40px",
+        "$type": "dimension",
+        "$description": "Diamètre du chevron circulaire.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-accordion-control-size)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-accordion-control-size",
+            "component": "ui-accordion",
+            "entryPoint": "@4sh/ui-kit-react/ui-accordion",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "stroke-focus": {
+        "$value": "{semantics.navigation.high.stroke.focused}",
+        "$type": "color",
+        "$description": "Couleur du liseré intérieur du chevron au focus clavier.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "STROKE_COLOR"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-accordion-control-stroke-focus)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-accordion-control-stroke-focus",
+            "component": "ui-accordion",
+            "entryPoint": "@4sh/ui-kit-react/ui-accordion",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface": {
+        "$value": "{semantics.navigation.high.surface.default}",
+        "$type": "color",
+        "$description": "Fond du chevron.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-accordion-control-surface)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-accordion-control-surface",
+            "component": "ui-accordion",
+            "entryPoint": "@4sh/ui-kit-react/ui-accordion",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface-disabled": {
+        "$value": "{semantics.navigation.high.surface.disabled}",
+        "$type": "color",
+        "$description": "Fond du chevron désactivé.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-accordion-control-surface-disabled)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-accordion-control-surface-disabled",
+            "component": "ui-accordion",
+            "entryPoint": "@4sh/ui-kit-react/ui-accordion",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface-focus": {
+        "$value": "{semantics.navigation.high.surface.focused}",
+        "$type": "color",
+        "$description": "Fond du chevron au focus clavier.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-accordion-control-surface-focus)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-accordion-control-surface-focus",
+            "component": "ui-accordion",
+            "entryPoint": "@4sh/ui-kit-react/ui-accordion",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface-hover": {
+        "$value": "{semantics.navigation.high.surface.hover}",
+        "$type": "color",
+        "$description": "Fond du chevron au survol de l'en-tête.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-accordion-control-surface-hover)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-accordion-control-surface-hover",
+            "component": "ui-accordion",
+            "entryPoint": "@4sh/ui-kit-react/ui-accordion",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface-pressed": {
+        "$value": "{semantics.navigation.high.surface.pressed}",
+        "$type": "color",
+        "$description": "Fond du chevron, en-tête enfoncé.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-accordion-control-surface-pressed)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-accordion-control-surface-pressed",
+            "component": "ui-accordion",
+            "entryPoint": "@4sh/ui-kit-react/ui-accordion",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "focus-ring-width": {
+      "$value": "{metrics.units.2xs}",
+      "$type": "dimension",
+      "$description": "Épaisseur de l'anneau de focus de l'en-tête.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "STROKE_FLOAT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-accordion-focus-ring-width)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-accordion-focus-ring-width",
+          "component": "ui-accordion",
+          "entryPoint": "@4sh/ui-kit-react/ui-accordion",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "font-family": {
+      "$value": "{typography.fontFamily.base}",
+      "$type": "string",
+      "$description": "Famille typographique de l'en-tête et du corps.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "STRING",
+          "scopes": [
+            "FONT_FAMILY"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-accordion-font-family)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-accordion-font-family",
+          "component": "ui-accordion",
+          "entryPoint": "@4sh/ui-kit-react/ui-accordion",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "header": {
+      "color": {
+        "$value": "{semantics.informative.defaultLow.content.default}",
+        "$type": "color",
+        "$description": "Couleur du libellé d'en-tête.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-accordion-header-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-accordion-header-color",
+            "component": "ui-accordion",
+            "entryPoint": "@4sh/ui-kit-react/ui-accordion",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-disabled": {
+        "$value": "{semantics.navigation.high.content.disabled}",
+        "$type": "color",
+        "$description": "Couleur du libellé d'en-tête désactivé.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-accordion-header-color-disabled)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-accordion-header-color-disabled",
+            "component": "ui-accordion",
+            "entryPoint": "@4sh/ui-kit-react/ui-accordion",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "header-focus-ring": {
+      "color": {
+        "$value": "{semantics.navigation.high.stroke.focused}",
+        "$type": "color",
+        "$description": "Couleur de l'anneau de focus de l'en-tête.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-accordion-header-focus-ring-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-accordion-header-focus-ring-color",
+            "component": "ui-accordion",
+            "entryPoint": "@4sh/ui-kit-react/ui-accordion",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "weight": {
+      "$value": "{typography.weight.bold}",
+      "$type": "string",
+      "$description": "Graisse de l'en-tête.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "STRING",
+          "scopes": [
+            "FONT_WEIGHT",
+            "FONT_STYLE"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-accordion-weight)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-accordion-weight",
+          "component": "ui-accordion",
+          "entryPoint": "@4sh/ui-kit-react/ui-accordion",
+          "descriptionSource": "scss"
+        }
+      }
     }
   },
   "alert": {
@@ -20182,6 +20636,313 @@
           "cssVar": "--ui-textarea-padding-x",
           "component": "ui-textarea",
           "entryPoint": "@4sh/ui-kit-react/ui-textarea",
+          "descriptionSource": "scss"
+        }
+      }
+    }
+  },
+  "toast": {
+    "color": {
+      "$value": "{semantics.informative.defaultHigh.content.default}",
+      "$type": "color",
+      "$description": "Couleur du texte et des icônes.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "COLOR",
+          "scopes": [
+            "ALL_FILLS"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-toast-color)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-toast-color",
+          "component": "ui-toast",
+          "entryPoint": "@4sh/ui-kit-react/ui-toast",
+          "descriptionSource": "scss",
+          "perInstance": true,
+          "note": "10 défauts selon la variante rendue : en déclarer un seul écraserait les autres."
+        }
+      }
+    },
+    "edge": {
+      "gap": {
+        "$value": "{metrics.units.lg}",
+        "$type": "dimension",
+        "$description": "Marge par rapport aux bords.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "GAP"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-toast-edge-gap)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-toast-edge-gap",
+            "component": "ui-toast",
+            "entryPoint": "@4sh/ui-kit-react/ui-toast",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "focus-ring-width": {
+      "$value": "{metrics.units.2xs}",
+      "$type": "dimension",
+      "$description": "Épaisseur de l'anneau de focus.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "STROKE_FLOAT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-toast-focus-ring-width)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-toast-focus-ring-width",
+          "component": "ui-toast",
+          "entryPoint": "@4sh/ui-kit-react/ui-toast",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "font-family": {
+      "$value": "{typography.fontFamily.base}",
+      "$type": "string",
+      "$description": "Famille typographique du composant.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "STRING",
+          "scopes": [
+            "FONT_FAMILY"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-toast-font-family)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-toast-font-family",
+          "component": "ui-toast",
+          "entryPoint": "@4sh/ui-kit-react/ui-toast",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "icon": {
+      "padding-top": {
+        "$value": "{metrics.units.2xs}",
+        "$type": "dimension",
+        "$description": "Décalage vertical de l'icône, pour la caler sur la première ligne de texte ; à remettre à zéro en alignement centré.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "GAP"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-toast-icon-padding-top)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-toast-icon-padding-top",
+            "component": "ui-toast",
+            "entryPoint": "@4sh/ui-kit-react/ui-toast",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "stack": {
+      "gap": {
+        "$value": "{metrics.units.sm}",
+        "$type": "dimension",
+        "$description": "Espacement entre deux cartes.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "GAP"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-toast-stack-gap)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-toast-stack-gap",
+            "component": "ui-toast",
+            "entryPoint": "@4sh/ui-kit-react/ui-toast",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "stroke": {
+      "$value": "{semantics.informative.defaultHigh.stroke.default}",
+      "$type": "color",
+      "$description": "Couleur de bordure.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "COLOR",
+          "scopes": [
+            "STROKE_COLOR"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-toast-stroke)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-toast-stroke",
+          "component": "ui-toast",
+          "entryPoint": "@4sh/ui-kit-react/ui-toast",
+          "descriptionSource": "scss",
+          "perInstance": true,
+          "note": "10 défauts selon la variante rendue : en déclarer un seul écraserait les autres."
+        }
+      }
+    },
+    "surface": {
+      "$value": "{semantics.informative.defaultHigh.surface.default}",
+      "$type": "color",
+      "$description": "Fond de la carte : un seul nom pour les dix jeux (niveau × intensité), la portée se choisit avec les classes de modifieur.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "COLOR",
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-toast-surface)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-toast-surface",
+          "component": "ui-toast",
+          "entryPoint": "@4sh/ui-kit-react/ui-toast",
+          "descriptionSource": "scss",
+          "perInstance": true,
+          "note": "10 défauts selon la variante rendue : en déclarer un seul écraserait les autres."
+        }
+      }
+    },
+    "text": {
+      "weight": {
+        "$value": "{typography.weight.light}",
+        "$type": "string",
+        "$description": "Graisse du texte.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "STRING",
+            "scopes": [
+              "FONT_WEIGHT",
+              "FONT_STYLE"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-toast-text-weight)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-toast-text-weight",
+            "component": "ui-toast",
+            "entryPoint": "@4sh/ui-kit-react/ui-toast",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "title": {
+      "font-family": {
+        "$value": "{typography.fontFamily.title}",
+        "$type": "string",
+        "$description": "Famille typographique du titre.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "STRING",
+            "scopes": [
+              "FONT_FAMILY"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-toast-title-font-family)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-toast-title-font-family",
+            "component": "ui-toast",
+            "entryPoint": "@4sh/ui-kit-react/ui-toast",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "weight": {
+        "$value": "{typography.weight.bold}",
+        "$type": "string",
+        "$description": "Graisse du titre.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "STRING",
+            "scopes": [
+              "FONT_WEIGHT",
+              "FONT_STYLE"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-toast-title-weight)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-toast-title-weight",
+            "component": "ui-toast",
+            "entryPoint": "@4sh/ui-kit-react/ui-toast",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "width": {
+      "$value": "360px",
+      "$type": "dimension",
+      "$description": "Largeur d'une carte empilée.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "WIDTH_HEIGHT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-toast-width)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-toast-width",
+          "component": "ui-toast",
+          "entryPoint": "@4sh/ui-kit-react/ui-toast",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "width-expanded": {
+      "$value": "480px",
+      "$type": "dimension",
+      "$description": "Largeur en mode bannière.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "WIDTH_HEIGHT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-toast-width-expanded)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-toast-width-expanded",
+          "component": "ui-toast",
+          "entryPoint": "@4sh/ui-kit-react/ui-toast",
           "descriptionSource": "scss"
         }
       }

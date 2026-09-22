@@ -96,9 +96,13 @@
 - ✅ `ui-tooltip` : Bulle d'aide dans le calque supérieur, conforme WCAG 1.4.13
 - ✅ `ui-avatar-group` : Pile d'avatars qui se chevauchent. Aide de mise en page sans
   props : le débordement « +N » est un avatar de plus, en mode libellé
-- ⬜ `ui-toast`
+- ✅ `ui-toast` : Notification flottante et empilée. Magasin de module `uiToast` (pas de
+  fournisseur à poser), pile `UiToastContainer` dans le **calque supérieur** pour passer
+  devant un `<dialog>` natif, et carte `UiToast` qui se pose aussi seule
 - ✅ `ui-empty-state` : Absence de contenu, avec visuel, texte et actions
-- ⬜ `ui-accordion`
+- ✅ `ui-accordion` : Sections repliables, API de composition (`UiAccordion` /
+  `UiAccordionPanel`) appariées par `value`. En-tête bouton natif, mode simple ou
+  `multiple`, corps replié `inert` mais toujours monté
 
 ## layout
 

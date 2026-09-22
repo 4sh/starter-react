@@ -25,6 +25,27 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
   `utils.overlay-motion` s'il vit dans le calque supérieur, `useUiMotion` s'il quitte le DOM.
   C'est la question qu'on se pose en vrai, et elle n'était écrite nulle part.
 
+- `ui-accordion` : sections repliables, API de composition (`UiAccordion` / `UiAccordionPanel`)
+  appariées par `value`, en mode simple ou `multiple`. L'en-tête entier est un `<button>` natif,
+  motif accordéon de l'APG : la cible de clic est large et le chevron n'est qu'une affordance.
+  Le corps replié reste **monté** mais devient `inert` et de hauteur nulle, donc l'état d'un
+  formulaire survit au pliage sans rester atteignable. Une seule prop `header` de type
+  `ReactNode` remplace le couple slot plus entrée texte du kit Angular. Le pliage passe par
+  `utils.motion-transition` sur `grid-template-rows`, l'élément restant monté.
+
+- `ui-toast` : notification flottante et empilée, en trois pièces. Le magasin `uiToast` est un
+  **module** et non un contexte, parce qu'une notification se déclenche aussi depuis un
+  intercepteur HTTP ou un gestionnaire d'erreurs, donc hors de tout composant : rien à poser à
+  la racine. La pile `UiToastContainer` vit dans le **calque supérieur** (`popover="manual"`)
+  et non à un z-index, `ui-modal` étant ici un `<dialog>` natif que rien d'autre ne dépasse ;
+  elle s'y remontre à chaque nouveau message, le calque empilant dans l'ordre d'affichage. La
+  carte `UiToast` s'annonce seule et se pose aussi hors de toute pile. Premier consommateur de
+  `useUiMotion`, qui retient la carte le temps de sa sortie une fois le message déjà retiré du
+  magasin. Deux écarts volontaires avec le kit Angular, tous deux mesurés : seule la **carte**
+  reçoit le pointeur, la bande qui la porte faisant toute la largeur de la pile et avalant
+  donc les clics de la page à côté d'elle ; et le compte à rebours d'un message en file
+  d'attente ne démarre **qu'en paraissant**, sans quoi il expirerait sans avoir été lu.
+
 - `ui-button-split` : bouton d'action accolé à un déclencheur déroulant, qui ferme la famille
   `actions` avec `ui-speed-dial`. Les options sont le `UiMenuItem[]` de `ui-menu`, donc un
   modèle écrit pour un menu se réutilise tel quel ; les deux moitiés se désactivent séparément.

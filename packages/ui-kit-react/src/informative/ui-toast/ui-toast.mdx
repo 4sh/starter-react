@@ -1,0 +1,427 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as ToastStories from './ui-toast.stories';
+
+<Meta of={ToastStories} />
+
+# ui-toast
+
+Notification flottante et empilée. Trois pièces : le magasin `uiToast`, où l'application
+pousse ses messages, la pile `UiToastContainer`, qui les rend et les fait disparaître, et la
+carte `UiToast`, qui se pose aussi toute seule.
+
+Pour un message **dans le flux** de la page, c'est
+[`ui-alert`](?path=/docs/components-ui-informative-ui-alert--docs).
+
+<Canvas of={ToastStories.Default} />
+
+## API
+
+### UiToast, la carte
+
+<ArgTypes of={ToastStories} />
+
+### uiToast, le magasin
+
+Un **module**, et non un contexte : une notification se déclenche aussi depuis un
+intercepteur HTTP ou un gestionnaire d'erreurs, donc hors de tout composant. Là où le kit
+Angular injecte un service `providedIn: 'root'`, ce singleton rend le même service sans
+forcer un fournisseur à la racine.
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Fonction</th>
+      <th>Rend</th>
+      <th>Rôle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>add(message)</code>
+      </td>
+      <td>
+        <code>UiToastId</code>
+      </td>
+      <td>Pousse un message et rend son identifiant, généré s'il n'est pas fourni.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>addAll(messages)</code>
+      </td>
+      <td>
+        <code>UiToastId[]</code>
+      </td>
+      <td>Pousse plusieurs messages d'un coup.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>remove(id)</code>
+      </td>
+      <td>
+        <code>void</code>
+      </td>
+      <td>Retire un message. Sans effet s'il est déjà parti.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>clear(channel?)</code>
+      </td>
+      <td>
+        <code>void</code>
+      </td>
+      <td>Vide tout, ou seulement un canal.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>getMessages()</code>
+      </td>
+      <td>
+        <code>readonly UiToastMessage[]</code>
+      </td>
+      <td>Les messages vivants, dans leur ordre d'arrivée.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>useUiToasts(channel?)</code>
+      </td>
+      <td>
+        <code>readonly UiToastMessage[]</code>
+      </td>
+      <td>Le crochet de lecture, réactif. C'est ce que la pile utilise.</td>
+    </tr>
+  </tbody>
+</table>
+
+Un message porte `title`, `text`, `level`, `subLevel`, `icon`, `closable`, `sticky`, `life`,
+`className`, une charge libre `data`, et le `channel` qui l'achemine.
+
+### UiToastContainer, la pile
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Prop</th>
+      <th>Type</th>
+      <th>Défaut</th>
+      <th>Rôle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>channel</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        <code>undefined</code>
+      </td>
+      <td>N'affiche que les messages de ce canal. Omis, ceux qui n'en ont pas.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>position</code>
+      </td>
+      <td>
+        <code>UiToastPosition</code>
+      </td>
+      <td>
+        <code>'top-right'</code>
+      </td>
+      <td>Bord d'ancrage, parmi les sept.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>life</code>
+      </td>
+      <td>
+        <code>number</code>
+      </td>
+      <td>
+        <code>4000</code>
+      </td>
+      <td>Délai de disparition par défaut, en ms. Le `life` d'un message gagne.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>expanded</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>
+        <code>false</code>
+      </td>
+      <td>Rend les cartes en bannières, sur toute la largeur de la pile.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>motion</code>
+      </td>
+      <td>
+        <code>UiMotionPreset</code>
+      </td>
+      <td>
+        <code>undefined</code>
+      </td>
+      <td>Préréglage de mouvement. À défaut, celui qui va avec la position.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>motionDisabled</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>
+        <code>false</code>
+      </td>
+      <td>Coupe l'entrée et la sortie de cette pile.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>contained</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>
+        <code>false</code>
+      </td>
+      <td>Ancre la pile dans le plus proche ancêtre positionné, hors du calque supérieur.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>renderToast</code>
+      </td>
+      <td>
+        <code>(message, ctx) =&gt; ReactNode</code>
+      </td>
+      <td>
+        <code>undefined</code>
+      </td>
+      <td>
+        Rend le corps de la carte à la place de <code>title</code> et <code>text</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>stackVisibleLimit</code>
+      </td>
+      <td>
+        <code>number</code>
+      </td>
+      <td>
+        <code>0</code>
+      </td>
+      <td>Plafonne les cartes visibles, les plus récentes. `0` ne plafonne pas.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>stackGap</code>
+      </td>
+      <td>
+        <code>number</code>
+      </td>
+      <td>
+        <code>undefined</code>
+      </td>
+      <td>Écart entre deux cartes, en px.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>preventDuplicates</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>
+        <code>false</code>
+      </td>
+      <td>Écarte un message dont le niveau, le titre et le texte répètent un message vivant.</td>
+    </tr>
+  </tbody>
+</table>
+
+## Niveaux et intensité
+
+<Canvas of={ToastStories.Levels} />
+<Canvas of={ToastStories.SubLevelLow} />
+
+## Usage nominal
+
+Une pile près de la racine de l'application, et des `uiToast.add` partout ailleurs.
+
+<Canvas of={ToastStories.Basic} />
+
+## Opération asynchrone
+
+`add` rend l'identifiant du message : le garder permet de remplacer un « en cours » par son
+résultat.
+
+<Canvas of={ToastStories.Promise} />
+
+## Persistant
+
+<Canvas of={ToastStories.Sticky} />
+
+## Contenu sur mesure
+
+`renderToast` reçoit le message, donc sa charge `data`, et de quoi le fermer.
+
+<Canvas of={ToastStories.Custom} />
+
+## Position
+
+<Canvas of={ToastStories.Position} />
+
+## Mode bannière
+
+<Canvas of={ToastStories.ExpandedMode} />
+
+## Actions
+
+Un message porteur d'actions doit être `sticky` : il ne doit pas partir sous le doigt.
+
+<Canvas of={ToastStories.Action} />
+
+## Empilement
+
+`stackVisibleLimit` plafonne les cartes visibles, `stackGap` resserre l'écart, et
+`preventDuplicates` écarte les répétitions. Un message en attente ne démarre son compte à
+rebours **qu'en paraissant** : sinon il expirerait sans jamais avoir été lu.
+
+<Canvas of={ToastStories.Stacking} />
+
+## Calque supérieur
+
+La pile vit dans le **calque supérieur** (`popover="manual"`), et non à un z-index choisi.
+La raison est mesurée : `ui-modal` est un `<dialog>` natif, donc lui-même dans ce calque, et
+aucun z-index ne passe devant. Le calque empile dans l'ordre d'affichage, alors la pile s'y
+remontre à chaque nouveau message : une notification déclenchée depuis un dialogue ouvert
+entre-temps passe devant lui. Pendant ce temps le reste du document est inerte, la pile
+comprise : elle reste lisible, et redevient manipulable à la fermeture du dialogue.
+
+`contained` sort de tout ça et ancre la pile dans le plus proche ancêtre positionné, ce dont
+les exemples de cette page se servent pour rester dans leur cadre. C'est là, et là
+seulement, que `--ui-toast-z-index` sert.
+
+## Mouvement
+
+L'entrée et la sortie passent par le crochet `useUiMotion` : c'est lui qui **retient** la
+carte le temps de sa sortie, une fois le message déjà retiré du magasin. Le préréglage suit
+la position, `slide-down` en haut, `slide-up` en bas, `zoom` au centre, et `motion` le
+remplace. Voir **Foundations → Motion**.
+
+<Canvas of={ToastStories.MotionOff} />
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Implémentation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Région vivante</td>
+      <td>
+        Chaque carte s'annonce : <code>role="alert"</code> et{' '}
+        <code>aria-live="assertive"</code> pour <code>error</code> et <code>warning</code>,{' '}
+        <code>role="status"</code> et <code>aria-live="polite"</code> sinon, avec{' '}
+        <code>aria-atomic="true"</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>Fermeture</td>
+      <td>
+        Un <code>&lt;button&gt;</code> natif nommé (« Fermer »), atteignable au clavier, avec son
+        anneau de focus.
+      </td>
+    </tr>
+    <tr>
+      <td>Pause au survol et au focus</td>
+      <td>
+        Le compte à rebours se suspend tant que la carte est survolée ou tient le focus : on a le
+        temps de lire et d'agir. La pause est branchée sur la carte, pas sur la bande qui la
+        porte, qui est aussi large que la pile.
+      </td>
+    </tr>
+    <tr>
+      <td>Clics de la page</td>
+      <td>
+        Ce qui flotte ne prend rien à la page : seule la carte reçoit le pointeur, la région et sa
+        bande le laissent passer.
+      </td>
+    </tr>
+    <tr>
+      <td>Icône</td>
+      <td>
+        Décorative, donc <code>aria-hidden</code> : la couleur n'est jamais le seul vecteur de
+        sens.
+      </td>
+    </tr>
+    <tr>
+      <td>Actions persistantes</td>
+      <td>
+        Un message porteur d'actions doit être <code>sticky</code>, sinon il disparaît pendant
+        qu'on s'apprête à cliquer.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Alignement vertical
+
+Même contrat que sur [`ui-alert`](?path=/docs/components-ui-informative-ui-alert--docs) : la
+rangée icône, contenu, fermeture est calée en haut, ce qui est juste sur un texte qui passe
+à la ligne et laisse du vide sur un texte court.
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Variable</th>
+      <th>Porte sur</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>--ui-toast-align</code>
+      </td>
+      <td>toute la rangée</td>
+    </tr>
+    <tr>
+      <td>
+        <code>--ui-toast-icon-align</code>
+      </td>
+      <td>
+        l'icône seule (<code>auto</code> suit la rangée)
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>--ui-toast-close-align</code>
+      </td>
+      <td>
+        la fermeture seule (<code>auto</code> suit la rangée)
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+```css
+.ui-toast {
+  --ui-toast-align: center;
+  --ui-toast-icon-padding-top: 0; /* le calage optique ne sert qu'en haut */
+}
+```
+
+## Theming
+
+<ConfigTable of="ui-toast" />
