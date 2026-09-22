@@ -39,12 +39,12 @@ La liste est longue parce que chaque entrée a coûté du temps une fois.
 | 0     | Socle et décisions              | ✅ terminée                               |
 | 1     | Le patron, de bout en bout      | ✅ terminée (`ui-icon`, puis `ui-button`) |
 | 2     | Fondation transverse            | 🟡 **en cours** : voir ci-dessous         |
-| 3     | La vague des composants         | 🟡 52 sur 62                              |
+| 3     | La vague des composants         | 🟡 58 sur 62                              |
 | 4     | Mode copie et registry          | ⬜ pas commencée                          |
 | 5     | MCP, doc publique, publication  | ⬜ pas commencée                          |
 | 6     | Contrôle de parité entre stacks | ⬜ pas commencée                          |
 
-**Chiffres du jour** : 52 composants, 61 points d'entrée publics, 7 garde-fous en CI,
+**Chiffres du jour** : 58 composants, 67 points d'entrée publics, 7 garde-fous en CI,
 **deux** dépendances runtime (`@floating-ui/react-dom` et `@tanstack/react-virtual`, un seul
 fichier chacune).
 
@@ -89,7 +89,7 @@ elles, ont été exécutées avant d'y être écrites.
 les vingt composants listés dans `docs/components-index.md` sont tous portés. Le kit couvre
 donc la majorité des écrans d'un projet réel.
 
-**Il reste 10 composants sur les 62.** Ne pas confondre les deux comptes, ce qui a déjà induit
+**Il reste 4 composants sur les 62.** Ne pas confondre les deux comptes, ce qui a déjà induit
 en erreur : le kit COMPLET, encore loin, et ce noyau, désormais atteint.
 
 **La vague continue**, décidée le 21 septembre plutôt que de sortir le `0.1.0` tout de suite.
@@ -98,25 +98,25 @@ L'ordre suit le **coût**, pas la famille : les briques `core/` dont dépendent 
 sont déjà là (sauf deux, voir plus bas), donc rien n'oblige à grouper par famille. Taille
 mesurée sur le starter Angular, `.ts` (hors `.spec`) + `.html` + `.scss` :
 
-| Composant            | Lignes | Famille       | Ce dont il dépend, et son état ici                                 |
-| -------------------- | ------ | ------------- | ------------------------------------------------------------------ |
-| ✅ `ui-avatar-group` | 53     | `informative` | `ui-avatar` ✅. Fait le 21 septembre                               |
-| ✅ `ui-input-group`  | 199    | `forms`       | `core/forms` ✅. Fait le 21 septembre                              |
-| ✅ `ui-button-split` | 249    | `actions`     | `ui-button` ✅, `ui-menu` ✅. Fait le 21 septembre                 |
-| ✅ `ui-accordion`    | 432    | `informative` | `ui-icon` ✅, `ui-separator` ✅. Fait le 22 septembre              |
-| ✅ `ui-input-otp`    | 485    | `forms`       | `core/forms` ✅. Fait le 22 septembre                              |
-| ✅ `ui-knob`         | 489    | `forms`       | `core/forms` ✅. Fait le 22 septembre                              |
-| `ui-breadcrumb`      | 523    | `navigation`  | `ui-icon` ✅, routeur → prop `render` comme `ui-link`              |
-| `ui-swatch-picker`   | 534    | `forms`       | `core/overlay` ✅, `core/motion` ✅                                |
-| `ui-speed-dial`      | 703    | `actions`     | `ui-button` ✅, `ui-tooltip` ✅, `ui-menu` ✅, `core/overlay` ✅   |
-| `ui-bottom-tab-bar`  | 720    | `navigation`  | `ui-icon` ✅, routeur → prop `render`                              |
-| `ui-stepper`         | 773    | `navigation`  | `ui-icon` ✅                                                       |
-| ✅ `ui-toast`        | 780    | `informative` | `ui-icon` ✅, `core/motion` ✅. Fait le 22 septembre               |
-| `ui-bottom-sheet`    | 1041   | `layout`      | `core/overlay` ✅. **Nouveau côté Angular**, jamais listé ici      |
-| `ui-image`           | 1167   | `base`        | rien, mais gros                                                    |
-| `ui-file-upload`     | 1227   | `forms`       | `ui-button` ✅, `ui-progress-bar` ✅                               |
-| `ui-sidebar`         | 1472   | `navigation`  | `ui-menu` ✅, `core/overlay` ✅                                    |
-| `ui-editor`          | 1780   | `forms`       | moteur de texte riche : **arbitrage de dépendance** avant de coder |
+| Composant              | Lignes | Famille       | Ce dont il dépend, et son état ici                                  |
+| ---------------------- | ------ | ------------- | ------------------------------------------------------------------- |
+| ✅ `ui-avatar-group`   | 53     | `informative` | `ui-avatar` ✅. Fait le 21 septembre                                |
+| ✅ `ui-input-group`    | 199    | `forms`       | `core/forms` ✅. Fait le 21 septembre                               |
+| ✅ `ui-button-split`   | 249    | `actions`     | `ui-button` ✅, `ui-menu` ✅. Fait le 21 septembre                  |
+| ✅ `ui-accordion`      | 432    | `informative` | `ui-icon` ✅, `ui-separator` ✅. Fait le 22 septembre               |
+| ✅ `ui-input-otp`      | 485    | `forms`       | `core/forms` ✅. Fait le 22 septembre                               |
+| ✅ `ui-knob`           | 489    | `forms`       | `core/forms` ✅. Fait le 22 septembre                               |
+| ✅ `ui-breadcrumb`     | 523    | `navigation`  | `ui-icon` ✅, routeur par `render`. Fait le 22 septembre            |
+| ✅ `ui-swatch-picker`  | 534    | `forms`       | `core/overlay` ✅. Fait le 22 septembre                             |
+| ✅ `ui-speed-dial`     | 703    | `actions`     | `ui-button` ✅, `ui-tooltip` ✅, `ui-menu` ✅. Fait le 22 septembre |
+| ✅ `ui-bottom-tab-bar` | 720    | `navigation`  | `ui-icon` ✅, routeur par `render`. Fait le 22 septembre            |
+| ✅ `ui-stepper`        | 773    | `navigation`  | `ui-icon` ✅. Fait le 22 septembre                                  |
+| ✅ `ui-toast`          | 780    | `informative` | `ui-icon` ✅, `core/motion` ✅. Fait le 22 septembre                |
+| ✅ `ui-bottom-sheet`   | 1041   | `layout`      | `core/overlay` ✅. Fait le 22 septembre                             |
+| `ui-image`             | 1167   | `base`        | rien, mais gros                                                     |
+| `ui-file-upload`       | 1227   | `forms`       | `ui-button` ✅, `ui-progress-bar` ✅                                |
+| `ui-sidebar`           | 1472   | `navigation`  | `ui-menu` ✅, `core/overlay` ✅                                     |
+| `ui-editor`            | 1780   | `forms`       | moteur de texte riche : **arbitrage de dépendance** avant de coder  |
 
 Un seul verrou reste :
 
@@ -174,14 +174,22 @@ Résumé pour ne pas avoir à ouvrir le fichier. La justification, elle, est dan
 
 Une dette écrite n'est pas une dette : c'est un choix. Ce qui suit est assumé, pas oublié.
 
-- **`core/ripple` non porté**, donc `ui-button` et `ui-tabs` n'ont pas de prop `ripple` alors
-  que la version Angular en a une. Son arrivée sera une évolution mineure, pas une rupture.
+- **`core/ripple` non porté**, donc `ui-button`, `ui-tabs`, `ui-speed-dial` et
+  `ui-bottom-tab-bar` n'ont pas de prop `ripple` alors que la version Angular en a une. Quatre
+  composants attendent désormais cette brique. Son arrivée sera une évolution mineure, pas une
+  rupture.
 - **Un test de `ui-tooltip` est instable à froid.** « la bulle fermée n'occupe aucune place à
   l'écran » a échoué deux fois sur deux exécutions complètes lancées après un
   `rm -rf node_modules/.vite`, et passe à chaque fois seule ou à chaud (`:popover-open` vrai
   au premier rendu). Rien à voir avec les composants ajoutés depuis : c'est une course entre
   l'ouverture du panneau et la première assertion. Un contrôle bloquant qui échoue une fois
   sur deux au démarrage à froid de la CI est une dette, pas un aléa.
+- **Un second test de `ui-tooltip` est instable SOUS CHARGE.** « life referme la bulle même
+  sans quitter le déclencheur » est tombé une fois sur deux exécutions complètes, et passe
+  toujours seul, trois fois de suite. La suite tient désormais 121 fichiers en parallèle :
+  l'ouverture, le compte à rebours et le rendu se disputent le même fil, et une attente de 2 s
+  ne suffit plus pour un `life` de 800 ms. Portée à 5 s. Ce que le test vérifie, c'est que la
+  bulle ferme SEULE, pas en combien de temps.
 - **Le mode sombre n'est pas testé.** La bascule clair/sombre passe par l'addon dark-mode,
   qui vit dans le manager ; un lanceur de tests n'en a pas. Faire du thème un global de barre
   d'outils (comme `brand`) permettrait un projet Vitest par thème via `initialGlobals`. La
@@ -519,6 +527,24 @@ Ne pas les repayer. Chacun est documenté sur place, dans le fichier concerné.
   refusés par `jsx-a11y` et par axe. Les deux cas viennent du kit Angular, où ils sont posés
   sur l'hôte. Quand l'attribut n'a nulle part où aller, la prop qui le pilotait n'a plus
   d'objet non plus.
+- **L'arrêt de tabulation glissant se relit dans le DOM, pas dans une ref.** Mettre la valeur
+  de côté pour un effet demanderait d'écrire une ref au rendu, ce que `react-hooks` refuse.
+  `querySelector('[tabindex="0"]')` la redonne, sans recopier la règle qui l'a choisie.
+  Rencontré sur `ui-swatch-picker`, à l'ouverture du popup.
+- **Une seule place doit posséder la restitution du focus.** Sur un panneau du calque
+  supérieur, c'est l'effet qui le CACHE : lui seul sait si le focus était dedans. Les appels
+  ajoutés dans les gestionnaires (choix d'une pastille, `Échap`) sont alors redondants, et
+  chacun est une occasion de voler le focus là où l'utilisateur vient d'aller. Vérifié en les
+  retirant : les tests restent verts, donc ils ne servaient à rien.
+- **La clé courante d'un focus glissant se lit sur l'ÉVÉNEMENT, pas dans l'état.** Une touche
+  qui suit immédiatement un `focus()`, ce que fait tout test de clavier, arrive AVANT que React
+  ait traité le rendu déclenché par ce focus : l'état pointe encore l'entrée d'avant, et la
+  flèche ne bouge pas. `event.target.closest('[data-key]')` donne la vraie. Payé sur
+  `ui-speed-dial` ; `ui-swatch-picker` le faisait déjà sans que la raison soit écrite.
+- **Playwright refuse de cliquer ce qui sort de la fenêtre.** Un composant qui déploie vers le
+  HAUT et qu'on rend collé en haut de la page met ses actions hors écran : le clic attend, puis
+  échoue sur « waiting for element to be visible ». Donner de la marge au montage du test plutôt
+  que chercher un défaut de rendu.
 
 ---
 
@@ -1482,6 +1508,15 @@ propriété du DOM.
 
 Trois choses trouvées en regardant le rendu, dans cet ordre :
 
+- **Un `children` écrit entre les balises ÉCRASE celui qu'on étale.** Un composant d'aide de
+  test qui rend `<Machin {...props}>texte</Machin>` remplace silencieusement le contenu que
+  l'appelant lui a passé : rien n'échoue, les enfants attendus n'existent simplement pas. Le
+  symptôme trompe complètement, un clic qui attend un élément absent et un focus qui ne part
+  jamais. Reprendre `children` dans la destructuration.
+- **Tout ce qui vit HORS d'un `<dialog>` modal est inerte, y compris pour un test.** Un bouton
+  posé à côté du panneau pour le piloter ne se clique pas tant qu'il est ouvert : Playwright
+  attend, puis abandonne. C'est le comportement voulu, pas un défaut ; le test referme par
+  `cancel` avant de cliquer.
 - **L'axe vertical était cassé**, et il l'est aussi côté Angular : la bande, sœur d'un
   paragraphe dans un conteneur en ligne, se faisait écraser à la largeur de ses icônes
   (50 px pour 131 de contenu), libellés rognés à zéro. `flex: 0 0 auto` sur l'axe vertical.
@@ -1650,3 +1685,141 @@ la valeur ne bouge pas et on cherche la géométrie. Et `getBBox()` d'un tracé 
 géométrie sans son trait, donc l'assertion « l'arc tient dans son viewBox » ne mesurait que la
 ligne médiane et passait même sans la rétraction du rayon. Élargie de la demi-épaisseur, elle
 tombe bien quand on retire la rétraction.
+
+### 2026-09-22 : `ui-breadcrumb` et `ui-swatch-picker`
+
+**`ui-breadcrumb` tient tout entier dans une idée** : un maillon rend l'élément natif qui
+correspond à ce qu'il fait. Une ancre s'il mène quelque part, un `<button>` s'il n'agit que, un
+simple texte sinon. C'est ce qui garde l'ancre pilotable de bout en bout, et ce qui évite de
+fabriquer un faux lien pour la page courante. Le maillon désactivé porte `role="link"` et
+`aria-disabled`, sans quoi seule une classe le disait et rien ne l'annonçait.
+
+Le repli du milieu derrière un bouton demande une attention qu'on ne voit qu'à l'usage : le
+bouton disparaît en dépliant, donc le focus retombe sur le corps du document si personne ne le
+reprend. Il part sur le premier maillon révélé. Vérifié en neutralisant la reprise, le test
+tombe.
+
+**`ui-swatch-picker` est le quatrième panneau du calque supérieur**, après `ui-popover`,
+`ui-tooltip` et `ui-menu`, et il en reprend les mécaniques telles quelles : `trigger` pour le
+déclencheur, `useUiPosition`, `useUiDismiss`, `data-unpositioned` pendant le calcul de position.
+Mesuré ici aussi : le panneau ouvert déborde d'un cadre de 80 px en `overflow: hidden`.
+
+**Deux simplifications trouvées en cherchant à prouver le contraire.** L'arrêt de tabulation à
+l'ouverture se relit dans le DOM plutôt que d'être gardé dans une ref, que React interdit
+d'écrire au rendu. Et la restitution du focus appartient au seul effet qui cache le panneau :
+les appels que j'avais ajoutés dans le choix d'une pastille et dans `Échap` étaient redondants,
+ce que les tests ont confirmé en restant verts sans eux.
+
+Le clavier vit sur les options et non sur la liste, pour la même raison que sur `ui-tabs` et
+`ui-menu` : une liste porteuse de gestionnaires devrait être focalisable, ce qu'un
+`role="listbox"` n'est justement pas. La version Angular désactive la règle à cet endroit.
+
+### 2026-09-22 : `ui-speed-dial` et `ui-bottom-tab-bar`
+
+**`ui-speed-dial` a permis de simplifier un compromis d'Angular au lieu de le recopier.** Là-bas
+chaque action anime sa propre entrée ET sa propre sortie, et le décalage de sortie doit être
+remis à zéro : une action au délai plus court finit avant ses voisines, perd sa classe de
+sortie et revient à pleine opacité le temps qu'elles terminent, ce qui se lit comme un
+clignotement. Ici c'est la **liste entière** qui disparaît, par un seul `useUiMotion` : le
+départ groupé est gratuit, l'entrée reste décalée par `--_stagger-index`, et la règle
+`[class*='-leave']` n'a plus de raison d'être.
+
+L'autre point qui demande de savoir pourquoi : sur un arc, le préréglage d'entrée est `fade` et
+rien d'autre. Chaque action porte déjà sa place angulaire en `transform`, et une animation CSS
+gagne sur un style en ligne pour la même propriété : un `zoom` ou un glissement effacerait la
+position le temps de l'animation.
+
+**`ui-bottom-tab-bar` est le premier composant dont la décision D5 retire TROIS hôtes.** La
+barre, l'onglet et le bouton flottant vivaient chacun dans un hôte en `display: contents` ;
+sans encapsulation, `.ui-bottom-tab-bar` EST le `<nav>` et `.ui-bottom-tab` EST le contrôle
+natif. Les trois règles qui neutralisaient ces hôtes disparaissent avec eux.
+
+Son clavier est délibérément **additif** : les flèches parcourent la barre, mais aucun contrôle
+ne quitte l'ordre de tabulation, contrairement au focus glissant du motif onglets. C'est ce
+qu'un repère de navigation doit à ses utilisateurs, et c'est aussi pourquoi la destination
+courante s'annonce par `aria-current="page"` plutôt que par `role="tab"`, qui exigerait un
+panneau associé.
+
+**Deux pièges de test payés.** La clé courante d'un focus glissant se lit sur l'événement et non
+dans l'état : une touche qui suit un `focus()` arrive avant que React ait traité le rendu que
+ce focus déclenche. Et Playwright refuse de cliquer ce qui sort de la fenêtre, ce qu'un bouton
+déployant vers le haut fait dès qu'on le rend collé en haut de la page.
+
+**Écart connu, déjà listé** : `core/ripple` n'est toujours pas porté, donc ces deux composants
+n'ont pas de prop `ripple` là où le kit Angular l'expose. Quatre composants attendent désormais
+cette brique.
+
+### 2026-09-22 : les pages d'accueil, puis `ui-stepper`
+
+**« Introduction » et « Getting started » parlaient encore d'Angular.** Les deux pages avaient
+été reprises telles quelles, avec quelques remplacements de chaînes : on y lisait
+`ng add @4sh/ui-kit-schematics`, un `@Component` avec `[(ngModel)]`, un chemin d'import
+`@4sh/ui-kit-react/forms/ui-datepicker` que la décision D4 interdit, et un lien vers la démo
+du starter Angular.
+
+Trois choses ont été remises d'aplomb, chacune vérifiée dans le dépôt avant d'être écrite :
+
+- **Le mode d'installation.** Rien n'est publié, les trois paquets portant `private: true`, et
+  le nom n'est pas réservé sur npm. La page le dit désormais, et ne pointe plus une page npm
+  qui répondrait 404.
+- **Les deux autres modes.** `@4sh/ui-kit-react-cli` et `@4sh/ui-kit-react-mcp` existent dans
+  l'espace de travail, mais leurs dossiers `src/` sont **vides** : ce sont les phases 4 et 5.
+  La page les annonce comme en construction plutôt que de décrire un parcours qui échouerait.
+- **Les cartes de la page d'accueil.** Celles de Token Flow Manager et de Gridaflex ont été
+  retirées : ni l'un ni l'autre n'est dans ce dépôt. À leur place, la stack dit ce qui est vrai
+  ici, deux dépendances runtime et des tests dans un vrai navigateur.
+
+⚠️ **`Spécifications / Responsive Design` a le même défaut** et n'a pas été touchée : elle
+documente Gridaflex, qui n'est pas installé, et cite `src/styles/src/vendors/gridaflex-settings.scss`,
+qui n'existe pas. Les jetons de points de rupture, eux, existent bien. À arbitrer : soit la
+grille arrive dans ce starter, soit la page se réécrit sur les seuls jetons.
+
+**`ui-stepper` a demandé de répondre à une question que les composants précédents évitaient :
+où lire la SÉQUENCE.** `ui-tabs` et `ui-accordion` n'ont besoin que de savoir si une entrée est
+active, ce qui se compare sans connaître l'ordre. Un stepper, lui, déduit l'avancement de la
+place de l'étape, donc il lui faut la liste ordonnée au moment du rendu. Le DOM ne peut pas la
+donner, il n'est pas encore écrit ; un registre d'enfants demanderait un `setState` dans un
+effet, que le linter refuse.
+
+La réponse était sous la main : en React les `children` sont une **valeur**. La séquence se
+lit en descendant l'arbre des éléments, sans état ni effet, et elle est juste dès le premier
+rendu, là où la requête de projection d'Angular ne se résout qu'après. C'est un des rares
+endroits où React rend plus simple ce qu'Angular fait par un mécanisme dédié. La contrepartie,
+écrite dans la doc, est qu'un `UiStep` enveloppé dans un composant de l'appelant n'est pas vu.
+
+Deux autres points valent d'être connus. La sémantique ARIA **suit la disposition** : à plat
+c'est le motif onglets, en colonne le panneau est imbriqué sous son propre en-tête et un
+onglet qui contiendrait son panneau serait invalide, donc le motif devient l'accordéon. Et un
+panneau quitté devient `inert` : un test l'a rappelé de la pire façon, en refusant de cliquer
+un bouton « Suivant » que j'avais posé dans un seul panneau au lieu de chacun.
+
+### 2026-09-22 : `ui-bottom-sheet`, et ce que le natif retire encore
+
+Le dernier gros morceau accessible, et le troisième panneau bâti sur le `<dialog>` natif après
+`ui-modal` et `ui-drawer`. Le compte de ce que le navigateur reprend à sa charge est net : le
+voile, le positionneur, le piège de focus CDK, la restitution du focus, l'inertie du fond,
+`Échap`, et l'empilement. Quatre props disparaissent avec eux, `autoZIndex`, `baseZIndex`,
+`trapFocus` et `focusOnShow`, qui ne promettraient plus rien.
+
+Il disparaît aussi une mécanique entière : la version Angular mesure la durée de transition
+dans le style calculé, arme une minuterie de secours, écoute `transitionend` et compare la
+propriété pour savoir quand émettre `opened` et `closed`. Ici la CSS anime, et personne
+n'attend.
+
+**Ce qui reste est ce que ce composant a vraiment à lui** : les paliers, le glissement vers le
+bas qui referme, et le passage de `half` à `full` en tirant vers le haut. Le geste et
+l'animation touchent la même propriété, `translate`, donc le glissement coule dans la fermeture
+au lieu de s'y ajouter.
+
+**La règle du geste s'est rappelée d'elle-même.** « Une valeur lue par deux gestionnaires d'un
+même geste est une ref, jamais un état » était déjà écrite ici, et je l'ai quand même enfreinte :
+`pointermove` écrivait la distance dans un état que `pointerup` relisait. Les deux événements
+peuvent arriver dans la même tâche, React n'ayant alors pas rejoué le rendu entre les deux, et
+le relâchement lisait la valeur d'avant le mouvement. Quatre tests tombent quand on remet
+l'état à la place de la ref.
+
+**Deux pièges de test payés**, tous deux avec un symptôme qui désigne la mauvaise cause. Un
+composant d'aide qui rend `<Machin {...props}>texte</Machin>` écrase le `children` qu'on lui
+passe : le champ à focaliser n'existait tout simplement pas, et je cherchais un défaut de
+focus. Et tout ce qui vit hors d'un dialogue modal est inerte, y compris le bouton qu'un test
+pose à côté pour le piloter.

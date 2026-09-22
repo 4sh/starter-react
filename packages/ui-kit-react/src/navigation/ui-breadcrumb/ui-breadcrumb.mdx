@@ -1,0 +1,216 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as BreadcrumbStories from './ui-breadcrumb.stories';
+
+<Meta of={BreadcrumbStories} />
+
+# ui-breadcrumb
+
+Le fil d'Ariane : il situe la page dans sa hiérarchie. Un modèle déclaratif de maillons, et
+un `<nav>` qui les rend.
+
+<Canvas of={BreadcrumbStories.Basic} />
+
+## API
+
+<ArgTypes of={BreadcrumbStories} />
+
+### UiBreadcrumbItem
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Champ</th>
+      <th>Type</th>
+      <th>Rôle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>label</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>Texte du maillon.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>icon</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>Icône de tête. Seule, elle fait un maillon d'icône, qui exige alors un nom.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>ariaLabel</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>Nom accessible du maillon.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>url</code>, <code>target</code>, <code>rel</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        Destination. Le maillon devient une ancre, et <code>rel</code> prend un défaut sûr avec{' '}
+        <code>target="_blank"</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>command</code>
+      </td>
+      <td>
+        <code>(event) =&gt; void</code>
+      </td>
+      <td>Appelée au clic. Seule, elle fait un bouton plutôt qu'une ancre.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>render</code>
+      </td>
+      <td>
+        <code>(props, children) =&gt; ReactNode</code>
+      </td>
+      <td>Rend le maillon soi-même, en reversant les props : c'est le point d'entrée d'un routeur.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>disabled</code>, <code>visible</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>Maillon inerte, ou retiré du fil.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>className</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        Classe(s) posée(s) sur le <code>&lt;li&gt;</code> du maillon.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Chaque maillon rend sa sémantique
+
+Il n'y a pas de composant de maillon : le fil rend **l'élément natif qui correspond** à ce que
+le maillon fait. Une ancre s'il mène quelque part, un `<button>` s'il n'agit que, un simple
+texte sinon. C'est ce qui garde l'ancre pilotable de bout en bout, `target` et `rel` compris,
+et ce qui évite de fabriquer un faux lien pour un maillon qui n'en est pas un.
+
+<Canvas of={BreadcrumbStories.Links} />
+
+## Brancher un routeur
+
+Le kit n'impose aucun routeur, comme sur `ui-button`, `ui-link` et `ui-menu` : `render` reçoit
+les props que le fil aurait posées sur son `<a>`, à reverser sur le composant de lien du
+projet.
+
+<Canvas of={BreadcrumbStories.Router} />
+
+```tsx
+{
+  label: 'Catalogue',
+  render: (props, children) => <Link {...props} to="/catalogue">{children}</Link>,
+}
+```
+
+## Séparateur
+
+Une chaîne suffit, mais n'importe quel nœud passe.
+
+<Canvas of={BreadcrumbStories.CustomSeparator} />
+
+## Débordement
+
+Au-delà de `maxItems`, minimum 2, le milieu se replie derrière un bouton : le premier maillon,
+puis les derniers. Le déplier révèle tout et **amène le focus** sur le premier maillon révélé,
+le bouton qui le portait venant de disparaître. Changer le modèle referme le dépliage, les
+maillons masqués n'étant alors plus les mêmes.
+
+<Canvas of={BreadcrumbStories.Ellipsis} />
+
+## Contenu sur mesure
+
+`renderItem` remplace le contenu d'un maillon, et reçoit sa place dans le fil.
+
+<Canvas of={BreadcrumbStories.CustomItem} />
+
+## Densité
+
+<Canvas of={BreadcrumbStories.Small} />
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Implémentation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Repère</td>
+      <td>
+        Un <code>&lt;nav&gt;</code> nommé, contenant une <code>&lt;ol&gt;</code> : l'ordre des
+        maillons est porté par le balisage, pas seulement par la mise en page.
+      </td>
+    </tr>
+    <tr>
+      <td>Page courante</td>
+      <td>
+        Le dernier maillon porte <code>aria-current="page"</code>, et il n'est jamais un lien vers
+        lui-même.
+      </td>
+    </tr>
+    <tr>
+      <td>Maillon désactivé</td>
+      <td>
+        <code>role="link"</code> plus <code>aria-disabled</code> : le motif d'un lien qui
+        existerait s'il était actif. Le rôle est nécessaire pour que l'attribut soit seulement
+        légal, <code>aria-disabled</code> n'étant pas global.
+      </td>
+    </tr>
+    <tr>
+      <td>Séparateur</td>
+      <td>
+        <code>aria-hidden</code> : c'est un signe visuel, et le lire ponctuerait chaque maillon
+        d'une barre oblique.
+      </td>
+    </tr>
+    <tr>
+      <td>Maillon d'icône</td>
+      <td>
+        <code>ariaLabel</code> obligatoire, sans quoi un avertissement est émis en développement :
+        une icône seule n'annonce rien.
+      </td>
+    </tr>
+    <tr>
+      <td>Dépliage</td>
+      <td>
+        Un vrai <code>&lt;button&gt;</code>, et le focus part sur le premier maillon révélé
+        plutôt que de retomber sur le corps du document.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Theming
+
+<ConfigTable of="ui-breadcrumb" />

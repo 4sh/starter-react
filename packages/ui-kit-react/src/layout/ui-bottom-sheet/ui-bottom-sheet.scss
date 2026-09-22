@@ -1,0 +1,307 @@
+@use 'utils';
+
+// =====================================================================
+// ui-bottom-sheet : co-located styles. All values come from design tokens.
+//
+// Built on the native `<dialog>`, like `ui-modal` and `ui-drawer`: the scrim
+// and the positioner of the Angular kit disappear, `::backdrop` does the
+// first and the dialog's own insets do the second.
+//
+// Two properties move, and only two: `translate` on the sheet (open, close,
+// drag down) and `height`, confined to the optional snap detent. Everything
+// else is static.
+// =====================================================================
+
+// --- Config -----------------------------------------------------------
+$surface: var(--ui-bottom-sheet-surface, var(--global-background-default)); /// Fond du panneau.
+$radius: var(--ui-bottom-sheet-radius, var(--radius-default)); /// Rayon des deux coins hauts.
+$shadow: var(--ui-bottom-sheet-shadow, var(--shadow-default-lg)); /// Élévation du panneau.
+$max-width: var(--ui-bottom-sheet-max-width, #{utils.rem-calc(1440)}); /// Largeur maximale, au-delà de laquelle le panneau se centre.
+$mask-background: var(--ui-bottom-sheet-mask-background, var(--primitives-black-50)); /// Assombrissement de l'arrière-plan.
+
+$half-height: var(--ui-bottom-sheet-half-height, 50dvh); /// Hauteur du palier « moitié d'écran ».
+$full-height: var(--ui-bottom-sheet-full-height, 100dvh); /// Hauteur du palier « plein écran ».
+$max-height: var(--ui-bottom-sheet-max-height, 92dvh); /// Plafond de hauteur en mode `auto`, qui laisse voir la page derrière.
+
+// Réserve du système en bas de l'écran : barre d'accueil iOS, gestes Android.
+// Vaut zéro partout ailleurs, chrome du navigateur compris.
+$safe-area: var(--ui-bottom-sheet-safe-area-offset, env(safe-area-inset-bottom, 0px)); /// Réserve sous le panneau pour l'incrustation système.
+
+$panel-padding: var(--ui-bottom-sheet-padding, var(--units-default)); /// Retrait horizontal du panneau, et retrait haut du corps.
+$panel-padding-bottom: var(--ui-bottom-sheet-padding-bottom, var(--units-lg)); /// Retrait bas de la dernière zone du panneau.
+$header-gap: var(--ui-bottom-sheet-header-gap, var(--units-sm)); /// Espacement entre le titre et la fermeture.
+$header-align: var(--ui-bottom-sheet-header-align, flex-start); /// Alignement vertical de l'en-tête.
+$action-align: var(--ui-bottom-sheet-action-align, auto); /// Alignement vertical de la fermeture seule ; `auto` suit l'en-tête.
+$footer-gap: var(--ui-bottom-sheet-footer-gap, var(--units-default)); /// Espacement entre les actions du pied.
+$footer-padding-top: var(--ui-bottom-sheet-footer-padding-top, var(--units-sm)); /// Retrait haut du pied.
+$action-size: var(--ui-bottom-sheet-action-size, #{utils.rem-calc(32)}); /// Taille de la cible tactile de la fermeture.
+
+// Le filet du pied est éteint dans le dessin de référence ; un projet le
+// rallume en donnant une valeur au crochet de couleur.
+$footer-stroke: var(--ui-bottom-sheet-footer-stroke, transparent); /// Couleur du filet de séparation du pied, absent par défaut.
+$footer-stroke-width: var(--ui-bottom-sheet-footer-stroke-width, var(--stroke-sm)); /// Épaisseur du filet de séparation du pied.
+
+$grab-padding-y: var(--ui-bottom-sheet-grab-padding-y, var(--units-sm)); /// Retrait vertical de la zone de préhension.
+$grab-padding-x: var(--ui-bottom-sheet-grab-padding-x, var(--units-md)); /// Retrait horizontal de la zone de préhension.
+
+$handle-width: var(--ui-bottom-sheet-handle-width, #{utils.rem-calc(54)}); /// Largeur de la barre de préhension.
+$handle-height: var(--ui-bottom-sheet-handle-height, #{utils.rem-calc(4)}); /// Épaisseur de la barre de préhension.
+$handle-radius: var(--ui-bottom-sheet-handle-radius, var(--radius-full)); /// Rayon de la barre de préhension.
+$handle-color: var(--ui-bottom-sheet-handle-color, var(--global-text-default)); /// Couleur de la barre de préhension.
+// Seul le mode palier fait de la poignée un bouton ; il lui faut alors une
+// cible assez grande pour être manipulable (WCAG 2.5.8), ce que la barre seule
+// n'est pas.
+$handle-target-width: var(--ui-bottom-sheet-handle-target-width, #{utils.rem-calc(64)}); /// Largeur de la cible tactile de la poignée manipulable.
+$handle-target-height: var(--ui-bottom-sheet-handle-target-height, #{utils.rem-calc(24)}); /// Hauteur de la cible tactile de la poignée manipulable.
+
+$focus-ring-width: var(--ui-bottom-sheet-focus-ring-width, #{utils.$focus-ring-width}); /// Épaisseur de l'anneau de focus des contrôles du panneau.
+
+.ui-bottom-sheet {
+  // --- Base -----------------------------------------------------------
+  // Trois insets à zéro et le quatrième à `auto` collent le panneau au bord bas.
+  // La largeur doit être remise à `auto` explicitement : le style navigateur
+  // d'un `<dialog>` la met à `fit-content`, ce qui l'emporterait.
+  position: fixed;
+  inset: auto 0 0 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: auto;
+  max-width: $max-width;
+  max-height: $max-height;
+  margin-inline: auto;
+  padding: 0;
+  border: none;
+  border-radius: $radius $radius 0 0;
+  background-color: $surface;
+  box-shadow: $shadow;
+  color: var(--ui-bottom-sheet-color, var(--global-text-default)); /// Couleur du texte du panneau.
+  font-family: var(--ui-bottom-sheet-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+  overflow: hidden;
+  outline: none;
+  // Un panneau est une surface tactile : ni délai de double frappe, ni flash.
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+
+  // Le `display: none` d'un dialogue fermé vient du style NAVIGATEUR, que le
+  // `display: flex` ci-dessus bat. Il faut donc le redire, sinon le panneau
+  // fermé reste affiché en bas de l'écran.
+  &:not([open]) {
+    display: none;
+  }
+
+  // Entrée et sortie, par le mixin partagé du système de motion. La hauteur
+  // suit à part, pour le seul changement de palier.
+  @include utils.overlay-motion((opacity, translate, height)) {
+    opacity: 0;
+    translate: 0 100%;
+  }
+
+  &::backdrop {
+    background-color: $mask-background;
+    opacity: 1;
+    transition:
+      display allow-discrete var(--ui-motion-duration, #{utils.$motion-duration-base}),
+      overlay allow-discrete var(--ui-motion-duration, #{utils.$motion-duration-base}),
+      opacity var(--ui-motion-duration, #{utils.$motion-duration-base});
+  }
+
+  &:not([open])::backdrop {
+    opacity: 0;
+  }
+
+  @starting-style {
+    &[open]::backdrop {
+      opacity: 0;
+    }
+  }
+
+  // Panneau non modal : pas de calque supérieur, donc rien à assombrir.
+  &:not(:modal)::backdrop {
+    background: none;
+  }
+
+  // --- Detents --------------------------------------------------------
+  &._half {
+    height: $half-height;
+  }
+
+  &._full {
+    height: $full-height;
+    max-height: $full-height;
+  }
+
+  // Le glissement suit le doigt : aucune transition ne doit s'y interposer.
+  // Et tirer vers `full` ne doit pas être rogné par le plafond du mode `auto`.
+  &._dragging {
+    max-height: $full-height;
+    transition: none;
+  }
+
+  // Cantonné dans un ancêtre positionné : les paliers suivent le conteneur.
+  &._contained {
+    position: absolute;
+    max-height: 92%;
+
+    &._half {
+      height: 50%;
+    }
+
+    &._full {
+      height: 100%;
+      max-height: 100%;
+    }
+
+    &._dragging {
+      max-height: 100%;
+    }
+  }
+
+  // Dégage la dernière rangée de la barre d'accueil et des gestes système.
+  &._safe-area {
+    padding-bottom: $safe-area;
+  }
+
+  // --- Grab zone (handle and header) ----------------------------------
+  &-grab {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    padding: $grab-padding-y $grab-padding-x;
+
+    // Le geste possède l'axe vertical ici : le navigateur ne doit donc ni
+    // défiler ni déclencher son tirer-pour-rafraîchir depuis cette zone.
+    &._draggable {
+      touch-action: none;
+      user-select: none;
+      cursor: grab;
+
+      &:active {
+        cursor: grabbing;
+      }
+    }
+  }
+
+  &-handle {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: $handle-width;
+    height: $handle-height;
+    margin-inline: auto;
+    padding: 0;
+    border: none;
+    border-radius: $handle-radius;
+    background: none;
+
+    &::after {
+      content: '';
+      display: block;
+      width: $handle-width;
+      height: $handle-height;
+      border-radius: $handle-radius;
+      background-color: $handle-color;
+    }
+
+    &._operable {
+      width: $handle-target-width;
+      height: $handle-target-height;
+
+      &:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 $focus-ring-width
+          var(--ui-bottom-sheet-handle-focus-ring-color, var(--global-border-focus)); /// Couleur de l'anneau de focus de la poignée.
+      }
+    }
+  }
+
+  // --- Header ---------------------------------------------------------
+  &-header {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: $header-align;
+    gap: $header-gap;
+    padding-top: $grab-padding-y;
+  }
+
+  // Pas de poignée au-dessus : l'en-tête est la première rangée, son propre
+  // retrait suffit.
+  &-grab > &-header:first-child {
+    padding-top: 0;
+  }
+
+  &-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    font-family: var(--ui-bottom-sheet-title-font-family, var(--fontfamily-title)); /// Famille typographique du titre.
+    font-size: var(--size-typography-title-sm);
+    font-weight: var(--ui-bottom-sheet-weight, var(--weight-bold)); /// Graisse du titre.
+    line-height: 1.3;
+    overflow-wrap: break-word;
+  }
+
+  // Bouton d'icône natif, et non un `ui-button` : on le garde léger.
+  &-action {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    align-self: $action-align;
+    justify-content: center;
+    box-sizing: border-box;
+    width: $action-size;
+    height: $action-size;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-xs);
+    background: transparent;
+    color: inherit;
+    line-height: 0;
+    cursor: pointer;
+    @include utils.control-transition(background-color, color);
+
+    &:hover {
+      background-color: var(
+        --ui-bottom-sheet-close-surface-hover,
+        var(--global-background-muted-hover)
+      ); /// Fond de la fermeture au survol.
+      color: var(--ui-bottom-sheet-close-color-hover, var(--global-text-muted-hover)); /// Couleur de la fermeture au survol.
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 $focus-ring-width
+        var(--ui-bottom-sheet-close-focus-ring-color, var(--global-border-focus)); /// Couleur de l'anneau de focus de la fermeture.
+    }
+
+    @include utils.motion-reduce {
+      transition-duration: 0.01ms;
+    }
+  }
+
+  // --- Content --------------------------------------------------------
+  &-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: $panel-padding $panel-padding $panel-padding-bottom;
+    overflow-y: auto;
+    // Garde le défilement, et le tirer-pour-rafraîchir, à l'intérieur.
+    overscroll-behavior: contain;
+    font-size: var(--size-typography-text-md);
+    line-height: 1.5;
+  }
+
+  // --- Footer ---------------------------------------------------------
+  &-footer {
+    flex: 0 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: $footer-gap;
+    padding: $footer-padding-top $panel-padding $panel-padding-bottom;
+    border-top: $footer-stroke-width solid $footer-stroke;
+  }
+}

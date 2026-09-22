@@ -1,0 +1,161 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as SwatchStories from './ui-swatch-picker.stories';
+
+<Meta of={SwatchStories} />
+
+# ui-swatch-picker
+
+Grille de couleurs, posée dans la page ou ouverte en popup, pour un choix unique dans une
+palette.
+
+<Canvas of={SwatchStories.Default} />
+
+## API
+
+<ArgTypes of={SwatchStories} />
+
+### UiSwatch et UiSwatchGroup
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Champ</th>
+      <th>Type</th>
+      <th>Rôle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>key</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        Identifiant stable, qui est aussi ce que porte <code>value</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>cssVar</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>
+        La variable qui peint la pastille, par exemple <code>--primitives-red-500</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>label</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>Nom accessible de la pastille. Jamais la seule couleur.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>UiSwatchGroup</code>
+      </td>
+      <td>
+        <code>&#123; label, swatches &#125;</code>
+      </td>
+      <td>Une section titrée de la palette, rendue à la suite dans la même grille.</td>
+    </tr>
+  </tbody>
+</table>
+
+## La palette pointe des jetons
+
+`DEFAULT_SWATCH_PALETTE` est une grille de 7 teintes sur 5 nuances, plus le noir et le blanc.
+Aucune valeur n'y est écrite en dur : chaque pastille **pointe une variable**
+`--primitives-*`, donc changer de marque change la grille sans toucher au code. Une palette
+maison suit la même règle.
+
+<Canvas of={SwatchStories.CustomPalette} />
+
+## Aucune couleur
+
+`allowClear` ajoute une pastille en tête de grille, barrée d'une diagonale, qui vaut `null`.
+
+<Canvas of={SwatchStories.WithClear} />
+
+## Densité
+
+<Canvas of={SwatchStories.Small} />
+
+## Popup
+
+Le composant ne rend pas son propre déclencheur, même contrat que
+[`ui-menu`](?path=/docs/components-ui-navigation-ui-menu--docs) : `trigger` reçoit les props à
+reverser, dont la `ref` qui sert d'ancre et l'état ARIA. Le panneau vit dans le **calque
+supérieur**, donc aucun ancêtre en `overflow: hidden` ne le rogne et aucun z-index n'a à être
+arbitré.
+
+<Canvas of={SwatchStories.Popup} />
+
+```tsx
+<UiSwatchPicker
+  popup
+  aria-label="Couleur du texte"
+  onSwatchSelect={setCouleur}
+  trigger={(props) => <UiButton {...props} label="Couleur" icon="palette" />}
+/>
+```
+
+Choisir une pastille referme le panneau et **rend le focus** au déclencheur. Un
+`popover="manual"` ne le fait pas seul, contrairement à un `auto` : le composant s'en charge,
+et seulement si le focus était dans le panneau, pour ne pas le voler là où l'utilisateur vient
+d'aller.
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Implémentation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Motif listbox</td>
+      <td>
+        Un <code>role="listbox"</code> nommé, dont chaque pastille est un{' '}
+        <code>&lt;button role="option"&gt;</code> portant <code>aria-selected</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>Nom des pastilles</td>
+      <td>
+        Un libellé, jamais la seule couleur : voyants et non voyants doivent lire la même chose.
+        La sélection est un liseré distinct, jamais une simple opacité, qui doit tenir sur toutes
+        les teintes.
+      </td>
+    </tr>
+    <tr>
+      <td>Clavier</td>
+      <td>
+        Navigation de <strong>grille</strong> : les flèches se déplacent sur deux axes, une ligne
+        faisant sept pastilles ; <code>Début</code> et <code>Fin</code> vont aux extrémités. Un
+        seul arrêt de tabulation pour tout le lot, posé sur la sélection.
+      </td>
+    </tr>
+    <tr>
+      <td>Popup</td>
+      <td>
+        <code>aria-haspopup="listbox"</code>, <code>aria-expanded</code> et{' '}
+        <code>aria-controls</code> sont posés sur le déclencheur par le composant. À l'ouverture
+        le focus part sur l'arrêt de tabulation ; <code>Échap</code> et un clic à côté referment.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Theming
+
+<ConfigTable of="ui-swatch-picker" />

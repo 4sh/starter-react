@@ -89,6 +89,10 @@
       "types": "./dist/actions/ui-link/index.d.ts",
       "import": "./dist/ui-link.js"
     },
+    "./ui-speed-dial": {
+      "types": "./dist/actions/ui-speed-dial/index.d.ts",
+      "import": "./dist/ui-speed-dial.js"
+    },
     "./ui-icon": {
       "types": "./dist/base/ui-icon/index.d.ts",
       "import": "./dist/ui-icon.js"
@@ -168,6 +172,10 @@
     "./ui-slider": {
       "types": "./dist/forms/ui-slider/index.d.ts",
       "import": "./dist/ui-slider.js"
+    },
+    "./ui-swatch-picker": {
+      "types": "./dist/forms/ui-swatch-picker/index.d.ts",
+      "import": "./dist/ui-swatch-picker.js"
     },
     "./ui-textarea": {
       "types": "./dist/forms/ui-textarea/index.d.ts",
@@ -249,6 +257,10 @@
       "types": "./dist/informative/ui-tooltip/index.d.ts",
       "import": "./dist/ui-tooltip.js"
     },
+    "./ui-bottom-sheet": {
+      "types": "./dist/layout/ui-bottom-sheet/index.d.ts",
+      "import": "./dist/ui-bottom-sheet.js"
+    },
     "./ui-card": {
       "types": "./dist/layout/ui-card/index.d.ts",
       "import": "./dist/ui-card.js"
@@ -265,6 +277,14 @@
       "types": "./dist/layout/ui-popover/index.d.ts",
       "import": "./dist/ui-popover.js"
     },
+    "./ui-bottom-tab-bar": {
+      "types": "./dist/navigation/ui-bottom-tab-bar/index.d.ts",
+      "import": "./dist/ui-bottom-tab-bar.js"
+    },
+    "./ui-breadcrumb": {
+      "types": "./dist/navigation/ui-breadcrumb/index.d.ts",
+      "import": "./dist/ui-breadcrumb.js"
+    },
     "./ui-context-menu": {
       "types": "./dist/navigation/ui-context-menu/index.d.ts",
       "import": "./dist/ui-context-menu.js"
@@ -272,6 +292,10 @@
     "./ui-menu": {
       "types": "./dist/navigation/ui-menu/index.d.ts",
       "import": "./dist/ui-menu.js"
+    },
+    "./ui-stepper": {
+      "types": "./dist/navigation/ui-stepper/index.d.ts",
+      "import": "./dist/ui-stepper.js"
     },
     "./ui-tabs": {
       "types": "./dist/navigation/ui-tabs/index.d.ts",

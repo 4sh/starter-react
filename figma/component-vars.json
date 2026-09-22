@@ -10,11 +10,11 @@
         "Mode 1"
       ],
       "counts": {
-        "tokens": 1058,
-        "alias": 941,
-        "literal": 117,
-        "skipped": 42,
-        "derivedDescriptions": 191
+        "tokens": 1217,
+        "alias": 1074,
+        "literal": 143,
+        "skipped": 50,
+        "derivedDescriptions": 197
       },
       "aliasTargets": [
         "metrics",
@@ -42,6 +42,31 @@
         {
           "cssVar": "--ui-avatar-badge-z-index",
           "component": "ui-avatar",
+          "reason": "sans équivalent variable Figma (durée, easing, curseur, plan d’empilement, ratio)."
+        },
+        {
+          "cssVar": "--ui-bottom-sheet-action-align",
+          "component": "ui-bottom-sheet",
+          "reason": "sans équivalent variable Figma (durée, easing, curseur, plan d’empilement, ratio)."
+        },
+        {
+          "cssVar": "--ui-bottom-sheet-header-align",
+          "component": "ui-bottom-sheet",
+          "reason": "sans équivalent variable Figma (durée, easing, curseur, plan d’empilement, ratio)."
+        },
+        {
+          "cssVar": "--ui-bottom-sheet-shadow",
+          "component": "ui-bottom-sheet",
+          "reason": "`--shadow-default-lg` n'est pas un token du pipeline : rien à aliaser."
+        },
+        {
+          "cssVar": "--ui-bottom-tab-bar-action-shadow",
+          "component": "ui-bottom-tab-bar",
+          "reason": "`--shadow-default-md` n'est pas un token du pipeline : rien à aliaser."
+        },
+        {
+          "cssVar": "--ui-bottom-tab-bar-z-index",
+          "component": "ui-bottom-tab-bar",
           "reason": "sans équivalent variable Figma (durée, easing, curseur, plan d’empilement, ratio)."
         },
         {
@@ -178,6 +203,21 @@
           "cssVar": "--ui-select-panel-max-width",
           "component": "ui-select",
           "reason": "expression calc() : une variable Figma ne porte pas de calcul."
+        },
+        {
+          "cssVar": "--ui-speed-dial-item-delay",
+          "component": "ui-speed-dial",
+          "reason": "sans équivalent variable Figma (durée, easing, curseur, plan d’empilement, ratio)."
+        },
+        {
+          "cssVar": "--ui-speed-dial-radius",
+          "component": "ui-speed-dial",
+          "reason": "expression calc() : une variable Figma ne porte pas de calcul."
+        },
+        {
+          "cssVar": "--ui-speed-dial-z-index",
+          "component": "ui-speed-dial",
+          "reason": "sans équivalent variable Figma (durée, easing, curseur, plan d’empilement, ratio)."
         },
         {
           "cssVar": "--ui-spinner-duration",
@@ -3073,6 +3113,2354 @@
           "cssVar": "--ui-badge-weight",
           "component": "ui-badge",
           "entryPoint": "@4sh/ui-kit-react/ui-badge",
+          "descriptionSource": "scss"
+        }
+      }
+    }
+  },
+  "bottom-sheet": {
+    "action": {
+      "size": {
+        "$value": "32px",
+        "$type": "dimension",
+        "$description": "Taille de la cible tactile de la fermeture.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-action-size)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-action-size",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "close": {
+      "color-hover": {
+        "$value": "{semantics.global.text.muted-hover}",
+        "$type": "color",
+        "$description": "Couleur de la fermeture au survol.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-close-color-hover)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-close-color-hover",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface-hover": {
+        "$value": "{semantics.global.background.muted-hover}",
+        "$type": "color",
+        "$description": "Fond de la fermeture au survol.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-close-surface-hover)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-close-surface-hover",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "close-focus-ring": {
+      "color": {
+        "$value": "{semantics.global.border.focus}",
+        "$type": "color",
+        "$description": "Couleur de l'anneau de focus de la fermeture.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-close-focus-ring-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-close-focus-ring-color",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "color": {
+      "$value": "{semantics.global.text.default}",
+      "$type": "color",
+      "$description": "Couleur du texte du panneau.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "COLOR",
+          "scopes": [
+            "ALL_FILLS"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-bottom-sheet-color)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-bottom-sheet-color",
+          "component": "ui-bottom-sheet",
+          "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "focus-ring-width": {
+      "$value": "{metrics.units.2xs}",
+      "$type": "dimension",
+      "$description": "Épaisseur de l'anneau de focus des contrôles du panneau.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "STROKE_FLOAT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-bottom-sheet-focus-ring-width)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-bottom-sheet-focus-ring-width",
+          "component": "ui-bottom-sheet",
+          "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "font-family": {
+      "$value": "{typography.fontFamily.base}",
+      "$type": "string",
+      "$description": "Famille typographique du composant.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "STRING",
+          "scopes": [
+            "FONT_FAMILY"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-bottom-sheet-font-family)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-bottom-sheet-font-family",
+          "component": "ui-bottom-sheet",
+          "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "footer": {
+      "gap": {
+        "$value": "{metrics.units.default}",
+        "$type": "dimension",
+        "$description": "Espacement entre les actions du pied.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "GAP"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-footer-gap)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-footer-gap",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "padding-top": {
+        "$value": "{metrics.units.sm}",
+        "$type": "dimension",
+        "$description": "Retrait haut du pied.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "GAP"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-footer-padding-top)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-footer-padding-top",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "stroke": {
+        "$value": "transparent",
+        "$type": "color",
+        "$description": "Couleur du filet de séparation du pied, absent par défaut.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "STROKE_COLOR"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-footer-stroke)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-footer-stroke",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "stroke-width": {
+        "$value": "{metrics.stroke.sm}",
+        "$type": "dimension",
+        "$description": "Épaisseur du filet de séparation du pied.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "STROKE_FLOAT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-footer-stroke-width)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-footer-stroke-width",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "full": {
+      "height": {
+        "$value": "100dvh",
+        "$type": "string",
+        "$description": "Hauteur du palier « plein écran ».",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-full-height)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-full-height",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "grab": {
+      "padding-x": {
+        "$value": "{metrics.units.md}",
+        "$type": "dimension",
+        "$description": "Retrait horizontal de la zone de préhension.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "GAP"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-grab-padding-x)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-grab-padding-x",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "padding-y": {
+        "$value": "{metrics.units.sm}",
+        "$type": "dimension",
+        "$description": "Retrait vertical de la zone de préhension.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "GAP"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-grab-padding-y)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-grab-padding-y",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "half": {
+      "height": {
+        "$value": "50dvh",
+        "$type": "string",
+        "$description": "Hauteur du palier « moitié d'écran ».",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-half-height)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-half-height",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "handle": {
+      "color": {
+        "$value": "{semantics.global.text.default}",
+        "$type": "color",
+        "$description": "Couleur de la barre de préhension.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-handle-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-handle-color",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "height": {
+        "$value": "4px",
+        "$type": "dimension",
+        "$description": "Épaisseur de la barre de préhension.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-handle-height)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-handle-height",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "radius": {
+        "$value": "{metrics.radius.full}",
+        "$type": "dimension",
+        "$description": "Rayon de la barre de préhension.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "CORNER_RADIUS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-handle-radius)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-handle-radius",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "width": {
+        "$value": "54px",
+        "$type": "dimension",
+        "$description": "Largeur de la barre de préhension.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-handle-width)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-handle-width",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "handle-focus-ring": {
+      "color": {
+        "$value": "{semantics.global.border.focus}",
+        "$type": "color",
+        "$description": "Couleur de l'anneau de focus de la poignée.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-handle-focus-ring-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-handle-focus-ring-color",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "handle-target": {
+      "height": {
+        "$value": "24px",
+        "$type": "dimension",
+        "$description": "Hauteur de la cible tactile de la poignée manipulable.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-handle-target-height)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-handle-target-height",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "width": {
+        "$value": "64px",
+        "$type": "dimension",
+        "$description": "Largeur de la cible tactile de la poignée manipulable.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-handle-target-width)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-handle-target-width",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "header": {
+      "gap": {
+        "$value": "{metrics.units.sm}",
+        "$type": "dimension",
+        "$description": "Espacement entre le titre et la fermeture.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "GAP"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-header-gap)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-header-gap",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "mask": {
+      "background": {
+        "$value": "{primitives.black.50}",
+        "$type": "color",
+        "$description": "Assombrissement de l'arrière-plan.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-mask-background)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-mask-background",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "max-height": {
+      "$value": "92dvh",
+      "$type": "string",
+      "$description": "Plafond de hauteur en mode `auto`, qui laisse voir la page derrière.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "WIDTH_HEIGHT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-bottom-sheet-max-height)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-bottom-sheet-max-height",
+          "component": "ui-bottom-sheet",
+          "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "max-width": {
+      "$value": "1440px",
+      "$type": "dimension",
+      "$description": "Largeur maximale, au-delà de laquelle le panneau se centre.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "WIDTH_HEIGHT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-bottom-sheet-max-width)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-bottom-sheet-max-width",
+          "component": "ui-bottom-sheet",
+          "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "padding": {
+      "$value": "{metrics.units.default}",
+      "$type": "dimension",
+      "$description": "Retrait horizontal du panneau, et retrait haut du corps.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "GAP"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-bottom-sheet-padding)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-bottom-sheet-padding",
+          "component": "ui-bottom-sheet",
+          "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "padding-bottom": {
+      "$value": "{metrics.units.lg}",
+      "$type": "dimension",
+      "$description": "Retrait bas de la dernière zone du panneau.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "GAP"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-bottom-sheet-padding-bottom)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-bottom-sheet-padding-bottom",
+          "component": "ui-bottom-sheet",
+          "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "radius": {
+      "$value": "{metrics.radius.default}",
+      "$type": "dimension",
+      "$description": "Rayon des deux coins hauts.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "CORNER_RADIUS"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-bottom-sheet-radius)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-bottom-sheet-radius",
+          "component": "ui-bottom-sheet",
+          "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "safe-area": {
+      "offset": {
+        "$value": "env(safe-area-inset-bottom, 0px)",
+        "$type": "string",
+        "$description": "Réserve sous le panneau pour l'incrustation système.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-safe-area-offset)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-safe-area-offset",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "surface": {
+      "$value": "{semantics.global.background.default}",
+      "$type": "color",
+      "$description": "Fond du panneau.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "COLOR",
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-bottom-sheet-surface)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-bottom-sheet-surface",
+          "component": "ui-bottom-sheet",
+          "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "title": {
+      "font-family": {
+        "$value": "{typography.fontFamily.title}",
+        "$type": "string",
+        "$description": "Famille typographique du titre.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "STRING",
+            "scopes": [
+              "FONT_FAMILY"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-sheet-title-font-family)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-sheet-title-font-family",
+            "component": "ui-bottom-sheet",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "weight": {
+      "$value": "{typography.weight.bold}",
+      "$type": "string",
+      "$description": "Graisse du titre.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "STRING",
+          "scopes": [
+            "FONT_WEIGHT",
+            "FONT_STYLE"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-bottom-sheet-weight)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-bottom-sheet-weight",
+          "component": "ui-bottom-sheet",
+          "entryPoint": "@4sh/ui-kit-react/ui-bottom-sheet",
+          "descriptionSource": "scss"
+        }
+      }
+    }
+  },
+  "bottom-tab-bar": {
+    "action": {
+      "color": {
+        "$value": "{semantics.actions.high.content.default}",
+        "$type": "color",
+        "$description": "Couleur du contenu du bouton flottant.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-action-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-action-color",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss",
+            "perInstance": true,
+            "note": "5 défauts selon la variante rendue : en déclarer un seul écraserait les autres."
+          }
+        }
+      },
+      "color-disabled": {
+        "$value": "{semantics.actions.high.content.disabled}",
+        "$type": "color",
+        "$description": "Couleur du contenu désactivé.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-action-color-disabled)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-action-color-disabled",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss",
+            "perInstance": true,
+            "note": "5 défauts selon la variante rendue : en déclarer un seul écraserait les autres."
+          }
+        }
+      },
+      "color-focus": {
+        "$value": "{semantics.actions.high.content.focused}",
+        "$type": "color",
+        "$description": "Couleur du contenu au focus clavier.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-action-color-focus)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-action-color-focus",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss",
+            "perInstance": true,
+            "note": "5 défauts selon la variante rendue : en déclarer un seul écraserait les autres."
+          }
+        }
+      },
+      "color-hover": {
+        "$value": "{semantics.actions.high.content.hover}",
+        "$type": "color",
+        "$description": "Couleur du contenu au survol.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-action-color-hover)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-action-color-hover",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss",
+            "perInstance": true,
+            "note": "5 défauts selon la variante rendue : en déclarer un seul écraserait les autres."
+          }
+        }
+      },
+      "color-pressed": {
+        "$value": "{semantics.actions.high.content.pressed}",
+        "$type": "color",
+        "$description": "Couleur du contenu enfoncé.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-action-color-pressed)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-action-color-pressed",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss",
+            "perInstance": true,
+            "note": "5 défauts selon la variante rendue : en déclarer un seul écraserait les autres."
+          }
+        }
+      },
+      "focus-ring-width": {
+        "$value": "{metrics.units.2xs}",
+        "$type": "dimension",
+        "$description": "Épaisseur de l'anneau de focus du bouton flottant.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "STROKE_FLOAT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-action-focus-ring-width)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-action-focus-ring-width",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "gap": {
+        "$value": "{metrics.units.2xs}",
+        "$type": "dimension",
+        "$description": "Dégagement latéral autour du bouton.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "GAP"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-action-gap)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-action-gap",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "offset-y": {
+        "$value": "20px",
+        "$type": "dimension",
+        "$description": "Débordement du bouton au-dessus de la barre.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-action-offset-y)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-action-offset-y",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "radius": {
+        "$value": "{metrics.radius.full}",
+        "$type": "dimension",
+        "$description": "Rayon des coins du bouton.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "CORNER_RADIUS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-action-radius)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-action-radius",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "size": {
+        "$value": "64px",
+        "$type": "dimension",
+        "$description": "Diamètre du bouton flottant.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-action-size)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-action-size",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface": {
+        "$value": "{semantics.actions.high.surface.default}",
+        "$type": "color",
+        "$description": "Fond du bouton flottant.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-action-surface)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-action-surface",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss",
+            "perInstance": true,
+            "note": "5 défauts selon la variante rendue : en déclarer un seul écraserait les autres."
+          }
+        }
+      },
+      "surface-disabled": {
+        "$value": "{semantics.actions.high.surface.disabled}",
+        "$type": "color",
+        "$description": "Fond du bouton flottant désactivé.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-action-surface-disabled)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-action-surface-disabled",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss",
+            "perInstance": true,
+            "note": "5 défauts selon la variante rendue : en déclarer un seul écraserait les autres."
+          }
+        }
+      },
+      "surface-focus": {
+        "$value": "{semantics.actions.high.surface.focused}",
+        "$type": "color",
+        "$description": "Fond du bouton flottant au focus clavier.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-action-surface-focus)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-action-surface-focus",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss",
+            "perInstance": true,
+            "note": "5 défauts selon la variante rendue : en déclarer un seul écraserait les autres."
+          }
+        }
+      },
+      "surface-hover": {
+        "$value": "{semantics.actions.high.surface.hover}",
+        "$type": "color",
+        "$description": "Fond du bouton flottant au survol.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-action-surface-hover)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-action-surface-hover",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss",
+            "perInstance": true,
+            "note": "5 défauts selon la variante rendue : en déclarer un seul écraserait les autres."
+          }
+        }
+      },
+      "surface-pressed": {
+        "$value": "{semantics.actions.high.surface.pressed}",
+        "$type": "color",
+        "$description": "Fond du bouton flottant enfoncé.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-action-surface-pressed)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-action-surface-pressed",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss",
+            "perInstance": true,
+            "note": "5 défauts selon la variante rendue : en déclarer un seul écraserait les autres."
+          }
+        }
+      }
+    },
+    "action-focus-ring": {
+      "color": {
+        "$value": "{semantics.global.border.focus}",
+        "$type": "color",
+        "$description": "Couleur de l'anneau de focus du bouton flottant.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-action-focus-ring-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-action-focus-ring-color",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "action-icon": {
+      "size": {
+        "$value": "{responsive.size.typography.icon.xl}",
+        "$type": "dimension",
+        "$description": "Taille du glyphe du bouton.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-action-icon-size)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-action-icon-size",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "adornment": {
+      "offset": {
+        "$value": "-6px",
+        "$type": "dimension",
+        "$description": "Décalage de l'ornement par rapport à l'icône.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-adornment-offset)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-adornment-offset",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "font-family": {
+      "$value": "{typography.fontFamily.base}",
+      "$type": "string",
+      "$description": "Famille typographique du composant.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "STRING",
+          "scopes": [
+            "FONT_FAMILY"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-bottom-tab-bar-font-family)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-bottom-tab-bar-font-family",
+          "component": "ui-bottom-tab-bar",
+          "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "gap": {
+      "$value": "0",
+      "$type": "number",
+      "$description": "Espace entre les items.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "GAP"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-bottom-tab-bar-gap)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-bottom-tab-bar-gap",
+          "component": "ui-bottom-tab-bar",
+          "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "icon": {
+      "size": {
+        "$value": "{responsive.size.typography.icon.default}",
+        "$type": "dimension",
+        "$description": "Taille du glyphe de l'icône.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-icon-size)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-icon-size",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "item": {
+      "focus-ring-width": {
+        "$value": "{metrics.units.2xs}",
+        "$type": "dimension",
+        "$description": "Épaisseur de l'anneau de focus d'un item.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "STROKE_FLOAT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-item-focus-ring-width)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-item-focus-ring-width",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "gap": {
+        "$value": "{metrics.units.sm}",
+        "$type": "dimension",
+        "$description": "Espace entre l'icône et le libellé.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "GAP"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-item-gap)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-item-gap",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "min-height": {
+        "$value": "56px",
+        "$type": "dimension",
+        "$description": "Hauteur minimale d'un item, qui est aussi sa cible tactile.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-item-min-height)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-item-min-height",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "padding-x": {
+        "$value": "{metrics.units.xs}",
+        "$type": "dimension",
+        "$description": "Retrait horizontal d'un item.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "GAP"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-item-padding-x)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-item-padding-x",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "padding-y": {
+        "$value": "{metrics.units.md}",
+        "$type": "dimension",
+        "$description": "Retrait vertical d'un item.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "GAP"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-item-padding-y)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-item-padding-y",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "radius": {
+        "$value": "0",
+        "$type": "number",
+        "$description": "Rayon des coins d'un item.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "CORNER_RADIUS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-item-radius)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-item-radius",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "label": {
+      "font-size": {
+        "$value": "{responsive.size.typography.text.sm}",
+        "$type": "dimension",
+        "$description": "Taille du libellé.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "FONT_SIZE"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-label-font-size)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-label-font-size",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "weight": {
+        "$value": "{typography.weight.regular}",
+        "$type": "string",
+        "$description": "Graisse du libellé.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "STRING",
+            "scopes": [
+              "FONT_WEIGHT",
+              "FONT_STYLE"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-label-weight)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-label-weight",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "min-height": {
+      "$value": "56px",
+      "$type": "dimension",
+      "$description": "Hauteur minimale de la barre.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "WIDTH_HEIGHT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-bottom-tab-bar-min-height)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-bottom-tab-bar-min-height",
+          "component": "ui-bottom-tab-bar",
+          "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "padding-x": {
+      "$value": "0",
+      "$type": "number",
+      "$description": "Retrait horizontal de la barre.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "GAP"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-bottom-tab-bar-padding-x)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-bottom-tab-bar-padding-x",
+          "component": "ui-bottom-tab-bar",
+          "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "safe-area": {
+      "offset": {
+        "$value": "env(safe-area-inset-bottom, 0px)",
+        "$type": "string",
+        "$description": "Réserve sous la barre pour l'incrustation système.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-safe-area-offset)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-safe-area-offset",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "shadow": {
+      "$value": "none",
+      "$type": "string",
+      "$description": "Ombre portée de la barre.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "EFFECT_FLOAT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-bottom-tab-bar-shadow)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-bottom-tab-bar-shadow",
+          "component": "ui-bottom-tab-bar",
+          "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "stroke": {
+      "$value": "{semantics.global.border.default}",
+      "$type": "color",
+      "$description": "Couleur du filet supérieur.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "COLOR",
+          "scopes": [
+            "STROKE_COLOR"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-bottom-tab-bar-stroke)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-bottom-tab-bar-stroke",
+          "component": "ui-bottom-tab-bar",
+          "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "stroke-width": {
+      "$value": "{metrics.stroke.sm}",
+      "$type": "dimension",
+      "$description": "Épaisseur du filet supérieur.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "STROKE_FLOAT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-bottom-tab-bar-stroke-width)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-bottom-tab-bar-stroke-width",
+          "component": "ui-bottom-tab-bar",
+          "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "surface": {
+      "$value": "{semantics.global.background.default}",
+      "$type": "color",
+      "$description": "Fond de la barre.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "COLOR",
+          "scopes": [
+            "FRAME_FILL",
+            "SHAPE_FILL"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-bottom-tab-bar-surface)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-bottom-tab-bar-surface",
+          "component": "ui-bottom-tab-bar",
+          "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "tab": {
+      "color": {
+        "$value": "{semantics.navigation.high.content.default}",
+        "$type": "color",
+        "$description": "Couleur du libellé d'un onglet.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-tab-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-tab-color",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-active": {
+        "$value": "{semantics.navigation.high.content.active}",
+        "$type": "color",
+        "$description": "Couleur du libellé courant : elle n'est lisible que sur le fond qui l'accompagne.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-tab-color-active)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-tab-color-active",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-disabled": {
+        "$value": "{semantics.navigation.high.content.disabled}",
+        "$type": "color",
+        "$description": "Couleur du libellé désactivé.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-tab-color-disabled)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-tab-color-disabled",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-focus": {
+        "$value": "{semantics.navigation.high.content.focused}",
+        "$type": "color",
+        "$description": "Couleur du libellé au focus clavier.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-tab-color-focus)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-tab-color-focus",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-hover": {
+        "$value": "{semantics.navigation.high.content.hover}",
+        "$type": "color",
+        "$description": "Couleur du libellé au survol.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-tab-color-hover)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-tab-color-hover",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-pressed": {
+        "$value": "{semantics.navigation.high.content.pressed}",
+        "$type": "color",
+        "$description": "Couleur du libellé enfoncé.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-tab-color-pressed)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-tab-color-pressed",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface": {
+        "$value": "{semantics.navigation.high.surface.default}",
+        "$type": "color",
+        "$description": "Fond d'un onglet.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-tab-surface)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-tab-surface",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface-active": {
+        "$value": "{semantics.navigation.high.surface.active}",
+        "$type": "color",
+        "$description": "Fond de l'onglet de la destination courante.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-tab-surface-active)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-tab-surface-active",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface-disabled": {
+        "$value": "{semantics.navigation.high.surface.disabled}",
+        "$type": "color",
+        "$description": "Fond d'un onglet désactivé.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-tab-surface-disabled)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-tab-surface-disabled",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface-focus": {
+        "$value": "{semantics.navigation.high.surface.focused}",
+        "$type": "color",
+        "$description": "Fond d'un onglet au focus clavier.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-tab-surface-focus)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-tab-surface-focus",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface-hover": {
+        "$value": "{semantics.navigation.high.surface.hover}",
+        "$type": "color",
+        "$description": "Fond d'un onglet au survol.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-tab-surface-hover)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-tab-surface-hover",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface-pressed": {
+        "$value": "{semantics.navigation.high.surface.pressed}",
+        "$type": "color",
+        "$description": "Fond d'un onglet enfoncé.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-tab-surface-pressed)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-tab-surface-pressed",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "tab-focus-ring": {
+      "color": {
+        "$value": "{semantics.global.border.focus}",
+        "$type": "color",
+        "$description": "Couleur de l'anneau de focus d'un onglet.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-bottom-tab-bar-tab-focus-ring-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-bottom-tab-bar-tab-focus-ring-color",
+            "component": "ui-bottom-tab-bar",
+            "entryPoint": "@4sh/ui-kit-react/ui-bottom-tab-bar",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    }
+  },
+  "breadcrumb": {
+    "content": {
+      "gap": {
+        "$value": "{metrics.units.sm}",
+        "$type": "dimension",
+        "$description": "Espacement entre l'icône et le libellé d'un maillon.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "GAP"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-breadcrumb-content-gap)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-breadcrumb-content-gap",
+            "component": "ui-breadcrumb",
+            "entryPoint": "@4sh/ui-kit-react/ui-breadcrumb",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "ellipsis": {
+      "color": {
+        "$value": "{semantics.global.text.default}",
+        "$type": "color",
+        "$description": "Couleur du bouton de débordement.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-breadcrumb-ellipsis-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-breadcrumb-ellipsis-color",
+            "component": "ui-breadcrumb",
+            "entryPoint": "@4sh/ui-kit-react/ui-breadcrumb",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-focus": {
+        "$value": "{semantics.actions.low.content.focused}",
+        "$type": "color",
+        "$description": "Couleur du bouton de débordement au focus clavier ; elle teinte aussi l'anneau.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-breadcrumb-ellipsis-color-focus)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-breadcrumb-ellipsis-color-focus",
+            "component": "ui-breadcrumb",
+            "entryPoint": "@4sh/ui-kit-react/ui-breadcrumb",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-hover": {
+        "$value": "{semantics.actions.low.content.hover}",
+        "$type": "color",
+        "$description": "Couleur du bouton de débordement au survol.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-breadcrumb-ellipsis-color-hover)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-breadcrumb-ellipsis-color-hover",
+            "component": "ui-breadcrumb",
+            "entryPoint": "@4sh/ui-kit-react/ui-breadcrumb",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-pressed": {
+        "$value": "{semantics.actions.low.content.pressed}",
+        "$type": "color",
+        "$description": "Couleur du bouton de débordement enfoncé.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-breadcrumb-ellipsis-color-pressed)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-breadcrumb-ellipsis-color-pressed",
+            "component": "ui-breadcrumb",
+            "entryPoint": "@4sh/ui-kit-react/ui-breadcrumb",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "focus-ring-width": {
+      "$value": "{metrics.units.2xs}",
+      "$type": "dimension",
+      "$description": "Épaisseur de l'anneau de focus des maillons interactifs.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "STROKE_FLOAT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-breadcrumb-focus-ring-width)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-breadcrumb-focus-ring-width",
+          "component": "ui-breadcrumb",
+          "entryPoint": "@4sh/ui-kit-react/ui-breadcrumb",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "font-family": {
+      "$value": "{typography.fontFamily.base}",
+      "$type": "string",
+      "$description": "Famille typographique du composant.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "STRING",
+          "scopes": [
+            "FONT_FAMILY"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-breadcrumb-font-family)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-breadcrumb-font-family",
+          "component": "ui-breadcrumb",
+          "entryPoint": "@4sh/ui-kit-react/ui-breadcrumb",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "font-size": {
+      "$value": "{responsive.size.typography.text.default}",
+      "$type": "dimension",
+      "$description": "Taille de police de `ui-breadcrumb`.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "FONT_SIZE"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-breadcrumb-font-size)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-breadcrumb-font-size",
+          "component": "ui-breadcrumb",
+          "entryPoint": "@4sh/ui-kit-react/ui-breadcrumb",
+          "descriptionSource": "derived"
+        }
+      }
+    },
+    "font-size-small": {
+      "$value": "{responsive.size.typography.text.md}",
+      "$type": "dimension",
+      "$description": "Taille de police de `ui-breadcrumb` (variante `small`).",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "FONT_SIZE"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-breadcrumb-font-size-small)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-breadcrumb-font-size-small",
+          "component": "ui-breadcrumb",
+          "entryPoint": "@4sh/ui-kit-react/ui-breadcrumb",
+          "descriptionSource": "derived"
+        }
+      }
+    },
+    "item": {
+      "gap": {
+        "$value": "{responsive.spacing.default}",
+        "$type": "dimension",
+        "$description": "Espacement entre maillons et séparateurs.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "GAP"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-breadcrumb-item-gap)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-breadcrumb-item-gap",
+            "component": "ui-breadcrumb",
+            "entryPoint": "@4sh/ui-kit-react/ui-breadcrumb",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "line-height": {
+      "$value": "1.4",
+      "$type": "number",
+      "$description": "Interlignage des maillons.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "LINE_HEIGHT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-breadcrumb-line-height)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-breadcrumb-line-height",
+          "component": "ui-breadcrumb",
+          "entryPoint": "@4sh/ui-kit-react/ui-breadcrumb",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "link": {
+      "color": {
+        "$value": "{semantics.global.text.muted}",
+        "$type": "color",
+        "$description": "Couleur d'un maillon navigable.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-breadcrumb-link-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-breadcrumb-link-color",
+            "component": "ui-breadcrumb",
+            "entryPoint": "@4sh/ui-kit-react/ui-breadcrumb",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-focus": {
+        "$value": "{semantics.actions.low.content.focused}",
+        "$type": "color",
+        "$description": "Couleur d'un maillon au focus clavier ; elle teinte aussi l'anneau.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-breadcrumb-link-color-focus)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-breadcrumb-link-color-focus",
+            "component": "ui-breadcrumb",
+            "entryPoint": "@4sh/ui-kit-react/ui-breadcrumb",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-hover": {
+        "$value": "{semantics.actions.low.content.hover}",
+        "$type": "color",
+        "$description": "Couleur d'un maillon au survol.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-breadcrumb-link-color-hover)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-breadcrumb-link-color-hover",
+            "component": "ui-breadcrumb",
+            "entryPoint": "@4sh/ui-kit-react/ui-breadcrumb",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-pressed": {
+        "$value": "{semantics.actions.low.content.pressed}",
+        "$type": "color",
+        "$description": "Couleur d'un maillon enfoncé.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-breadcrumb-link-color-pressed)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-breadcrumb-link-color-pressed",
+            "component": "ui-breadcrumb",
+            "entryPoint": "@4sh/ui-kit-react/ui-breadcrumb",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "radius": {
+      "$value": "{metrics.radius.2xs}",
+      "$type": "dimension",
+      "$description": "Rayon des maillons interactifs, pour l'anneau de focus.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "CORNER_RADIUS"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-breadcrumb-radius)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-breadcrumb-radius",
+          "component": "ui-breadcrumb",
+          "entryPoint": "@4sh/ui-kit-react/ui-breadcrumb",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "separator": {
+      "color": {
+        "$value": "{semantics.global.text.default}",
+        "$type": "color",
+        "$description": "Couleur du séparateur entre maillons.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-breadcrumb-separator-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-breadcrumb-separator-color",
+            "component": "ui-breadcrumb",
+            "entryPoint": "@4sh/ui-kit-react/ui-breadcrumb",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "text": {
+      "color": {
+        "$value": "{semantics.global.text.default}",
+        "$type": "color",
+        "$description": "Couleur d'un maillon non navigable, dont la page courante.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "TEXT_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-breadcrumb-text-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-breadcrumb-text-color",
+            "component": "ui-breadcrumb",
+            "entryPoint": "@4sh/ui-kit-react/ui-breadcrumb",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-disabled": {
+        "$value": "{semantics.actions.low.content.disabled}",
+        "$type": "color",
+        "$description": "Couleur d'un maillon désactivé.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "TEXT_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-breadcrumb-text-color-disabled)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-breadcrumb-text-color-disabled",
+            "component": "ui-breadcrumb",
+            "entryPoint": "@4sh/ui-kit-react/ui-breadcrumb",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "weight": {
+      "$value": "{typography.weight.bold}",
+      "$type": "string",
+      "$description": "Graisse des maillons, liens comme page courante.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "STRING",
+          "scopes": [
+            "FONT_WEIGHT",
+            "FONT_STYLE"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-breadcrumb-weight)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-breadcrumb-weight",
+          "component": "ui-breadcrumb",
+          "entryPoint": "@4sh/ui-kit-react/ui-breadcrumb",
           "descriptionSource": "scss"
         }
       }
@@ -19510,6 +21898,57 @@
       }
     }
   },
+  "speed-dial": {
+    "item": {
+      "gap": {
+        "$value": "{metrics.units.sm}",
+        "$type": "dimension",
+        "$description": "Espace entre le déclencheur et la première action, et entre deux actions empilées.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "GAP"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-speed-dial-item-gap)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-speed-dial-item-gap",
+            "component": "ui-speed-dial",
+            "entryPoint": "@4sh/ui-kit-react/ui-speed-dial",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "mask": {
+      "background": {
+        "$value": "{primitives.black.50}",
+        "$type": "color",
+        "$description": "Assombrissement du masque, mêmes jetons que `ui-modal`.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-speed-dial-mask-background)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-speed-dial-mask-background",
+            "component": "ui-speed-dial",
+            "entryPoint": "@4sh/ui-kit-react/ui-speed-dial",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    }
+  },
   "spinner": {
     "color": {
       "$value": "{semantics.informative.highlightLow.content.default}",
@@ -19687,6 +22126,1256 @@
           "component": "ui-spinner",
           "entryPoint": "@4sh/ui-kit-react/ui-spinner",
           "descriptionSource": "scss"
+        }
+      }
+    }
+  },
+  "stepper": {
+    "focus-ring-width": {
+      "$value": "{metrics.units.2xs}",
+      "$type": "dimension",
+      "$description": "Épaisseur de l'anneau de focus.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "STROKE_FLOAT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-stepper-focus-ring-width)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-stepper-focus-ring-width",
+          "component": "ui-stepper",
+          "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "marker": {
+      "color": {
+        "$value": "{semantics.navigation.high.content.default}",
+        "$type": "color",
+        "$description": "Couleur du contenu du marqueur.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-color",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-active": {
+        "$value": "{semantics.informative.defaultHigh.content.default}",
+        "$type": "color",
+        "$description": "Couleur du contenu du marqueur de l'étape courante.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-color-active)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-color-active",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-completed": {
+        "$value": "{semantics.informative.defaultHigh.content.default}",
+        "$type": "color",
+        "$description": "Couleur du contenu du marqueur d'une étape franchie.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-color-completed)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-color-completed",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-completed-hover": {
+        "$value": "{semantics.informative.defaultHigh.content.hover}",
+        "$type": "color",
+        "$description": "Couleur du contenu du marqueur d'une étape franchie, au survol.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-color-completed-hover)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-color-completed-hover",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-disabled": {
+        "$value": "{semantics.navigation.high.content.disabled}",
+        "$type": "color",
+        "$description": "Couleur du contenu du marqueur d'une étape désactivée.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-color-disabled)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-color-disabled",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-hover": {
+        "$value": "{semantics.navigation.high.content.hover}",
+        "$type": "color",
+        "$description": "Couleur du contenu du marqueur au survol.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-color-hover)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-color-hover",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "font-family": {
+        "$value": "{typography.fontFamily.base}",
+        "$type": "string",
+        "$description": "Famille typographique du marqueur.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "STRING",
+            "scopes": [
+              "FONT_FAMILY"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-font-family)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-font-family",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "size": {
+        "$value": "44px",
+        "$type": "dimension",
+        "$description": "Diamètre du marqueur d'étape.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-size)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-size",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "stroke": {
+        "$value": "{semantics.navigation.high.stroke.default}",
+        "$type": "color",
+        "$description": "Couleur de bordure du marqueur.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "STROKE_COLOR"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-stroke)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-stroke",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "stroke-active": {
+        "$value": "{semantics.navigation.high.stroke.active}",
+        "$type": "color",
+        "$description": "Couleur de bordure du marqueur de l'étape courante.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "STROKE_COLOR"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-stroke-active)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-stroke-active",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "stroke-completed-hover": {
+        "$value": "{semantics.informative.defaultHigh.stroke.hover}",
+        "$type": "color",
+        "$description": "Couleur de bordure du marqueur d'une étape franchie, au survol.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "STROKE_COLOR"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-stroke-completed-hover)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-stroke-completed-hover",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "stroke-disabled": {
+        "$value": "{semantics.navigation.high.stroke.disabled}",
+        "$type": "color",
+        "$description": "Couleur de bordure du marqueur d'une étape désactivée.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "STROKE_COLOR"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-stroke-disabled)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-stroke-disabled",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "stroke-hover": {
+        "$value": "{semantics.navigation.high.stroke.hover}",
+        "$type": "color",
+        "$description": "Couleur de bordure du marqueur au survol.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "STROKE_COLOR"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-stroke-hover)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-stroke-hover",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "stroke-width": {
+        "$value": "{metrics.stroke.sm}",
+        "$type": "dimension",
+        "$description": "Épaisseur de bordure du marqueur.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "STROKE_FLOAT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-stroke-width)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-stroke-width",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface": {
+        "$value": "{semantics.navigation.high.surface.default}",
+        "$type": "color",
+        "$description": "Fond du marqueur.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-surface)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-surface",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface-active": {
+        "$value": "{semantics.navigation.high.surface.active}",
+        "$type": "color",
+        "$description": "Fond du marqueur de l'étape courante.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-surface-active)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-surface-active",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface-active-hover": {
+        "$value": "{semantics.navigation.high.surface.active}",
+        "$type": "color",
+        "$description": "Fond du marqueur de l'étape courante, au survol.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-surface-active-hover)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-surface-active-hover",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface-completed": {
+        "$value": "{semantics.informative.defaultHigh.surface.default}",
+        "$type": "color",
+        "$description": "Fond du marqueur d'une étape franchie.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-surface-completed)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-surface-completed",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface-completed-hover": {
+        "$value": "{semantics.informative.defaultHigh.surface.hover}",
+        "$type": "color",
+        "$description": "Fond du marqueur d'une étape franchie, au survol.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-surface-completed-hover)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-surface-completed-hover",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface-disabled": {
+        "$value": "{semantics.navigation.high.surface.disabled}",
+        "$type": "color",
+        "$description": "Fond du marqueur d'une étape désactivée.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-surface-disabled)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-surface-disabled",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface-hover": {
+        "$value": "{semantics.navigation.high.surface.hover}",
+        "$type": "color",
+        "$description": "Fond du marqueur au survol.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-surface-hover)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-surface-hover",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "weight": {
+        "$value": "{typography.weight.bold}",
+        "$type": "string",
+        "$description": "Graisse du marqueur.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "STRING",
+            "scopes": [
+              "FONT_WEIGHT",
+              "FONT_STYLE"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-weight)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-weight",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "marker-focus-ring": {
+      "color": {
+        "$value": "{semantics.global.border.focus}",
+        "$type": "color",
+        "$description": "Couleur de l'anneau de focus du marqueur.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-marker-focus-ring-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-marker-focus-ring-color",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "panel": {
+      "color": {
+        "$value": "{semantics.global.text.default}",
+        "$type": "color",
+        "$description": "Couleur du texte du panneau.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-panel-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-panel-color",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "font-family": {
+        "$value": "{typography.fontFamily.base}",
+        "$type": "string",
+        "$description": "Famille typographique du panneau.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "STRING",
+            "scopes": [
+              "FONT_FAMILY"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-panel-font-family)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-panel-font-family",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "rail": {
+      "stroke-width": {
+        "$value": "{metrics.stroke.default}",
+        "$type": "dimension",
+        "$description": "Épaisseur du rail vertical entre deux étapes.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "STROKE_FLOAT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-rail-stroke-width)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-rail-stroke-width",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface": {
+        "$value": "{semantics.global.border.default}",
+        "$type": "color",
+        "$description": "Couleur du rail vertical entre deux étapes.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-rail-surface)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-rail-surface",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface-completed": {
+        "$value": "{semantics.navigation.high.stroke.default}",
+        "$type": "color",
+        "$description": "Couleur du rail vertical d'une étape franchie.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-rail-surface-completed)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-rail-surface-completed",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "separator": {
+      "stroke": {
+        "$value": "{semantics.global.border.default}",
+        "$type": "color",
+        "$description": "Couleur du connecteur entre deux étapes.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "STROKE_COLOR"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-separator-stroke)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-separator-stroke",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "stroke-completed": {
+        "$value": "{semantics.navigation.high.stroke.default}",
+        "$type": "color",
+        "$description": "Couleur du connecteur d'une étape franchie.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "STROKE_COLOR"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-separator-stroke-completed)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-separator-stroke-completed",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "stroke-width": {
+        "$value": "{metrics.stroke.default}",
+        "$type": "dimension",
+        "$description": "Épaisseur du connecteur entre deux étapes.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "STROKE_FLOAT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-separator-stroke-width)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-separator-stroke-width",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "title": {
+      "color": {
+        "$value": "{semantics.navigation.high.content.default}",
+        "$type": "color",
+        "$description": "Couleur du titre d'une étape.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "TEXT_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-title-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-title-color",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-active": {
+        "$value": "{semantics.global.text.default}",
+        "$type": "color",
+        "$description": "Couleur du titre de l'étape courante.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "TEXT_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-title-color-active)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-title-color-active",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-completed-hover": {
+        "$value": "{semantics.informative.defaultLow.content.default}",
+        "$type": "color",
+        "$description": "Couleur du titre d'une étape franchie, au survol.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "TEXT_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-title-color-completed-hover)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-title-color-completed-hover",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-disabled": {
+        "$value": "{semantics.navigation.high.content.disabled}",
+        "$type": "color",
+        "$description": "Couleur du titre d'une étape désactivée.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "TEXT_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-title-color-disabled)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-title-color-disabled",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-hover": {
+        "$value": "{semantics.informative.highlightLow.content.hover}",
+        "$type": "color",
+        "$description": "Couleur du titre au survol.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "TEXT_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-title-color-hover)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-title-color-hover",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "font-family": {
+        "$value": "{typography.fontFamily.title}",
+        "$type": "string",
+        "$description": "Famille typographique du titre.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "STRING",
+            "scopes": [
+              "FONT_FAMILY"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-title-font-family)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-title-font-family",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "weight": {
+        "$value": "{typography.weight.bold}",
+        "$type": "string",
+        "$description": "Graisse du titre courant.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "STRING",
+            "scopes": [
+              "FONT_WEIGHT",
+              "FONT_STYLE"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-title-weight)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-title-weight",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    }
+  },
+  "swatch-picker": {
+    "cell": {
+      "size": {
+        "$value": "32px",
+        "$type": "dimension",
+        "$description": "Taille de `ui-swatch-picker`, cell.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-swatch-picker-cell-size)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-swatch-picker-cell-size",
+            "component": "ui-swatch-picker",
+            "entryPoint": "@4sh/ui-kit-react/ui-swatch-picker",
+            "descriptionSource": "derived"
+          }
+        }
+      },
+      "size-small": {
+        "$value": "24px",
+        "$type": "dimension",
+        "$description": "Taille de `ui-swatch-picker`, cell (variante `small`).",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-swatch-picker-cell-size-small)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-swatch-picker-cell-size-small",
+            "component": "ui-swatch-picker",
+            "entryPoint": "@4sh/ui-kit-react/ui-swatch-picker",
+            "descriptionSource": "derived"
+          }
+        }
+      }
+    },
+    "clear": {
+      "color": {
+        "$value": "{semantics.global.text.muted}",
+        "$type": "color",
+        "$description": "Couleur de la pastille « aucune couleur ».",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-swatch-picker-clear-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-swatch-picker-clear-color",
+            "component": "ui-swatch-picker",
+            "entryPoint": "@4sh/ui-kit-react/ui-swatch-picker",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "focus-ring": {
+      "color": {
+        "$value": "{semantics.global.border.focus}",
+        "$type": "color",
+        "$description": "Couleur de l'anneau de focus.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-swatch-picker-focus-ring-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-swatch-picker-focus-ring-color",
+            "component": "ui-swatch-picker",
+            "entryPoint": "@4sh/ui-kit-react/ui-swatch-picker",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "focus-ring-width": {
+      "$value": "{metrics.units.2xs}",
+      "$type": "dimension",
+      "$description": "Épaisseur de l'anneau de focus.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "STROKE_FLOAT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-swatch-picker-focus-ring-width)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-swatch-picker-focus-ring-width",
+          "component": "ui-swatch-picker",
+          "entryPoint": "@4sh/ui-kit-react/ui-swatch-picker",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "gap": {
+      "$value": "{metrics.units.xs}",
+      "$type": "dimension",
+      "$description": "Espacement de `ui-swatch-picker`.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "GAP"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-swatch-picker-gap)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-swatch-picker-gap",
+          "component": "ui-swatch-picker",
+          "entryPoint": "@4sh/ui-kit-react/ui-swatch-picker",
+          "descriptionSource": "derived"
+        }
+      }
+    },
+    "gap-small": {
+      "$value": "{metrics.units.2xs}",
+      "$type": "dimension",
+      "$description": "Espacement de `ui-swatch-picker` (variante `small`).",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "GAP"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-swatch-picker-gap-small)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-swatch-picker-gap-small",
+          "component": "ui-swatch-picker",
+          "entryPoint": "@4sh/ui-kit-react/ui-swatch-picker",
+          "descriptionSource": "derived"
+        }
+      }
+    },
+    "panel": {
+      "padding": {
+        "$value": "{metrics.units.sm}",
+        "$type": "dimension",
+        "$description": "Gouttière interne du panneau, **partagée** avec les autres panneaux flottants.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "GAP"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-swatch-picker-panel-padding)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-swatch-picker-panel-padding",
+            "component": "ui-swatch-picker",
+            "entryPoint": "@4sh/ui-kit-react/ui-swatch-picker",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface": {
+        "$value": "{semantics.global.background.default}",
+        "$type": "color",
+        "$description": "Fond opaque du panneau.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-swatch-picker-panel-surface)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-swatch-picker-panel-surface",
+            "component": "ui-swatch-picker",
+            "entryPoint": "@4sh/ui-kit-react/ui-swatch-picker",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "selected-ring": {
+      "color": {
+        "$value": "{semantics.form.high.stroke.checked}",
+        "$type": "color",
+        "$description": "Couleur du liseré de sélection.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-swatch-picker-selected-ring-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-swatch-picker-selected-ring-color",
+            "component": "ui-swatch-picker",
+            "entryPoint": "@4sh/ui-kit-react/ui-swatch-picker",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "width": {
+        "$value": "{metrics.stroke.lg}",
+        "$type": "dimension",
+        "$description": "Épaisseur du liseré de sélection.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-swatch-picker-selected-ring-width)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-swatch-picker-selected-ring-width",
+            "component": "ui-swatch-picker",
+            "entryPoint": "@4sh/ui-kit-react/ui-swatch-picker",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "stroke-width": {
+      "$value": "{metrics.stroke.default}",
+      "$type": "dimension",
+      "$description": "Épaisseur du contour de chaque pastille.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "STROKE_FLOAT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-swatch-picker-stroke-width)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-swatch-picker-stroke-width",
+          "component": "ui-swatch-picker",
+          "entryPoint": "@4sh/ui-kit-react/ui-swatch-picker",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "swatch": {
+      "color": {
+        "$value": "transparent",
+        "$type": "color",
+        "$description": "Couleur peinte par une pastille ; le composant la pose depuis le `cssVar` de la palette.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-swatch-picker-swatch-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-swatch-picker-swatch-color",
+            "component": "ui-swatch-picker",
+            "entryPoint": "@4sh/ui-kit-react/ui-swatch-picker",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "radius": {
+        "$value": "{metrics.radius.xs}",
+        "$type": "dimension",
+        "$description": "Rayon des coins d'une pastille.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "CORNER_RADIUS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-swatch-picker-swatch-radius)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-swatch-picker-swatch-radius",
+            "component": "ui-swatch-picker",
+            "entryPoint": "@4sh/ui-kit-react/ui-swatch-picker",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "stroke": {
+        "$value": "{semantics.global.border.default}",
+        "$type": "color",
+        "$description": "Couleur du contour d'une pastille.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "STROKE_COLOR"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-swatch-picker-swatch-stroke)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-swatch-picker-swatch-stroke",
+            "component": "ui-swatch-picker",
+            "entryPoint": "@4sh/ui-kit-react/ui-swatch-picker",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "stroke-hover": {
+        "$value": "{semantics.global.border.default-hover}",
+        "$type": "color",
+        "$description": "Couleur du contour d'une pastille au survol.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "STROKE_COLOR"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-swatch-picker-swatch-stroke-hover)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-swatch-picker-swatch-stroke-hover",
+            "component": "ui-swatch-picker",
+            "entryPoint": "@4sh/ui-kit-react/ui-swatch-picker",
+            "descriptionSource": "scss"
+          }
         }
       }
     }

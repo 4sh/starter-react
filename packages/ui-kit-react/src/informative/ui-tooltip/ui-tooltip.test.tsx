@@ -147,6 +147,11 @@ test('hideOnEscape=false garde la bulle ouverte', async () => {
 
 // `life` assez long pour que la fenêtre « ouverte » soit observable : trop
 // court, le test devient une course entre l'ouverture et la fermeture.
+//
+// L'attente de fermeture est large à dessein. Sous la charge d'une exécution
+// complète, l'ouverture, le compte à rebours et le rendu se disputent le même
+// fil : mesuré, ce test tombait une fois sur deux suites avec 2 s, jamais avec
+// 5. Ce n'est pas la durée du `life` qu'il vérifie, c'est qu'il ferme seul.
 test('life referme la bulle même sans quitter le déclencheur', async () => {
   const onHide = vi.fn();
   const screen = await render(<Demo life={800} onHide={onHide} />);
@@ -154,7 +159,7 @@ test('life referme la bulle même sans quitter le déclencheur', async () => {
   await survol(screen);
   await expect.poll(() => bulle(screen).matches(':popover-open')).toBe(true);
 
-  await expect.poll(() => bulle(screen).matches(':popover-open'), { timeout: 2000 }).toBe(false);
+  await expect.poll(() => bulle(screen).matches(':popover-open'), { timeout: 5000 }).toBe(false);
   expect(onHide).toHaveBeenCalled();
 });
 

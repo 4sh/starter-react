@@ -1,0 +1,127 @@
+@use 'utils';
+
+// =====================================================================
+// ui-speed-dial : co-located styles. All values come from design tokens.
+//
+// The root is a plain positioned wrapper: pinning it to a corner of the
+// page belongs to the caller. Trigger and actions are `ui-button`
+// instances, so every colour comes through them; nothing is painted here.
+// =====================================================================
+
+// --- Config -----------------------------------------------------------
+$z-index: var(--ui-speed-dial-z-index, 10); /// Palier d'empilement du bouton et de ses actions au-dessus du masque.
+$item-gap: var(--ui-speed-dial-item-gap, var(--units-sm)); /// Espace entre le déclencheur et la première action, et entre deux actions empilées.
+$item-delay: var(--ui-speed-dial-item-delay, var(--transition-fast)); /// Décalage d'apparition entre deux actions successives.
+$radius-default: var(
+  --ui-speed-dial-radius,
+  calc(2 * var(--size-components-default))
+); /// Rayon de l'arc d'actions quand `radius` n'est pas renseigné.
+$mask-background: var(--ui-speed-dial-mask-background, var(--primitives-black-50)); /// Assombrissement du masque, mêmes jetons que `ui-modal`.
+
+// Géométrie fixe, du plus vers la croix : pas un rôle thémable.
+$rotate-angle: 45deg;
+
+.ui-speed-dial {
+  position: relative;
+  z-index: $z-index;
+  display: inline-flex;
+  // Surcharge explicite par la prop `radius` ; le défaut vit ici pour qu'un
+  // thème puisse le retoucher sans que le composant passe jamais un nombre.
+  --_radius: #{$radius-default};
+
+  // --- Mask -------------------------------------------------------------
+  // En `fixed`, mais peint dans le contexte d'empilement de la racine, que
+  // `position` et `z-index` qualifient déjà : il reste DERRIÈRE le déclencheur
+  // et les actions, simples frères plus loin dans le DOM, sans un second
+  // z-index à tenir en phase.
+  &-mask {
+    position: fixed;
+    inset: 0;
+    background-color: $mask-background;
+  }
+
+  // --- Trigger ----------------------------------------------------------
+  &-trigger {
+    position: relative;
+
+    // La rotation vit sur l'icône et non sur le bouton : faire pivoter le
+    // contrôle entier emporterait son anneau de focus et son ombre.
+    .ui-button-icon {
+      @include utils.control-transition(rotate);
+    }
+
+    &._rotate .ui-button-icon {
+      rotate: $rotate-angle;
+    }
+  }
+
+  // --- Actions ----------------------------------------------------------
+  &-list {
+    position: absolute;
+    display: flex;
+    gap: $item-gap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    // Sur un arc, la boîte de la liste recouvre exactement le déclencheur :
+    // sans ça, cette boîte vide, et pas seulement les espaces entre les
+    // actions, passe DEVANT lui dans l'ordre de peinture et avale ses clics.
+    // Les actions reprennent le pointeur une par une.
+    pointer-events: none;
+  }
+
+  // `linear` : empilées le long de `direction`, la plus proche en premier.
+  &._up &-list {
+    bottom: calc(100% + #{$item-gap});
+    left: 50%;
+    flex-direction: column-reverse;
+    translate: -50% 0;
+  }
+
+  &._down &-list {
+    top: calc(100% + #{$item-gap});
+    left: 50%;
+    flex-direction: column;
+    translate: -50% 0;
+  }
+
+  &._left &-list {
+    top: 50%;
+    right: calc(100% + #{$item-gap});
+    flex-direction: row-reverse;
+    translate: 0 -50%;
+  }
+
+  &._right &-list {
+    top: 50%;
+    left: calc(100% + #{$item-gap});
+    flex-direction: row;
+    translate: 0 -50%;
+  }
+
+  // Sur un arc, la liste EST la boîte du déclencheur : chaque action s'y
+  // centre, puis sa propre `transform` la porte à `--_radius` sur sa place
+  // angulaire.
+  &._circle &-list,
+  &._semi-circle &-list,
+  &._quarter-circle &-list {
+    inset: 0;
+  }
+
+  &._circle &-item,
+  &._semi-circle &-item,
+  &._quarter-circle &-item {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+  }
+
+  &-item {
+    // La liste s'en retire ci-dessus ; chaque action reprend le pointeur.
+    pointer-events: auto;
+
+    // Entrée décalée selon le rang, posée depuis `--_stagger-index` sur la
+    // propriété que le système de motion lit déjà.
+    --ui-motion-delay: calc(var(--_stagger-index, 0) * #{$item-delay});
+  }
+}

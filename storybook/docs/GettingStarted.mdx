@@ -4,114 +4,140 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 # Getting started
 
-Deux façons de consommer ce Design System : le choix se fait une fois, au
-démarrage du projet.
+Deux façons de consommer ce Design System : le choix se fait une fois, au démarrage du
+projet. La première est disponible, la seconde est en construction.
 
-<br/>
+<div className="sb-callout">
 
-## Package : `pnpm add @4sh/ui-kit`
+**Rien n'est publié à ce jour.** Les trois paquets portent `private: true` en attendant leur
+première release, et le nom `@4sh/ui-kit-react` n'est pas encore réservé sur npm : il peut
+donc changer d'ici là. En attendant, le kit se consomme depuis le dépôt, par un lien
+d'espace de travail (`workspace:*`), ce que fait déjà l'application de démonstration. Les
+détails de la publication visée sont dans `docs/PUBLISHING.md`.
 
-Les composants sont publiés sous forme d'**un seul package npm**, consommable
-par n'importe quelle application Angular.
+</div>
+
+<br />
+
+## Paquet : `pnpm add @4sh/ui-kit-react`
+
+Les composants sont publiés sous forme d'**un seul paquet npm**, consommable par n'importe
+quelle application React 19.
 
 ```bash
-pnpm add @4sh/ui-kit
+pnpm add @4sh/ui-kit-react
 ```
 
 <div className="sb-callout">
 
-**Le gestionnaire de paquets est libre.** Le package est un tarball npm standard :
-`npm install @4sh/ui-kit` ou `yarn add @4sh/ui-kit` installent la même chose.
-`pnpm` est celui que le Design System utilise et recommande : sa résolution
-stricte fait échouer une `peerDependency` manquante au lieu de la masquer, et ses
-réglages de chaîne de dépendances mettent en quarantaine les versions publiées
-depuis moins de 24 h.
+**Le gestionnaire de paquets est libre.** Le paquet est un tarball npm standard :
+`npm install` ou `yarn add` installent la même chose. `pnpm` est celui que le Design System
+utilise et recommande : sa résolution stricte fait échouer une `peerDependency` manquante au
+lieu de la masquer, et ses réglages de chaîne de dépendances mettent en quarantaine les
+versions publiées depuis moins de 24 h.
 
 </div>
 
 <div className="sb-callout">
 
-**Pas de risque d'oubli d'installation.** `@4sh/ui-kit-react` est un **package unique**
-avec des *secondary entry points* : pas une collection de packages séparés. Tous
-les entry points sont présents dès l'installation, et les dépendances entre eux
-se résolvent automatiquement : importer `UiDatepicker` tire tout ce dont il a
-besoin (son socle de formulaire, ses icônes…) sans que vous ayez quoi que ce
-soit à déclarer.
+**Pas de risque d'oubli d'installation.** `@4sh/ui-kit-react` est un **paquet unique** avec
+des sous-chemins d'entrée, et non une collection de paquets séparés. Tous sont présents dès
+l'installation, et les dépendances entre eux se résolvent seules : importer `UiDatepicker`
+tire ce dont il a besoin, son socle de formulaire et ses icônes, sans que vous ayez quoi que
+ce soit à déclarer. Le kit lui-même n'a que **deux dépendances runtime**, un positionneur et
+un virtualiseur, chacune importée par un seul fichier (décision D6).
 
 </div>
 
-```ts
-import { UiDatepicker } from '@4sh/ui-kit-react/forms/ui-datepicker';
+### Deux gestes, une fois pour toutes
 
-@Component({
-  selector: 'app-booking',
-  imports: [UiDatepicker],
-  template: `<ui-datepicker label="Date" valueType="date" [(ngModel)]="date" />`,
-})
-export class Booking { date = signal<Date | null>(null); }
-```
+```tsx
+// La fondation : les jetons (3 marques × clair/sombre × responsive), la couche de base et
+// les classes utilitaires. Sans elle, les composants rendent sans style.
+import '@4sh/ui-kit-react/styles.css';
 
-Le nom de l'entry point est celui du composant : la page de doc de chaque
-composant, dans la barre latérale, donne l'import exact à recopier.
+// Le mode et la marque actifs, posés sur <html>, qui est ce que les jetons attendent.
+import { UiThemeProvider } from '@4sh/ui-kit-react/theming';
 
-### MCP (optionnel)
-
-L'installation pose aussi le serveur MCP compagnon, sous
-`node_modules/@4sh/ui-kit-react/mcp/`, mais ne le déclare nulle part : c'est la seule
-étape manuelle du mode package. Pour qu'un agent IA compatible MCP (Claude Code,
-Claude Desktop…) interroge la doc du kit sans lire les sources, ajoutez-le à la
-racine du projet :
-
-```json
-// .mcp.json
-{
-  "mcpServers": {
-    "ui-kit": {
-      "command": "node",
-      "args": ["node_modules/@4sh/ui-kit-react/mcp/index.js"]
-    }
-  }
+export function App({ children }) {
+  return <UiThemeProvider>{children}</UiThemeProvider>;
 }
 ```
 
-<br/>
-<br/>
+Ensuite, la CSS d'un composant voyage avec lui : l'importer suffit.
 
-## Schematic : `ng add @4sh/ui-kit-schematics`
+```tsx
+import { UiDatepicker } from '@4sh/ui-kit-react/ui-datepicker';
 
-L'installation livre les composants **compilés**. Le second mode de consommation
-les installe en **sources**, dans votre dépôt, libres d'être modifiées (façon
-shadcn/spartan-ng) :
+export function Booking() {
+  const [date, setDate] = useState(null);
 
-```bash
-ng add @4sh/ui-kit-schematics                    # fondation + composants + Storybook, en une commande
-ng add @4sh/ui-kit-schematics --skip-storybook   # idem, sans le Storybook
-ng generate @4sh/ui-kit-schematics:add           # ajouter d'autres composants ensuite
-ng generate @4sh/ui-kit-schematics:update        # diff par composant après une release du kit
+  return <UiDatepicker label="Date" valueType="date" value={date} onValueChange={setDate} />;
+}
 ```
-
-Le parcours passe par le package compagnon, et `@4sh/ui-kit-react` n'entre jamais dans
-`node_modules` : absent, rien ne peut importer son code compilé à la place de vos
-copies.
 
 <div className="sb-callout">
 
-**Pas de section MCP ici, volontairement.** `ng add` déclare déjà le serveur MCP
-tout seul : `.mcp.json` (fusionné, jamais écrasé s'il existe) et `.ui-kit-mcp/` à
-la racine du projet, plus une instruction ajoutée à `AGENTS.md`. Rien à faire de
-plus (`--skip-mcp` pour l'omettre).
+⚠️ **La catégorie ne fait pas partie du chemin d'import** : `@4sh/ui-kit-react/ui-datepicker`,
+jamais `@4sh/ui-kit-react/forms/ui-datepicker`. Elle ne regroupe que des fichiers dans le
+dépôt, donc déplacer un composant d'une famille à l'autre n'est jamais une rupture pour vous
+(décision D4).
 
 </div>
 
-<br/>
-<br/>
+Le nom du sous-chemin est celui du composant : la page de doc de chaque composant, dans la
+barre latérale, donne l'import exact à recopier.
 
-## Le mode d'emploi complet vit dans le README du package
+### Rendu serveur
 
-Installation, liste des entry points, feuille de styles à charger, providers
-attendus par `ui-image` et `BrandService`, construction de votre propre champ
-sur `@4sh/ui-kit-react/forms` : tout est décrit **une seule fois**, dans le README
-livré avec le package : c'est aussi ce qu'affiche la page npmjs.
+Tout composant interactif porte `'use client'`, conservé par la construction du paquet : il
+fonctionne tel quel sous l'App Router de Next. Pour éviter le passage du clair au sombre à la
+première image, injectez `uiThemeBootstrapScript()` dans le `<head>` : il applique le mode
+mémorisé avant la première peinture, ce que le fournisseur ne peut pas faire puisqu'il ne
+s'exécute qu'après.
+
+<br />
+<br />
+
+## Mode copie : `@4sh/ui-kit-react-cli`
+
+L'installation livre les composants **construits**. Le second mode de consommation les
+installe en **sources**, dans votre dépôt, libres d'être modifiées, à la façon de shadcn :
+poser la fondation, copier les composants choisis, puis proposer leur mise à jour par
+comparaison après une release du kit.
+
+<div className="sb-callout">
+
+**En construction (phase 4).** Le paquet `@4sh/ui-kit-react-cli` est réservé dans l'espace
+de travail mais n'a pas encore de code. Tant qu'il n'existe pas, le mode paquet est le seul
+disponible. L'état d'avancement se lit dans `docs/ROADMAP.md`.
+
+</div>
+
+<br />
+<br />
+
+## MCP : `@4sh/ui-kit-react-mcp`
+
+Un serveur MCP compagnon, pour qu'un agent de codage interroge le catalogue et la doc du kit
+sans lire les sources.
+
+<div className="sb-callout">
+
+**En construction (phase 5).** Le paquet `@4sh/ui-kit-react-mcp` est lui aussi réservé et
+vide. En attendant, un agent travaille très bien avec `AGENTS.md` à la racine du dépôt, qui
+décrit les conventions du kit, et avec les pages de ce Storybook.
+
+</div>
+
+<br />
+<br />
+
+## Le mode d'emploi complet vit dans le README du paquet
+
+Installation, liste des sous-chemins, feuille de styles à charger, thème et marques,
+construction de votre propre champ sur `@4sh/ui-kit-react/forms` : tout est décrit **une
+seule fois**, dans le README livré avec le paquet, qui est aussi ce qu'affichera sa page npm.
 
 <table>
   <thead>
@@ -122,30 +148,57 @@ livré avec le package : c'est aussi ce qu'affiche la page npmjs.
   </thead>
   <tbody>
     <tr>
-      <td>Page du package</td>
-      <td><a href="https://www.npmjs.com/package/@4sh/ui-kit" target="_blank" rel="noopener noreferrer">npmjs.com/package/@4sh/ui-kit</a></td>
-    </tr>
-    <tr>
       <td>README (anglais)</td>
-      <td><a href="https://github.com/4sh/starter-react/blob/main/packages/ui-kit-react/README.md" target="_blank" rel="noopener noreferrer">packages/ui-kit-react/README.md</a></td>
+      <td>
+        <a
+          href="https://github.com/4sh/starter-react/blob/main/packages/ui-kit-react/README.md"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          packages/ui-kit-react/README.md
+        </a>
+      </td>
     </tr>
     <tr>
       <td>README (français)</td>
-      <td><a href="https://github.com/4sh/starter-react/blob/main/packages/ui-kit-react/README.fr.md" target="_blank" rel="noopener noreferrer">packages/ui-kit-react/README.fr.md</a></td>
+      <td>
+        <a
+          href="https://github.com/4sh/starter-react/blob/main/packages/ui-kit-react/README.fr.md"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          packages/ui-kit-react/README.fr.md
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td>Conventions de code</td>
+      <td>
+        <a
+          href="https://github.com/4sh/starter-react/blob/main/AGENTS.md"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          AGENTS.md
+        </a>
+      </td>
     </tr>
     <tr>
       <td>Dépôt</td>
-      <td><a href="https://github.com/4sh/starter-react" target="_blank" rel="noopener noreferrer">github.com/4sh/starter-react</a></td>
+      <td>
+        <a href="https://github.com/4sh/starter-react" target="_blank" rel="noopener noreferrer">
+          github.com/4sh/starter-react
+        </a>
+      </td>
     </tr>
   </tbody>
 </table>
 
 <div className="sb-callout">
 
-**Pourquoi un simple renvoi ?** Ces informations étaient auparavant recopiées
-ici, dans le README anglais et dans le README français. Trois copies d'une même
-page d'installation divergent : c'est ainsi que le nombre d'entry points annoncé
-avait fini par être faux à deux endroits sur trois. La page publique du package
-fait foi ; cette page ne garde que ce qui lui est propre.
+**Pourquoi un simple renvoi ?** Ces informations étaient auparavant recopiées ici, dans le
+README anglais et dans le README français. Trois copies d'une même page d'installation
+divergent : c'est ainsi que le nombre de sous-chemins annoncé avait fini par être faux à deux
+endroits sur trois. Le README fait foi ; cette page ne garde que ce qui lui est propre.
 
 </div>

@@ -25,6 +25,54 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
   `utils.overlay-motion` s'il vit dans le calque supérieur, `useUiMotion` s'il quitte le DOM.
   C'est la question qu'on se pose en vrai, et elle n'était écrite nulle part.
 
+- `ui-bottom-sheet` : panneau qui glisse depuis le bord bas de l'écran, sur le même socle que
+  `ui-modal` et `ui-drawer`, le `<dialog>` natif : le voile et le positionneur du kit Angular
+  disparaissent, `::backdrop` fait le premier et les insets du dialogue font le second. Ce qui
+  reste écrit à la main lui appartient vraiment : trois paliers de hauteur plus n'importe quelle
+  longueur CSS, la fermeture en tirant vers le bas, et le passage de `half` à `full` en tirant
+  vers le haut, que les flèches font aussi au clavier. Le geste et l'animation touchent la même
+  propriété, `translate`, donc le glissement **coule** dans la fermeture au lieu de s'y ajouter.
+
+- `ui-stepper` : progression numérotée, en assistant à plusieurs étapes ou en simple
+  indicateur d'avancement. L'avancement d'une étape se **déduit** de sa place dans la séquence,
+  que React lit dans les `children` : une fonction pure, sans état ni effet, juste dès le
+  premier rendu. La sémantique ARIA suit la disposition, onglets à plat et accordéon en
+  colonne, un onglet qui contiendrait son propre panneau étant invalide. Un panneau quitté
+  reste monté mais devient `inert`, donc l'état d'un formulaire survit au passage d'une étape à
+  l'autre. `useUiStepper()` pilote la progression depuis un panneau, là où le kit Angular
+  appelle des méthodes sur une référence de gabarit.
+
+- `ui-speed-dial` : bouton flottant qui déploie ses actions autour de lui, empilées le long
+  d'une direction ou posées sur un anneau, une moitié ou un quart d'arc. Les entrées sont le
+  même sous-ensemble feuille que `ui-menu`, donc le modèle d'un menu alimente un bouton sans
+  être remodelé. **Fermé, aucune action n'est rendue** : ni lue par un lecteur d'écran, ni
+  atteignable au clavier, donc rien à masquer. Les actions forment un seul arrêt de tabulation,
+  entrent une par une et **sortent ensemble**, ce que la disparition de la liste entière donne
+  gratuitement là où le kit Angular doit annuler le décalage de sortie pour éviter un
+  clignotement.
+
+- `ui-bottom-tab-bar` : la barre de navigation basse des appareils tactiles, avec ses
+  destinations et son bouton d'action surélevé. Bâtie pour l'écran sur lequel elle vit : elle
+  réserve l'incrustation du système, iOS comme Android, tient la cible tactile de 44 px, coupe
+  le délai de double frappe et disparaît à l'impression. La destination courante s'annonce par
+  `aria-current="page"` et non par `role="tab"`, qui exigerait un panneau associé, et les
+  flèches parcourent la barre **sans** retirer aucun contrôle de l'ordre de tabulation.
+
+- `ui-breadcrumb` : le fil d'Ariane. Chaque maillon rend **l'élément natif qui correspond à sa
+  sémantique**, jamais une enveloppe : une ancre s'il mène quelque part, un `<button>` s'il
+  n'agit que, un simple texte sinon, ce qui évite de fabriquer un faux lien pour un maillon qui
+  n'en est pas un. Un maillon désactivé porte `role="link"` et `aria-disabled`, là où seule une
+  classe le disait. Au-delà de `maxItems`, le milieu se replie derrière un bouton qui, en
+  dépliant, amène le focus sur le premier maillon révélé. `render` branche le lien d'un routeur,
+  le kit n'en imposant aucun.
+
+- `ui-swatch-picker` : grille de couleurs, posée dans la page ou ouverte en popup. Aucune
+  valeur n'est écrite en dur : chaque pastille **pointe une variable** `--primitives-*`, donc
+  changer de marque change la grille. Motif listbox, clavier de **grille** à deux axes et un
+  seul arrêt de tabulation. Comme `ui-menu`, le composant ne rend pas son déclencheur : `trigger`
+  reçoit les props à reverser, et le panneau vit dans le calque supérieur, donc aucun ancêtre en
+  `overflow: hidden` ne le rogne.
+
 - `ui-input-otp` : saisie d'un code à usage unique, une case `<input maxlength="1">` par
   caractère. Le groupe compte pour **un seul** arrêt de tabulation : `Tab` le traverse, les
   flèches circulent dedans, `Début` et `Fin` vont aux extrémités. La frappe avance seule,
