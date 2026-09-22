@@ -1,0 +1,89 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as ButtonSplitStories from './ui-button-split.stories';
+
+<Meta of={ButtonSplitStories} />
+
+# ui-button-split
+
+Un bouton d'action accolé à un déclencheur déroulant. Le bouton principal fait l'action par
+défaut, celle que l'on veut la plupart du temps ; le chevron révèle les autres, décrites par
+le même modèle déclaratif que [`ui-menu`](?path=/docs/components-ui-navigation-ui-menu--docs).
+
+<Canvas of={ButtonSplitStories.Default} />
+
+## API
+
+<ArgTypes of={ButtonSplitStories} />
+
+## Les options
+
+`items` est un `UiMenuItem[]`, exactement celui de `ui-menu` : feuilles avec `command`, `url`
+ou `render`, séparateurs, icônes, groupes repliables. Rien n'est propre au bouton scindé, et
+un modèle écrit pour un menu se réutilise tel quel.
+
+<Canvas of={ButtonSplitStories.WithIcons} />
+<Canvas of={ButtonSplitStories.Nested} />
+
+## Apparence
+
+`level`, `variant`, `onColor` et `size` s'appliquent aux **deux** boutons : les deux moitiés
+sont un seul contrôle, et les voir diverger se lirait comme un défaut.
+
+<Canvas of={ButtonSplitStories.Levels} />
+<Canvas of={ButtonSplitStories.Outlined} />
+<Canvas of={ButtonSplitStories.Small} />
+
+## Désactivation
+
+`disabled` coupe tout. `buttonDisabled` et `menuButtonDisabled` coupent une moitié chacun :
+c'est le cas d'une action par défaut indisponible dont les autres options restent utiles, et
+l'inverse, un déclencheur vide à côté d'une action qui marche.
+
+<Canvas of={ButtonSplitStories.Disabled} />
+
+## Comment les deux boutons se collent
+
+Le composant ne redéfinit aucun style de bouton. Il pose `--ui-button-radius`, le crochet que
+`ui-button` expose déjà, pour carrer les deux coins intérieurs, et remonte le déclencheur
+d'exactement une largeur de bordure pour que le trait partagé ne double pas. Le survolé et le
+focalisé passent au-dessus de leur voisin, sans quoi leur anneau de focus serait rogné par le
+recouvrement.
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Implémentation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Deux boutons natifs</strong></td>
+      <td>Deux <code>&lt;button&gt;</code> distincts, donc deux arrêts de tabulation et un <code>disabled</code> natif chacun.</td>
+    </tr>
+    <tr>
+      <td><strong>Déclencheur</strong></td>
+      <td>Il est en icône seule : <code>menuButtonAriaLabel</code> le nomme (« Plus d'options » par défaut), et il porte <code>aria-haspopup="menu"</code>, <code>aria-expanded</code> et <code>aria-controls</code>, posés par <code>ui-menu</code>.</td>
+    </tr>
+    <tr>
+      <td><strong>Bouton d'action</strong></td>
+      <td>Son nom vient de <code>label</code>. Sans libellé visible, <code>aria-label</code> devient obligatoire : il est posé sur le bouton, jamais sur la racine, qui n'a pas de rôle.</td>
+    </tr>
+    <tr>
+      <td><strong>Panneau</strong></td>
+      <td>C'est <code>ui-menu</code> : motif menu de l'APG, un seul arrêt de tabulation, flèches, <kbd>Échap</kbd> et restitution du focus au déclencheur.</td>
+    </tr>
+  </tbody>
+</table>
+
+<Canvas of={ButtonSplitStories.Opened} />
+
+## Theming
+
+Les deux boutons se thèment par les crochets de `ui-button`, le panneau par ceux de
+`ui-menu`. Ce composant n'expose que le recouvrement.
+
+<ConfigTable of="ui-button-split" />

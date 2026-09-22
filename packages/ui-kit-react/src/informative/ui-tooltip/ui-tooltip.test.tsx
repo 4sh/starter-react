@@ -275,3 +275,35 @@ test('la bulle attend sa position avant d’être peinte', async () => {
     .forEach((animation) => animation.finish());
   expect(getComputedStyle(bulle(screen)).opacity).toBe('1');
 });
+
+// Le panneau du CDK d'Angular pose `pointer-events: none` sur le calque ; ici
+// il n'y a pas de calque à part, donc la bulle doit le poser elle-même. Sans
+// ça elle avale les clics de ce qu'elle surplombe, et avec `autoHide` elle
+// clignote : le pointeur qui l'atteint quitte le déclencheur, elle se ferme, le
+// pointeur retombe sur le déclencheur, elle se rouvre.
+test('la bulle ne s’interpose pas entre le pointeur et la page', async () => {
+  const screen = await render(<Demo showDelay={0} />);
+
+  await survol(screen);
+  await expect.poll(() => bulle(screen).matches(':popover-open')).toBe(true);
+
+  const el = bulle(screen);
+  expect(getComputedStyle(el).pointerEvents).toBe('none');
+
+  // Mesuré, et pas seulement déclaré : c'est ce que le navigateur retient sous
+  // le pointeur qui décide.
+  const box = el.getBoundingClientRect();
+  const dessous = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+  expect(el.contains(dessous)).toBe(false);
+});
+
+// Une bulle survolable doit au contraire reprendre le pointeur, sans quoi on ne
+// pourrait pas aller cliquer un lien dedans (WCAG 1.4.13).
+test('une bulle survolable reprend le pointeur', async () => {
+  const screen = await render(<Demo showDelay={0} autoHide={false} />);
+
+  await survol(screen);
+  await expect.poll(() => bulle(screen).matches(':popover-open')).toBe(true);
+
+  expect(getComputedStyle(bulle(screen)).pointerEvents).toBe('auto');
+});

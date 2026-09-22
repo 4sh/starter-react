@@ -23,7 +23,8 @@
   - ⚠️ **Écart connu avec Angular** : pas de prop `ripple`. Le moteur d'onde de pression est
     un point d'entrée à part côté Angular (338 lignes) et n'est pas encore porté. Son arrivée
     ajoutera la prop, ce qui sera une évolution MINEURE, pas une rupture.
-- ⬜ `ui-button-split` : Bouton d'action accolé à un déclencheur déroulant
+- ✅ `ui-button-split` : Bouton d'action accolé à un déclencheur déroulant. Les options
+  sont le `UiMenuItem[]` de `ui-menu`, et les deux moitiés se désactivent séparément
 - ✅ `ui-link` : Lien textuel en ligne, `render` pour brancher un routeur
 - ⬜ `ui-speed-dial` : Bouton flottant déployant ses actions
 
@@ -46,7 +47,10 @@
 - ✅ `ui-input-number` : champ numérique (saisie permissive sans reformatage à la frappe,
   formatage riche `Intl` à la sortie, écrêtage `min`/`max`, `step` au pavé et aux flèches,
   `role="spinbutton"`, `formatValue` en remplacement de la méthode protégée d'Angular)
-- ⬜ `ui-input-otp` · `ui-input-group` · `ui-input-tags`
+- ✅ `ui-input-group` : Colle un contrôle et ses cellules en un seul champ visuel. Le
+  reformage des coins et le recouvrement des bordures sont en CSS pur, par les crochets
+  `--ui-field-radius` / `--ui-button-radius` que les composants exposent déjà
+- ⬜ `ui-input-otp`
 - ✅ `ui-checkbox` : Case à cocher sur `<input>` natif (modèle non booléen par
   `trueValue`/`falseValue`, indéterminé purement visuel, lecture seule annoncée par
   `aria-readonly`)
@@ -90,7 +94,9 @@
   niveau, fermeture, disparition automatique par `life`). Non contrôlée elle se retire
   seule ; `open` renseignée, l'état revient au parent
 - ✅ `ui-tooltip` : Bulle d'aide dans le calque supérieur, conforme WCAG 1.4.13
-- ⬜ `ui-avatar-group` · `ui-toast`
+- ✅ `ui-avatar-group` : Pile d'avatars qui se chevauchent. Aide de mise en page sans
+  props : le débordement « +N » est un avatar de plus, en mode libellé
+- ⬜ `ui-toast`
 - ✅ `ui-empty-state` : Absence de contenu, avec visuel, texte et actions
 - ⬜ `ui-accordion`
 

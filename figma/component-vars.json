@@ -10,10 +10,10 @@
         "Mode 1"
       ],
       "counts": {
-        "tokens": 968,
-        "alias": 857,
+        "tokens": 983,
+        "alias": 872,
         "literal": 111,
-        "skipped": 37,
+        "skipped": 38,
         "derivedDescriptions": 185
       },
       "aliasTargets": [
@@ -118,6 +118,11 @@
           "cssVar": "--ui-icon-size",
           "component": "ui-icon",
           "reason": "`--_scale` n'est pas un token du pipeline : rien à aliaser."
+        },
+        {
+          "cssVar": "--ui-input-group-item-radius",
+          "component": "ui-input-group",
+          "reason": "posée par le composant sur son propre élément : la déclarer dans un thème resterait sans effet."
         },
         {
           "cssVar": "--ui-input-tags-panel-max-width",
@@ -2117,6 +2122,32 @@
       }
     }
   },
+  "avatar-group": {
+    "overlap": {
+      "$value": "{metrics.units.md}",
+      "$type": "dimension",
+      "$description": "Chevauchement des avatars d'un groupe.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "GAP"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-avatar-group-overlap)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-avatar-group-overlap",
+          "component": "ui-config",
+          "entryPoint": "@4sh/ui-kit-react/styles",
+          "descriptionSource": "scss",
+          "perInstance": true,
+          "note": "2 défauts selon la variante rendue : en déclarer un seul écraserait les autres."
+        }
+      }
+    }
+  },
   "avatar-square": {
     "radius": {
       "$value": "{metrics.radius.md}",
@@ -3263,6 +3294,30 @@
           "cssVar": "--ui-button-weight",
           "component": "ui-button",
           "entryPoint": "@4sh/ui-kit-react/ui-button",
+          "descriptionSource": "scss"
+        }
+      }
+    }
+  },
+  "button-split": {
+    "stroke-width": {
+      "$value": "{metrics.stroke.default}",
+      "$type": "dimension",
+      "$description": "Recouvrement des deux boutons, égal à la largeur de bordure pour que le trait partagé ne double pas.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "STROKE_FLOAT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-button-split-stroke-width)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-button-split-stroke-width",
+          "component": "ui-button-split",
+          "entryPoint": "@4sh/ui-kit-react/ui-button-split",
           "descriptionSource": "scss"
         }
       }
@@ -9553,6 +9608,297 @@
             "entryPoint": "@4sh/ui-kit-react/ui-input",
             "descriptionSource": "scss"
           }
+        }
+      }
+    }
+  },
+  "input-group": {
+    "addon": {
+      "color": {
+        "$value": "{semantics.global.text.muted}",
+        "$type": "color",
+        "$description": "Couleur du texte d'une cellule.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-group-addon-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-group-addon-color",
+            "component": "ui-input-group",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-group",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "font-size": {
+        "$value": "{responsive.size.typography.text.default}",
+        "$type": "dimension",
+        "$description": "Taille du texte d'une cellule.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "FONT_SIZE"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-group-addon-font-size)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-group-addon-font-size",
+            "component": "ui-input-group",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-group",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "font-size-small": {
+        "$value": "{responsive.size.typography.text.md}",
+        "$type": "dimension",
+        "$description": "Taille du texte d'une cellule, variante `small`.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "FONT_SIZE"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-group-addon-font-size-small)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-group-addon-font-size-small",
+            "component": "ui-input-group",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-group",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "gap": {
+        "$value": "{metrics.units.sm}",
+        "$type": "dimension",
+        "$description": "Espace entre deux contenus d'une cellule.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "GAP"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-group-addon-gap)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-group-addon-gap",
+            "component": "ui-input-group",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-group",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "height": {
+        "$value": "{responsive.size.components.default}",
+        "$type": "dimension",
+        "$description": "Hauteur d'une cellule, alignée sur la boîte de champ.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-group-addon-height)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-group-addon-height",
+            "component": "ui-input-group",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-group",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "height-small": {
+        "$value": "{responsive.size.components.sm}",
+        "$type": "dimension",
+        "$description": "Hauteur d'une cellule, variante `small`.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-group-addon-height-small)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-group-addon-height-small",
+            "component": "ui-input-group",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-group",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "padding-x": {
+        "$value": "{metrics.units.md}",
+        "$type": "dimension",
+        "$description": "Inset horizontal du contenu d'une cellule.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "GAP"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-group-addon-padding-x)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-group-addon-padding-x",
+            "component": "ui-input-group",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-group",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "stroke": {
+        "$value": "{semantics.form.high.stroke.default}",
+        "$type": "color",
+        "$description": "Couleur de bordure d'une cellule.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "STROKE_COLOR"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-group-addon-stroke)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-group-addon-stroke",
+            "component": "ui-input-group",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-group",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "stroke-width": {
+        "$value": "{metrics.stroke.default}",
+        "$type": "dimension",
+        "$description": "Épaisseur de bordure d'une cellule.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "STROKE_FLOAT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-group-addon-stroke-width)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-group-addon-stroke-width",
+            "component": "ui-input-group",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-group",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface": {
+        "$value": "{semantics.global.background.muted}",
+        "$type": "color",
+        "$description": "Fond d'une cellule.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-group-addon-surface)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-group-addon-surface",
+            "component": "ui-input-group",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-group",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "font-family": {
+      "$value": "{typography.fontFamily.base}",
+      "$type": "string",
+      "$description": "Famille typographique du composant.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "STRING",
+          "scopes": [
+            "FONT_FAMILY"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-input-group-font-family)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-input-group-font-family",
+          "component": "ui-input-group",
+          "entryPoint": "@4sh/ui-kit-react/ui-input-group",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "overlap": {
+      "$value": "{metrics.stroke.default}",
+      "$type": "dimension",
+      "$description": "Recouvrement de deux items voisins, égal à la largeur de bordure pour que le trait partagé ne double pas.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "GAP"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-input-group-overlap)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-input-group-overlap",
+          "component": "ui-input-group",
+          "entryPoint": "@4sh/ui-kit-react/ui-input-group",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "radius": {
+      "$value": "{metrics.radius.sm}",
+      "$type": "dimension",
+      "$description": "Rayon des coins extérieurs du groupe.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "CORNER_RADIUS"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-input-group-radius)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-input-group-radius",
+          "component": "ui-input-group",
+          "entryPoint": "@4sh/ui-kit-react/ui-input-group",
+          "descriptionSource": "scss"
         }
       }
     }

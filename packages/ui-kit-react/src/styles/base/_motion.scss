@@ -1,9 +1,10 @@
 // =====================================================================
 // Motion presets : global enter/leave animation classes.
 //
-// Consumed by Angular's native `animate.enter` / `animate.leave` (v17.3+/21)
-// or manually. A class applies a keyframe animation from/to a hidden state;
-// Angular keeps the leaving node in the DOM until the animation ends.
+// Posées par le crochet `useUiMotion` (`core/motion`), ou à la main. Une classe
+// applique une animation depuis ou vers un état masqué ; c'est le crochet qui
+// GARDE le nœud sortant dans le DOM le temps de l'animation, là où la version
+// Angular s'en remet à `animate.leave`.
 //
 // Timing/easing/offset resolve from the `--ui-motion-*` custom properties
 // (per-instance override) with the motion tokens as defaults, so a single

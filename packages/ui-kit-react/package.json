@@ -53,6 +53,10 @@
       "types": "./dist/core/forms/index.d.ts",
       "import": "./dist/forms.js"
     },
+    "./motion": {
+      "types": "./dist/core/motion/index.d.ts",
+      "import": "./dist/motion.js"
+    },
     "./overlay": {
       "types": "./dist/core/overlay/index.d.ts",
       "import": "./dist/overlay.js"
@@ -76,6 +80,10 @@
     "./ui-button": {
       "types": "./dist/actions/ui-button/index.d.ts",
       "import": "./dist/ui-button.js"
+    },
+    "./ui-button-split": {
+      "types": "./dist/actions/ui-button-split/index.d.ts",
+      "import": "./dist/ui-button-split.js"
     },
     "./ui-link": {
       "types": "./dist/actions/ui-link/index.d.ts",
@@ -108,6 +116,10 @@
     "./ui-input-date": {
       "types": "./dist/forms/ui-input-date/index.d.ts",
       "import": "./dist/ui-input-date.js"
+    },
+    "./ui-input-group": {
+      "types": "./dist/forms/ui-input-group/index.d.ts",
+      "import": "./dist/ui-input-group.js"
     },
     "./ui-input-mask": {
       "types": "./dist/forms/ui-input-mask/index.d.ts",
@@ -172,6 +184,10 @@
     "./ui-avatar": {
       "types": "./dist/informative/ui-avatar/index.d.ts",
       "import": "./dist/ui-avatar.js"
+    },
+    "./ui-avatar-group": {
+      "types": "./dist/informative/ui-avatar-group/index.d.ts",
+      "import": "./dist/ui-avatar-group.js"
     },
     "./ui-badge": {
       "types": "./dist/informative/ui-badge/index.d.ts",

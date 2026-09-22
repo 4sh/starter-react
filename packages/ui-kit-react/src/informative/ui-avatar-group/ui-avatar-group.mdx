@@ -1,0 +1,47 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as AvatarGroupStories from './ui-avatar-group.stories';
+
+<Meta of={AvatarGroupStories} />
+
+# ui-avatar-group
+
+Empile des `ui-avatar` en les faisant se chevaucher. C'est une aide de mise en page et rien
+de plus : il range ce qu'on lui donne, il ne le fabrique pas.
+
+<Canvas of={AvatarGroupStories.Default} />
+
+## API
+
+<ArgTypes of={AvatarGroupStories} />
+
+Le groupe n'a aucune prop à lui : la taille, la forme et le mode se posent sur chaque
+`ui-avatar`. C'est délibéré, une prop de groupe qui redirait la taille serait une seconde
+source de vérité pour la même valeur.
+
+## Débordement
+
+Le « +5 » n'est pas calculé : c'est un avatar de plus, en mode libellé. Le groupe ne sait
+donc rien du nombre de membres, et l'appelant reste libre de la règle de troncature.
+
+<Canvas of={AvatarGroupStories.WithOverflow} />
+
+## Chevauchement
+
+Le recouvrement est une marge négative portée par tous les avatars sauf le premier, ce qui
+fait passer chacun au-dessus du précédent. Il se règle par groupe avec
+`--ui-avatar-group-overlap`, ou pour tout le kit avec la constante partagée du même nom.
+
+<Canvas of={AvatarGroupStories.CustomOverlap} />
+
+## Accessibilité
+
+La racine porte `role="group"` : donnez-lui un `aria-label` pour que la pile s'annonce comme
+un ensemble plutôt que comme une suite d'images sans rapport. Chaque avatar garde son propre
+nom accessible, `alt` en mode image et `aria-label` sinon.
+
+<Canvas of={AvatarGroupStories.Mixed} />
+
+## Theming
+
+<ConfigTable of="ui-avatar-group" />

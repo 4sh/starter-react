@@ -1,0 +1,293 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import * as MotionStories from './motion.stories';
+
+<Meta of={MotionStories} />
+
+# Motion
+
+Système d'animation piloté par les jetons, pensé pour être réutilisable par tous les
+composants : ouverture d'un panneau, dépliage d'un accordéon, apparition d'un toast. Aucune
+dépendance runtime, uniquement des animations et des transitions CSS natives.
+
+<Canvas of={MotionStories.Playground} />
+
+## Trois primitives, et laquelle choisir
+
+Le choix ne dépend pas de l'effet voulu mais de **ce que devient l'élément** : reste-t-il
+monté, vit-il dans le calque supérieur, ou quitte-t-il le DOM ?
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Situation</th>
+      <th>Primitive</th>
+      <th>Pourquoi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>L'élément reste <strong>monté</strong> et bascule d'un état à l'autre</td>
+      <td><code>utils.motion-transition(…)</code></td>
+      <td>Il n'y a rien à retenir : une transition CSS entre deux états suffit.</td>
+    </tr>
+    <tr>
+      <td>Panneau du <strong>calque supérieur</strong> (<code>[popover]</code>, <code>&lt;dialog&gt;</code>)</td>
+      <td><code>utils.overlay-motion</code></td>
+      <td><code>display</code> et <code>overlay</code> y sont animables avec <code>allow-discrete</code> : le nœud sortant reste affiché tout seul, sans une ligne de JavaScript.</td>
+    </tr>
+    <tr>
+      <td>Élément ordinaire qui <strong>quitte le DOM</strong></td>
+      <td><code>useUiMotion</code></td>
+      <td>Rien ne le retient : React le démonte à l'instant où l'appelant cesse de le rendre, et il n'y a plus rien à animer.</td>
+    </tr>
+  </tbody>
+</table>
+
+## Les préréglages
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Préréglage</th>
+      <th>Effet</th>
+      <th>Usage type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>fade</code></td>
+      <td>Opacité</td>
+      <td>Neutre, quand le mouvement n'apporte rien.</td>
+    </tr>
+    <tr>
+      <td><code>slide-up</code></td>
+      <td>Montée et fondu</td>
+      <td>Toasts, bulles au-dessus d'une ancre.</td>
+    </tr>
+    <tr>
+      <td><code>slide-down</code></td>
+      <td>Descente et fondu</td>
+      <td>Menus et listes sous leur déclencheur.</td>
+    </tr>
+    <tr>
+      <td><code>slide-left</code></td>
+      <td>Entrée par la droite</td>
+      <td>Panneaux latéraux.</td>
+    </tr>
+    <tr>
+      <td><code>slide-right</code></td>
+      <td>Entrée par la gauche</td>
+      <td>Panneaux latéraux, côté opposé.</td>
+    </tr>
+    <tr>
+      <td><code>zoom</code></td>
+      <td>Échelle et fondu</td>
+      <td>Dialogues.</td>
+    </tr>
+    <tr>
+      <td><code>collapse</code></td>
+      <td>Hauteur de rangée de grille</td>
+      <td>Accordéons et sections dépliables.</td>
+    </tr>
+  </tbody>
+</table>
+
+<Canvas of={MotionStories.Zoom} />
+<Canvas of={MotionStories.SlideDown} />
+<Canvas of={MotionStories.Collapse} />
+
+## useUiMotion
+
+Le crochet rend `present`, qui reste **vrai pendant toute la sortie**. C'est là toute la
+différence avec le starter Angular : là-bas `animate.leave` retient le nœud sortant, ici c'est
+`present` qui le retient.
+
+```tsx
+import { useUiMotion } from '@4sh/ui-kit-react/motion';
+
+function Panneau({ open, children }) {
+  // Destructuré en tête : le résultat contient une ref de rappel, et le linter
+  // des hooks refuse qu'on lise les propriétés d'un tel objet au fil du rendu.
+  const { present, ref, className, style } = useUiMotion(open, { preset: 'collapse' });
+  if (!present) return null;
+
+  return (
+    <div ref={ref} className={cx('mon-panneau', className)} style={style}>
+      {children}
+    </div>
+  );
+}
+```
+
+La fin de la sortie est **lue, jamais devinée** : le crochet attend les objets `Animation` du
+système, filtrés sur le préfixe `ui-motion-`. Un `setTimeout` calé sur la durée se
+désaccorderait le jour où le mouvement réduit la ramène à zéro, où un thème la change, ou où
+la classe ne s'applique pas. Ces trois cas donnent ici zéro animation à attendre, donc un
+démontage immédiat, gratuitement.
+
+`onExited` prévient une fois l'élément parti : c'est ce qui permet à une file de toasts de
+retirer son entrée au bon moment plutôt qu'à l'ouverture de la sortie.
+
+### API
+
+<ArgTypes of={MotionStories} />
+
+Le banc d'essai n'expose que trois réglages ; le crochet en accepte plus, tous facultatifs :
+`preset`, `disabled`, `duration`, `delay`, `easing`, `enterEasing`, `leaveEasing`, `distance`,
+`scale` et `onExited`.
+
+## Les classes, sans le crochet
+
+Les préréglages sont de simples classes globales, livrées dans la feuille du paquet. Un
+élément qui n'a pas besoin d'être retenu peut les porter directement :
+
+```html
+<div class="ui-motion-slide-down-enter">…</div>
+```
+
+Le contrat est stable et **partagé avec le starter Angular** :
+`ui-motion-<preset>-enter` et `ui-motion-<preset>-leave`.
+
+## Transition d'état, pour un élément monté
+
+```scss
+@use 'utils';
+
+.mon-panneau {
+  opacity: 0;
+  @include utils.motion-transition(opacity, translate);
+
+  &._open {
+    opacity: 1;
+  }
+}
+```
+
+## Panneau du calque supérieur
+
+Un `[popover]` ou un `<dialog>` n'a besoin de rien en JavaScript : `utils.overlay-motion`
+décrit son état fermé, et la plateforme fait le reste avec `transition-behavior:
+allow-discrete` et `@starting-style`.
+
+```scss
+@include utils.overlay-motion {
+  opacity: 0;
+  scale: 0.96;
+}
+```
+
+`utils.overlay-motion-enter` en est la variante « entrée seule » : la sortie est instantanée,
+pour un panneau dont l'ancre peut disparaître sous lui, un sous-menu en cascade typiquement.
+
+## Personnalisation
+
+Chaque exemplaire se recadence par des custom properties, que le crochet pose depuis ses
+options ou qu'on écrit directement en CSS. Les jetons servent de défauts.
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Custom property</th>
+      <th>Défaut</th>
+      <th>Rôle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--ui-motion-duration</code></td>
+      <td><code>--transition-default</code></td>
+      <td>Durée.</td>
+    </tr>
+    <tr>
+      <td><code>--ui-motion-easing</code></td>
+      <td><code>--transition-easeinout</code></td>
+      <td>Courbe des transitions symétriques et des panneaux.</td>
+    </tr>
+    <tr>
+      <td><code>--ui-motion-easing-enter</code></td>
+      <td><code>--transition-easeout</code></td>
+      <td>Courbe d'entrée des préréglages, décélérée.</td>
+    </tr>
+    <tr>
+      <td><code>--ui-motion-easing-leave</code></td>
+      <td><code>--transition-easein</code></td>
+      <td>Courbe de sortie des préréglages, accélérée.</td>
+    </tr>
+    <tr>
+      <td><code>--ui-motion-delay</code></td>
+      <td><code>0ms</code></td>
+      <td>Délai avant le départ.</td>
+    </tr>
+    <tr>
+      <td><code>--ui-motion-distance</code></td>
+      <td><code>0.5rem</code></td>
+      <td>Décalage des préréglages <code>slide-*</code>.</td>
+    </tr>
+    <tr>
+      <td><code>--ui-motion-scale</code></td>
+      <td><code>0.96</code></td>
+      <td>Échelle de départ et d'arrivée de <code>zoom</code>.</td>
+    </tr>
+  </tbody>
+</table>
+
+## Couper le mouvement
+
+Trois niveaux, du plus étroit au plus large, et le plus large gagne toujours.
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Niveau</th>
+      <th>Comment</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Un élément</td>
+      <td><code>useUiMotion(open, &#123; disabled: true &#125;)</code>, ou la prop <code>motion</code> du composant concerné.</td>
+    </tr>
+    <tr>
+      <td>Toute l'application</td>
+      <td><code>data-motion="off"</code> sur <code>&lt;html&gt;</code> : neutralise les animations <strong>et</strong> les transitions du kit.</td>
+    </tr>
+    <tr>
+      <td>Préférence système</td>
+      <td><code>prefers-reduced-motion: reduce</code> réduit tous les préréglages à un éclair : l'état change, sans mouvement.</td>
+    </tr>
+  </tbody>
+</table>
+
+Aucun des trois ne casse le démontage : sans animation à attendre, le crochet retire
+l'élément tout de suite.
+
+<Canvas of={MotionStories.Disabled} />
+
+## Ce qui l'utilise dans le kit
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Composant</th>
+      <th>Mécanisme</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ui-modal</code>, <code>ui-drawer</code>, <code>ui-popover</code>, <code>ui-tooltip</code></td>
+      <td><code>utils.overlay-motion</code> : entrée et sortie en CSS pur, dans le calque supérieur.</td>
+    </tr>
+    <tr>
+      <td><code>ui-menu</code>, <code>ui-context-menu</code></td>
+      <td><code>utils.overlay-motion-enter</code> : entrée seule, la sortie instantanée évitant qu'un sous-menu glisse par-dessus son parent.</td>
+    </tr>
+    <tr>
+      <td><code>ui-segment-control</code>, <code>ui-tabs</code></td>
+      <td><code>utils.motion-transition</code> sur l'indicateur glissant, qui reste monté.</td>
+    </tr>
+    <tr>
+      <td><code>ui-accordion</code>, <code>ui-toast</code> (à porter)</td>
+      <td><code>useUiMotion</code>, préréglages <code>collapse</code> et <code>slide-up</code>.</td>
+    </tr>
+  </tbody>
+</table>

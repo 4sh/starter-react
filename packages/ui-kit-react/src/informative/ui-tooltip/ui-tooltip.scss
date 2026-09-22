@@ -22,14 +22,21 @@ $tooltip-font-size: var(--ui-tooltip-font-size, var(--size-typography-text-md));
 
 .ui-tooltip {
   // Le calque supérieur pose `inset: 0` et `margin: auto` : c'est le placement
-  // calculé qui doit décider, donc on les annule.
+  // calculé qui doit décider, donc on les annule. `fixed` établit aussi le bloc
+  // conteneur de la flèche, qui est en `absolute`.
   position: fixed;
   inset: auto;
   margin: 0;
-  border: 0;
   overflow: visible;
 
-  position: relative;
+  // Une bulle ne se met JAMAIS entre le pointeur et ce qu'elle recouvre. Côté
+  // Angular c'est le panneau du CDK qui le pose ; ici il n'y a pas de calque à
+  // part, donc c'est la bulle elle-même. Sans ça, elle avale les clics de ce
+  // qu'elle surplombe, et avec `autoHide` elle clignote : le pointeur qui
+  // l'atteint quitte le déclencheur, elle se ferme, le pointeur retombe sur le
+  // déclencheur, elle se rouvre.
+  pointer-events: none;
+
   display: inline-block;
   box-sizing: border-box;
   max-width: $tooltip-max-width;
@@ -75,8 +82,11 @@ $tooltip-font-size: var(--ui-tooltip-font-size, var(--size-typography-text-md));
     display: none;
   }
 
-  // Interactive tooltips (autoHide=false) must catch pointer events.
-  &._interactive { pointer-events: auto; }
+  // Une bulle survolable (`autoHide={false}`) reprend le pointeur : c'est ce
+  // qui permet d'aller cliquer un lien dedans, exigé par WCAG 1.4.13.
+  &._interactive {
+    pointer-events: auto;
+  }
 
   // Respect reduced-motion preferences / the global motion kill-switch.
   @include utils.motion-reduce {

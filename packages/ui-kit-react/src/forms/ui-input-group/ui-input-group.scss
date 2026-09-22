@@ -1,0 +1,113 @@
+@use 'utils';
+
+// =====================================================================
+// ui-input-group : co-located styles. All values come from design tokens.
+//
+// Le reformage des coins et le recouvrement des bordures se font en CSS pur.
+// La version Angular doit les écrire en style en ligne depuis un
+// `MutationObserver`, un sélecteur scopé ne pouvant pas atteindre du contenu
+// projeté ; ici il n'y a pas d'encapsulation, donc un sélecteur d'enfant suffit
+// et il n'y a plus de JavaScript du tout.
+// =====================================================================
+
+// --- Config -----------------------------------------------------------
+$radius: var(--ui-input-group-radius, #{utils.$form-field-radius});         /// Rayon des coins extérieurs du groupe.
+$overlap: var(--ui-input-group-overlap, #{utils.$form-field-stroke-width}); /// Recouvrement de deux items voisins, égal à la largeur de bordure pour que le trait partagé ne double pas.
+
+$addon-height: var(--ui-input-group-addon-height, #{utils.$form-field-height});                      /// Hauteur d'une cellule, alignée sur la boîte de champ.
+$addon-height-small: var(--ui-input-group-addon-height-small, #{utils.$form-field-height-small});    /// Hauteur d'une cellule, variante `small`.
+$addon-padding-x: var(--ui-input-group-addon-padding-x, #{utils.$form-field-padding-x});             /// Inset horizontal du contenu d'une cellule.
+$addon-gap: var(--ui-input-group-addon-gap, #{utils.$form-field-gap});                               /// Espace entre deux contenus d'une cellule.
+$addon-stroke-width: var(--ui-input-group-addon-stroke-width, #{utils.$form-field-stroke-width});    /// Épaisseur de bordure d'une cellule.
+$addon-font-size: var(--ui-input-group-addon-font-size, var(--size-typography-text-default));        /// Taille du texte d'une cellule.
+$addon-font-size-small: var(--ui-input-group-addon-font-size-small, var(--size-typography-text-md)); /// Taille du texte d'une cellule, variante `small`.
+
+.ui-input-group {
+  // Miroir privé : le nom public reste surchargeable depuis l'extérieur.
+  --_radius: #{$radius};
+  --_overlap: calc(-1 * #{$overlap});
+
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+
+  // --- Items ---------------------------------------------------------
+  // Le sélecteur est borné par la racine, donc il ne fuit pas : c'est ce que
+  // le préfixe `ui-` garantit à la place d'une encapsulation.
+  > * {
+    // Coins carrés par défaut : seuls les bords du groupe se rearrondissent.
+    --ui-field-radius: 0;
+    --ui-button-radius: 0;
+    --ui-input-group-item-radius: 0;
+
+    position: relative; // laisse l'item focalisé peindre par-dessus ses voisins
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  // Le trait partagé se recouvre au lieu de doubler.
+  > * + * {
+    margin-inline-start: var(--_overlap);
+  }
+
+  // L'anneau de focus ne doit pas passer sous le voisin qui le recouvre.
+  > *:focus-within {
+    z-index: 1;
+  }
+
+  // Cellules et boutons gardent leur largeur naturelle, le contrôle prend le reste.
+  > .ui-input-group-addon,
+  > .ui-button {
+    flex: 0 0 auto;
+    min-width: auto;
+  }
+
+  // --- Corner shaping ------------------------------------------------
+  > :first-child {
+    --ui-field-radius: var(--_radius) 0 0 var(--_radius);
+    --ui-button-radius: var(--_radius) 0 0 var(--_radius);
+    --ui-input-group-item-radius: var(--_radius) 0 0 var(--_radius);
+  }
+
+  > :last-child {
+    --ui-field-radius: 0 var(--_radius) var(--_radius) 0;
+    --ui-button-radius: 0 var(--_radius) var(--_radius) 0;
+    --ui-input-group-item-radius: 0 var(--_radius) var(--_radius) 0;
+  }
+
+  // Seul dans le groupe, un item garde ses quatre coins.
+  > :only-child {
+    --ui-field-radius: var(--_radius);
+    --ui-button-radius: var(--_radius);
+    --ui-input-group-item-radius: var(--_radius);
+  }
+}
+
+// --- Addon --------------------------------------------------------------
+.ui-input-group-addon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $addon-gap;
+  box-sizing: border-box;
+  min-width: $addon-height;
+  min-height: $addon-height;
+  padding: 0 $addon-padding-x;
+  border: $addon-stroke-width solid
+    var(--ui-input-group-addon-stroke, var(--form-high-stroke-default)); /// Couleur de bordure d'une cellule.
+  // Piloté par le groupe : hors d'un groupe, la cellule garde le rayon de champ.
+  border-radius: var(--ui-input-group-item-radius, #{utils.$form-field-radius});
+  background-color: var(--ui-input-group-addon-surface, var(--global-background-muted)); /// Fond d'une cellule.
+  color: var(--ui-input-group-addon-color, var(--global-text-muted));                    /// Couleur du texte d'une cellule.
+  font-family: var(--ui-input-group-font-family, var(--fontfamily-base));                /// Famille typographique du composant.
+  font-size: $addon-font-size;
+  line-height: 1.2;
+  white-space: nowrap;
+  user-select: none;
+
+  &._small {
+    min-width: $addon-height-small;
+    min-height: $addon-height-small;
+    font-size: $addon-font-size-small;
+  }
+}

@@ -3,6 +3,7 @@ import { Meta, Story } from "@storybook/addon-docs/blocks";
 // `generated/ui-config.json` (voir `scripts/docs.config.mjs`).
 import buildInfo from "../generated/build-info.json";
 import * as ButtonStories from "../../packages/ui-kit-react/src/actions/ui-button/ui-button.stories";
+import * as ButtonSplitStories from "../../packages/ui-kit-react/src/actions/ui-button-split/ui-button-split.stories";
 import * as CheckboxStories from "../../packages/ui-kit-react/src/forms/ui-checkbox/ui-checkbox.stories";
 import * as FieldStories from "../../packages/ui-kit-react/src/forms/ui-field/ui-field.stories";
 import * as InputStories from "../../packages/ui-kit-react/src/forms/ui-input/ui-input.stories";
@@ -19,11 +20,13 @@ import * as ToggleBlockStories from "../../packages/ui-kit-react/src/forms/ui-to
 import * as SegmentStories from "../../packages/ui-kit-react/src/forms/ui-segment-control/ui-segment-control.stories";
 import * as ToggleButtonStories from "../../packages/ui-kit-react/src/forms/ui-toggle-button/ui-toggle-button.stories";
 import * as InputTagsStories from "../../packages/ui-kit-react/src/forms/ui-input-tags/ui-input-tags.stories";
+import * as InputGroupStories from "../../packages/ui-kit-react/src/forms/ui-input-group/ui-input-group.stories";
 import * as SelectStories from "../../packages/ui-kit-react/src/forms/ui-select/ui-select.stories";
 import * as RadioStories from "../../packages/ui-kit-react/src/forms/ui-radio/ui-radio.stories";
 import * as TextareaStories from "../../packages/ui-kit-react/src/forms/ui-textarea/ui-textarea.stories";
 import * as ToggleStories from "../../packages/ui-kit-react/src/forms/ui-toggle/ui-toggle.stories";
 import * as AvatarStories from "../../packages/ui-kit-react/src/informative/ui-avatar/ui-avatar.stories";
+import * as AvatarGroupStories from "../../packages/ui-kit-react/src/informative/ui-avatar-group/ui-avatar-group.stories";
 import * as ChipStories from "../../packages/ui-kit-react/src/informative/ui-chip/ui-chip.stories";
 import * as DrawerStories from "../../packages/ui-kit-react/src/layout/ui-drawer/ui-drawer.stories";
 import * as PopoverStories from "../../packages/ui-kit-react/src/layout/ui-popover/ui-popover.stories";
@@ -75,6 +78,7 @@ export const CATEGORIES = [
         link: '?path=/docs/components-ui-actions-ui-button--docs',
         story: ButtonStories.High,
       },
+      { name: 'ui-button-split', description: "Bouton d'action accolé à un déclencheur déroulant : les autres options vivent dans un ui-menu.", link: '?path=/docs/components-ui-actions-ui-button-split--docs', story: ButtonSplitStories.Default },
       { name: 'ui-link', description: "Lien textuel en ligne. Le sens décide : ce qui navigue est un lien, ce qui agit est un bouton. `render` branche le routeur du projet.", link: '?path=/docs/components-ui-actions-ui-link--docs', story: LinkStories.Default },
     ],
   },
@@ -97,6 +101,7 @@ export const CATEGORIES = [
       { name: 'ui-segment-control', description: "Contrôle segmenté. La sémantique change avec multiple : radiogroup en simple, group en bascules.", link: '?path=/docs/components-ui-forms-ui-segment-control--docs', story: SegmentStories.WithIcons },
       { name: 'ui-toggle-button', description: "Bouton à état pressé, seul ou en groupe. Le groupe est toujours multi-sélection, à dessein.", link: '?path=/docs/components-ui-forms-ui-toggle-button--docs', story: ToggleButtonStories.GroupIconOnly },
       { name: 'ui-input-tags', description: "Saisie multi-valeurs en tags. La listbox n'enveloppe que les tags : une liste ne peut pas contenir de champ texte.", link: '?path=/docs/components-ui-forms-ui-input-tags--docs', story: InputTagsStories.WithTags },
+      { name: 'ui-input-group', description: "Colle un contrôle et ses cellules en un seul champ visuel : coins carrés à l'intérieur, bordures fondues.", link: '?path=/docs/components-ui-forms-ui-input-group--docs', story: InputGroupStories.Default },
       { name: 'ui-select', description: "Liste déroulante suivant le motif combobox : le focus reste sur le déclencheur, l'option courante est désignée par aria-activedescendant.", link: '?path=/docs/components-ui-forms-ui-select--docs', story: SelectStories.WithValue },
       { name: 'ui-textarea', description: "Champ texte multiligne (coquille en mode multiligne, autoResize ou poignée native, compteur de caractères chaîné à aria-describedby).", link: '?path=/docs/components-ui-forms-ui-textarea--docs', story: TextareaStories.WithCount },
       { name: 'ui-checkbox', description: "Case à cocher sur input natif (modèle non booléen via trueValue/falseValue, indéterminé visuel, lecture seule annoncée).", link: '?path=/docs/components-ui-forms-ui-checkbox--docs', story: CheckboxStories.Checked },
@@ -109,6 +114,7 @@ export const CATEGORIES = [
     anchor: 'informative',
     components: [
       { name: 'ui-avatar', description: "Personne ou entité en image, initiales ou icône. Le mode se déduit des props, avec un badge de statut posé en haut à droite.", link: '?path=/docs/components-ui-informative-ui-avatar--docs', story: AvatarStories.Default },
+      { name: 'ui-avatar-group', description: "Pile d'avatars qui se chevauchent. Le débordement « +N » s'écrit comme un avatar de plus.", link: '?path=/docs/components-ui-informative-ui-avatar-group--docs', story: AvatarGroupStories.Default },
       { name: 'ui-chip', description: "Entité manipulable : retirable par un vrai bouton, ou sélectionnable en devenant elle-même un bouton à état.", link: '?path=/docs/components-ui-informative-ui-chip--docs', story: ChipStories.Removable },
       { name: 'ui-empty-state', description: "Absence de contenu : un visuel, un titre, une description et des actions pour offrir une suite.", link: '?path=/docs/components-ui-informative-ui-empty-state--docs', story: EmptyStateStories.Default },
       { name: 'ui-badge', description: "Compte ou statut. Trois formes selon le contenu : capsule, glyphe unique carré, ou point de notification.", link: '?path=/docs/components-ui-informative-ui-badge--docs', story: BadgeStories.Default },

@@ -39,6 +39,7 @@ variantes ou ses jetons.
 | API d'un composant                      | `packages/ui-kit-react/src/<catégorie>/ui-<nom>/ui-<nom>.stories.tsx` |
 | Couleurs, jetons sémantiques            | Storybook → `Foundations / Colors`                                    |
 | Typographie                             | Storybook → `Foundations / Typography`                                |
+| Animation : préréglages, crochet, coupe | Storybook → `Foundations / Motion`                                    |
 | Chaîne de jetons, thème, responsive     | Storybook → `Spécifications / *`                                      |
 | Source d'un composant                   | `packages/ui-kit-react/src/<catégorie>/ui-<nom>/`                     |
 | **Patron de référence**                 | `packages/ui-kit-react/src/base/ui-icon/`                             |

@@ -1,0 +1,84 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as InputGroupStories from './ui-input-group.stories';
+
+<Meta of={InputGroupStories} />
+
+# ui-input-group
+
+Colle un contrôle et ses cellules en un seul champ visuel. Purement présentationnel : chaque
+enfant garde son API et ses états, le groupe ne fait que les aligner sur une rangée, carrer
+les coins intérieurs et fondre les bordures voisines en une seule.
+
+<Canvas of={InputGroupStories.Default} />
+
+## API
+
+### UiInputGroup
+
+<ArgTypes of={InputGroupStories} />
+
+### UiInputGroupAddon
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Prop</th>
+      <th>Type</th>
+      <th>Défaut</th>
+      <th>Rôle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>size</code></td>
+      <td><code>'default' | 'small'</code></td>
+      <td>celle du groupe</td>
+      <td>Taille de la cellule. Renseignée, elle contredit le groupe.</td>
+    </tr>
+  </tbody>
+</table>
+
+## Ce qui va dedans
+
+Une cellule non interactive (texte, icône, case à cocher, bouton radio) passe par
+`UiInputGroupAddon`. Un contrôle (`UiInput`, `UiSelect`, `UiButton`) se pose **directement**
+dans le groupe : il n'a rien à savoir du groupe, et le groupe rien à savoir de lui.
+
+<Canvas of={InputGroupStories.Multiple} />
+<Canvas of={InputGroupStories.WithButton} />
+<Canvas of={InputGroupStories.WithSelection} />
+<Canvas of={InputGroupStories.WithSelect} />
+
+## Comment le reformage marche
+
+Le groupe ne touche à aucun enfant : il pose des **custom properties** que les composants
+exposent déjà, `--ui-field-radius` pour les champs et `--ui-button-radius` pour les boutons.
+Elles héritent, donc un enfant les reçoit sans que le groupe ait à le reconnaître, et un
+composant maison entre dans le rang en exposant le même crochet.
+
+Trois règles suffisent, toutes en CSS : seuls les items de bord gardent un coin arrondi,
+chaque voisin remonte d'exactement une largeur de bordure pour que le trait partagé ne double
+pas, et l'item focalisé passe au-dessus des autres pour que son anneau de focus ne soit pas
+rogné.
+
+## Tailles
+
+Le groupe transmet sa taille à ses cellules seulement. Les contrôles gardent la leur : ils
+ont déjà une prop `size`, et la leur écraser depuis le groupe ferait deux sources de vérité
+pour la même valeur.
+
+<Canvas of={InputGroupStories.Small} />
+
+## Accessibilité
+
+Le groupe n'ajoute **aucun rôle** : il est décoratif, et ce sont les contrôles qu'il contient
+qui portent la sémantique. Chaque champ a donc besoin de son propre nom accessible, par
+`label` ou par `aria-label` quand le libellé visible est justement remplacé par une cellule.
+
+Une cellule reste non interactive : ce qu'on y met (une case à cocher) garde son propre nom
+accessible, la cellule n'étant qu'une boîte.
+
+## Theming
+
+<ConfigTable of="ui-input-group" />

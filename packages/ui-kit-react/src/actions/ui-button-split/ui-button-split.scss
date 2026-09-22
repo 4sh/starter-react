@@ -1,0 +1,42 @@
+@use 'utils';
+
+// =====================================================================
+// ui-button-split : co-located styles.
+//
+// Les deux boutons portent leurs propres couleurs et états (`ui-button`) : ce
+// fichier ne fait que les coller en un seul contrôle. L'action garde ses coins
+// gauches, le déclencheur ses coins droits, et leur bordure partagée se
+// recouvre au lieu de doubler.
+// =====================================================================
+
+// --- Config -----------------------------------------------------------
+$stroke-width: var(--ui-button-split-stroke-width, #{utils.$control-stroke-width}); /// Recouvrement des deux boutons, égal à la largeur de bordure pour que le trait partagé ne double pas.
+
+.ui-button-split {
+  display: inline-flex;
+  align-items: stretch;
+
+  // Chacun son contexte d'empilement : le survolé ou le focalisé, et son anneau
+  // de focus, passent au-dessus du voisin qui les recouvre.
+  &-action,
+  &-trigger {
+    position: relative;
+
+    &:hover,
+    &:focus-within {
+      z-index: 1;
+    }
+  }
+
+  // Les coins intérieurs se carrent par le crochet que `ui-button` expose déjà :
+  // une custom property hérite, donc rien à percer.
+  &-action {
+    --ui-button-radius: var(--radius-sm) 0 0 var(--radius-sm);
+  }
+
+  &-trigger {
+    --ui-button-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+
+    margin-left: calc(-1 * #{$stroke-width});
+  }
+}

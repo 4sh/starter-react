@@ -27,10 +27,6 @@ pnpm docs:config:check # les sept garde-fous, en une commande
 pnpm test             # 2 projets : tests écrits + chaque story passée à axe
 ```
 
-⚠️ **Rien n'est committé depuis le 7 septembre.** L'arbre de travail porte trois sessions de
-travail, et il est vert : voir « État du dépôt à la reprise » pour le découpage en lots et les
-clés Jira à demander. C'est la première chose à traiter si on veut un historique lisible.
-
 Et quand quelque chose se comporte bizarrement : chercher d'abord dans **Pièges déjà payés**.
 La liste est longue parce que chaque entrée a coûté du temps une fois.
 
@@ -43,17 +39,20 @@ La liste est longue parce que chaque entrée a coûté du temps une fois.
 | 0     | Socle et décisions              | ✅ terminée                               |
 | 1     | Le patron, de bout en bout      | ✅ terminée (`ui-icon`, puis `ui-button`) |
 | 2     | Fondation transverse            | 🟡 **en cours** : voir ci-dessous         |
-| 3     | La vague des composants         | 🟡 45 sur 62                              |
+| 3     | La vague des composants         | 🟡 48 sur 62                              |
 | 4     | Mode copie et registry          | ⬜ pas commencée                          |
 | 5     | MCP, doc publique, publication  | ⬜ pas commencée                          |
 | 6     | Contrôle de parité entre stacks | ⬜ pas commencée                          |
 
-**Chiffres du jour** : 44 composants, 52 points d'entrée publics, 1377 tests (845 écrits à la
-main, 532 stories passées à axe), 7 garde-fous en CI, **deux** dépendances runtime
-(`@floating-ui/react-dom` et `@tanstack/react-virtual`, un seul fichier chacune).
+**Chiffres du jour** : 48 composants, 57 points d'entrée publics, 7 garde-fous en CI,
+**deux** dépendances runtime (`@floating-ui/react-dom` et `@tanstack/react-virtual`, un seul
+fichier chacune).
 
-**Le dénominateur est 60**, et non 61 comme l'ont longtemps annoncé les README : c'est le
-nombre de points d'entrée `ui-*` du starter Angular, mesuré.
+**Le dénominateur est 62, et il BOUGE.** C'est le nombre de points d'entrée `ui-*` du starter
+Angular, mesuré : il valait 60 le 10 septembre, et le starter Angular a depuis livré
+`ui-input-date` (porté ici dans la foulée) et `ui-bottom-sheet` (à porter). Ce n'est donc pas
+une constante à recopier de mémoire mais une mesure à refaire, ce que `components.check.mjs`
+ne peut pas faire seul : l'autre dépôt n'est pas là. **Le remesurer à chaque reprise.**
 
 ```bash
 cd <starter-angular>/projects/ui-kit && find . -name ng-package.json -path '*/ui-*' | wc -l
@@ -70,17 +69,17 @@ elles, ont été exécutées avant d'y être écrites.
 
 ### Phase 2, dans le détail
 
-| Brique         | État                                                                                                                                                                                                                                                                   |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `core/types`   | ✅ `UiLevel`, `UiSubLevel`, `UiFeedbackLevel`                                                                                                                                                                                                                          |
-| `core/theming` | ✅ provider contrôlé, sans clignotement au rendu serveur                                                                                                                                                                                                               |
-| `core/utils`   | ✅ `cx`, `getFieldPath` (lecture d'un champ en notation pointée, partagée avec le résolveur d'options)                                                                                                                                                                 |
-| `core/overlay` | ✅ `use-ui-position` (Floating UI, ancre élément **ou** point), `use-ui-dismiss`, `use-ui-scroll-lock`, `use-close-on-navigation`                                                                                                                                      |
-| `core/focus`   | ✅ `focusable`, `use-focus-restore`, `use-roving-tabindex` (le piège modal est natif)                                                                                                                                                                                  |
-| `core/virtual` | ✅ `use-ui-virtual-list` (TanStack Virtual, un seul fichier l'importe)                                                                                                                                                                                                 |
-| `core/forms`   | ✅ `useControllableState`, `useUiField`, types partagés, moteur de masque                                                                                                                                                                                              |
-| `core/motion`  | 🟡 jetons, `motion-transition`, `motion-reduce`, `overlay-motion` (entrée et sortie d'un panneau, en CSS pur) et `overlay-motion-enter` (entrée seule, sortie instantanée). Reste l'entrée et la sortie d'un élément HORS calque supérieur (listes, accordéon, toast). |
-| `core/ripple`  | ⬜ 338 lignes à porter                                                                                                                                                                                                                                                 |
+| Brique         | État                                                                                                                                                                                                                                                                                 |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `core/types`   | ✅ `UiLevel`, `UiSubLevel`, `UiFeedbackLevel`                                                                                                                                                                                                                                        |
+| `core/theming` | ✅ provider contrôlé, sans clignotement au rendu serveur                                                                                                                                                                                                                             |
+| `core/utils`   | ✅ `cx`, `getFieldPath` (lecture d'un champ en notation pointée, partagée avec le résolveur d'options)                                                                                                                                                                               |
+| `core/overlay` | ✅ `use-ui-position` (Floating UI, ancre élément **ou** point), `use-ui-dismiss`, `use-ui-scroll-lock`, `use-close-on-navigation`                                                                                                                                                    |
+| `core/focus`   | ✅ `focusable`, `use-focus-restore`, `use-roving-tabindex` (le piège modal est natif)                                                                                                                                                                                                |
+| `core/virtual` | ✅ `use-ui-virtual-list` (TanStack Virtual, un seul fichier l'importe)                                                                                                                                                                                                               |
+| `core/forms`   | ✅ `useControllableState`, `useUiField`, types partagés, moteur de masque                                                                                                                                                                                                            |
+| `core/motion`  | ✅ jetons, `motion-transition`, `motion-reduce`, `overlay-motion` (entrée et sortie d'un panneau du calque supérieur, en CSS pur), `overlay-motion-enter` (entrée seule), et `useUiMotion` pour l'entrée et la sortie d'un élément HORS calque supérieur (listes, accordéon, toast). |
+| `core/ripple`  | ⬜ 338 lignes à porter                                                                                                                                                                                                                                                               |
 
 ---
 
@@ -90,28 +89,42 @@ elles, ont été exécutées avant d'y être écrites.
 les vingt composants listés dans `docs/components-index.md` sont tous portés. Le kit couvre
 donc la majorité des écrans d'un projet réel.
 
-**Il reste 16 composants sur les 60.** Ne pas confondre les deux comptes, ce qui a déjà induit
+**Il reste 14 composants sur les 62.** Ne pas confondre les deux comptes, ce qui a déjà induit
 en erreur : le kit COMPLET, encore loin, et ce noyau, désormais atteint.
 
-Deux suites possibles, à arbitrer avec l'équipe plutôt que de mémoire :
+**La vague continue**, décidée le 21 septembre plutôt que de sortir le `0.1.0` tout de suite.
 
-- **Sortir le `0.1.0`** : lever `private: true` sur les trois paquets, geler l'API publique et
-  publier. C'est ce que le noyau rend possible, et ce qui rend la phase 4 (mode copie et
-  registry) discutable pour de bon, puisqu'un paquet publié couvre déjà le besoin courant.
-- **Continuer la vague** : la famille `navigation` est la plus entamée et la mieux
-  amortie (`ui-menu`, `ui-context-menu` et `ui-tabs` sont là), donc `ui-breadcrumb`
-  (257 lignes, sans dépendance) puis `ui-stepper` (430 plus quatre SCSS) sont les deux
-  prochains les moins chers.
+L'ordre suit le **coût**, pas la famille : les briques `core/` dont dépendent les restants
+sont déjà là (sauf deux, voir plus bas), donc rien n'oblige à grouper par famille. Taille
+mesurée sur le starter Angular, `.ts` (hors `.spec`) + `.html` + `.scss` :
 
-Les 16 restants, par famille :
+| Composant            | Lignes | Famille       | Ce dont il dépend, et son état ici                                 |
+| -------------------- | ------ | ------------- | ------------------------------------------------------------------ |
+| ✅ `ui-avatar-group` | 53     | `informative` | `ui-avatar` ✅. Fait le 21 septembre                               |
+| ✅ `ui-input-group`  | 199    | `forms`       | `core/forms` ✅. Fait le 21 septembre                              |
+| ✅ `ui-button-split` | 249    | `actions`     | `ui-button` ✅, `ui-menu` ✅. Fait le 21 septembre                 |
+| `ui-accordion`       | 432    | `informative` | `ui-icon` ✅, `ui-separator` ✅, `core/motion` ✅                  |
+| `ui-input-otp`       | 485    | `forms`       | `core/forms` ✅                                                    |
+| `ui-knob`            | 489    | `forms`       | `core/forms` ✅                                                    |
+| `ui-breadcrumb`      | 523    | `navigation`  | `ui-icon` ✅, routeur → prop `render` comme `ui-link`              |
+| `ui-swatch-picker`   | 534    | `forms`       | `core/overlay` ✅, `core/motion` ✅                                |
+| `ui-speed-dial`      | 703    | `actions`     | `ui-button` ✅, `ui-tooltip` ✅, `ui-menu` ✅, `core/overlay` ✅   |
+| `ui-bottom-tab-bar`  | 720    | `navigation`  | `ui-icon` ✅, routeur → prop `render`                              |
+| `ui-stepper`         | 773    | `navigation`  | `ui-icon` ✅                                                       |
+| `ui-toast`           | 780    | `informative` | `ui-icon` ✅, `core/motion` ✅, plus une file d’avis               |
+| `ui-bottom-sheet`    | 1041   | `layout`      | `core/overlay` ✅. **Nouveau côté Angular**, jamais listé ici      |
+| `ui-image`           | 1167   | `base`        | rien, mais gros                                                    |
+| `ui-file-upload`     | 1227   | `forms`       | `ui-button` ✅, `ui-progress-bar` ✅                               |
+| `ui-sidebar`         | 1472   | `navigation`  | `ui-menu` ✅, `core/overlay` ✅                                    |
+| `ui-editor`          | 1780   | `forms`       | moteur de texte riche : **arbitrage de dépendance** avant de coder |
 
-| Famille       | À porter                                                                                                                                                         |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `actions`     | `ui-button-split`, `ui-speed-dial`                                                                                                                               |
-| `base`        | `ui-image`                                                                                                                                                       |
-| `forms`       | `ui-input-group`, `ui-input-otp`, `ui-knob`, `ui-swatch-picker`, `ui-file-upload`, `ui-editor`                                                                   |
-| `informative` | `ui-accordion`, `ui-avatar-group`, `ui-toast`                                                                                                                    |
-| `navigation`  | `ui-breadcrumb` (257 lignes), `ui-stepper` (430 plus quatre SCSS), `ui-bottom-tab-bar` (372), `ui-sidebar` (399 plus 228 pour son menu, qui réutilise `ui-menu`) |
+Un seul verrou reste :
+
+- ✅ **`core/motion` hors calque supérieur** est levé le 22 septembre : `useUiMotion` retient
+  le nœud sortant le temps de son animation. `ui-accordion` et `ui-toast` sont débloqués.
+- **`ui-editor` demande un arbitrage de dépendance** au sens de D6 : aucun éditeur riche ne
+  s'écrit dans `core/`, donc c'est une décision d'architecture, pas une tâche de portage.
+  À garder pour la fin.
 
 Cette liste se **dérive**, ce qui vaut mieux que de la tenir à jour de mémoire :
 
@@ -415,6 +428,22 @@ Ne pas les repayer. Chacun est documenté sur place, dans le fichier concerné.
   ANCÊTRE est en `display: none` n'a plus de boîte du tout, et son rectangle se lit (0, 0),
   transform intact. J'ai failli corriger un repositionnement qui n'existait pas : c'est le
   `transform` qu'il faut lire pour trancher, pas le rectangle.
+- **Vider `node_modules/.cache/storybook` pendant que le serveur Storybook TOURNE le casse.**
+  Le symptôme est celui-là même qu'on voulait soigner : « Failed to fetch dynamically imported
+  module », mais dans le navigateur cette fois, et sur une story qu'on vient d'écrire. Le
+  serveur garde en mémoire un graphe qui ne correspond plus au disque. Vider les caches sert à
+  la suite de TESTS ; si Storybook tourne, le redémarrer ensuite. Payé deux fois.
+- **Une règle reprise d'Angular peut dépendre d'un calque CDK qui n'existe pas ici.** Le panneau
+  d'overlay du CDK pose `pointer-events: none` ; une bulle ou un panneau porté ici n'hérite de
+  rien, donc une règle du genre `._interactive { pointer-events: auto }` devient inerte et
+  l'état PAR DÉFAUT devient le mauvais. Mesuré sur `ui-tooltip`, qui avalait les clics de ce
+  qu'elle surplombe. À vérifier sur tous les composants qui montaient dans un overlay CDK :
+  `ui-speed-dial`, `ui-swatch-picker` et `ui-bottom-sheet` restent à porter. Se voit avec
+  `document.elementFromPoint()`, pas en relisant la propriété déclarée.
+- **Un rapport JSON de Vitest lu sans l'avoir effacé avant peut venir de l'exécution d'AVANT.**
+  Déjà écrit ici, repayé : trois exécutions de suite ont rapporté 23 tests pour un fichier qui
+  en a 20. `rm -f .vitest/json/output.json` avant de lancer, et recouper le décompte avec
+  `grep -c '^test('` sur le fichier.
 - **Un composant qui reverse `...rest` ne doit pas AUSSI lire `rest['aria-label']`.** Le nom
   atterrit alors sur la racine, qui n'a pas de rôle, ce qu'axe refuse. Sortir la prop de la
   destructuration et ne la poser qu'à l'endroit qui porte le rôle.
@@ -1444,3 +1473,72 @@ l'APG et que le kit applique déjà à `ui-table`.
 Un défaut d'instabilité repéré au passage, sans rapport avec ces deux composants : un test de
 `ui-tooltip` échoue une fois sur deux quand la suite complète démarre à froid. Ajouté à la
 dette plutôt que corrigé au vol.
+
+### 2026-09-21 : la vague reprend, et le dénominateur avait encore bougé
+
+Trois composants portés, `ui-avatar-group`, `ui-input-group` et `ui-button-split`, choisis par
+coût croissant. Mais la première chose trouvée n'était pas dans le code.
+
+**Le compte était faux d'un composant, et le total de deux.** Le starter Angular a livré
+`ui-input-date` (porté ici entre-temps) et `ui-bottom-sheet` (à porter) : il est passé de 60 à
+62 points d'entrée. `components.check.mjs` ne pouvait pas le voir, son dénominateur étant une
+constante écrite à la main, l'autre dépôt n'étant pas là. La roadmap dit maintenant que ce
+nombre BOUGE et se remesure à chaque reprise, au lieu de le présenter comme acquis. C'est la
+troisième fois que ce chiffre dérive, et la première où la cause n'est pas une erreur de
+recopie mais une évolution légitime de l'autre stack.
+
+Le tableau des restants est désormais **mesuré** (lignes `.ts` + `.html` + `.scss`, et la
+brique `core/` dont chacun dépend) au lieu d'être rangé par famille. Ça change l'ordre : rien
+n'oblige à finir une famille, et deux verrous sortent du lot, `core/motion` hors calque
+supérieur qui bloque `ui-accordion` et `ui-toast`, et `ui-editor` qui est un arbitrage de
+dépendance D6 déguisé en tâche de portage.
+
+**Les trois ports ont tous simplifié le code Angular, et toujours pour la même raison.**
+`ui-avatar-group` vise la classe `.ui-avatar` au lieu de l'élément, donc plus besoin de
+`ViewEncapsulation.None`. `ui-input-group` fait son reformage de coins en CSS pur, là où la
+version Angular écrit des styles en ligne depuis un `MutationObserver` parce qu'un sélecteur
+scopé ne peut pas atteindre du contenu projeté. `ui-button-split` pose `--ui-button-radius`,
+que `ui-button` expose déjà, sans rien percer. Les trois fois c'est l'absence d'encapsulation
+(décision D5) qui paie : ce que la version Angular obtient par dérogation est ici l'état
+normal.
+
+**Écart signalé, pas corrigé** : le starter Angular a ajouté le 18 septembre (`FSHSP-213`) une
+douzaine de hooks `--ui-*` que ce dépôt n'a pas, surtout des réglages d'alignement sur
+`ui-alert`, `ui-drawer` et `ui-modal`. Le nom des hooks est un invariant Dual-Engine : un
+projet qui thème les deux stacks trouverait ces réglages sans effet ici. Mis de côté en tâche
+à part plutôt que mélangé à la vague.
+
+### 2026-09-22 : le verrou motion tombe, et `ui-tooltip` avalait les clics
+
+**`core/motion` est complet.** Il manquait la moitié JavaScript : les sept préréglages, leurs
+classes et leurs keyframes étaient déjà livrés, mais rien ne retenait le nœud sortant. C'est
+tout l'écart avec Angular : là-bas `animate.leave` garde le nœud le temps de l'animation, ici
+un élément quitte le DOM à l'instant où l'appelant cesse de le rendre. `useUiMotion` rend donc
+`present`, qui reste vrai pendant la sortie.
+
+La brique est documentée dans Storybook, `Foundations / Motion`, au même endroit que côté
+Angular : un banc d'essai des sept préréglages, et surtout le tableau qui dit laquelle des
+trois primitives choisir. Le choix ne dépend pas de l'effet voulu mais de ce que devient
+l'élément, et ça n'était écrit nulle part.
+
+La fin de la sortie est LUE, jamais devinée : on attend les objets `Animation` du système,
+filtrés sur le préfixe `ui-motion-` pour ne pas attendre celle d'un contenu qui pulserait en
+boucle. Un `setTimeout` calé sur la durée se désaccorderait du mouvement réduit, d'un thème
+qui retime, ou d'une classe qui ne s'applique pas ; ici ces trois cas donnent zéro animation à
+attendre, donc un démontage immédiat, gratuitement. Vérifié en neutralisant la rétention :
+les deux tests qui la tiennent échouent bien.
+
+**`ui-tooltip` : le défaut était réel, mais pas celui qu'on croyait.** Le mouvement marche,
+mesuré des deux côtés (l'ouverture crée bien ses transitions, la fermeture les rejoue). Ce qui
+était cassé, c'est que la bulle **s'interposait entre le pointeur et la page** : elle avalait
+les clics de ce qu'elle surplombe, et avec `autoHide` elle pouvait clignoter. La cause est une
+règle reprise telle quelle du kit Angular, `._interactive { pointer-events: auto }`, qui n'a
+de sens que là-bas : c'est le panneau du CDK qui y pose `pointer-events: none` sur le calque.
+Ici il n'y a pas de calque à part, donc l'état par défaut était l'inverse de celui voulu.
+
+Leçon rangée dans les pièges, parce qu'elle vaut pour la suite : trois des composants restants
+montent dans un overlay CDK côté Angular (`ui-speed-dial`, `ui-swatch-picker`,
+`ui-bottom-sheet`), et hériteront du même trou s'ils sont recopiés sans y penser.
+
+Deux déclarations `position` contradictoires dans le même bloc du même fichier, trouvées au
+passage, que seul le style en ligne du positionneur masquait.

@@ -10,6 +10,40 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
 
 ### Added
 
+- `core/motion` : `useUiMotion`, l'entrée et la sortie d'un élément **hors calque supérieur**
+  (liste, section dépliable, toast). Un panneau du calque supérieur n'en a pas besoin, `display`
+  et `overlay` y étant animables en CSS pur ; un élément ordinaire, lui, quitte le DOM à
+  l'instant où l'appelant cesse de le rendre, et il n'y a plus rien à animer. Là où Angular a
+  `animate.leave`, qui retient le nœud sortant, c'est ici `present` qui le retient, et il ne
+  retombe qu'une fois les objets `Animation` du système terminés : jamais un `setTimeout` calé
+  sur une durée devinée, qui se désaccorderait du mouvement réduit, d'un thème, ou d'une classe
+  qui ne s'applique pas. Les sept préréglages, leurs classes et leurs keyframes étaient déjà
+  livrés : c'était la moitié JavaScript qui manquait. Débloque `ui-accordion` et `ui-toast`.
+- Storybook : page `Foundations / Motion`, avec un banc d'essai des sept préréglages et le
+  tableau qui dit laquelle des **trois** primitives choisir. Le choix ne dépend pas de l'effet
+  voulu mais de ce que devient l'élément : `utils.motion-transition` s'il reste monté,
+  `utils.overlay-motion` s'il vit dans le calque supérieur, `useUiMotion` s'il quitte le DOM.
+  C'est la question qu'on se pose en vrai, et elle n'était écrite nulle part.
+
+- `ui-button-split` : bouton d'action accolé à un déclencheur déroulant, qui ferme la famille
+  `actions` avec `ui-speed-dial`. Les options sont le `UiMenuItem[]` de `ui-menu`, donc un
+  modèle écrit pour un menu se réutilise tel quel ; les deux moitiés se désactivent séparément.
+  Le collage ne redéfinit aucun style de bouton : il pose `--ui-button-radius`, le crochet que
+  `ui-button` expose déjà, et remonte le déclencheur d'une largeur de bordure.
+
+- `ui-input-group` : colle un contrôle et ses cellules en un seul champ visuel, avec
+  `UiInputGroupAddon` pour les cellules non interactives. Le reformage des coins, le
+  recouvrement des bordures voisines et le relèvement de l'item focalisé se font en **CSS
+  pur** : la version Angular doit les écrire en style en ligne depuis un `MutationObserver`,
+  un sélecteur scopé ne pouvant pas atteindre du contenu projeté, là où l'absence
+  d'encapsulation rend ici un sélecteur d'enfant suffisant. Le groupe ne reconnaît aucun
+  enfant : il pose `--ui-field-radius` et `--ui-button-radius`, que les composants exposent
+  déjà, donc un composant maison entre dans le rang en exposant le même crochet.
+
+- `ui-avatar-group` : pile d'avatars qui se chevauchent. Aide de mise en page sans props : le
+  débordement « +N » s'écrit comme un avatar de plus, en mode libellé, donc le groupe ne sait
+  rien du nombre de membres et l'appelant garde sa règle de troncature. Le chevauchement suit
+  la constante partagée `--ui-avatar-group-overlap`, réglable par groupe.
 - Amorçage du starter React Web : monorepo pnpm (`packages/` + `apps/`), chaîne de jetons
   Style Dictionary, fondation SCSS, Storybook 10 (react-vite) avec les trois addons locaux
   repris du starter Angular, build de librairie multi-entrées à table `exports` générée,
@@ -386,6 +420,18 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
     sans ça, glyphe noir sur champ sombre et calendrier clair.
 
 ### Fixed
+
+- `ui-tooltip` : la bulle **s'interposait entre le pointeur et la page**. Elle avalait donc
+  les clics de ce qu'elle surplombe, et avec `autoHide` elle pouvait clignoter, le pointeur
+  qui l'atteint quittant le déclencheur, ce qui la ferme, ce qui remet le pointeur sur le
+  déclencheur, ce qui la rouvre. La règle `._interactive { pointer-events: auto }` reprise du
+  kit Angular n'a de sens que là-bas : c'est le panneau du CDK qui y pose
+  `pointer-events: none` sur le calque, et ce calque n'existe pas ici, la bulle vivant dans le
+  calque supérieur natif. La bulle le pose donc elle-même, et `._interactive` redevient ce
+  qu'elle décrit. Mesuré par `elementFromPoint`, pas seulement par la propriété déclarée.
+- `ui-tooltip` : deux déclarations `position` contradictoires dans le même bloc, `fixed` puis
+  `relative`. Seul le style en ligne du positionneur les masquait. `fixed` est gardée, elle
+  établit aussi le bloc conteneur de la flèche.
 
 - Documentation : le total du Design System était annoncé à **61** composants dans les deux
   README et dans la feuille de route, alors que le starter Angular en compte **60** (mesuré, et
