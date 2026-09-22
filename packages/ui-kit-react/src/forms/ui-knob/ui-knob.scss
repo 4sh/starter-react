@@ -1,0 +1,152 @@
+@use 'utils';
+
+// =====================================================================
+// ui-knob : co-located styles. All values come from design tokens.
+//
+// The dial is drawn in a 100×100 viewBox: lengths inside the SVG are in
+// viewBox units and follow the rendered diameter on their own.
+//
+// No host element here, so `.ui-knob` IS the `role="slider"` stop.
+// =====================================================================
+
+// --- Config -----------------------------------------------------------
+$size: var(--ui-knob-size, #{utils.rem-calc(100)}); /// Diamètre du cadran.
+$size-small: var(--ui-knob-size-small, #{utils.rem-calc(70)}); /// Diamètre du cadran, taille `small`.
+$size-large: var(--ui-knob-size-large, #{utils.rem-calc(140)}); /// Diamètre du cadran, taille `large`.
+
+$radius: var(--ui-knob-radius, var(--radius-full)); /// Rayon de la zone focalisable.
+$focus-ring-width: var(--ui-knob-focus-ring-width, #{utils.$form-focus-ring-width}); /// Épaisseur de l'anneau de focus.
+
+$font-size: var(--ui-knob-font-size, var(--size-typography-title-md)); /// Taille de la valeur centrale.
+$font-size-small: var(--ui-knob-font-size-small, var(--size-typography-text-lg)); /// Taille de la valeur centrale, taille `small`.
+$font-size-large: var(--ui-knob-font-size-large, var(--size-typography-title-default)); /// Taille de la valeur centrale, taille `large`.
+
+$range-color: var(--ui-knob-range-color, var(--global-background-muted)); /// Couleur de la piste.
+$value-color: var(--ui-knob-value-color, var(--actions-high-surface-default)); /// Couleur de l'arc rempli.
+$text-color: var(--ui-knob-text-color, var(--global-text-default)); /// Couleur de la valeur centrale.
+
+.ui-knob {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: $size;
+  height: $size;
+  border-radius: $radius;
+  touch-action: none;
+  cursor: pointer;
+  user-select: none;
+  @include utils.control-transition(box-shadow);
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 $focus-ring-width
+      var(--ui-knob-focus-ring-color, var(--actions-high-stroke-focused)); /// Couleur de l'anneau de focus.
+  }
+
+  // --- Dial -----------------------------------------------------------
+  &-dial {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  // L'épaisseur vient de la prop `strokeWidth` : elle pilote aussi le rayon de
+  // l'arc, donc le trait tient toujours dans la boîte quelle que soit sa valeur.
+  &-range,
+  &-value {
+    fill: none;
+    stroke-linecap: round;
+  }
+
+  &-range {
+    stroke: $range-color;
+  }
+
+  &-value {
+    stroke: $value-color;
+    @include utils.control-transition(stroke);
+  }
+
+  // --- Centre label ---------------------------------------------------
+  &-text {
+    position: absolute;
+    font-size: $font-size;
+    font-weight: var(--ui-knob-weight, var(--weight-bold)); /// Graisse du texte.
+    color: $text-color;
+    // Les chiffres gardent la même chasse : le libellé ne tremble plus pendant
+    // le glissement.
+    font-variant-numeric: tabular-nums;
+    pointer-events: none;
+  }
+
+  // --- Sizes ----------------------------------------------------------
+  &._small {
+    width: $size-small;
+    height: $size-small;
+
+    .ui-knob-text {
+      font-size: $font-size-small;
+    }
+  }
+
+  &._large {
+    width: $size-large;
+    height: $size-large;
+
+    .ui-knob-text {
+      font-size: $font-size-large;
+    }
+  }
+
+  // --- Interaction ----------------------------------------------------
+  &:hover .ui-knob-value {
+    stroke: var(--ui-knob-value-color-hover, var(--actions-high-surface-hover)); /// Couleur de l'arc rempli au survol.
+  }
+
+  &:active .ui-knob-value {
+    stroke: var(--ui-knob-value-color-pressed, var(--actions-high-surface-pressed)); /// Couleur de l'arc rempli pendant le glissement.
+  }
+
+  // --- Read-only ------------------------------------------------------
+  &._readonly {
+    cursor: default;
+
+    &:hover .ui-knob-value,
+    &:active .ui-knob-value {
+      stroke: $value-color;
+    }
+  }
+
+  // --- Disabled -------------------------------------------------------
+  &._disabled {
+    cursor: not-allowed;
+
+    .ui-knob-value,
+    &:hover .ui-knob-value {
+      stroke: var(--ui-knob-value-color-disabled, var(--actions-high-surface-disabled)); /// Couleur de l'arc rempli, cadran désactivé.
+    }
+
+    .ui-knob-text {
+      color: var(--ui-knob-text-color-disabled, var(--global-text-muted)); /// Couleur de la valeur centrale, cadran désactivé.
+    }
+  }
+
+  // --- Invalid --------------------------------------------------------
+  // La couleur d'erreur saturée vit dans les jetons `content` : le jeton
+  // `surface` est le fond pâle des champs, comme sur `ui-rating` et `ui-slider`.
+  &._invalid {
+    .ui-knob-value {
+      stroke: var(--ui-knob-value-color-invalid, var(--form-error-content-default)); /// Couleur de l'arc rempli en erreur.
+    }
+
+    &:hover .ui-knob-value {
+      stroke: var(--ui-knob-value-color-hover-invalid, var(--form-error-content-hover)); /// Couleur de l'arc rempli en erreur, au survol.
+    }
+
+    &:focus-visible {
+      box-shadow: 0 0 0 $focus-ring-width
+        var(--ui-knob-focus-ring-color-invalid, var(--form-error-stroke-focused)); /// Couleur de l'anneau de focus en erreur.
+    }
+  }
+}

@@ -50,7 +50,9 @@
 - ✅ `ui-input-group` : Colle un contrôle et ses cellules en un seul champ visuel. Le
   reformage des coins et le recouvrement des bordures sont en CSS pur, par les crochets
   `--ui-field-radius` / `--ui-button-radius` que les composants exposent déjà
-- ⬜ `ui-input-otp`
+- ✅ `ui-input-otp` : Code à usage unique, une case `<input maxlength="1">` par caractère.
+  Arrêt de tabulation unique et flèches entre les cases, avance automatique à la frappe,
+  collage réparti, `renderCell` pour remplacer le contrôle
 - ✅ `ui-checkbox` : Case à cocher sur `<input>` natif (modèle non booléen par
   `trueValue`/`falseValue`, indéterminé purement visuel, lecture seule annoncée par
   `aria-readonly`)
@@ -75,7 +77,9 @@
 - ✅ `ui-nudger` : Compteur numérique, bornes dérivées de la valeur, deux `ui-button` composés
 - ✅ `ui-rating` : Note en étoiles sur un `<input type="range">` natif, demi-notes découpées
 - ✅ `ui-slider` : Curseur simple ou de plage, motif slider WAI-ARIA, repères de pas
-- ⬜ `ui-knob` · `ui-swatch-picker`
+- ✅ `ui-knob` : Cadran circulaire, arc SVG de 300° en viewBox, motif curseur de l'APG.
+  Pointeur et clavier par le même chemin, épaisseur de trait à l'échelle du diamètre
+- ⬜ `ui-swatch-picker`
 - ⬜ `ui-file-upload` · `ui-editor`
 
 ## informative

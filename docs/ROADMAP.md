@@ -39,12 +39,12 @@ La liste est longue parce que chaque entrée a coûté du temps une fois.
 | 0     | Socle et décisions              | ✅ terminée                               |
 | 1     | Le patron, de bout en bout      | ✅ terminée (`ui-icon`, puis `ui-button`) |
 | 2     | Fondation transverse            | 🟡 **en cours** : voir ci-dessous         |
-| 3     | La vague des composants         | 🟡 50 sur 62                              |
+| 3     | La vague des composants         | 🟡 52 sur 62                              |
 | 4     | Mode copie et registry          | ⬜ pas commencée                          |
 | 5     | MCP, doc publique, publication  | ⬜ pas commencée                          |
 | 6     | Contrôle de parité entre stacks | ⬜ pas commencée                          |
 
-**Chiffres du jour** : 50 composants, 59 points d'entrée publics, 7 garde-fous en CI,
+**Chiffres du jour** : 52 composants, 61 points d'entrée publics, 7 garde-fous en CI,
 **deux** dépendances runtime (`@floating-ui/react-dom` et `@tanstack/react-virtual`, un seul
 fichier chacune).
 
@@ -89,7 +89,7 @@ elles, ont été exécutées avant d'y être écrites.
 les vingt composants listés dans `docs/components-index.md` sont tous portés. Le kit couvre
 donc la majorité des écrans d'un projet réel.
 
-**Il reste 12 composants sur les 62.** Ne pas confondre les deux comptes, ce qui a déjà induit
+**Il reste 10 composants sur les 62.** Ne pas confondre les deux comptes, ce qui a déjà induit
 en erreur : le kit COMPLET, encore loin, et ce noyau, désormais atteint.
 
 **La vague continue**, décidée le 21 septembre plutôt que de sortir le `0.1.0` tout de suite.
@@ -104,8 +104,8 @@ mesurée sur le starter Angular, `.ts` (hors `.spec`) + `.html` + `.scss` :
 | ✅ `ui-input-group`  | 199    | `forms`       | `core/forms` ✅. Fait le 21 septembre                              |
 | ✅ `ui-button-split` | 249    | `actions`     | `ui-button` ✅, `ui-menu` ✅. Fait le 21 septembre                 |
 | ✅ `ui-accordion`    | 432    | `informative` | `ui-icon` ✅, `ui-separator` ✅. Fait le 22 septembre              |
-| `ui-input-otp`       | 485    | `forms`       | `core/forms` ✅                                                    |
-| `ui-knob`            | 489    | `forms`       | `core/forms` ✅                                                    |
+| ✅ `ui-input-otp`    | 485    | `forms`       | `core/forms` ✅. Fait le 22 septembre                              |
+| ✅ `ui-knob`         | 489    | `forms`       | `core/forms` ✅. Fait le 22 septembre                              |
 | `ui-breadcrumb`      | 523    | `navigation`  | `ui-icon` ✅, routeur → prop `render` comme `ui-link`              |
 | `ui-swatch-picker`   | 534    | `forms`       | `core/overlay` ✅, `core/motion` ✅                                |
 | `ui-speed-dial`      | 703    | `actions`     | `ui-button` ✅, `ui-tooltip` ✅, `ui-menu` ✅, `core/overlay` ✅   |
@@ -489,6 +489,10 @@ Ne pas les repayer. Chacun est documenté sur place, dans le fichier concerné.
   fausse. Coûté une demi-heure sur `ui-toast`, où seuls les tests de `life` échouaient, et
   seulement dans l'ordre du fichier. Garer le pointeur dans un `beforeEach`, sur un élément
   posé hors du chemin.
+- **Un test de durée ne doit pas courir contre lui-même.** Rendre la carte, attendre qu'elle
+  paraisse puis amener le pointeur dessus prend déjà du temps, et ce temps est décompté du
+  `life`. Un délai court rend le test vert ou rouge selon la charge de la machine : celui du
+  survol de `ui-toast` est tombé une fois sur quatre avec `life={300}`, jamais avec `1000`.
 - **`vitest/browser`, et non `@vitest/browser/context`.** Le second existe encore mais jette
   « can be imported only inside the Browser Mode » depuis le pool navigateur, et le fichier de
   test ne s'importe plus du tout. Le message désigne la mauvaise cause.
@@ -497,6 +501,24 @@ Ne pas les repayer. Chacun est documenté sur place, dans le fichier concerné.
   l'empilement, mais il ne reçoit plus le pointeur : `elementFromPoint` ne le voit pas. Une
   mesure de superposition par test doit donc passer par un voile à z-index, pas par un
   dialogue modal. Vérifié à l'écran avant d'être écrit.
+- **`setPointerCapture(0)` jette, donc un `pointerdown` fabriqué sans `pointerId` casse le
+  geste entier.** L'identifiant 0 ne correspond à aucun pointeur actif, la capture lève
+  `NotFoundError`, et le gestionnaire s'arrête AVANT de lire la position. Le symptôme trompe :
+  la valeur ne bouge pas, et on cherche la géométrie. `pointerId: 1` dans le `PointerEventInit`,
+  comme le font déjà les tests de `ui-slider`.
+- **Une prop nommée `autoFocus` fait échouer le lint de CHAQUE consommateur.**
+  `jsx-a11y/no-autofocus` ne regarde pas si l'élément est natif : le nom suffit. Un composant
+  du kit qui expose ce nom transmet donc l'erreur à tous ceux qui s'en servent. Renommé
+  `focusOnMount` sur `ui-input-otp`, ce qui décrit d'ailleurs mieux le comportement.
+- **`getBBox()` d'un tracé SVG rend la géométrie SANS son trait.** Une assertion « l'arc tient
+  dans son viewBox » écrite dessus ne mesure que la ligne médiane, donc elle passe même quand
+  le trait déborde de vingt unités. Élargir la boîte de la demi-épaisseur avant de comparer.
+  Vérifié en retirant la rétraction du rayon de `ui-knob` : le test tombe alors, et pas avant.
+- **Le rôle ARIA décide des attributs, pas l'intention.** `group` ne supporte pas
+  `aria-invalid`, `slider` ne supporte pas `aria-required` : posés quand même, ils sont
+  refusés par `jsx-a11y` et par axe. Les deux cas viennent du kit Angular, où ils sont posés
+  sur l'hôte. Quand l'attribut n'a nulle part où aller, la prop qui le pilotait n'a plus
+  d'objet non plus.
 
 ---
 
@@ -1596,3 +1618,35 @@ seulement dans l'ordre du fichier. Second défaut : côté Angular, un message a
 `stackVisibleLimit` voit son délai armé dès l'arrivée, donc il expire sans avoir jamais été
 affiché, alors que la doc promet qu'il attend son tour. Ici le compte démarre quand la carte
 paraît.
+
+### 2026-09-22 : `ui-input-otp` et `ui-knob`, les deux moins chers restants
+
+**`ui-input-otp` a demandé de trancher où vit la vérité.** La valeur est une chaîne, mais les
+cases, elles, peuvent avoir un TROU : cliquer la troisième case et y taper un caractère donne
+`'9'`, qui ne dit pas dans quelle case il se trouve. Ce sont donc les cases qui sont la source
+du rendu, et elles ne se réalignent sur la valeur que lorsqu'elle change **sans venir d'elles**,
+c'est-à-dire quand un parent contrôlé impose autre chose. Le repère de comparaison est un
+état, `react-hooks` refusant qu'on lise une ref au fil du rendu, et c'est une seule ligne qui
+porte tout : avancer le repère avant de publier. Vérifié en la retirant, deux tests tombent.
+
+Le focus glisse de case en case sans ref non plus : le groupe se retrouve depuis la case qui a
+reçu l'événement, par `closest('.ui-input-otp')`. Même raisonnement que sur `ui-tabs` et
+`ui-accordion`, et pour la même raison : l'ordre des cases est une propriété du DOM.
+
+**Deux noms ont changé, et les deux pour une raison de linter, pas de goût.** `autofocus`
+devient `focusOnMount` parce que `jsx-a11y/no-autofocus` refuse ce nom sur n'importe quel
+élément, y compris un composant du kit : le garder aurait fait échouer le lint de chaque
+consommateur. Et `aria-invalid` quitte le groupe pour les cases, le rôle `group` ne le
+supportant pas.
+
+**`ui-knob` s'est porté presque tel quel**, sa géométrie étant de la trigonométrie sans
+framework. Une prop est tombée : `required`, qui ne posait que `aria-required`, un attribut
+que le rôle `slider` ne supporte pas. Une prop sans effet promet une contrainte qui n'existe
+pas.
+
+**Deux pièges de mesure payés au passage.** Un `pointerdown` fabriqué sans `pointerId` fait
+jeter `setPointerCapture(0)`, donc le gestionnaire s'arrête avant même de lire la position :
+la valeur ne bouge pas et on cherche la géométrie. Et `getBBox()` d'un tracé SVG rend la
+géométrie sans son trait, donc l'assertion « l'arc tient dans son viewBox » ne mesurait que la
+ligne médiane et passait même sans la rétraction du rayon. Élargie de la demi-épaisseur, elle
+tombe bien quand on retire la rétraction.

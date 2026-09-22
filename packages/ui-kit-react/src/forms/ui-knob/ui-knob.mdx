@@ -1,0 +1,128 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as KnobStories from './ui-knob.stories';
+
+<Meta of={KnobStories} />
+
+# ui-knob
+
+Cadran circulaire pour choisir une valeur numérique. Un arc de 300° ouvert en bas, piloté à
+la souris, au doigt et au clavier.
+
+Pour une valeur sur un axe droit, c'est
+[`ui-slider`](?path=/docs/components-ui-forms-ui-slider--docs) ; pour un simple affichage
+d'avancement, [`ui-progress-bar`](?path=/docs/components-ui-informative-ui-progress-bar--docs).
+
+<Canvas of={KnobStories.Default} />
+
+## API
+
+<ArgTypes of={KnobStories} />
+
+La valeur suit le contrat contrôlé du kit : `value` la fixe, `defaultValue` l'amorce,
+`onValueChange` la rapporte.
+
+## Bornes et pas
+
+L'arc va toujours du minimum au maximum, quelles que soient les bornes. Le **pas** cale la
+valeur sur sa grille, au clavier comme au glissement, et il gouverne aussi la précision
+décimale : un pas de `0.1` ne laisse pas filer la dérive flottante.
+
+<Canvas of={KnobStories.MinMax} />
+<Canvas of={KnobStories.Step} />
+
+## Dessin
+
+`strokeWidth` est en unités de **viewBox**, pas en pixels : le trait suit donc le diamètre
+rendu, et le rayon de l'arc se rétracte de la demi-épaisseur pour qu'un trait épais ne
+déborde jamais sur l'anneau de focus.
+
+<Canvas of={KnobStories.Stroke} />
+<Canvas of={KnobStories.Size} />
+
+`valueTemplate` habille la valeur centrale, `{value}` étant le substitut. Dès que le libellé
+diffère de la valeur brute, il est aussi annoncé par `aria-valuetext`.
+
+<Canvas of={KnobStories.Template} />
+<Canvas of={KnobStories.WithoutValue} />
+
+## Couleurs
+
+Trois props posent directement les crochets `--ui-knob-value-color`, `-range-color` et
+`-text-color` sur l'exemplaire. Tout le reste du theming passe par la table du bas.
+
+<Canvas of={KnobStories.Color} />
+
+## Contrôles séparés
+
+Un cadran en lecture seule reste **focalisable et lisible** : c'est la saisie qui est fermée,
+pas la consultation. Deux boutons suffisent alors à le régler.
+
+<Canvas of={KnobStories.CustomControls} />
+
+## États
+
+<Canvas of={KnobStories.ReadOnly} />
+<Canvas of={KnobStories.Disabled} />
+<Canvas of={KnobStories.Invalid} />
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Implémentation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Motif curseur</td>
+      <td>
+        Un seul arrêt <code>role="slider"</code> portant <code>aria-valuemin</code>,{' '}
+        <code>aria-valuemax</code> et <code>aria-valuenow</code>. Le dessin SVG est{' '}
+        <code>aria-hidden</code> : la valeur est portée une seule fois.
+      </td>
+    </tr>
+    <tr>
+      <td>Nom</td>
+      <td>
+        <code>aria-label</code> ou <code>aria-labelledby</code>, sans quoi un avertissement est
+        émis en développement : un curseur anonyme n'annonce que des nombres.
+      </td>
+    </tr>
+    <tr>
+      <td>Clavier</td>
+      <td>
+        <code>←</code> et <code>↓</code> retirent un pas, <code>→</code> et <code>↑</code> en
+        ajoutent un, <code>Page précédente</code> et <code>Page suivante</code> font dix pas, et{' '}
+        <code>Début</code> et <code>Fin</code> vont aux bornes.
+      </td>
+    </tr>
+    <tr>
+      <td>Désactivé</td>
+      <td>
+        <code>aria-disabled</code> et <code>tabindex="-1"</code> : le cadran sort du parcours et
+        ne répond plus, ni au clavier ni au pointeur.
+      </td>
+    </tr>
+    <tr>
+      <td>Lecture seule</td>
+      <td>
+        <code>aria-readonly</code>, mais l'arrêt de tabulation reste : la valeur doit pouvoir être
+        lue par un lecteur d'écran.
+      </td>
+    </tr>
+    <tr>
+      <td>Pointeur</td>
+      <td>
+        Souris, doigt et stylet passent par le même chemin de code, avec capture de pointeur :
+        le glissement continue même quand le pointeur sort du cadran.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Theming
+
+<ConfigTable of="ui-knob" />

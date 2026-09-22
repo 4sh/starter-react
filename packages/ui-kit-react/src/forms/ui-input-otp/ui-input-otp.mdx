@@ -1,0 +1,128 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as OtpStories from './ui-input-otp.stories';
+
+<Meta of={OtpStories} />
+
+# ui-input-otp
+
+Saisie d'un code à usage unique, une case par caractère. Chaque case est un
+`<input maxlength="1">` natif ; le groupe n'est qu'un `role="group"` qui les coordonne.
+
+<Canvas of={OtpStories.Default} />
+
+## API
+
+<ArgTypes of={OtpStories} />
+
+La valeur suit le contrat contrôlé du kit : `value` la fixe, `defaultValue` l'amorce,
+`onValueChange` la rapporte. `onComplete` s'ajoute, et ne tire qu'une fois toutes les cases
+remplies : c'est le moment où l'on valide, pas avant.
+
+<Canvas of={OtpStories.Controlled} />
+
+## Saisie
+
+La frappe avance seule à la case suivante, `Retour arrière` efface et recule, et un code
+**collé se répartit** sur les cases à partir de celle qui reçoit le collage. Le remplissage
+automatique du navigateur, qui pousse le code entier dans une seule case, se répartit de la
+même façon : les cases portent `autocomplete="one-time-code"`.
+
+<Canvas of={OtpStories.Basic} />
+
+`integerOnly` refuse tout ce qui n'est pas un chiffre, à la frappe comme au collage, et
+demande le pavé numérique aux claviers virtuels. `mask` cache les caractères.
+
+<Canvas of={OtpStories.IntegerOnly} />
+<Canvas of={OtpStories.Mask} />
+
+## Tailles et états
+
+<Canvas of={OtpStories.Sizes} />
+<Canvas of={OtpStories.Disabled} />
+<Canvas of={OtpStories.ReadOnly} />
+<Canvas of={OtpStories.Invalid} />
+
+## Case sur mesure
+
+`renderCell` remplace le contrôle. Le contexte donne le rang, la valeur, l'arrêt de
+tabulation et les gestionnaires : tout ce qui n'est ni `index` ni `value` se branche tel
+quel, et c'est ce qui garde le comportement du groupe.
+
+⚠️ Le contrôle rendu doit rester un `<input>` : c'est ce que le groupe retrouve dans le DOM
+pour faire glisser le focus de case en case.
+
+<Canvas of={OtpStories.CustomCell} />
+
+Rien n'empêche d'insérer autre chose entre les cases, un séparateur par exemple, du moment
+qu'il est `aria-hidden`.
+
+<Canvas of={OtpStories.Sample} />
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Implémentation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Nom du groupe</td>
+      <td>
+        <code>role="group"</code> plus <code>aria-label</code> ou{' '}
+        <code>aria-labelledby</code>. Sans l'un des deux, un avertissement est émis en
+        développement : un groupe anonyme n'annonce rien.
+      </td>
+    </tr>
+    <tr>
+      <td>Nom de chaque case</td>
+      <td>
+        « <code>aria-label</code> du groupe » (ou <code>charAriaLabel</code>) suivi du rang, donc
+        « Code 1 », « Code 2 »… Sans ça, un lecteur d'écran annonce la même chose partout.
+      </td>
+    </tr>
+    <tr>
+      <td>Arrêt de tabulation unique</td>
+      <td>
+        Le champ compte pour <strong>un</strong> arrêt : <code>Tab</code> le traverse, les flèches
+        circulent dedans, <code>Début</code> et <code>Fin</code> vont aux extrémités.
+      </td>
+    </tr>
+    <tr>
+      <td>Flèches verticales</td>
+      <td>
+        Neutralisées : un code n'a pas d'axe vertical, et sans ce garde la page défile sous les
+        doigts.
+      </td>
+    </tr>
+    <tr>
+      <td>Erreur</td>
+      <td>
+        <code>aria-invalid</code> est porté par les <strong>cases</strong>, qui sont les contrôles
+        réels : le rôle <code>group</code> ne le supporte pas.
+      </td>
+    </tr>
+    <tr>
+      <td>Sortie du champ</td>
+      <td>
+        <code>onBlur</code> ne tire que quand le focus quitte le groupe entier, jamais entre deux
+        cases : une validation branchée dessus ne se déclenche donc pas à chaque frappe.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Une case remplie seule
+
+Rien n'oblige à remplir de gauche à droite : on peut cliquer la troisième case et y taper un
+caractère. Les cases gardent alors leur **trou**, que la valeur jointe, elle, ne sait pas
+porter (`'9'` ne dit pas dans quelle case il est). Ce sont donc les cases qui sont la source
+du rendu, et elles ne se réalignent sur la valeur que quand celle-ci change sans venir
+d'elles, c'est-à-dire quand un parent contrôlé impose autre chose.
+
+## Theming
+
+<ConfigTable of="ui-input-otp" />

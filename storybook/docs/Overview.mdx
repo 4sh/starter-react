@@ -14,6 +14,8 @@ import * as LabelStories from "../../packages/ui-kit-react/src/forms/ui-label/ui
 import * as AutocompleteStories from "../../packages/ui-kit-react/src/forms/ui-autocomplete/ui-autocomplete.stories";
 import * as DatepickerStories from "../../packages/ui-kit-react/src/forms/ui-datepicker/ui-datepicker.stories";
 import * as NudgerStories from "../../packages/ui-kit-react/src/forms/ui-nudger/ui-nudger.stories";
+import * as InputOtpStories from "../../packages/ui-kit-react/src/forms/ui-input-otp/ui-input-otp.stories";
+import * as KnobStories from "../../packages/ui-kit-react/src/forms/ui-knob/ui-knob.stories";
 import * as RatingStories from "../../packages/ui-kit-react/src/forms/ui-rating/ui-rating.stories";
 import * as SliderStories from "../../packages/ui-kit-react/src/forms/ui-slider/ui-slider.stories";
 import * as ToggleBlockStories from "../../packages/ui-kit-react/src/forms/ui-toggle-block/ui-toggle-block.stories";
@@ -99,6 +101,8 @@ export const CATEGORIES = [
       { name: 'ui-nudger', description: "Compteur numérique. Les états « au minimum » et « au maximum » sont dérivés de la valeur, jamais des props.", link: '?path=/docs/components-ui-forms-ui-nudger--docs', story: NudgerStories.Default },
       { name: 'ui-rating', description: "Note en étoiles posée sur un curseur natif : focus, clavier et sémantique de valeur viennent du navigateur.", link: '?path=/docs/components-ui-forms-ui-rating--docs', story: RatingStories.AllowHalf },
       { name: 'ui-slider', description: "Curseur simple ou de plage. Le pointeur est capturé, donc le glissement continue hors de la piste.", link: '?path=/docs/components-ui-forms-ui-slider--docs', story: SliderStories.Default },
+      { name: 'ui-knob', description: "Cadran circulaire. Un arc SVG de 300° en viewBox, donc le trait suit le diamètre rendu.", link: '?path=/docs/components-ui-forms-ui-knob--docs', story: KnobStories.Basic },
+      { name: 'ui-input-otp', description: "Code à usage unique, une case par caractère. Un seul arrêt de tabulation, et le collage se répartit.", link: '?path=/docs/components-ui-forms-ui-input-otp--docs', story: InputOtpStories.Basic },
       { name: 'ui-toggle-block', description: "Bloc sélectionnable. Un label étiré rend toute la surface activante, sans gestionnaire de clic.", link: '?path=/docs/components-ui-forms-ui-toggle-block--docs', story: ToggleBlockStories.Checked },
       { name: 'ui-segment-control', description: "Contrôle segmenté. La sémantique change avec multiple : radiogroup en simple, group en bascules.", link: '?path=/docs/components-ui-forms-ui-segment-control--docs', story: SegmentStories.WithIcons },
       { name: 'ui-toggle-button', description: "Bouton à état pressé, seul ou en groupe. Le groupe est toujours multi-sélection, à dessein.", link: '?path=/docs/components-ui-forms-ui-toggle-button--docs', story: ToggleButtonStories.GroupIconOnly },

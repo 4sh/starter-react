@@ -10,11 +10,11 @@
         "Mode 1"
       ],
       "counts": {
-        "tokens": 1015,
-        "alias": 901,
-        "literal": 114,
+        "tokens": 1058,
+        "alias": 941,
+        "literal": 117,
         "skipped": 42,
-        "derivedDescriptions": 185
+        "derivedDescriptions": 191
       },
       "aliasTargets": [
         "metrics",
@@ -10475,6 +10475,519 @@
       }
     }
   },
+  "input-otp": {
+    "cell": {
+      "color": {
+        "$value": "{semantics.form.high.content.default}",
+        "$type": "color",
+        "$description": "Couleur du caractère saisi.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-otp-cell-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-otp-cell-color",
+            "component": "ui-input-otp",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-disabled": {
+        "$value": "{semantics.form.high.content.disabled}",
+        "$type": "color",
+        "$description": "Couleur du caractère d'une case désactivée.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-otp-cell-color-disabled)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-otp-cell-color-disabled",
+            "component": "ui-input-otp",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "size": {
+        "$value": "{responsive.size.components.default}",
+        "$type": "dimension",
+        "$description": "Taille de `ui-input-otp`, cell.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-otp-cell-size)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-otp-cell-size",
+            "component": "ui-input-otp",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+            "descriptionSource": "derived"
+          }
+        }
+      },
+      "size-large": {
+        "$value": "{responsive.size.components.xl}",
+        "$type": "dimension",
+        "$description": "Taille de `ui-input-otp`, cell (variante `large`).",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-otp-cell-size-large)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-otp-cell-size-large",
+            "component": "ui-input-otp",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+            "descriptionSource": "derived"
+          }
+        }
+      },
+      "size-small": {
+        "$value": "{responsive.size.components.sm}",
+        "$type": "dimension",
+        "$description": "Taille de `ui-input-otp`, cell (variante `small`).",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-otp-cell-size-small)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-otp-cell-size-small",
+            "component": "ui-input-otp",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+            "descriptionSource": "derived"
+          }
+        }
+      },
+      "stroke": {
+        "$value": "{semantics.form.high.stroke.default}",
+        "$type": "color",
+        "$description": "Couleur de bordure d'une case.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "STROKE_COLOR"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-otp-cell-stroke)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-otp-cell-stroke",
+            "component": "ui-input-otp",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "stroke-disabled": {
+        "$value": "{semantics.form.high.stroke.disabled}",
+        "$type": "color",
+        "$description": "Couleur de bordure d'une case désactivée.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "STROKE_COLOR"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-otp-cell-stroke-disabled)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-otp-cell-stroke-disabled",
+            "component": "ui-input-otp",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "stroke-focus": {
+        "$value": "{semantics.form.high.stroke.focused}",
+        "$type": "color",
+        "$description": "Couleur de bordure au focus ; elle teinte aussi l'anneau.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "STROKE_COLOR"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-otp-cell-stroke-focus)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-otp-cell-stroke-focus",
+            "component": "ui-input-otp",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "stroke-focus-invalid": {
+        "$value": "{semantics.form.error.stroke.focused}",
+        "$type": "color",
+        "$description": "Couleur de bordure d'une case en erreur, au focus.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "STROKE_COLOR"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-otp-cell-stroke-focus-invalid)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-otp-cell-stroke-focus-invalid",
+            "component": "ui-input-otp",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "stroke-hover": {
+        "$value": "{semantics.form.high.stroke.hover}",
+        "$type": "color",
+        "$description": "Couleur de bordure au survol.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "STROKE_COLOR"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-otp-cell-stroke-hover)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-otp-cell-stroke-hover",
+            "component": "ui-input-otp",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "stroke-hover-invalid": {
+        "$value": "{semantics.form.error.stroke.hover}",
+        "$type": "color",
+        "$description": "Couleur de bordure d'une case en erreur, au survol.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "STROKE_COLOR"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-otp-cell-stroke-hover-invalid)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-otp-cell-stroke-hover-invalid",
+            "component": "ui-input-otp",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "stroke-invalid": {
+        "$value": "{semantics.form.error.stroke.default}",
+        "$type": "color",
+        "$description": "Couleur de bordure d'une case en erreur.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "STROKE_COLOR"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-otp-cell-stroke-invalid)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-otp-cell-stroke-invalid",
+            "component": "ui-input-otp",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface": {
+        "$value": "{semantics.form.high.surface.default}",
+        "$type": "color",
+        "$description": "Fond d'une case.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-otp-cell-surface)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-otp-cell-surface",
+            "component": "ui-input-otp",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "surface-disabled": {
+        "$value": "{semantics.form.high.surface.disabled}",
+        "$type": "color",
+        "$description": "Fond d'une case désactivée.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "FRAME_FILL",
+              "SHAPE_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-input-otp-cell-surface-disabled)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-input-otp-cell-surface-disabled",
+            "component": "ui-input-otp",
+            "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "focus-ring-width": {
+      "$value": "{metrics.units.2xs}",
+      "$type": "dimension",
+      "$description": "Largeur de l'anneau de focus.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "STROKE_FLOAT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-input-otp-focus-ring-width)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-input-otp-focus-ring-width",
+          "component": "ui-input-otp",
+          "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "font-family": {
+      "$value": "{typography.fontFamily.base}",
+      "$type": "string",
+      "$description": "Famille typographique du composant.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "STRING",
+          "scopes": [
+            "FONT_FAMILY"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-input-otp-font-family)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-input-otp-font-family",
+          "component": "ui-input-otp",
+          "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "font-size": {
+      "$value": "{responsive.size.typography.text.default}",
+      "$type": "dimension",
+      "$description": "Taille de police de `ui-input-otp`.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "FONT_SIZE"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-input-otp-font-size)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-input-otp-font-size",
+          "component": "ui-input-otp",
+          "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+          "descriptionSource": "derived"
+        }
+      }
+    },
+    "font-size-large": {
+      "$value": "{responsive.size.typography.text.lg}",
+      "$type": "dimension",
+      "$description": "Taille de police de `ui-input-otp` (variante `large`).",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "FONT_SIZE"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-input-otp-font-size-large)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-input-otp-font-size-large",
+          "component": "ui-input-otp",
+          "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+          "descriptionSource": "derived"
+        }
+      }
+    },
+    "font-size-small": {
+      "$value": "{responsive.size.typography.text.md}",
+      "$type": "dimension",
+      "$description": "Taille de police de `ui-input-otp` (variante `small`).",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "FONT_SIZE"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-input-otp-font-size-small)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-input-otp-font-size-small",
+          "component": "ui-input-otp",
+          "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+          "descriptionSource": "derived"
+        }
+      }
+    },
+    "gap": {
+      "$value": "{metrics.units.sm}",
+      "$type": "dimension",
+      "$description": "Espace entre les cases.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "GAP"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-input-otp-gap)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-input-otp-gap",
+          "component": "ui-input-otp",
+          "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "radius": {
+      "$value": "{metrics.radius.sm}",
+      "$type": "dimension",
+      "$description": "Rayon des cases, aligné sur `ui-field`.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "CORNER_RADIUS"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-input-otp-radius)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-input-otp-radius",
+          "component": "ui-input-otp",
+          "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "stroke-width": {
+      "$value": "{metrics.stroke.default}",
+      "$type": "dimension",
+      "$description": "Épaisseur de la bordure.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "STROKE_FLOAT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-input-otp-stroke-width)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-input-otp-stroke-width",
+          "component": "ui-input-otp",
+          "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "weight": {
+      "$value": "{typography.weight.bold}",
+      "$type": "string",
+      "$description": "Graisse du texte.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "STRING",
+          "scopes": [
+            "FONT_WEIGHT",
+            "FONT_STYLE"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-input-otp-weight)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-input-otp-weight",
+          "component": "ui-input-otp",
+          "entryPoint": "@4sh/ui-kit-react/ui-input-otp",
+          "descriptionSource": "scss"
+        }
+      }
+    }
+  },
   "input-tags": {
     "empty": {
       "color": {
@@ -11265,6 +11778,457 @@
           "cssVar": "--ui-input-tags-weight",
           "component": "ui-input-tags",
           "entryPoint": "@4sh/ui-kit-react/ui-input-tags",
+          "descriptionSource": "scss"
+        }
+      }
+    }
+  },
+  "knob": {
+    "focus-ring": {
+      "color": {
+        "$value": "{semantics.actions.high.stroke.focused}",
+        "$type": "color",
+        "$description": "Couleur de l'anneau de focus.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-knob-focus-ring-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-knob-focus-ring-color",
+            "component": "ui-knob",
+            "entryPoint": "@4sh/ui-kit-react/ui-knob",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-invalid": {
+        "$value": "{semantics.form.error.stroke.focused}",
+        "$type": "color",
+        "$description": "Couleur de l'anneau de focus en erreur.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-knob-focus-ring-color-invalid)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-knob-focus-ring-color-invalid",
+            "component": "ui-knob",
+            "entryPoint": "@4sh/ui-kit-react/ui-knob",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "focus-ring-width": {
+      "$value": "{metrics.units.2xs}",
+      "$type": "dimension",
+      "$description": "Épaisseur de l'anneau de focus.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "STROKE_FLOAT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-knob-focus-ring-width)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-knob-focus-ring-width",
+          "component": "ui-knob",
+          "entryPoint": "@4sh/ui-kit-react/ui-knob",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "font-size": {
+      "$value": "{responsive.size.typography.title.md}",
+      "$type": "dimension",
+      "$description": "Taille de la valeur centrale.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "FONT_SIZE"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-knob-font-size)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-knob-font-size",
+          "component": "ui-knob",
+          "entryPoint": "@4sh/ui-kit-react/ui-knob",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "font-size-large": {
+      "$value": "{responsive.size.typography.title.default}",
+      "$type": "dimension",
+      "$description": "Taille de la valeur centrale, taille `large`.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "FONT_SIZE"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-knob-font-size-large)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-knob-font-size-large",
+          "component": "ui-knob",
+          "entryPoint": "@4sh/ui-kit-react/ui-knob",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "font-size-small": {
+      "$value": "{responsive.size.typography.text.lg}",
+      "$type": "dimension",
+      "$description": "Taille de la valeur centrale, taille `small`.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "FONT_SIZE"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-knob-font-size-small)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-knob-font-size-small",
+          "component": "ui-knob",
+          "entryPoint": "@4sh/ui-kit-react/ui-knob",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "radius": {
+      "$value": "{metrics.radius.full}",
+      "$type": "dimension",
+      "$description": "Rayon de la zone focalisable.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "CORNER_RADIUS"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-knob-radius)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-knob-radius",
+          "component": "ui-knob",
+          "entryPoint": "@4sh/ui-kit-react/ui-knob",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "range": {
+      "color": {
+        "$value": "{semantics.global.background.muted}",
+        "$type": "color",
+        "$description": "Couleur de la piste.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-knob-range-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-knob-range-color",
+            "component": "ui-knob",
+            "entryPoint": "@4sh/ui-kit-react/ui-knob",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "size": {
+      "$value": "100px",
+      "$type": "dimension",
+      "$description": "Diamètre du cadran.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "WIDTH_HEIGHT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-knob-size)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-knob-size",
+          "component": "ui-knob",
+          "entryPoint": "@4sh/ui-kit-react/ui-knob",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "size-large": {
+      "$value": "140px",
+      "$type": "dimension",
+      "$description": "Diamètre du cadran, taille `large`.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "WIDTH_HEIGHT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-knob-size-large)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-knob-size-large",
+          "component": "ui-knob",
+          "entryPoint": "@4sh/ui-kit-react/ui-knob",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "size-small": {
+      "$value": "70px",
+      "$type": "dimension",
+      "$description": "Diamètre du cadran, taille `small`.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "WIDTH_HEIGHT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-knob-size-small)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-knob-size-small",
+          "component": "ui-knob",
+          "entryPoint": "@4sh/ui-kit-react/ui-knob",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "text": {
+      "color": {
+        "$value": "{semantics.global.text.default}",
+        "$type": "color",
+        "$description": "Couleur de la valeur centrale.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "TEXT_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-knob-text-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-knob-text-color",
+            "component": "ui-knob",
+            "entryPoint": "@4sh/ui-kit-react/ui-knob",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-disabled": {
+        "$value": "{semantics.global.text.muted}",
+        "$type": "color",
+        "$description": "Couleur de la valeur centrale, cadran désactivé.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "TEXT_FILL"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-knob-text-color-disabled)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-knob-text-color-disabled",
+            "component": "ui-knob",
+            "entryPoint": "@4sh/ui-kit-react/ui-knob",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "value": {
+      "color": {
+        "$value": "{semantics.actions.high.surface.default}",
+        "$type": "color",
+        "$description": "Couleur de l'arc rempli.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-knob-value-color)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-knob-value-color",
+            "component": "ui-knob",
+            "entryPoint": "@4sh/ui-kit-react/ui-knob",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-disabled": {
+        "$value": "{semantics.actions.high.surface.disabled}",
+        "$type": "color",
+        "$description": "Couleur de l'arc rempli, cadran désactivé.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-knob-value-color-disabled)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-knob-value-color-disabled",
+            "component": "ui-knob",
+            "entryPoint": "@4sh/ui-kit-react/ui-knob",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-hover": {
+        "$value": "{semantics.actions.high.surface.hover}",
+        "$type": "color",
+        "$description": "Couleur de l'arc rempli au survol.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-knob-value-color-hover)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-knob-value-color-hover",
+            "component": "ui-knob",
+            "entryPoint": "@4sh/ui-kit-react/ui-knob",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-hover-invalid": {
+        "$value": "{semantics.form.error.content.hover}",
+        "$type": "color",
+        "$description": "Couleur de l'arc rempli en erreur, au survol.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-knob-value-color-hover-invalid)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-knob-value-color-hover-invalid",
+            "component": "ui-knob",
+            "entryPoint": "@4sh/ui-kit-react/ui-knob",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-invalid": {
+        "$value": "{semantics.form.error.content.default}",
+        "$type": "color",
+        "$description": "Couleur de l'arc rempli en erreur.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-knob-value-color-invalid)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-knob-value-color-invalid",
+            "component": "ui-knob",
+            "entryPoint": "@4sh/ui-kit-react/ui-knob",
+            "descriptionSource": "scss"
+          }
+        }
+      },
+      "color-pressed": {
+        "$value": "{semantics.actions.high.surface.pressed}",
+        "$type": "color",
+        "$description": "Couleur de l'arc rempli pendant le glissement.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "COLOR",
+            "scopes": [
+              "ALL_FILLS"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-knob-value-color-pressed)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-knob-value-color-pressed",
+            "component": "ui-knob",
+            "entryPoint": "@4sh/ui-kit-react/ui-knob",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "weight": {
+      "$value": "{typography.weight.bold}",
+      "$type": "string",
+      "$description": "Graisse du texte.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "STRING",
+          "scopes": [
+            "FONT_WEIGHT",
+            "FONT_STYLE"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-knob-weight)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-knob-weight",
+          "component": "ui-knob",
+          "entryPoint": "@4sh/ui-kit-react/ui-knob",
           "descriptionSource": "scss"
         }
       }

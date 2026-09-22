@@ -129,9 +129,17 @@
       "types": "./dist/forms/ui-input-number/index.d.ts",
       "import": "./dist/ui-input-number.js"
     },
+    "./ui-input-otp": {
+      "types": "./dist/forms/ui-input-otp/index.d.ts",
+      "import": "./dist/ui-input-otp.js"
+    },
     "./ui-input-tags": {
       "types": "./dist/forms/ui-input-tags/index.d.ts",
       "import": "./dist/ui-input-tags.js"
+    },
+    "./ui-knob": {
+      "types": "./dist/forms/ui-knob/index.d.ts",
+      "import": "./dist/ui-knob.js"
     },
     "./ui-label": {
       "types": "./dist/forms/ui-label/index.d.ts",

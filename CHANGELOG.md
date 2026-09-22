@@ -25,6 +25,21 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
   `utils.overlay-motion` s'il vit dans le calque supérieur, `useUiMotion` s'il quitte le DOM.
   C'est la question qu'on se pose en vrai, et elle n'était écrite nulle part.
 
+- `ui-input-otp` : saisie d'un code à usage unique, une case `<input maxlength="1">` par
+  caractère. Le groupe compte pour **un seul** arrêt de tabulation : `Tab` le traverse, les
+  flèches circulent dedans, `Début` et `Fin` vont aux extrémités. La frappe avance seule,
+  `Retour arrière` efface et recule, et un code collé se répartit sur les cases, comme le
+  remplissage automatique du navigateur (`autocomplete="one-time-code"`). `renderCell`
+  remplace le contrôle sans rien perdre du comportement. Les cases, et non la valeur jointe,
+  sont la source du rendu : une case remplie alors que les précédentes sont vides garde son
+  trou, que `'9'` ne saurait pas porter.
+
+- `ui-knob` : cadran circulaire pour une valeur numérique, arc SVG de 300° dessiné dans un
+  viewBox de 100 sur 100, donc à l'échelle du diamètre rendu. Motif curseur de l'APG, un seul
+  arrêt `role="slider"` piloté au clavier et au pointeur par le même chemin de code, capture
+  de pointeur comprise. L'épaisseur du trait rétracte le rayon de l'arc de sa moitié, ce qui
+  garantit qu'un trait épais ne déborde jamais sur l'anneau de focus.
+
 - `ui-accordion` : sections repliables, API de composition (`UiAccordion` / `UiAccordionPanel`)
   appariées par `value`, en mode simple ou `multiple`. L'en-tête entier est un `<button>` natif,
   motif accordéon de l'APG : la cible de clic est large et le chevron n'est qu'une affordance.

@@ -141,18 +141,29 @@ test('un message persistant ne part jamais seul', async () => {
 
 // WCAG « assez de temps » : la lecture ne doit pas courir contre le compte à
 // rebours. Survol RÉEL, et non un événement fabriqué.
+//
+// `life` est généreux à dessein : le temps de rendre la carte et d'amener le
+// pointeur dessus est déjà décompté, et un délai court ferait courir le test
+// contre lui-même.
 test('le survol suspend le compte à rebours, et le quitter le reprend', async () => {
-  const screen = await render(<UiToastContainer contained life={300} />);
+  const screen = await render(
+    <>
+      <button type="button">Ailleurs</button>
+      <UiToastContainer contained life={1000} />
+    </>,
+  );
 
   uiToast.add({ title: 'Lisible' });
   await expect.poll(() => cards(screen.container)).toHaveLength(1);
 
   await screen.getByRole('status').hover();
-  await new Promise((r) => setTimeout(r, 600));
+  // Bien au-delà de son `life`, et pourtant la carte est toujours là.
+  await new Promise((r) => setTimeout(r, 1600));
   expect(cards(screen.container)).toHaveLength(1);
 
-  await screen.getByRole('button', { name: 'Fermer' }).click();
-  await expect.poll(() => cards(screen.container)).toHaveLength(0);
+  // Le pointeur s'en va : le reste du compte repart d'où il s'était arrêté.
+  await screen.getByRole('button', { name: 'Ailleurs' }).hover();
+  await expect.poll(() => cards(screen.container), { timeout: 3000 }).toHaveLength(0);
 });
 
 test('le bouton de fermeture retire le message du magasin', async () => {
