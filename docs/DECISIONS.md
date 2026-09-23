@@ -249,16 +249,26 @@ son propre schéma, en styles en ligne par défaut. Un moteur ne redeviendrait p
 pour un besoin absent aujourd'hui (tableaux, édition collaborative, mentions), et ce serait
 alors une décision pour tout le Design System.
 
-## D7, Mode copie : un CLI maison ET un registry compatible shadcn
+## D7, Mode copie : un CLI maison, pendant des schematics Angular
 
-**Retenu : les deux.** Un registry statique publié sur Pages à côté du Storybook, plus un
-CLI qui apporte ce que le standard ne fait pas.
+**Retenu : deux packages, comme le starter Angular.** `@4sh/ui-kit-react`, le package
+classique, s'installe en dépendance. `@4sh/ui-kit-react-cli` est le mode copie : il installe
+les composants en sources, dans le dépôt du consommateur, libres d'être modifiés.
 
-Le registry rend le kit installable par `npx shadcn add <url>` sans que nous maintenions un
-client. Le CLI apporte l'étape fondation (jetons, styles, Storybook, MCP), le journal de
-provenance `ui-kit.json`, et surtout l'`update` qui rejoue un diff fichier par fichier
-contre la version installée. Cette dernière logique est la plus mûre du starter Angular,
-elle est en Node pur, et elle se réutilise.
+Angular copie ses composants par les schematics de `@4sh/ui-kit-schematics`. React n'a pas de
+schematics, d'où un CLI Node aux trois mêmes commandes :
+
+- `init`, le pendant de `ng-add` : dépendances runtime, fondation de styles, chaîne des jetons ;
+- `add` : copie un composant et ses dépendances internes (`core/`, autres `ui-*`), imports
+  réécrits ;
+- `update` : rejoue un diff fichier par fichier contre la version installée. Cette logique est
+  la plus mûre du starter Angular, elle est en Node pur, et elle se réutilise.
+
+Le journal de provenance `ui-kit.json` garde ce qui a été copié, et depuis quelle version.
+
+**Écarté le 23 septembre : un registry compatible shadcn.** La première version de D7
+retenait aussi un registry statique publié sur Pages, installable par `npx shadcn add <url>`.
+Abandonné, pour s'en tenir au modèle Angular à deux packages.
 
 Phase 4. Le paquet est aujourd'hui un squelette marqué `private: true`, pour qu'un
 `pnpm publish -r` distrait ne publie pas une coquille vide.

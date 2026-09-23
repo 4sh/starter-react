@@ -40,7 +40,7 @@ La liste est longue parce que chaque entrée a coûté du temps une fois.
 | 1     | Le patron, de bout en bout      | ✅ terminée (`ui-icon`, puis `ui-button`) |
 | 2     | Fondation transverse            | ✅ terminée (`core/ripple` en dernier)    |
 | 3     | La vague des composants         | ✅ 62 sur 62                              |
-| 4     | Mode copie et registry          | ⬜ pas commencée                          |
+| 4     | Mode copie (CLI)                | ⬜ pas commencée                          |
 | 5     | MCP, doc publique, publication  | ⬜ pas commencée                          |
 | 6     | Contrôle de parité entre stacks | ⬜ pas commencée                          |
 
@@ -91,7 +91,7 @@ donc la majorité des écrans d'un projet réel.
 
 **Les phases 2 et 3 sont closes le 23 septembre** : les 62 composants sont portés, et
 `core/ripple`, la dernière brique, a donné la prop `ripple` aux quatorze composants équipés.
-La suite du plan est la phase 4, le mode copie et le registry (décision D7) ; sortir un
+La suite du plan est la phase 4, le mode copie par CLI (décision D7) ; sortir un
 `0.1.0` avant, ou non, est une décision à prendre.
 
 Restent ouverts, hors du plan : `format:check` absent de la CI (quatre fichiers ont dérivé),
@@ -173,7 +173,7 @@ Résumé pour ne pas avoir à ouvrir le fichier. La justification, elle, est dan
 | D4  | Le sous-chemin public ne porte pas la catégorie : `@4sh/ui-kit-react/ui-button`.           |
 | D5  | SCSS co-localisé, classes publiques stables, CSS porté par le composant.                   |
 | D6  | Aucune librairie de composants. Deux dépendances ciblées, un fichier propriétaire chacune. |
-| D7  | Mode copie : un CLI maison **et** un registry compatible shadcn.                           |
+| D7  | Mode copie : un CLI maison, pendant des schematics Angular. Registry shadcn écarté.        |
 | D8  | Tests dans un vrai navigateur. Contrôle axe bloquant.                                      |
 
 ---
@@ -2057,3 +2057,12 @@ React donne la valeur réelle.
 
 32 tests unitaires (15 pour le moteur, 17 pour le contrat des quatorze) et deux stories auditées. **Les phases 2 et 3 sont
 closes.** La suite du plan est la phase 4, le mode copie.
+
+### 2026-09-23 : D7 révisée, le registry shadcn écarté
+
+La première version de D7 prévoyait deux canaux pour le mode copie : un CLI maison, et un
+registry statique compatible shadcn (`npx shadcn add <url>`). Le registry est abandonné : le
+kit React s'en tient au modèle Angular, un package classique et un package en mode copie, le
+CLI jouant le rôle des schematics de `@4sh/ui-kit-schematics` (`init`, `add`, `update`).
+`docs/DECISIONS.md`, cette feuille de route, le `package.json` du CLI et la page Getting Started
+sont alignés.
