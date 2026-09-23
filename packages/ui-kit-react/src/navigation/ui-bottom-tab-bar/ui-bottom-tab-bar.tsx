@@ -39,6 +39,7 @@ const prevenus = new Set<string>();
 /** Ce que la barre partage avec ses onglets. */
 interface UiBottomTabBarApi {
   showLabels: boolean;
+  ripple: boolean;
   isActive: (value: UiBottomTabValue) => boolean;
   activate: (value: UiBottomTabValue, event: MouseEvent<HTMLElement>) => void;
   onControlKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
@@ -83,6 +84,11 @@ export interface UiBottomTabBarProps extends Omit<
   safeArea?: boolean;
   /** Poser la barre dans son ancêtre positionné au lieu de la fenêtre. */
   contained?: boolean;
+  /**
+   * Onde de pression sur les onglets, quand elle est activée. `false` la coupe
+   * sur cette barre ; l'action surélevée a sa propre prop.
+   */
+  ripple?: boolean;
   children?: ReactNode;
 }
 
@@ -102,6 +108,7 @@ export function UiBottomTabBar({
   showLabels = true,
   safeArea = true,
   contained = false,
+  ripple = true,
   className,
   children,
   ...rest
@@ -120,6 +127,7 @@ export function UiBottomTabBar({
   const api = useMemo<UiBottomTabBarApi>(
     () => ({
       showLabels,
+      ripple,
       isActive: (candidate) => active === candidate,
       activate: (candidate, event) => {
         if (active === candidate) return;
@@ -148,7 +156,7 @@ export function UiBottomTabBar({
         controls[position]?.focus();
       },
     }),
-    [showLabels, active, setActive, onTabChange],
+    [showLabels, ripple, active, setActive, onTabChange],
   );
 
   return (
@@ -181,6 +189,8 @@ export interface UiBottomTabRootProps {
   tabIndex?: number;
   'aria-label'?: string;
   'aria-current'?: 'page';
+  /** Marqueur de l'onde de pression, lu par `UiRippleProvider`. */
+  'data-ripple': 'on' | 'off';
   'aria-disabled'?: true;
   onClick: (event: MouseEvent<HTMLElement>) => void;
   onKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
@@ -204,6 +214,8 @@ export interface UiBottomTabProps extends Omit<ComponentPropsWithRef<'button'>, 
   /** Variante de l'icône une fois actif. */
   activeIconType?: UiIconType;
   disabled?: boolean;
+  /** Onde de pression sur cet onglet. `false` le retire, activation globale comprise. */
+  ripple?: boolean;
   /** Destination : le contrôle devient une ancre. */
   href?: string;
   target?: string;
@@ -231,6 +243,7 @@ export function UiBottomTab({
   iconType = 'solid',
   activeIconType = 'solid',
   disabled = false,
+  ripple = true,
   href,
   target,
   rel,
@@ -248,6 +261,8 @@ export function UiBottomTab({
     );
 
   const active = bar.isActive(value);
+  // L'onglet ondule si lui ET la barre l'autorisent.
+  const rippleAttr = ripple && bar.ripple ? ('on' as const) : ('off' as const);
   const labelVisible = Boolean(label) && bar.showLabels;
   const ariaLabel = rest['aria-label'] ?? (labelVisible ? undefined : label);
   delete rest['aria-label'];
@@ -314,6 +329,7 @@ export function UiBottomTab({
       tabIndex: disabled ? -1 : undefined,
       'aria-label': ariaLabel,
       'aria-current': active ? 'page' : undefined,
+      'data-ripple': rippleAttr,
       'aria-disabled': disabled ? true : undefined,
       onClick: activate,
       onKeyDown: handleKeyDown,
@@ -331,6 +347,7 @@ export function UiBottomTab({
       disabled={disabled}
       aria-label={ariaLabel}
       aria-current={active ? 'page' : undefined}
+      data-ripple={rippleAttr}
       onClick={activate}
       onKeyDown={handleKeyDown}
     >
@@ -351,6 +368,8 @@ export interface UiBottomTabActionProps extends Omit<ComponentPropsWithRef<'butt
   /** Nom accessible. Obligatoire : le bouton n'a aucun texte visible. */
   'aria-label'?: string;
   disabled?: boolean;
+  /** Onde de pression sur l'action. Indépendante de celle de la barre, comme en Angular. */
+  ripple?: boolean;
 }
 
 /**
@@ -365,6 +384,7 @@ export function UiBottomTabAction({
   iconType = 'solid',
   level = 'high',
   disabled = false,
+  ripple = true,
   className,
   onKeyDown,
   ...rest
@@ -387,6 +407,7 @@ export function UiBottomTabAction({
       type="button"
       className={cx('ui-bottom-tab-action', `_${level}`, className)}
       disabled={disabled}
+      data-ripple={ripple ? 'on' : 'off'}
       onKeyDown={(event) => {
         bar?.onControlKeyDown(event);
         onKeyDown?.(event);

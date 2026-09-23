@@ -156,7 +156,8 @@ function checkAnnouncedCounts() {
   const sources = [
     { file: READMES[0].file, re: /\*\*(\d+) components\*\* out of the Design System's (\d+)/ },
     { file: READMES[1].file, re: /\*\*(\d+) composants\*\* sur les (\d+) du Design System/ },
-    { file: ROADMAP, re: /La vague des composants\s*\|\s*🟡 (\d+) sur (\d+)/ },
+    // 🟡 tant que la vague court, ✅ une fois close : le décompte se vérifie dans les deux cas.
+    { file: ROADMAP, re: /La vague des composants\s*\|\s*(?:🟡|✅) (\d+) sur (\d+)/ },
   ];
   for (const { file, re } of sources) {
     const label = file.replace(`${ROOT}/`, '');

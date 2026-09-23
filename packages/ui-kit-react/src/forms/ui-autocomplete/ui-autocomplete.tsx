@@ -102,6 +102,11 @@ export interface UiAutocompleteProps extends UiFieldSharedProps, NativeProps {
 
   /** Sélection multiple, rendue en puces. */
   multiple?: boolean;
+  /**
+   * Onde de pression sur les suggestions et les étiquettes, quand elle est activée. `false` la coupe
+   * sur ce champ, activation globale comprise.
+   */
+  ripple?: boolean;
   /** Refuser deux fois la même valeur. */
   unique?: boolean;
   maxSelectedLabels?: number;
@@ -178,6 +183,7 @@ export function UiAutocomplete({
   dropdownIcon = 'angle-down',
   forceSelection = false,
   multiple = false,
+  ripple = true,
   unique = true,
   maxSelectedLabels,
   overflowLabel = '(+{0} autres)',
@@ -779,6 +785,7 @@ export function UiAutocomplete({
           row.index === focusedIndex && '_focused',
           row.entry.disabled && '_disabled',
         )}
+        data-ripple={ripple ? 'on' : 'off'}
         role="option"
         aria-selected={row.index === focusedIndex}
         aria-disabled={row.entry.disabled || undefined}
@@ -891,6 +898,7 @@ export function UiAutocomplete({
                       tagRefs.current[tag.index] = node;
                     }}
                     className="ui-autocomplete-tag"
+                    data-ripple={ripple ? 'on' : 'off'}
                     role="option"
                     aria-selected
                     aria-label={tag.label}

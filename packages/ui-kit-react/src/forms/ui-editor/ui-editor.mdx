@@ -1,0 +1,212 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as EditorStories from './ui-editor.stories';
+
+<Meta of={EditorStories} />
+
+# ui-editor
+
+Éditeur de texte **riche**, bâti sur la coquille partagée
+[`ui-field`](?path=/docs/components-ui-forms-ui-field--docs) (libellé, boîte, aide) en mode
+multiligne : une barre d'outils configurable et une zone `contenteditable`.
+
+**Aucun moteur d'édition tiers.** La mise en forme passe par l'API d'édition native du
+navigateur, confinée dans `ui-editor-commands`, comme dans la version Angular : le kit reste
+à ses deux dépendances. Un moteur (Tiptap, Lexical) aurait pesé dix fois plus, et aurait
+écrit une autre forme de HTML que celle que les deux stacks partagent.
+
+La valeur est une **chaîne HTML**. Elle est nettoyée par `sanitizeHtml`, le portage du
+`DomSanitizer` d'Angular, avant tout affichage, et réduite à une courte liste de balises au
+collage. Pour une saisie multiligne **sans** mise en forme, voir
+[`ui-textarea`](?path=/docs/components-ui-forms-ui-textarea--docs).
+
+<Canvas of={EditorStories.WithValue} />
+
+## API
+
+<ArgTypes of={EditorStories} />
+
+## Barre d'outils
+
+`tools` liste les outils rendus, dans l'ordre ; `separator` trace un séparateur. Outils :
+`fontFamily`, `fontSize`, `bold`, `italic`, `underline`, `bulletList`, `orderedList`,
+`indent`, `outdent`, `alignLeft`, `alignCenter`, `alignRight`, `alignJustify`, `textColor`,
+`highlightColor`, `link`, `codeBlock`, `clearFormat`. Pas de niveau de bloc : l'éditeur ne
+produit que des paragraphes.
+
+<Canvas of={EditorStories.MinimalToolbar} />
+
+<Canvas of={EditorStories.ToolbarBottom} />
+
+### Bloc de code
+
+<Canvas of={EditorStories.CodeBlock} />
+
+### Police et taille
+
+Les deux sont dans la barre par défaut. La police est fermée aux trois familles du système,
+la taille à l'échelle typographique, et chacune s'écrit en **classe** adossée à un jeton
+(`ui-editor-font-title`, `ui-editor-size-lg`) plutôt qu'en style : la valeur suit la marque
+et le mode sombre, et reste la même dans les deux stacks.
+
+<Canvas of={EditorStories.FontFamily} />
+
+<Canvas of={EditorStories.FontSize} />
+
+### Retrait
+
+<Canvas of={EditorStories.IndentOutdent} />
+
+### Alignement
+
+Le navigateur aligne par `style="text-align: …"`. Le nettoyage laisse passer ces déclarations,
+et seulement elles, avec le retrait : un paragraphe centré le reste quand la valeur revient du
+serveur.
+
+<Canvas of={EditorStories.TextAlign} />
+
+### Couleurs
+
+`textColor` et `highlightColor` ouvrent chacun un `ui-swatch-picker` ancré à leur bouton. La
+couleur choisie s'écrit elle aussi en classe (`ui-editor-color-red-700`), sur la palette du
+nuancier.
+
+<Canvas of={EditorStories.ColorPickers} />
+
+## Niveaux et états
+
+<Canvas of={EditorStories.Success} />
+
+<Canvas of={EditorStories.Disabled} />
+
+<Canvas of={EditorStories.ReadOnly} />
+
+## Compteur et limite
+
+`maxLength` et le compteur portent sur le **texte**, jamais sur le balisage. Une fois la
+limite atteinte, les suppressions et la mise en forme restent possibles : seules les
+insertions sont refusées.
+
+<Canvas of={EditorStories.CharacterCount} />
+
+## Formulaires
+
+Contrôlé par `value` et `onValueChange`, non contrôlé par `defaultValue`, comme tous les
+champs du kit.
+
+```tsx
+import { UiEditor } from '@4sh/ui-kit-react/ui-editor';
+
+const [description, setDescription] = useState('');
+
+<UiEditor
+  label="Description"
+  required
+  value={description}
+  onValueChange={setDescription}
+  errorText="Ce champ est requis."
+/>;
+```
+
+<Canvas of={EditorStories.Controlled} />
+
+<Canvas of={EditorStories.Required} />
+
+<Canvas of={EditorStories.FloatLabel} />
+
+## Sécurité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Mise en œuvre</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <strong>Valeur entrante</strong>
+      </td>
+      <td>
+        Nettoyée par `sanitizeHtml`, le portage du `DomSanitizer` d'Angular : mêmes listes
+        d'éléments et d'attributs, URL `javascript:` neutralisées, boucle contre les mutations
+        entre deux analyses. Le `style` est réduit à l'alignement et au retrait, sans aucune
+        `url()` possible.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Écriture dans la zone</strong>
+      </td>
+      <td>
+        Par des nœuds analysés dans un document détaché, jamais par `innerHTML`. Rien ne s'y
+        exécute, rien ne s'y charge avant l'insertion.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Collage</strong>
+      </td>
+      <td>
+        Réduit aux balises de l'éditeur, nettoyé, puis inséré par `insertHTML`, pour que Ctrl+Z
+        l'annule. C'est la seule exception du kit, inscrite au registre de{' '}
+        <code>docs/SECURITY-PRACTICES.md</code> et vérifiée par le lint.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>À l'affichage ailleurs</strong>
+      </td>
+      <td>
+        Une application qui rend la valeur hors de l'éditeur la repasse par `sanitizeHtml`,
+        exporté pour ça : le nettoyage protège l'éditeur, pas le reste de la page.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Mise en œuvre</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <strong>Zone de saisie</strong>
+      </td>
+      <td>
+        <code>role="textbox"</code> et <code>aria-multiline</code>, nommée par le libellé ou{' '}
+        <code>aria-label</code> : un <code>&lt;label for&gt;</code> ne nomme pas une zone
+        éditable. <code>aria-required</code>, <code>aria-readonly</code>,{' '}
+        <code>aria-invalid</code> suivent l'état ; le message et le compteur la décrivent.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Barre d'outils</strong>
+      </td>
+      <td>
+        Motif <code>toolbar</code> : un seul arrêt de tabulation, les flèches, Début et Fin s'y
+        déplacent, Échap rend le focus à la zone. Les bascules portent{' '}
+        <code>aria-pressed</code>, les nuanciers <code>aria-haspopup</code> et{' '}
+        <code>aria-expanded</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Raccourcis</strong>
+      </td>
+      <td>Ctrl ou Cmd plus B, I, U, appliqués par le navigateur ; la barre suit leur état.</td>
+    </tr>
+  </tbody>
+</table>
+
+## Theming
+
+<ConfigTable of="ui-editor" />

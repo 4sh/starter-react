@@ -1,0 +1,327 @@
+@use 'utils';
+
+// =====================================================================
+// ui-editor : projected parts only. The box/label/helper/states live in
+// `ui-field`; this file owns the toolbar, the editing area and the markup
+// the editor produces inside it.
+//
+// The rich content is created by the editing commands (`<p>`, `<ul>`,
+// `<b>`…), not by React, so it cannot carry classes: those rules use element
+// selectors, ALWAYS under `.ui-editor-content`. That keeps decision D5's
+// promise (nothing leaks outside the component) where a bare selector would
+// break it. The Angular `::ng-deep` has no equivalent to replace: without
+// encapsulation, a descendant selector already reaches the content.
+// =====================================================================
+
+// --- Frame ------------------------------------------------------------
+$radius: var(--ui-editor-radius, inherit); /// Rayon des coins de l'éditeur, aligné par défaut sur la boîte de champ.
+
+// --- Toolbar ----------------------------------------------------------
+$toolbar-gap: var(--ui-editor-toolbar-gap, var(--units-2xs));                             /// Espace entre deux outils.
+$toolbar-padding-x: var(--ui-editor-toolbar-padding-x, var(--units-xs));                  /// Inset horizontal de la barre d'outils.
+$toolbar-padding-y: var(--ui-editor-toolbar-padding-y, var(--units-2xs));                 /// Inset vertical de la barre d'outils.
+// `form.low.surface` is transparent in both modes : it cannot set the toolbar
+// apart from the field it sits in, which is the whole point of the bar.
+$toolbar-surface: var(--ui-editor-toolbar-surface, var(--global-background-muted));        /// Fond de la barre d'outils.
+$toolbar-stroke: var(--ui-editor-toolbar-stroke, var(--form-low-stroke-default));         /// Couleur du trait séparant la barre d'outils de la zone de saisie.
+$toolbar-stroke-width: var(--ui-editor-toolbar-stroke-width, #{utils.$control-stroke-width}); /// Épaisseur de ce trait.
+
+// `fontFamily`/`fontSize` render as `ui-select` (see `&-select`).
+$select-width: var(--ui-editor-select-width, 13ch); /// Largeur d'un sélecteur police/taille dans la barre.
+
+$separator-width: var(--ui-editor-separator-width, var(--stroke-sm));                      /// Épaisseur d'un séparateur d'outils.
+$separator-height: var(--ui-editor-separator-height, var(--size-typography-text-default)); /// Hauteur d'un séparateur d'outils.
+$separator-color: var(--ui-editor-separator-color, var(--form-low-stroke-default));        /// Couleur d'un séparateur d'outils.
+
+// --- Editing area -----------------------------------------------------
+$padding-x: var(--ui-editor-padding-x, #{utils.$form-field-padding-x});      /// Inset horizontal de la zone de saisie.
+$padding-y: var(--ui-editor-padding-y, #{utils.$form-textarea-padding-y});   /// Inset vertical de la zone de saisie.
+$padding-y-small: var(--ui-editor-padding-y-small, #{utils.$form-textarea-padding-y-small}); /// Inset vertical de la zone de saisie, variante `small`.
+$line-height: var(--ui-editor-line-height, 1.5);                             /// Interlignage du texte saisi.
+$font-size: var(--ui-editor-font-size, var(--size-typography-text-default));  /// Taille de police du texte saisi.
+$font-size-small: var(--ui-editor-font-size-small, var(--size-typography-text-md)); /// Taille de police du texte saisi, variante `small`.
+
+// `--_rows` is set inline from the `minRows` input; the hook wins over it so a
+// theme can pin an absolute height regardless of the requested line count.
+$min-height: var(--ui-editor-min-height, calc(var(--_rows, 4) * #{$line-height} * 1em)); /// Hauteur minimale de la zone de saisie (par défaut `minRows` lignes).
+$max-height: var(--ui-editor-max-height, none);                                          /// Hauteur au-delà de laquelle la zone défile plutôt que de grandir.
+
+$placeholder-color: var(--ui-editor-placeholder-color, var(--form-low-content-default)); /// Couleur du texte indicatif.
+
+// --- Rich content -----------------------------------------------------
+$block-gap: var(--ui-editor-block-gap, var(--units-sm));                          /// Espace entre deux paragraphes ou blocs.
+$list-inset: var(--ui-editor-list-padding-inline-start, var(--units-xl));         /// Retrait des puces et numéros de liste.
+$list-item-gap: var(--ui-editor-list-item-gap, var(--units-2xs));                 /// Espace entre deux éléments de liste.
+$bold-weight: var(--ui-editor-bold-weight, var(--weight-bold));                   /// Graisse appliquée par l'outil « gras ».
+$link-color: var(--ui-editor-link-color, var(--global-text-brand));               /// Couleur d'un lien inséré.
+$link-decoration: var(--ui-editor-link-text-decoration, underline);               /// Décoration d'un lien inséré.
+
+$code-padding-x: var(--ui-editor-code-padding-x, var(--units-md));                    /// Inset horizontal d'un bloc de code.
+$code-padding-y: var(--ui-editor-code-padding-y, var(--units-sm));                    /// Inset vertical d'un bloc de code.
+$code-radius: var(--ui-editor-code-radius, var(--radius-xs));                         /// Rayon des coins d'un bloc de code.
+$code-surface: var(--ui-editor-code-surface, var(--global-background-muted));         /// Fond d'un bloc de code.
+$code-color: var(--ui-editor-code-color, var(--global-text-default));                 /// Couleur du texte d'un bloc de code.
+$code-font-size: var(--ui-editor-code-font-size, var(--size-typography-text-md));     /// Taille de police d'un bloc de code.
+
+$heading-weight: var(--ui-editor-heading-weight, var(--weight-bold));                    /// Graisse des titres.
+$heading-line-height: var(--ui-editor-heading-line-height, 1.25);                        /// Interlignage des titres.
+$heading-1-font-size: var(--ui-editor-heading-1-font-size, var(--size-typography-title-lg)); /// Taille de police du titre 1.
+$heading-2-font-size: var(--ui-editor-heading-2-font-size, var(--size-typography-title-md)); /// Taille de police du titre 2.
+$heading-3-font-size: var(--ui-editor-heading-3-font-size, var(--size-typography-title-sm)); /// Taille de police du titre 3.
+
+$size-sm: var(--ui-editor-size-sm-font-size, var(--size-typography-text-sm));           /// Taille de police du texte « Petit ».
+$size-default: var(--ui-editor-size-default-font-size, var(--size-typography-text-default)); /// Taille de police du texte « Normal ».
+$size-lg: var(--ui-editor-size-lg-font-size, var(--size-typography-text-lg));           /// Taille de police du texte « Grand ».
+$size-xl: var(--ui-editor-size-xl-font-size, var(--size-typography-text-xl));           /// Taille de police du texte « Très grand ».
+
+// --- Counter ----------------------------------------------------------
+$count-font-size: var(--ui-editor-count-font-size, var(--size-typography-text-md));             /// Taille de police du compteur de caractères.
+$count-font-size-small: var(--ui-editor-count-font-size-small, var(--size-typography-text-sm)); /// Taille de police du compteur de caractères, variante `small`.
+
+// --- Toolbar color indicator -------------------------------------------
+$swatch-indicator-height: var(--ui-editor-swatch-indicator-height, var(--stroke-lg)); /// Épaisseur du liseré indiquant la couleur active sous les outils couleur/surlignage.
+$swatch-indicator-offset-x: var(--ui-editor-swatch-indicator-offset-x, var(--units-2xs)); /// Décalage horizontal du liseré, de part et d'autre de l'icône.
+
+// --- Text color / highlight color palette --------------------------------
+// Mirrors `DEFAULT_SWATCH_PALETTE` (ui-swatch-picker) and `EDITOR_COLORS`/
+// `EDITOR_HIGHLIGHTS` (ui-editor-commands): same hues × shades grid, so the
+// class names generated here exactly match the ones written into the value.
+$editor-color-hues: 'primary', 'secondary', 'green', 'orange', 'red', 'slate', 'grey';
+$editor-color-steps: 900, 700, 500, 300, 100;
+
+.ui-editor {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  // Keeps the toolbar's own surface inside the field's rounded corners.
+  border-radius: $radius;
+  overflow: hidden;
+
+  // --- Toolbar --------------------------------------------------------
+  &-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $toolbar-gap;
+    flex-shrink: 0;
+    padding: $toolbar-padding-y $toolbar-padding-x;
+    background-color: $toolbar-surface;
+    border-block-end: $toolbar-stroke-width solid $toolbar-stroke;
+
+    &._bottom {
+      border-block-end: none;
+      border-block-start: $toolbar-stroke-width solid $toolbar-stroke;
+    }
+
+    &-separator {
+      flex-shrink: 0;
+      inline-size: $separator-width;
+      block-size: $separator-height;
+      background-color: $separator-color;
+    }
+  }
+
+  // `fontFamily`/`fontSize` render as `ui-select`. No host element here:
+  // `.ui-editor-select` IS the `.ui-select` root, hence the toolbar prefix,
+  // which makes these rules win over `ui-select`'s own whatever the order in
+  // which the two stylesheets load.
+  &-toolbar &-select {
+    display: inline-flex;
+    flex-shrink: 0;
+    // Fixed, and the same for every dropdown: sized on the widest label it
+    // has to fit, so the toolbar keeps its layout when a longer value is
+    // picked instead of shifting every tool that follows.
+    min-inline-size: $select-width;
+    // Public hook: removes the field box's border so the dropdown blends
+    // into the toolbar surface instead of looking like its own form field.
+    --ui-field-stroke-width: 0;
+
+    // The Angular `.ui-select { inline-size: 100% }` stretched the select in
+    // its host; here the select IS the host, so it is its field that must
+    // stretch. Without it the box hugs the label and the chevron sticks to it.
+    > .ui-field {
+      flex: 1 1 auto;
+      min-inline-size: 0;
+    }
+
+    // No public hook for the box's fill (it is not meant to be dropped
+    // independently of `level`/state on an ordinary field): scoped here to
+    // this toolbar usage only, every other `ui-select` in the kit is untouched.
+    .ui-field-box {
+      background: transparent;
+      @include utils.control-transition(background-color);
+    }
+    .ui-field-box:hover { background-color: var(--ui-editor-toolbar-select-surface-hover, var(--form-low-surface-hover)); } /// Fond d'un sélecteur de la barre d'outils au survol.
+  }
+
+  // `textColor`/`highlightColor` triggers: a liseré under the icon shows the
+  // color active at the caret. `--ui-editor-swatch-indicator-color` is set
+  // inline from the component (`null` -> unset custom property -> transparent
+  // bar, same footprint whether a color is active or not).
+  &-tool._colorTool {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset-inline: $swatch-indicator-offset-x;
+      inset-block-end: 0;
+      block-size: $swatch-indicator-height;
+      border-radius: $swatch-indicator-height;
+      // No `///`: purely internal plumbing set by the component itself
+      // (`[style.--ui-editor-swatch-indicator-color]`), not a public hook a
+      // theme is meant to override directly.
+      background-color: var(--ui-editor-swatch-indicator-color, transparent);
+    }
+  }
+
+  // --- Editing area ---------------------------------------------------
+  &-area {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  &-content {
+    @include utils.field-native-input(false);
+    box-sizing: border-box;
+    width: 100%;
+    min-height: $min-height;
+    max-height: $max-height;
+    padding: $padding-y $padding-x;
+    overflow-y: auto;
+    line-height: $line-height;
+    font-size: $font-size;
+    // The caret must stay inside the box even on a long unbroken paste.
+    overflow-wrap: break-word;
+
+    &._small {
+      padding-block: $padding-y-small;
+      font-size: $font-size-small;
+    }
+
+    // The field box already draws the focus ring around the whole editor.
+    &:focus,
+    &:focus-visible { outline: none; }
+
+    &[contenteditable='false'] { cursor: default; }
+  }
+
+  &-placeholder {
+    position: absolute;
+    inset-block-start: $padding-y;
+    inset-inline-start: $padding-x;
+    line-height: $line-height;
+    font-family: var(--ui-editor-placeholder-font-family, var(--fontfamily-base)); /// Famille typographique du texte indicatif.
+    font-size: $font-size;
+    color: $placeholder-color;
+    pointer-events: none;
+    user-select: none;
+  }
+  &._small &-placeholder {
+    inset-block-start: $padding-y-small;
+    font-size: $font-size-small;
+  }
+
+  // --- Content produced by the editing commands -----------------------
+  // Generated outside React, so element selectors, scoped to the content.
+  &-content {
+    p { margin-block: 0 $block-gap; }
+    p:last-child { margin-block-end: 0; }
+
+    ul,
+    ol {
+      margin-block: 0 $block-gap;
+      padding-inline-start: $list-inset;
+    }
+    ul:last-child,
+    ol:last-child { margin-block-end: 0; }
+
+    li + li { margin-block-start: $list-item-gap; }
+
+    b,
+    strong { font-weight: $bold-weight; }
+
+    a {
+      color: $link-color;
+      text-decoration: $link-decoration;
+    }
+
+    pre {
+      margin-block: 0 $block-gap;
+      padding: $code-padding-y $code-padding-x;
+      border-radius: $code-radius;
+      background-color: $code-surface;
+      color: $code-color;
+      font-family: var(--ui-editor-code-font-family, var(--fontfamily-monospace)); /// Famille typographique des blocs de code.
+      font-size: $code-font-size;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+    }
+    pre:last-child { margin-block-end: 0; }
+
+    code { font-family: var(--ui-editor-code-font-family, var(--fontfamily-monospace)); }
+
+    // Headings carry document structure, so they keep the title face and scale.
+    h1,
+    h2,
+    h3 {
+      margin-block: 0 $block-gap;
+      font-family: var(--ui-editor-heading-font-family, var(--fontfamily-title)); /// Famille typographique des titres.
+      font-weight: $heading-weight;
+      line-height: $heading-line-height;
+    }
+    h1:last-child,
+    h2:last-child,
+    h3:last-child { margin-block-end: 0; }
+
+    h1 { font-size: $heading-1-font-size; }
+    h2 { font-size: $heading-2-font-size; }
+    h3 { font-size: $heading-3-font-size; }
+
+    // Type families the font picker applies, bound to the typography tokens.
+    // Pas de hook sur ces trois-là : la classe EST le choix de police fait par
+    // l'utilisateur dans la barre d'outils. Les rendre surchargeables rendrait
+    // le sélecteur de police menteur.
+    .ui-editor-font-base { font-family: var(--fontfamily-base); }
+    .ui-editor-font-title { font-family: var(--fontfamily-title); }
+    .ui-editor-font-monospace { font-family: var(--fontfamily-monospace); }
+
+    // Text sizes, as steps on the typography scale rather than raw values.
+    .ui-editor-size-sm { font-size: $size-sm; }
+    .ui-editor-size-default { font-size: $size-default; }
+    .ui-editor-size-lg { font-size: $size-lg; }
+    .ui-editor-size-xl { font-size: $size-xl; }
+
+    // Text color / highlight color, one class pair per swatch of the default
+    // palette (see `$editor-color-hues`/`$editor-color-steps` above).
+    @each $hue in $editor-color-hues {
+      @each $step in $editor-color-steps {
+        .ui-editor-color-#{$hue}-#{$step} { color: var(--primitives-#{$hue}-#{$step}); }
+        .ui-editor-highlight-#{$hue}-#{$step} {
+          background-color: var(--primitives-#{$hue}-#{$step});
+        }
+      }
+    }
+    .ui-editor-color-black { color: var(--primitives-black-base); }
+    .ui-editor-color-white { color: var(--primitives-white-base); }
+    .ui-editor-highlight-black { background-color: var(--primitives-black-base); }
+    .ui-editor-highlight-white { background-color: var(--primitives-white-base); }
+  }
+}
+
+// --- Character counter (projected into the field footer) --------------
+.ui-editor-count {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-family: var(--ui-editor-count-font-family, var(--fontfamily-base)); /// Famille typographique du compteur.
+  font-size: $count-font-size;
+  color: var(--ui-editor-count-color, var(--form-low-content-default)); /// Couleur du compteur de caractères.
+  user-select: none;
+
+  &._small { font-size: $count-font-size-small; }
+  &._over { color: var(--ui-editor-count-color-over, var(--form-error-content-default)); }        /// Couleur du compteur une fois la limite dépassée.
+  &._disabled { color: var(--ui-editor-count-color-disabled, var(--form-high-content-disabled)); } /// Couleur du compteur, champ désactivé.
+}

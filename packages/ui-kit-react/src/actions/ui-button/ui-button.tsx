@@ -38,6 +38,8 @@ export interface UiButtonRootProps {
   role?: string;
   'aria-label'?: string;
   'aria-disabled'?: 'true';
+  /** Marqueur de l'onde de pression, lu par `UiRippleProvider`. */
+  'data-ripple': 'on' | 'off';
   onClick: MouseEventHandler<HTMLElement>;
   /**
    * Typé pour une ancre, et non pour `HTMLElement` : `render` existe pour
@@ -84,6 +86,12 @@ interface UiButtonOwnProps {
   expanded?: boolean;
   /** Présentation en pilule. */
   rounded?: boolean;
+  /**
+   * Onde de pression, quand elle est activée (`UiRippleProvider` ou
+   * `useUiRippleScope`). `false` la coupe sur ce bouton, activation globale
+   * comprise. Sans activation, le marqueur ne produit rien.
+   */
+  ripple?: boolean;
   disabled?: boolean;
   /** URL. Sa présence fait rendre un `<a>` au lieu d'un `<button>`. */
   href?: string;
@@ -165,6 +173,7 @@ export function UiButton({
   loadingIcon = 'circle-notch',
   expanded = false,
   rounded = false,
+  ripple = true,
   disabled = false,
   href,
   target,
@@ -279,6 +288,7 @@ export function UiButton({
       role: 'button',
       'aria-label': accessibleLabel,
       'aria-disabled': disabled ? 'true' : undefined,
+      'data-ripple': ripple ? 'on' : 'off',
       onClick: handleClick,
       ref: ref as Ref<HTMLAnchorElement> | undefined,
     };
@@ -306,6 +316,7 @@ export function UiButton({
       tabIndex={tabIndex}
       aria-busy={loading ? true : undefined}
       aria-label={accessibleLabel}
+      data-ripple={ripple ? 'on' : 'off'}
       onClick={handleClick}
     >
       {inner}

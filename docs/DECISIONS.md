@@ -234,6 +234,21 @@ bloquant dès le premier composant.
 React ne se conçoit pas de zéro, il porte la logique clavier de son homologue. C'est moins
 cher que de réinventer, et c'est la seule manière de rendre la parité vérifiable.
 
+### Appliquée : l'éditeur riche, 23 septembre
+
+`ui-editor` était gardé pour la fin comme un arbitrage de dépendance, sur la prémisse
+qu'« aucun éditeur riche ne s'écrit dans `core/` ». Le kit Angular la contredit : son éditeur
+n'a pas de moteur, c'est un `contenteditable` et un module de commandes natives, 10,5 kB
+compressés. Mesurés contre lui : Tiptap, 105 kB pour son seul kit de base et 24 paquets ;
+Lexical, 62 kB pour son cœur ; Slate, 50 kB, sérialiseur HTML à écrire.
+
+**Retenu : aucun moteur**, et c'est ce principe qui tranche. Le comportement de l'éditeur ET
+le format de sa valeur font partie du contrat : les deux stacks écrivent le même HTML, dont la
+police, la taille et les couleurs sont des classes adossées aux jetons. Un moteur aurait écrit
+son propre schéma, en styles en ligne par défaut. Un moteur ne redeviendrait pertinent que
+pour un besoin absent aujourd'hui (tableaux, édition collaborative, mentions), et ce serait
+alors une décision pour tout le Design System.
+
 ## D7, Mode copie : un CLI maison ET un registry compatible shadcn
 
 **Retenu : les deux.** Un registry statique publié sur Pages à côté du Storybook, plus un

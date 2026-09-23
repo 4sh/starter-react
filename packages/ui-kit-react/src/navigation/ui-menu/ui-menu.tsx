@@ -60,6 +60,8 @@ export interface UiMenuItemRootProps {
   title?: string;
   'aria-label'?: string;
   'data-key': string;
+  /** Marqueur de l'onde de pression, lu par `UiRippleProvider`. */
+  'data-ripple': 'on' | 'off';
   onClick: MouseEventHandler<HTMLElement>;
   onKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
   onMouseEnter: () => void;
@@ -189,6 +191,11 @@ export interface UiMenuProps extends NativeProps {
   submenus?: MenuSubmenuMode;
   /** Couper l'animation d'ouverture et celle du repli. */
   motionDisabled?: boolean;
+  /**
+   * Onde de pression sur les entrées, quand elle est activée. `false` la coupe
+   * sur ce menu, activation globale comprise.
+   */
+  ripple?: boolean;
 
   /** Contenu d'une entrée, à la place de l'icône et du libellé. */
   renderItem?: (item: UiMenuItem) => ReactNode;
@@ -300,6 +307,7 @@ export function UiMenu({
   size = 'default',
   submenus = 'inline',
   motionDisabled = false,
+  ripple = true,
   renderItem,
   renderHeader,
   start,
@@ -556,6 +564,7 @@ export function UiMenu({
       // et `tabIndexFor` en fait un -1, ce qui est exactement voulu.
       tabIndex: roving.tabIndexFor(path.indexOf(node.key)),
       'data-key': node.key,
+      'data-ripple': ripple ? 'on' : 'off',
       title: node.item.title || undefined,
       'aria-label': node.item.ariaLabel || undefined,
       onKeyDown: (event: KeyboardEvent<HTMLElement>) => onEntryKeyDown(event, node),
@@ -567,7 +576,7 @@ export function UiMenu({
       },
       onFocus: () => setFocusedKey(node.key),
     }),
-    [roving, path, onEntryKeyDown],
+    [roving, path, onEntryKeyDown, ripple],
   );
 
   /** Icône et libellé, ou le contenu fourni par l'appelant. */
@@ -697,6 +706,7 @@ export function UiMenu({
         title: shared.title,
         'aria-label': shared['aria-label'],
         'data-key': key,
+        'data-ripple': shared['data-ripple'],
         onClick: (event) => activate(event, node),
         onKeyDown: shared.onKeyDown,
         onMouseEnter: shared.onMouseEnter,
@@ -822,6 +832,7 @@ export function UiMenu({
 interface MenuEntryProps {
   tabIndex: number;
   'data-key': string;
+  'data-ripple': 'on' | 'off';
   title?: string;
   'aria-label'?: string;
   onKeyDown: (event: KeyboardEvent<HTMLElement>) => void;

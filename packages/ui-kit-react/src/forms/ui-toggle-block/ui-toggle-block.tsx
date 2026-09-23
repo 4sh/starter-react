@@ -29,6 +29,11 @@ export type ToggleBlockAlign = 'center' | 'start';
 const prevenus = new Set<string>();
 
 export interface UiToggleBlockProps<T = boolean> {
+  /**
+   * Onde de pression sur le bloc entier, quand elle est activée. Un bloc
+   * désactivé ou en lecture seule n'en produit aucune.
+   */
+  ripple?: boolean;
   /** Contrôle de sélection embarqué. */
   indicator?: ToggleBlockIndicator;
   /** Côté du bloc où se tient l'indicateur. */
@@ -101,6 +106,7 @@ export interface UiToggleBlockProps<T = boolean> {
  * avec eux pour un corps entièrement libre.
  */
 export function UiToggleBlock<T = boolean>({
+  ripple = true,
   indicator = 'checkbox',
   indicatorPosition = 'start',
   align = 'center',
@@ -224,6 +230,7 @@ export function UiToggleBlock<T = boolean>({
     // le garde de lecture seule doit la voir avant qu'elle n'agisse.
     // eslint-disable-next-line jsx-a11y/no-static-element-interactions
     <div
+      data-ripple={ripple && !disabled && !readOnly ? 'on' : 'off'}
       className={cx(
         'ui-toggle-block',
         size !== 'default' && `_${size}`,

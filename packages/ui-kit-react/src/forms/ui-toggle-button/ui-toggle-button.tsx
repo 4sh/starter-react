@@ -99,6 +99,11 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const prevenus = new Set<string>();
 
 export interface UiToggleButtonProps<T = boolean> {
+  /**
+   * Onde de pression sur la bascule, et sur chaque bouton en mode groupe, quand
+   * elle est activée. `false` la coupe, activation globale comprise.
+   */
+  ripple?: boolean;
   /** Valeur imposée. Renseignée, le bouton est **contrôlé**. */
   value?: ToggleButtonValue<T>;
   /** Valeur de départ quand il est non contrôlé. */
@@ -208,6 +213,7 @@ export interface UiToggleButtonProps<T = boolean> {
  *   qu'avec `aria-pressed`.
  */
 export function UiToggleButton<T = boolean>({
+  ripple = true,
   value,
   defaultValue,
   onValueChange,
@@ -433,6 +439,7 @@ export function UiToggleButton<T = boolean>({
               item.selected && '_selected',
               item.iconOnly && '_icon-only',
             )}
+            data-ripple={ripple ? 'on' : 'off'}
             disabled={item.disabled}
             tabIndex={tabIndex}
             aria-pressed={item.selected}
@@ -468,6 +475,7 @@ export function UiToggleButton<T = boolean>({
             checked && '_selected',
             isIconOnly && '_icon-only',
           )}
+          data-ripple={ripple ? 'on' : 'off'}
           id={uid}
           name={name}
           disabled={disabled}

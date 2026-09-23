@@ -61,6 +61,10 @@
       "types": "./dist/core/overlay/index.d.ts",
       "import": "./dist/overlay.js"
     },
+    "./ripple": {
+      "types": "./dist/core/ripple/index.d.ts",
+      "import": "./dist/ripple.js"
+    },
     "./theming": {
       "types": "./dist/core/theming/index.d.ts",
       "import": "./dist/theming.js"
@@ -97,6 +101,10 @@
       "types": "./dist/base/ui-icon/index.d.ts",
       "import": "./dist/ui-icon.js"
     },
+    "./ui-image": {
+      "types": "./dist/base/ui-image/index.d.ts",
+      "import": "./dist/ui-image.js"
+    },
     "./ui-autocomplete": {
       "types": "./dist/forms/ui-autocomplete/index.d.ts",
       "import": "./dist/ui-autocomplete.js"
@@ -109,9 +117,17 @@
       "types": "./dist/forms/ui-datepicker/index.d.ts",
       "import": "./dist/ui-datepicker.js"
     },
+    "./ui-editor": {
+      "types": "./dist/forms/ui-editor/index.d.ts",
+      "import": "./dist/ui-editor.js"
+    },
     "./ui-field": {
       "types": "./dist/forms/ui-field/index.d.ts",
       "import": "./dist/ui-field.js"
+    },
+    "./ui-file-upload": {
+      "types": "./dist/forms/ui-file-upload/index.d.ts",
+      "import": "./dist/ui-file-upload.js"
     },
     "./ui-input": {
       "types": "./dist/forms/ui-input/index.d.ts",
@@ -292,6 +308,10 @@
     "./ui-menu": {
       "types": "./dist/navigation/ui-menu/index.d.ts",
       "import": "./dist/ui-menu.js"
+    },
+    "./ui-sidebar": {
+      "types": "./dist/navigation/ui-sidebar/index.d.ts",
+      "import": "./dist/ui-sidebar.js"
     },
     "./ui-stepper": {
       "types": "./dist/navigation/ui-stepper/index.d.ts",

@@ -1,0 +1,252 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as FileUploadStories from './ui-file-upload.stories';
+
+<Meta of={FileUploadStories} />
+
+# ui-file-upload
+
+Téléversement de fichiers, en champ compact (`field`) ou en zone de **glisser-déposer**
+(`drag`). La sélection passe par un `<input type="file">` natif, masqué mais focalisable :
+le sélecteur du système, le clavier et les lecteurs d'écran marchent nativement, et toute
+la surface accepte le dépôt. Les fichiers sont validés côté client (type, taille, nombre)
+puis envoyés d'eux-mêmes (`auto`), à la demande, ou par la fonction de l'application
+(`customUpload`). La progression passe par `XMLHttpRequest`, sans client HTTP à fournir.
+
+<Canvas of={FileUploadStories.Basic} />
+
+> ℹ️ **Pas un champ contrôlé.** Contrairement aux autres champs du kit, `ui-file-upload`
+> n'a ni `value` ni `onValueChange` : sa valeur (des `File` et leur état d'envoi) ne se
+> sérialise pas dans un état de formulaire. On le suit par `onFilesChange`,
+> `onFilesSelect`, `onUploadComplete` et `onRemove`, et on reporte le résultat (des
+> identifiants, des URL) dans son formulaire. Avec `name`, la sélection part aussi avec un
+> formulaire **natif**.
+
+## API
+
+<ArgTypes of={FileUploadStories} />
+
+## Auto
+
+Avec `auto`, un fichier part dès qu'il est choisi. Le bouton Téléverser disparaît, il n'y
+a plus rien à déclencher.
+
+<Canvas of={FileUploadStories.Auto} />
+
+## Advanced
+
+Glisser-déposer, plusieurs fichiers, progression, et les trois validations : `accept`,
+`maxFileSize` et `fileLimit`. Un fichier refusé n'entre pas dans la liste ; le motif est
+annoncé et `onUploadError` le reçoit avec sa raison (`type`, `size` ou `limit`).
+
+<Canvas of={FileUploadStories.Advanced} />
+
+## Envoi délégué
+
+`customUpload` remplace l'envoi intégré par la fonction de l'application.
+`onCustomUpload` reçoit les fichiers en attente et trois fonctions pour piloter leur
+état : `setProgress`, `markUploaded` et `markError`.
+
+<Canvas of={FileUploadStories.CustomUpload} />
+
+## Envoi intégré
+
+Sans `customUpload`, `url` suffit : chaque fichier part dans sa propre requête
+multipart, sous `fieldName`. `withCredentials` est coupé par défaut, aucun cookie ne part
+vers une autre origine sans le demander.
+
+```tsx
+import { UiFileUpload } from '@4sh/ui-kit-react/ui-file-upload';
+
+<UiFileUpload
+  mode="drag"
+  multiple
+  accept="image/*,.pdf"
+  maxFileSize={5 * 1024 * 1024}
+  url="/api/upload"
+  aria-label="Téléverser des documents"
+  onUploadComplete={({ files, xhr }) => enregistrer(files, xhr.response)}
+  onUploadError={({ file, reason, message }) => signaler(file, reason, message)}
+/>;
+```
+
+## Aperçu en grille
+
+`renderContent` reçoit tous les fichiers et rend toute la section. Chaque image porte son
+`objectUrl`, que le composant révoque lui-même au retrait.
+
+<Canvas of={FileUploadStories.ImagePreview} />
+
+## Rendus personnalisés
+
+Trois props de rendu, chacune avec les actions dont elle a besoin :
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Prop</th>
+      <th>Reçoit</th>
+      <th>Remplace</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>renderFile</code>
+      </td>
+      <td>
+        le fichier, puis <code>{'{ remove }'}</code>
+      </td>
+      <td>une ligne, dans son élément de liste</td>
+    </tr>
+    <tr>
+      <td>
+        <code>renderContent</code>
+      </td>
+      <td>
+        les fichiers, puis <code>{'{ remove, clear }'}</code>
+      </td>
+      <td>
+        toute la section, rendue même vide. Prioritaire sur <code>renderFile</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>renderToolbar</code>
+      </td>
+      <td>
+        les fichiers, puis <code>{'{ choose, upload, clear }'}</code>
+      </td>
+      <td>
+        la barre d'actions du mode <code>drag</code>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<Canvas of={FileUploadStories.Template} />
+
+## Dans un formulaire natif
+
+Le sélecteur est vidé après chaque choix, pour qu'un nouveau choix du même fichier
+redéclenche `change` : il ne peut donc rien porter jusqu'au formulaire. Avec `name`, un
+second champ, caché, reçoit la sélection courante, et c'est lui que le formulaire soumet.
+Désactivé, le composant ne soumet rien, comme tout champ natif.
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Mise en œuvre</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <strong>Contrôle natif</strong>
+      </td>
+      <td>
+        Un vrai <code>&lt;input type="file"&gt;</code>, masqué visuellement mais focalisable,
+        porte la sélection : sélecteur du système, tabulation et activation au clavier
+        natifs. Son nom accessible vient d'<code>aria-label</code>, qui a une valeur par
+        défaut ; un nom vide déclenche un avertissement en développement.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Zone de dépôt</strong>
+      </td>
+      <td>
+        Toute la surface est un <code>&lt;label&gt;</code> du champ. L'anneau de focus se
+        pose sur la zone quand le champ reçoit le focus au clavier (
+        <code>:focus-visible</code>).
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Progression</strong>
+      </td>
+      <td>
+        Chaque ligne en cours montre un <code>ui-spinner</code> et une barre{' '}
+        <code>role="progressbar"</code>. Les boutons de retrait sont de vrais{' '}
+        <code>&lt;button&gt;</code>, nommés avec le fichier.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Erreurs</strong>
+      </td>
+      <td>
+        Les refus sont annoncés dans une région <code>role="alert"</code>. La couleur n'est
+        jamais seule : un message et une icône l'accompagnent.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Sécurité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Mise en œuvre</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <strong>Validation client</strong>
+      </td>
+      <td>
+        <code>accept</code>, <code>maxFileSize</code> et <code>fileLimit</code> filtrent avant
+        l'envoi, et ce n'est **qu'un confort**. Le serveur revalide toujours : type réel,
+        taille, nombre et contenu.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Fuites mémoire</strong>
+      </td>
+      <td>
+        Les URL d'objet des aperçus sont révoquées au retrait, au remplacement, à
+        l'effacement et au démontage, et aussitôt pour un fichier refusé. Les requêtes en vol
+        sont annulées dans les mêmes cas.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Noms de fichiers</strong>
+      </td>
+      <td>
+        Rendus comme texte par React, donc échappés. Jamais écrits en HTML (voir{' '}
+        <code>docs/SECURITY-PRACTICES.md</code>).
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Requête</strong>
+      </td>
+      <td>
+        <code>withCredentials</code> est coupé par défaut : aucun cookie vers une autre
+        origine sans le demander.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Composition
+
+La liste est faite de lignes **`ui-file-upload-list`**, une par fichier : la même unité
+que dans Figma. Chaque ligne passe sur `ui-spinner` pendant l'envoi. Voir
+[ui-file-upload-list](?path=/docs/components-ui-forms-ui-file-upload-list--docs).
+
+## Theming
+
+La zone de dépôt et la ligne de fichier ont chacune leur configuration.
+
+<ConfigTable of="ui-file-upload" label="ui-file-upload" />
+
+<ConfigTable of="ui-file-upload-list" label="ui-file-upload-list" />

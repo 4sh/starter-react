@@ -1,0 +1,202 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as ImageStories from './ui-image.stories';
+
+<Meta of={ImageStories} />
+
+# ui-image
+
+Une image consciente du thème et de la marque, avec son repli, sa vignette et sa vue
+agrandie.
+
+<Canvas of={ImageStories.Remote} />
+
+## API
+
+<ArgTypes of={ImageStories} />
+
+## Trois sources
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Prop</th>
+      <th>Ce qui se passe</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>src</code>
+      </td>
+      <td>Une URL distante ou absolue, rendue telle quelle. Elle gagne sur `name`.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>name</code>
+      </td>
+      <td>
+        Une image locale, résolue par la table du projet selon le mode et la marque actifs.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>src</code> plus <code>secured</code>
+      </td>
+      <td>
+        L'URL passe par la fonction de l'application, celle qui sait poser son autorisation.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## La table des images du projet
+
+Le kit ne peut pas connaître les images d'une application : la table est donc **fournie**,
+pas embarquée. Sans elle, `name` ne résout rien et le composant retombe sur sa vignette,
+tandis que `src` continue de marcher.
+
+```tsx
+import assets from './assets/assets-map.json';
+
+<UiImageProvider assets={assets}>
+  <App />
+</UiImageProvider>;
+```
+
+Une entrée nomme le dossier de marque, ou `common`, puis la variante : `base` pour une image
+unique, `light` et `dark` pour un couple qui suit le mode. Le chemin se construit ensuite
+seul, `assets/img/<marque>/<type>/<mode>/<fichier>`.
+
+## SVG inliné
+
+Un SVG **local** est inliné, ce qui lui fait hériter du CSS : sa couleur vient de
+`currentColor`, donc du texte autour, ce qu'un `<img>` ne permet pas.
+
+<Canvas of={ImageStories.InlineSvg} />
+
+<div className="sb-callout">
+
+**Sans jamais coller une chaîne.** Le balisage est converti en **éléments React**, et non
+injecté en HTML. Côté Angular cette fonction est la seule exception de sécurité du kit, un
+`bypassSecurityTrustHtml()` ; ici il n'y a rien à lever, et le registre de
+`docs/SECURITY-PRACTICES.md` reste vide.
+
+Le nettoyage reste nécessaire, parce que le modèle de menace n'est pas « les images du kit » :
+c'est un projet qui sert ses images depuis un CDN, ou qui laisse un client déposer son logo
+dans un dossier de marque. Scripts, `foreignObject`, animations SMIL, gestionnaires
+d'événements et références non navigationnelles sont retirés avant la conversion.
+
+Un SVG **distant** n'est jamais inliné : il passe par un `<img>`, ce qui n'ouvre aucune
+surface.
+
+</div>
+
+## Repli et vignette
+
+Quand l'image principale échoue, l'image `fallback` prend le relais ; si elle échoue aussi,
+une vignette reste, pour que la mise en page ne s'effondre pas.
+
+<Canvas of={ImageStories.Fallback} />
+<Canvas of={ImageStories.FailedNoFallback} />
+<Canvas of={ImageStories.Placeholder} />
+
+Les drapeaux d'échec sont attachés à **l'URL** qui a échoué : un changement de thème, de
+marque ou de `src` rejoue donc le chargement tout seul.
+
+## Image protégée
+
+Un `<img src>` est une requête ordinaire du navigateur : elle ne porte ni intercepteur ni
+jeton. `secured` passe donc par la fonction que l'application fournit, et affiche le `Blob`
+reçu par une URL d'objet, révoquée dès que la source change ou que le composant part.
+
+```tsx
+<UiImageProvider assets={assets} fetchSecured={(url, init) => api.getBlob(url, init)}>
+  <App />
+</UiImageProvider>
+```
+
+<Canvas of={ImageStories.Secured} />
+<Canvas of={ImageStories.SecuredError} />
+
+⚠️ Le cross-origin s'applique quand même : le point d'accès doit répondre au contrôle
+préalable CORS, y compris pour l'en-tête d'autorisation. Un `<img>` l'aurait affichée sans
+rien de tout ça.
+
+## Dimensions
+
+<Canvas of={ImageStories.Fill} />
+
+## Vue agrandie
+
+`preview` fait de l'image un **bouton** qui ouvre la vue agrandie : zoom, rotation,
+déplacement, et au besoin téléchargement. Elle s'ouvre aussi par le code, sans passer par
+l'image.
+
+<Canvas of={ImageStories.Preview} />
+<Canvas of={ImageStories.PreviewDownloadable} />
+<Canvas of={ImageStories.PreviewPortrait} />
+<Canvas of={ImageStories.CustomIndicator} />
+<Canvas of={ImageStories.ControlledPreview} />
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Implémentation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Vignette</td>
+      <td>
+        Elle porte <code>role="img"</code> et le texte alternatif quand il y en a un, et devient{' '}
+        <code>aria-hidden</code> sinon : annoncer une image sans nom ne dirait rien à personne.
+      </td>
+    </tr>
+    <tr>
+      <td>Déclencheur d'aperçu</td>
+      <td>
+        Un <code>&lt;button&gt;</code> natif portant <code>aria-haspopup="dialog"</code>, donc
+        atteignable au clavier. Le voile de survol est décoratif, et se révèle aussi au focus
+        clavier : un indice réservé au pointeur laisserait le clavier de côté.
+      </td>
+    </tr>
+    <tr>
+      <td>Vue agrandie</td>
+      <td>
+        Un <code>&lt;dialog&gt;</code> natif : piège de focus, restitution du focus et{' '}
+        <code>Échap</code> viennent du navigateur.
+      </td>
+    </tr>
+    <tr>
+      <td>Zoom au clavier</td>
+      <td>
+        <code>+</code> et <code>-</code> zooment, <code>0</code> réinitialise, <code>r</code>{' '}
+        pivote, et les flèches déplacent. Un zoom qu'on ne peut pas déplacer au clavier est un
+        zoom qu'on ne peut pas lire.
+      </td>
+    </tr>
+    <tr>
+      <td>Actions indisponibles</td>
+      <td>
+        <code>aria-disabled</code>, jamais <code>disabled</code> : un vrai <code>disabled</code>{' '}
+        laisse tomber le focus sur le corps dès que le bouton qui le porte atteint une borne, et{' '}
+        <code>Échap</code> n'atteint plus le dialogue.
+      </td>
+    </tr>
+    <tr>
+      <td>Quart de tour</td>
+      <td>
+        Une rotation échange les axes de ce qui est dessiné, jamais ceux de la boîte : les bornes
+        sont échangées avec, sinon une photo en paysage mise debout est coupée.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Theming
+
+<ConfigTable of="ui-image" />

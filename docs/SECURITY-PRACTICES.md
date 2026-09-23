@@ -17,12 +17,13 @@ assainissement.
 
 ### Ce qui est interdit
 
-| API                             | Pourquoi                                                           |
-| ------------------------------- | ------------------------------------------------------------------ |
-| `dangerouslySetInnerHTML`       | Injecte le HTML fourni sans le vérifier. Le nom dit ce qu'il fait. |
-| `el.innerHTML` / `el.outerHTML` | Écriture DOM directe : rien ne l'assainit, jamais.                 |
-| `el.insertAdjacentHTML()`       | Idem.                                                              |
-| `eval()` / `new Function()`     | Évaluation de code à la volée.                                     |
+| API                                  | Pourquoi                                                           |
+| ------------------------------------ | ------------------------------------------------------------------ |
+| `dangerouslySetInnerHTML`            | Injecte le HTML fourni sans le vérifier. Le nom dit ce qu'il fait. |
+| `el.innerHTML` / `el.outerHTML`      | Écriture DOM directe : rien ne l'assainit, jamais.                 |
+| `el.insertAdjacentHTML()`            | Idem.                                                              |
+| `document.execCommand('insertHTML')` | Insère la chaîne telle quelle, comme `innerHTML`.                  |
+| `eval()` / `new Function()`          | Évaluation de code à la volée.                                     |
 
 ⚠️ Un piège propre à React : une valeur interpolée dans un attribut `href` ou `src` n'est
 **pas** protégée contre le schéma `javascript:`. Un lien dont l'URL vient de l'extérieur
@@ -53,18 +54,36 @@ Une exception sans les trois n'est pas une exception, c'est un oubli.
 
 ## 2. Registre des exceptions
 
-**Le kit n'en porte aucune à ce jour.**
+**Le kit en porte une seule**, dans `ui-editor`.
 
-Côté Angular, le kit en porte exactement une (`ui-image`, pour du SVG inline). Le
-composant équivalent n'existe pas encore ici : quand il arrivera, il devra soit refaire la
-démonstration au cas par cas, soit passer par une autre voie : un `<img src>` sur un
-fichier SVG, ou un composant React qui construit les nœuds SVG en JSX plutôt que de coller
-une chaîne. Reprendre l'exception « parce qu'elle existe côté Angular » n'est pas un
-argument recevable.
+Côté Angular, le kit en porte cinq, dans deux composants : deux dans `ui-image`, pour du SVG
+inline, et trois dans `ui-editor`, qui analyse du HTML dans un `<template>` détaché et écrit
+sa valeur dans la zone éditable (mesuré le 23 septembre, par `EXCEPTION JUSTIFIÉE` dans ses
+sources). Ce dépôt a fait tomber les cinq, et n'en garde qu'une, d'une autre nature.
 
-| Fichier    | Exception | Raison | Ce qui assainit la valeur |
-| ---------- | --------- | ------ | ------------------------- |
-| _(aucune)_ |           |        |                           |
+- **`ui-image`** inline ses SVG locaux par la voie que ce document désignait d'avance :
+  `inlineSvgToReact()` analyse le balisage dans un document détaché, le nettoie, puis
+  construit des **éléments React**. Rien n'est écrit en HTML. Le nettoyage reste
+  indispensable, et il est testé à part (`ui-image-svg.test.tsx`) : le modèle de menace n'est
+  pas « les images du kit », c'est un projet qui sert `assets/img/` depuis un CDN, ou qui
+  laisse un client déposer son logo dans un dossier de marque.
+- **`ui-editor`** analyse avec `DOMParser`, dans un document inerte, et écrit sa valeur dans la
+  zone par des **nœuds** (`replaceChildren`), jamais par `innerHTML`. Les trois exceptions
+  d'Angular disparaissent. La valeur passe par `sanitizeHtml`, le portage testé du
+  `DomSanitizer` d'Angular (`ui-editor-sanitize.test.ts`).
+
+Reste le **collage** : il insère par `execCommand('insertHTML')`, seule façon d'insérer du
+balisage que l'annulation native enregistre, pour que Ctrl+Z annule un collage. Une insertion
+par `Range` n'aurait demandé aucune exception, au prix de cette annulation. L'appel est
+désormais refusé par le lint comme les autres, ce qui rend l'exception vérifiée et pas
+seulement déclarée.
+
+| Fichier                                                                          | Exception                      | Raison                                      | Ce qui assainit la valeur                                                                                                                       |
+| -------------------------------------------------------------------------------- | ------------------------------ | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/ui-kit-react/src/forms/ui-editor/ui-editor-commands.ts` (`insertHtml`) | `execCommand('insertHTML', …)` | Le collage doit rester annulable par Ctrl+Z | `sanitizeHtml(normalizeHtml(…))` : balises de l'éditeur seules, puis le portage du `DomSanitizer`. Seul appelant : `onPaste` de `ui-editor.tsx` |
+
+---------- | --------- | ------ | ------------------------- |
+| _(aucune)_ | | | |
 
 ---
 

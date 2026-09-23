@@ -90,6 +90,11 @@ interface ThumbMetrics {
 const prevenus = new Set<string>();
 
 export interface UiSegmentControlProps<T = unknown> {
+  /**
+   * Onde de pression sur les segments, quand elle est activée. `false` la coupe,
+   * activation globale comprise.
+   */
+  ripple?: boolean;
   /** Options à afficher, un bouton chacune. Primitives, objets, ou forme riche. */
   options?: readonly (T | SegmentControlOption<T>)[];
   /** Chemin de champ d'où lire le libellé, quand les options sont des objets. */
@@ -154,6 +159,7 @@ export interface UiSegmentControlProps<T = unknown> {
  * système de motion partagé.
  */
 export function UiSegmentControl<T = unknown>({
+  ripple = true,
   options = [],
   optionLabel,
   optionValue,
@@ -425,6 +431,7 @@ export function UiSegmentControl<T = unknown>({
           }}
           type="button"
           className={cx('ui-segment-control-option', segment.selected && '_selected')}
+          data-ripple={ripple ? 'on' : 'off'}
           disabled={segment.disabled}
           role={multiple ? undefined : 'radio'}
           aria-checked={multiple ? undefined : segment.selected}

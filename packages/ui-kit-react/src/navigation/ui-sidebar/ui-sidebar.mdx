@@ -1,0 +1,363 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as SidebarStories from './ui-sidebar.stories';
+
+<Meta of={SidebarStories} />
+
+# ui-sidebar
+
+Barre latérale applicative, en deux présentations qui partagent le même intérieur :
+
+- **Statique** (par défaut) : la barre vit dans le flux et **pousse le contenu**. Elle se
+  replie en **rail d'icônes** (`collapsed`). Avec `openOnHover`, un rail replié **flotte**
+  ouvert au survol et au focus, sans décaler le contenu.
+- **Superposée** : la barre **flotte** au-dessus du contenu, pilotée par `visible`. C'est un
+  `<dialog>` natif, comme `ui-drawer` : piège de focus, restitution du focus, arrière-plan
+  inerte, `Échap` et clic sur le voile.
+
+<Canvas of={SidebarStories.Variants} />
+
+## API
+
+<ArgTypes of={SidebarStories} />
+
+## Anatomie
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Élément</th>
+      <th>Rôle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <strong>Rail</strong>
+      </td>
+      <td>
+        <code>.ui-sidebar-rail</code> : l'empreinte **dans le flux** de la présentation statique.
+        Elle réserve la largeur ; le panneau, positionné dedans, peut flotter plus large au
+        survol.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Panneau</strong>
+      </td>
+      <td>
+        <code>.ui-sidebar</code> : la surface, en colonne flex (en-tête, corps qui défile, pied).
+        Un <code>&lt;aside&gt;</code> en présentation statique, le <code>&lt;dialog&gt;</code>{' '}
+        lui-même en présentation superposée, dont <code>::backdrop</code> fait le voile.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Mise en page
+
+La barre statique s'**étire** : posez-la dans une rangée flex qui a une hauteur, à côté du
+contenu. Rendue seule, son rail mesure zéro de haut, son panneau étant positionné en absolu
+pour pouvoir flotter.
+
+```tsx
+import { UiSidebar, UiSidebarMenu } from '@4sh/ui-kit-react/ui-sidebar';
+
+<div style={{ display: 'flex', height: '100dvh' }}>
+  <UiSidebar aria-label="Navigation principale">
+    <UiSidebarMenu items={items} aria-label="Sections" />
+  </UiSidebar>
+  <main style={{ flex: 1, minWidth: 0 }}>…</main>
+</div>;
+```
+
+## Avec menu
+
+En-tête et pied acceptent un nœud, ou une **fonction** qui reçoit l'état de la barre. C'est
+ainsi qu'on n'affiche que l'icône dans le rail replié :
+
+```tsx
+<UiSidebar
+  aria-label="Navigation"
+  header={(sidebar) => (
+    <>
+      <UiIcon name="layer-group" size="lg" />
+      {!sidebar.collapsed && <strong>App</strong>}
+    </>
+  )}
+>
+  <UiSidebarMenu items={items} tooltips aria-label="Sections" />
+</UiSidebar>
+```
+
+<Canvas of={SidebarStories.WithMenu} />
+
+## Adaptatif
+
+Sous `breakpoint` (ici `1024px`, aligné sur l'échelle des points de rupture du Design System),
+la barre devient un panneau superposé ; au-dessus, elle reste un rail qui pousse le contenu.
+Un panneau ouvert qui repasse en statique se referme, et `onHide` le dit.
+
+<Canvas of={SidebarStories.Responsive} />
+
+## Double barre
+
+Un rail d'icônes permanent comme navigation primaire, accolé à une barre secondaire qui
+liste les sections d'un module. Deux barres statiques côte à côte.
+
+<Canvas of={SidebarStories.DualSidebar} />
+
+## Menu imbriqué
+
+Les entrées deviennent des groupes **repliables** sur plusieurs niveaux. Un groupe qui
+contient l'entrée courante se déplie d'office.
+
+<Canvas of={SidebarStories.NestedMenu} />
+
+## Le déclencheur
+
+Un bouton de menu vit souvent **hors** de la barre, dans la barre d'application.
+`UiSidebarProvider` rend l'état de la barre lisible autour d'elle, et `useUiSidebarTrigger()`
+donne les props du contrôle : `aria-controls`, `aria-expanded`, et la bascule au clic.
+`Entrée` et `Espace` viennent seuls sur un `<button>`.
+
+```tsx
+import { UiSidebar, UiSidebarProvider, useUiSidebarTrigger } from '@4sh/ui-kit-react/ui-sidebar';
+
+function MenuButton() {
+  const trigger = useUiSidebarTrigger();
+  return <UiButton {...trigger} icon="bars" iconOnly aria-label="Menu" />;
+}
+
+<UiSidebarProvider>
+  <MenuButton />
+  <UiSidebar aria-label="Navigation principale">…</UiSidebar>
+</UiSidebarProvider>;
+```
+
+Un fournisseur porte **une** barre : deux barres pilotées séparément prennent chacune le
+leur. Dans l'en-tête ou le pied, `getUiSidebarTriggerProps(sidebar)` donne les mêmes props à
+partir de l'état reçu, sans fournisseur. `useUiSidebar()` rend l'état complet, pour un
+libellé qui suit la barre.
+
+## ui-sidebar-menu
+
+Menu de navigation déclaratif (`UiSidebarMenuItem[]`) rendu en **région de navigation** : un
+`<nav>` qui enveloppe des listes. Il gère :
+
+- des **sections** libellées ;
+- des **groupes repliables** (`toggleable`) sur plusieurs niveaux, dépliés selon
+  `expandedKeys`, contrôlé ou non ;
+- l'**entrée courante** (`active`), un groupe qui la contient se dépliant d'office ;
+- un **badge** de fin, rendu par `ui-badge`, et l'icône « ouvre ailleurs » des liens
+  externes (`external`, ou `target="_blank"`).
+
+Posé dans une `UiSidebar`, il lit l'état replié par contexte et se replie en **rail
+d'icônes**. Seul, `collapsed` pilote le rail. En rail, **`tooltips`** montre le libellé de
+chaque icône en info-bulle.
+
+### Modèle `UiSidebarMenuItem`
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Champ</th>
+      <th>Type</th>
+      <th>Rôle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>label</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>Texte de l'entrée, ou de l'en-tête de groupe.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>icon</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>Icône de tête, seule visible dans le rail.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>items</code>
+      </td>
+      <td>
+        <code>UiSidebarMenuItem[]</code>
+      </td>
+      <td>Enfants : une section, ou un groupe repliable.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>toggleable</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>
+        Groupe repliable. Faux au premier niveau, vrai une fois imbriqué.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>url</code>
+      </td>
+      <td>
+        <code>string</code>
+      </td>
+      <td>Destination : l'entrée devient une ancre.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>render</code>
+      </td>
+      <td>
+        <code>(props, children) =&gt; ReactNode</code>
+      </td>
+      <td>
+        Rend l'action soi-même : c'est ainsi qu'on branche le lien d'un routeur, le kit n'en
+        imposant aucun.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>command</code>
+      </td>
+      <td>
+        <code>(event) =&gt; void</code>
+      </td>
+      <td>Appelée à l'activation.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>active</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>Entrée courante. C'est l'application qui le sait, routeur ou non.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>badge</code>, <code>badgeLevel</code>
+      </td>
+      <td>
+        <code>string</code>, <code>UiFeedbackLevel</code>
+      </td>
+      <td>
+        Badge de fin rendu par <code>ui-badge</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>external</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>
+        Force l'icône « ouvre ailleurs ». Automatique avec <code>target="_blank"</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>separator</code>, <code>disabled</code>, <code>visible</code>
+      </td>
+      <td>
+        <code>boolean</code>
+      </td>
+      <td>Séparateur, désactivation, masquage.</td>
+    </tr>
+  </tbody>
+</table>
+
+```tsx
+// Un lien de routeur, l'entrée courante calculée par l'application.
+const items: UiSidebarMenuItem[] = [
+  {
+    label: 'Facturation',
+    icon: 'credit-card',
+    active: pathname.startsWith('/facturation'),
+    render: (props, children) => (
+      <Link {...props} to="/facturation">
+        {children}
+      </Link>
+    ),
+  },
+];
+```
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Aspect</th>
+      <th>Comportement</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <strong>Région</strong>
+      </td>
+      <td>
+        Un <code>&lt;aside&gt;</code> nommé par <code>aria-label</code> ou{' '}
+        <code>aria-labelledby</code> ; sans nom, « Navigation » par défaut et un avertissement
+        en développement. Les menus s'enveloppent dans un <code>&lt;nav&gt;</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Listes</strong>
+      </td>
+      <td>
+        Les listes portent <code>role="list"</code> : Safari retire la sémantique d'une liste
+        en <code>list-style: none</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Déclencheur</strong>
+      </td>
+      <td>
+        <code>useUiSidebarTrigger()</code> pose <code>aria-controls</code> et{' '}
+        <code>aria-expanded</code>, liés à la barre.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Superposée</strong>
+      </td>
+      <td>
+        Un <code>&lt;dialog&gt;</code> modal : piège de focus, restitution du focus et
+        arrière-plan inerte sont natifs. <code>Échap</code> ferme si <code>dismissable</code>.
+        Sans voile, le panneau est non modal et la page reste utilisable.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Rail replié</strong>
+      </td>
+      <td>
+        Chaque icône garde un nom accessible : <code>aria-label</code>, et <code>title</code>{' '}
+        ou l'info-bulle, valent le libellé.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Theming
+
+Les largeurs se règlent par `--ui-sidebar-width` et `--ui-sidebar-rail-width`.
+
+<ConfigTable of="ui-sidebar" label="ui-sidebar" />
+
+<ConfigTable of="ui-sidebar-menu" label="ui-sidebar-menu" />

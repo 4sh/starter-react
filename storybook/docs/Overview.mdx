@@ -18,6 +18,8 @@ import * as NudgerStories from "../../packages/ui-kit-react/src/forms/ui-nudger/
 import * as InputOtpStories from "../../packages/ui-kit-react/src/forms/ui-input-otp/ui-input-otp.stories";
 import * as KnobStories from "../../packages/ui-kit-react/src/forms/ui-knob/ui-knob.stories";
 import * as SwatchStories from "../../packages/ui-kit-react/src/forms/ui-swatch-picker/ui-swatch-picker.stories";
+import * as FileUploadStories from "../../packages/ui-kit-react/src/forms/ui-file-upload/ui-file-upload.stories";
+import * as EditorStories from "../../packages/ui-kit-react/src/forms/ui-editor/ui-editor.stories";
 import * as RatingStories from "../../packages/ui-kit-react/src/forms/ui-rating/ui-rating.stories";
 import * as SliderStories from "../../packages/ui-kit-react/src/forms/ui-slider/ui-slider.stories";
 import * as ToggleBlockStories from "../../packages/ui-kit-react/src/forms/ui-toggle-block/ui-toggle-block.stories";
@@ -43,6 +45,7 @@ import * as TabsStories from "../../packages/ui-kit-react/src/navigation/ui-tabs
 import * as BreadcrumbStories from "../../packages/ui-kit-react/src/navigation/ui-breadcrumb/ui-breadcrumb.stories";
 import * as BottomTabBarStories from "../../packages/ui-kit-react/src/navigation/ui-bottom-tab-bar/ui-bottom-tab-bar.stories";
 import * as StepperStories from "../../packages/ui-kit-react/src/navigation/ui-stepper/ui-stepper.stories";
+import * as SidebarStories from "../../packages/ui-kit-react/src/navigation/ui-sidebar/ui-sidebar.stories";
 import * as PaginatorStories from "../../packages/ui-kit-react/src/table/ui-paginator/ui-paginator.stories";
 import * as TableStories from "../../packages/ui-kit-react/src/table/ui-table/ui-table.stories";
 import * as CardStories from "../../packages/ui-kit-react/src/layout/ui-card/ui-card.stories";
@@ -60,6 +63,7 @@ import * as AccordionStories from "../../packages/ui-kit-react/src/informative/u
 import * as ToastStories from "../../packages/ui-kit-react/src/informative/ui-toast/ui-toast.stories";
 import * as AlertStories from "../../packages/ui-kit-react/src/informative/ui-alert/ui-alert.stories";
 import * as IconStories from "../../packages/ui-kit-react/src/base/ui-icon/ui-icon.stories";
+import * as ImageStories from "../../packages/ui-kit-react/src/base/ui-image/ui-image.stories";
 
 <Meta title="Overview" />
 
@@ -110,6 +114,8 @@ export const CATEGORIES = [
       { name: 'ui-slider', description: "Curseur simple ou de plage. Le pointeur est capturé, donc le glissement continue hors de la piste.", link: '?path=/docs/components-ui-forms-ui-slider--docs', story: SliderStories.Default },
       { name: 'ui-knob', description: "Cadran circulaire. Un arc SVG de 300° en viewBox, donc le trait suit le diamètre rendu.", link: '?path=/docs/components-ui-forms-ui-knob--docs', story: KnobStories.Basic },
       { name: 'ui-swatch-picker', description: "Grille de couleurs, en ligne ou en popup. Chaque pastille pointe un jeton, donc la marque la repeint.", link: '?path=/docs/components-ui-forms-ui-swatch-picker--docs', story: SwatchStories.Small },
+      { name: 'ui-editor', description: "Texte riche sur un contenteditable, sans moteur tiers. Police, taille et couleurs en classes adossées aux jetons.", link: '?path=/docs/components-ui-forms-ui-editor--docs', story: EditorStories.WithValue },
+      { name: 'ui-file-upload', description: "Téléversement en champ compact ou en zone de dépôt, sur un input natif. Validation, progression, envoi intégré ou délégué.", link: '?path=/docs/components-ui-forms-ui-file-upload--docs', story: FileUploadStories.Basic },
       { name: 'ui-input-otp', description: "Code à usage unique, une case par caractère. Un seul arrêt de tabulation, et le collage se répartit.", link: '?path=/docs/components-ui-forms-ui-input-otp--docs', story: InputOtpStories.Basic },
       { name: 'ui-toggle-block', description: "Bloc sélectionnable. Un label étiré rend toute la surface activante, sans gestionnaire de clic.", link: '?path=/docs/components-ui-forms-ui-toggle-block--docs', story: ToggleBlockStories.Checked },
       { name: 'ui-segment-control', description: "Contrôle segmenté. La sémantique change avec multiple : radiogroup en simple, group en bascules.", link: '?path=/docs/components-ui-forms-ui-segment-control--docs', story: SegmentStories.WithIcons },
@@ -165,6 +171,7 @@ export const CATEGORIES = [
       { name: 'ui-tabs', description: "Onglets headless composés : bande à focus glissant, indicateur mesuré, défilement, panneaux paresseux.", link: '?path=/docs/components-ui-navigation-ui-tabs--docs', story: TabsStories.Default, previewHeight: 300 },
       { name: 'ui-breadcrumb', description: "Fil d'Ariane. Chaque maillon rend l'élément natif de sa sémantique : ancre, bouton, ou simple texte.", link: '?path=/docs/components-ui-navigation-ui-breadcrumb--docs', story: BreadcrumbStories.Basic },
       { name: 'ui-bottom-tab-bar', description: "Navigation basse des appareils tactiles. Réserve l'incrustation système et garde la cible tactile.", link: '?path=/docs/components-ui-navigation-ui-bottom-tab-bar--docs', story: BottomTabBarStories.Basic, previewHeight: 300 },
+      { name: 'ui-sidebar', description: "Barre latérale applicative : rail d'icônes repliable dans le flux, ou panneau superposé sur un dialog natif. Menu déclaratif livré avec.", link: '?path=/docs/components-ui-navigation-ui-sidebar--docs', story: SidebarStories.WithMenu },
       { name: 'ui-stepper', description: "Progression numérotée. La sémantique ARIA suit la disposition : onglets à plat, accordéon en colonne.", link: '?path=/docs/components-ui-navigation-ui-stepper--docs', story: StepperStories.Basic },
     ],
   },
@@ -181,6 +188,7 @@ export const CATEGORIES = [
     anchor: 'base',
     components: [
       { name: 'ui-icon', description: 'Icône FontAwesome (sm→xl, solid/outline), décorative par défaut, famille configurable.', link: '?path=/docs/components-ui-base-ui-icon--docs', story: IconStories.Solid },
+      { name: 'ui-image', description: "Image consciente du thème et de la marque. Un SVG local devient des éléments React, jamais du HTML collé.", link: '?path=/docs/components-ui-base-ui-image--docs', story: ImageStories.Remote },
     ],
   },
 ];

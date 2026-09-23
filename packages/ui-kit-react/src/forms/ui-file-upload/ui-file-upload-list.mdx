@@ -1,0 +1,74 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as ListStories from './ui-file-upload-list.stories';
+
+<Meta of={ListStories} />
+
+# ui-file-upload-list
+
+Une ligne de fichier : l'**unité qui se répète** dans la liste d'un envoi, à l'image du
+composant Figma. [ui-file-upload](?path=/docs/components-ui-forms-ui-file-upload--docs) en
+empile une par fichier. Présentationnelle : une vignette pour une image, une icône
+sinon, le nom avec la taille ou l'état, et un bouton de retrait. Pendant l'envoi, un
+`ui-spinner` prend la place de l'icône et une barre de progression apparaît.
+
+Elle se livre dans le point d'entrée de `ui-file-upload`, dont elle rend le modèle :
+
+```tsx
+import { UiFileUploadList, type UiUploadFile } from '@4sh/ui-kit-react/ui-file-upload';
+```
+
+<Canvas of={ListStories.Default} />
+
+## API
+
+<ArgTypes of={ListStories} />
+
+## États
+
+<Canvas of={ListStories.Uploading} />
+<Canvas of={ListStories.ErrorState} />
+<Canvas of={ListStories.ImageThumbnail} />
+<Canvas of={ListStories.Small} />
+
+## Accessibilité
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Mise en œuvre</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <strong>Retrait</strong>
+      </td>
+      <td>
+        Un vrai <code>&lt;button&gt;</code>, dont le nom accessible inclut celui du fichier.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Progression</strong>
+      </td>
+      <td>
+        Une barre <code>role="progressbar"</code>, bornée de 0 à 100 ; le{' '}
+        <code>ui-spinner</code> est une région <code>status</code> nommée.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Vignette</strong>
+      </td>
+      <td>
+        Décorative (<code>alt=""</code>) : c'est le nom du fichier qui est lu.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Theming
+
+<ConfigTable of="ui-file-upload-list" />
