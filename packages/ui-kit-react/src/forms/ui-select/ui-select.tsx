@@ -105,6 +105,11 @@ export interface UiSelectProps extends UiFieldSharedProps, NativeProps {
   placeholder?: string;
   /** Bouton d'effacement de la sélection. */
   showClear?: boolean;
+  /**
+   * Onde de pression sur les options, quand elle est activée. `false` la coupe
+   * sur ce champ, activation globale comprise.
+   */
+  ripple?: boolean;
   clearAriaLabel?: string;
   /** Nom d'icône du chevron. */
   icon?: string;
@@ -198,6 +203,7 @@ export function UiSelect({
   overflowLabel = '(+{0} autres)',
   placeholder,
   showClear = false,
+  ripple = true,
   clearAriaLabel = 'Effacer la sélection',
   icon = 'angle-down',
   filter = false,
@@ -242,6 +248,7 @@ export function UiSelect({
   invalid = false,
   id,
   className,
+  tabIndex,
   ref,
   ...rest
 }: UiSelectProps) {
@@ -786,6 +793,7 @@ export function UiSelect({
           row.index === focusedIndex && '_focused',
           row.entry.disabled && '_disabled',
         )}
+        data-ripple={ripple ? 'on' : 'off'}
         role="option"
         aria-selected={row.selected}
         aria-disabled={row.entry.disabled || undefined}
@@ -838,6 +846,9 @@ export function UiSelect({
   // positif quand on l'écrit en attribut JSX.
   const triggerShared = {
     id: field.inputId,
+    // Transmis au déclencheur, seul élément focalisable du champ : c'est ce qui
+    // laisse une barre d'outils (`ui-editor`) tenir un arrêt de tabulation unique.
+    tabIndex,
     role: 'combobox' as const,
     'aria-haspopup': 'listbox' as const,
     'aria-required': required || undefined,

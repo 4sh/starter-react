@@ -55,6 +55,8 @@ export interface UiContextMenuProps extends NativeProps {
   submenus?: MenuSubmenuMode;
   /** Couper l'animation d'apparition. */
   motionDisabled?: boolean;
+  /** Onde de pression sur les entrées, transmise au menu embarqué. */
+  ripple?: boolean;
 
   /** Contenu d'une entrée, transmis au menu. */
   renderItem?: (item: UiMenuItem) => ReactNode;
@@ -94,6 +96,7 @@ export function UiContextMenu({
   size = 'small',
   submenus = 'flyout',
   motionDisabled = false,
+  ripple = true,
   renderItem,
   renderHeader,
   onItemClick,
@@ -250,6 +253,7 @@ export function UiContextMenu({
           size={size}
           submenus={submenus}
           motionDisabled={motionDisabled}
+          ripple={ripple}
           renderItem={renderItem}
           renderHeader={renderHeader}
           className="_floating"

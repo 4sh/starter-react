@@ -562,3 +562,13 @@ test('le panneau attend sa position avant d’être peint', async () => {
     .forEach((animation) => animation.finish());
   expect(getComputedStyle(panneau(screen)).opacity).toBe('1');
 });
+
+test('tabIndex va au déclencheur, pour une barre d’outils à arrêt unique', async () => {
+  const screen = await render(
+    <UiSelect aria-label="Police" options={['Inter', 'Mono']} tabIndex={-1} />,
+  );
+
+  await expect
+    .element(screen.getByRole('combobox', { name: 'Police' }))
+    .toHaveAttribute('tabindex', '-1');
+});

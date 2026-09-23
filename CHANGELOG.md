@@ -25,6 +25,69 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
   `utils.overlay-motion` s'il vit dans le calque supérieur, `useUiMotion` s'il quitte le DOM.
   C'est la question qu'on se pose en vrai, et elle n'était écrite nulle part.
 
+- `core/ripple` (`@4sh/ui-kit-react/ripple`) : l'onde de pression. `UiRippleProvider` l'active
+  pour toute l'application, `useUiRippleScope()` pour un sous-arbre, `useUiRipple()` pour un
+  élément, et `launchRipple()` la lance sans pression. Elle se règle par les seules propriétés
+  `--ui-ripple-*`, et respecte le mouvement réduit comme `data-motion="off"`. Les quatorze
+  composants équipés, `ui-button`, `ui-menu`, `ui-context-menu`, `ui-sidebar-menu`, `ui-tabs`,
+  `ui-bottom-tab-bar`, `ui-paginator`, `ui-select`, `ui-autocomplete`, `ui-datepicker`,
+  `ui-toggle-button`, `ui-segment-control`, `ui-toggle-block` et `ui-file-upload`, reçoivent
+  une prop `ripple`, vraie par défaut : sans activation, elle ne produit rien.
+
+- `ui-editor` : champ de texte riche, sur un `contenteditable` et les commandes d'édition
+  natives du navigateur, **sans moteur tiers** : le kit reste à ses deux dépendances. Police,
+  taille, couleurs et surlignage s'écrivent en classes adossées aux jetons, alignement,
+  listes, retrait, lien et bloc de code en balisage. La valeur est du HTML, nettoyé par
+  `sanitizeHtml`, le portage du `DomSanitizer` d'Angular, exporté pour l'afficher ailleurs.
+
+  Trois écarts avec le kit Angular, déclarés à corriger de son côté : il perd l'alignement et
+  le retrait quand une valeur enregistrée lui revient ; recolorer un passage qui contient un
+  mot déjà coloré laissait ce mot inchangé ; et appliquer une police, une taille ou une
+  couleur désélectionnait le texte. Au passage, `ui-select` transmet `tabIndex` à son
+  déclencheur.
+
+- `ui-sidebar` : barre latérale applicative. Statique, elle pousse le contenu et se replie en
+  rail d'icônes, qui peut flotter ouvert au survol et au focus ; superposée, c'est un
+  `<dialog>` natif, avec son voile, son piège de focus et `Échap`. Elle passe de l'une à
+  l'autre sous un point de rupture (`responsive`). En-tête et pied reçoivent l'état de la
+  barre. Livre `ui-sidebar-menu`, menu déclaratif à sections, groupes repliables et entrée
+  courante, et `useUiSidebarTrigger()` pour un déclencheur placé hors de la barre, sous
+  `UiSidebarProvider`.
+
+  Deux écarts avec le kit Angular, déclarés à corriger de son côté : il pose `aria-modal`
+  sur un `<aside>`, dont le rôle ne le prend pas en charge, et deux de ses menus sur une page
+  produisent des identifiants en double.
+
+- `ui-file-upload` : téléversement de fichiers, en champ compact ou en zone de
+  glisser-déposer, sur un `<input type="file">` natif. Validation côté client par type,
+  taille et nombre ; envoi intégré par `XMLHttpRequest` avec sa progression, ou délégué à
+  l'application par `customUpload`. `renderFile`, `renderContent` et `renderToolbar`
+  remplacent chacun une partie du rendu. Livre aussi `ui-file-upload-list`, la ligne de
+  fichier, dans le même point d'entrée.
+
+  Avec `name`, la sélection part avec le formulaire natif qui entoure le composant. Le kit
+  Angular pose ce nom sur un sélecteur qu'il vide après chaque choix, si bien qu'un
+  formulaire y reçoit un fichier vide : mesuré, et déclaré à corriger de son côté. Même
+  chose pour la couleur des erreurs : le kit Angular prend le contenu de la surface d'erreur
+  forte, qui est blanc, si bien que le message de refus et le texte d'une ligne en erreur ne
+  se voyaient pas. Ils suivent ici le jeton d'erreur de la famille formulaire, lisible dans
+  les deux modes.
+
+- `ui-image` : image consciente du thème et de la marque, avec son repli, sa vignette et sa
+  vue agrandie. Trois sources : une URL distante, une image locale résolue par la table du
+  projet selon le mode et la marque, ou une URL protégée cherchée par la fonction que
+  l'application fournit, ce dont a besoin un point d'accès derrière un en-tête d'autorisation.
+
+  Un SVG **local** est inliné, ce qui lui fait hériter du CSS et de `currentColor`. Là où le
+  kit Angular n'a d'autre choix que `bypassSecurityTrustHtml()`, sa seule exception de
+  sécurité, cette version convertit le balisage en **éléments React** : rien n'est écrit en
+  HTML, donc le registre de `docs/SECURITY-PRACTICES.md` reste vide. Le nettoyage, lui, est
+  gardé et testé à part.
+
+  `preview` fait de l'image un bouton qui ouvre la vue agrandie, un `<dialog>` natif : zoom,
+  rotation et déplacement, à la souris comme au clavier, un zoom qu'on ne peut pas déplacer
+  au clavier étant un zoom qu'on ne peut pas lire.
+
 - `ui-bottom-sheet` : panneau qui glisse depuis le bord bas de l'écran, sur le même socle que
   `ui-modal` et `ui-drawer`, le `<dialog>` natif : le voile et le positionneur du kit Angular
   disparaissent, `::backdrop` fait le premier et les insets du dialogue font le second. Ce qui

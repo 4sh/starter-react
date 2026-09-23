@@ -1,0 +1,243 @@
+@use 'utils';
+
+// =====================================================================
+// ui-sidebar : co-located styles. All values come from design tokens.
+//
+// Structure:
+//   .ui-sidebar-rail        → in-flow footprint (static presentation)
+//   .ui-sidebar             → the surface (rail ↔ expanded width). In the
+//                             overlay presentation it IS the native <dialog>.
+//
+// No host element here. The Angular backdrop and positioner fold into the
+// <dialog>, as in `ui-drawer`: `::backdrop` makes the first, the dialog's
+// own insets make the second.
+//
+// Extend:
+//   • Widths → override `--ui-sidebar-width` / `--ui-sidebar-rail-width`.
+// =====================================================================
+
+// --- Config (local) ---------------------------------------------------
+$z-index: var(--ui-sidebar-z-index, 1000);                                               /// Plan d'empilement du panneau superposé non modal (voile coupé ou barre cantonnée).
+$stroke-width: var(--ui-sidebar-stroke-width, var(--stroke-sm));                         /// Épaisseur de bordure du panneau.
+$region-padding: var(--ui-sidebar-region-padding, var(--units-md));                      /// Inset des régions (en-tête, corps, pied).
+$close-size: var(--ui-sidebar-close-size, #{utils.rem-calc(32)});                        /// Taille de la cible tactile du bouton de fermeture.
+$focus-ring-width: var(--ui-sidebar-focus-ring-width, #{utils.$focus-ring-width});       /// Épaisseur de l'anneau de focus.
+$backdrop-background: var(--ui-sidebar-backdrop-background, var(--primitives-black-50)); /// Fond du voile en présentation superposée.
+$width-default: utils.rem-calc(280);                                                     /// Largeur livrée du panneau déployé (défaut du hook `--ui-sidebar-width`).
+$rail-width-default: utils.rem-calc(72);                                                 /// Largeur livrée du rail replié (défaut du hook `--ui-sidebar-rail-width`).
+
+// The two widths are read by the panel AND its rail, so they must live on a
+// variable. Declaring the public name here would shadow a consumer override,
+// hence the private mirror: the hook stays the winning value. Without a host
+// element, both boxes declare it (the overlay panel has no rail around it).
+.ui-sidebar-rail,
+.ui-sidebar {
+  --_width: var(--ui-sidebar-width, #{$width-default});                          /// Largeur du panneau déployé.
+  --_rail-width: var(--ui-sidebar-rail-width, #{$rail-width-default});           /// Largeur du rail d’icônes replié.
+}
+
+// --- Rail (static in-flow footprint) ----------------------------------
+.ui-sidebar-rail {
+  position: relative;
+  flex: 0 0 auto;
+  inline-size: var(--_width);
+  align-self: stretch;
+  @include utils.motion-transition(inline-size);
+
+  &._collapsed {
+    inline-size: var(--_rail-width);
+  }
+
+  @include utils.motion-reduce {
+    transition: none;
+  }
+}
+
+// --- Panel surface ----------------------------------------------------
+.ui-sidebar {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  inline-size: var(--_width);
+  margin: 0;
+  padding: 0;
+  border: 0; // the <dialog> ships a border; the facing edge gets its own below
+  overflow: hidden; // collapsed rail clips over-wide header/footer content
+  background-color: var(--ui-sidebar-surface, var(--global-background-default)); /// Fond du panneau.
+  color: var(--ui-sidebar-color, var(--global-text-default));                    /// Couleur du texte du panneau.
+  font-family: var(--ui-sidebar-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
+  outline: none;
+  @include utils.motion-transition(inline-size, box-shadow);
+
+  &._collapsed {
+    inline-size: var(--_rail-width);
+  }
+
+  // Border faces the content area (opposite the docked edge).
+  &._left {
+    border-inline-end: $stroke-width solid var(--ui-sidebar-stroke, var(--global-border-subtle)); /// Couleur du trait qui fait face au contenu, quel que soit le bord d'accroche.
+  }
+  &._right {
+    border-inline-start: $stroke-width solid var(--ui-sidebar-stroke, var(--global-border-subtle));
+  }
+
+  // --- Static panel: fills the in-flow rail, floats when hover-expanded ---
+  .ui-sidebar-rail & {
+    position: absolute;
+    inset-block: 0;
+    block-size: 100%;
+  }
+  .ui-sidebar-rail._left & {
+    inset-inline-start: 0;
+  }
+  .ui-sidebar-rail._right & {
+    inset-inline-end: 0;
+  }
+
+  // Floating over the content (hover-expanded rail) → elevate + layer.
+  &._floating {
+    z-index: 1;
+    box-shadow: var(--shadow-default-lg);
+  }
+
+  @include utils.motion-reduce {
+    transition: none;
+  }
+
+  // --- Overlay panel: the native <dialog>, docked to its edge -------------
+  &._overlay {
+    position: fixed;
+    z-index: $z-index;
+    inset-block: 0;
+    // The browser style of a <dialog> sets both to `fit-content`, which beats
+    // the stretch asked by the two opposite insets (see `ui-drawer`).
+    block-size: auto;
+    max-block-size: none;
+    max-inline-size: calc(100vw - var(--units-3xl));
+    box-shadow: var(--shadow-default-lg);
+
+    // The closed dialog's `display: none` comes from the BROWSER style, which
+    // the `display: flex` above beats. Say it again, or a closed panel stays.
+    &:not([open]) {
+      display: none;
+    }
+
+    &._left {
+      --_motion-slide: -100% 0;
+      inset-inline: 0 auto;
+    }
+    &._right {
+      --_motion-slide: 100% 0;
+      inset-inline: auto 0;
+    }
+
+    // Slides from ITS edge, in and out, with no JavaScript.
+    @include utils.overlay-motion {
+      opacity: 0;
+      translate: var(--_motion-slide);
+    }
+
+    &::backdrop {
+      background-color: $backdrop-background;
+      transition:
+        display allow-discrete var(--ui-motion-duration, #{utils.$motion-duration-base}),
+        overlay allow-discrete var(--ui-motion-duration, #{utils.$motion-duration-base}),
+        opacity var(--ui-motion-duration, #{utils.$motion-duration-base});
+      opacity: 1;
+    }
+    &:not([open])::backdrop {
+      opacity: 0;
+    }
+    @starting-style {
+      &[open]::backdrop {
+        opacity: 0;
+      }
+    }
+
+    // Non-modal panel (no backdrop, or contained): no top layer, nothing to dim.
+    &:not(:modal)::backdrop {
+      background: none;
+    }
+
+    // Contained: scoped to the nearest positioned ancestor, not the viewport.
+    &._contained {
+      position: absolute;
+    }
+
+    @include utils.motion-reduce {
+      transition-duration: 0.01ms;
+    }
+  }
+
+  // --- Close button (overlay) -------------------------------------------
+  &-close {
+    position: absolute;
+    inset-block-start: var(--units-sm);
+    inset-inline-end: var(--units-sm);
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: $close-size;
+    block-size: $close-size;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-default);
+    background: transparent;
+    color: inherit;
+    line-height: 0;
+    cursor: pointer;
+    @include utils.control-transition(background-color, color);
+
+    &:hover {
+      background-color: var(--ui-sidebar-close-surface-hover, var(--global-background-muted-hover)); /// Fond du bouton de fermeture au survol.
+      color: var(--ui-sidebar-close-color-hover, var(--global-text-muted-hover));                    /// Couleur du bouton de fermeture au survol.
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 $focus-ring-width var(--ui-sidebar-close-focus-ring-color, var(--global-border-focus)); /// Couleur de l'anneau de focus du bouton de fermeture.
+    }
+
+    @include utils.motion-reduce {
+      transition-duration: 0.01ms;
+    }
+  }
+
+  // --- Regions -----------------------------------------------------------
+  &-header {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: var(--units-sm);
+    padding: $region-padding;
+    border-block-end: $stroke-width solid var(--ui-sidebar-header-stroke, var(--global-border-subtle)); /// Couleur du trait sous l'en-tête.
+  }
+
+  &-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: var(--units-sm);
+  }
+
+  &-footer {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: var(--units-sm);
+    padding: $region-padding;
+    border-block-start: $stroke-width solid var(--ui-sidebar-footer-stroke, var(--global-border-subtle)); /// Couleur du trait au-dessus du pied.
+  }
+
+  // Collapsed rail: tighten region padding so icons stay centered in the rail.
+  &._collapsed {
+    .ui-sidebar-header,
+    .ui-sidebar-footer {
+      padding-inline: var(--units-sm);
+      justify-content: center;
+    }
+  }
+}

@@ -83,6 +83,11 @@ export interface UiPaginatorProps extends NativeProps {
    */
   currentPageReportTemplate?: string;
   disabled?: boolean;
+  /**
+   * Onde de pression sur les numéros et les boutons de navigation, quand elle est
+   * activée. `false` la coupe sur ce paginateur, activation globale comprise.
+   */
+  ripple?: boolean;
 
   /** Icônes des contrôles. */
   firstIcon?: ReactNode;
@@ -179,6 +184,7 @@ export function UiPaginator({
   showCurrentPageReport = false,
   currentPageReportTemplate = '{first} - {last} sur {totalRecords}',
   disabled = false,
+  ripple = true,
   firstIcon,
   prevIcon,
   nextIcon,
@@ -279,6 +285,7 @@ export function UiPaginator({
       type="button"
       className="ui-paginator-control"
       disabled={disabled || inactive}
+      data-ripple={ripple ? 'on' : 'off'}
       aria-label={label}
       onClick={() => goToPage(target)}
     >
@@ -320,6 +327,7 @@ export function UiPaginator({
                   type="button"
                   className={cx('ui-paginator-page', item === currentPage && '_current')}
                   disabled={disabled}
+                  data-ripple={ripple ? 'on' : 'off'}
                   aria-label={pageAriaLabel.replace('{page}', String(item + 1))}
                   aria-current={item === currentPage ? 'page' : undefined}
                   onClick={() => goToPage(item)}

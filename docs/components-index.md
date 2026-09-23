@@ -13,7 +13,9 @@
 
 - ✅ `ui-icon` : Icône par son nom (`sm`→`xl`, solid/outline), décorative par défaut,
   famille de police configurable par provider. **Patron de référence du kit.**
-- ⬜ `ui-image` : Image responsive multi-format, clair/sombre par marque
+- ✅ `ui-image` : Image consciente du thème et de la marque, avec repli, vignette et vue
+  agrandie. Un SVG local est converti en **éléments React** plutôt que collé en HTML, donc
+  sans exception de sécurité ; `secured` passe par le fetch de l'application : Image responsive multi-format, clair/sombre par marque
 
 ## actions
 
@@ -84,7 +86,15 @@
 - ✅ `ui-swatch-picker` : Grille de couleurs, en ligne ou en popup du calque supérieur.
   Chaque pastille pointe une variable `--primitives-*`, donc la marque change la grille.
   Motif listbox, clavier de grille à deux axes, `trigger` pour le déclencheur
-- ⬜ `ui-file-upload` · `ui-editor`
+- ✅ `ui-file-upload` : Téléversement en champ compact ou en zone de dépôt, sur un
+  `<input type="file">` natif. Validation par type, taille et nombre ; envoi intégré par
+  `XMLHttpRequest` ou délégué à l'application ; la sélection suit un formulaire natif
+- ✅ `ui-file-upload-list` : La ligne de fichier, livrée dans le point d'entrée de
+  `ui-file-upload`. Vignette ou icône, `ui-spinner` et barre de progression pendant l'envoi
+- ✅ `ui-editor` : Texte riche sur un `contenteditable`, sans moteur tiers : les commandes
+  natives sont confinées dans un module. Police, taille et couleurs s'écrivent en classes
+  adossées aux jetons ; la valeur est du HTML, nettoyé par le portage du `DomSanitizer`
+  d'Angular
 
 ## informative
 
@@ -146,7 +156,10 @@
 - ✅ `ui-bottom-tab-bar` : Barre de navigation basse des appareils tactiles, avec son bouton
   d'action surélevé. Réserve l'incrustation système, cible tactile de 44 px, et
   `aria-current="page"` plutôt que `role="tab"`, qui exigerait un panneau
-- ⬜ `ui-sidebar`
+- ✅ `ui-sidebar` : Barre latérale applicative. Statique, elle pousse le contenu et se replie en
+  rail d'icônes, qui peut flotter ouvert au survol ; superposée, c'est un `<dialog>` natif.
+  Livre `ui-sidebar-menu` (sections, groupes repliables, entrée courante) et le crochet
+  `useUiSidebarTrigger()` pour un déclencheur placé hors de la barre
 
 ## table
 

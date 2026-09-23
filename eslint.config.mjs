@@ -44,6 +44,13 @@ const UNSAFE_HTML = [
     message: "insertAdjacentHTML n'assainit rien. Passez par du JSX.",
   },
   {
+    selector:
+      "CallExpression[callee.property.name='execCommand'][arguments.0.value=/^inserthtml$/i]",
+    message:
+      "execCommand('insertHTML') insère la chaîne telle quelle, comme innerHTML. " +
+      'Voir docs/SECURITY-PRACTICES.md avant de lever une exception.',
+  },
+  {
     selector: "NewExpression[callee.name='Function'], CallExpression[callee.name='eval']",
     message: 'Évaluation de code à la volée : interdite.',
   },
@@ -82,6 +89,12 @@ export default tseslint.config(
       ...a11y.flatConfigs.recommended.rules,
 
       'no-restricted-syntax': ['error', ...UNSAFE_HTML],
+
+      // `role="list"` sur un `<ul>` n'est redondant que sur le papier : Safari
+      // (WebKit) retire la sémantique de liste d'une liste en `list-style: none`,
+      // ce que font toutes les listes du kit. Le rôle explicite la rend. Le reste
+      // de la règle, `nav` compris (son réglage par défaut), s'applique.
+      'jsx-a11y/no-redundant-roles': ['error', { nav: ['navigation'], ul: ['list'] }],
 
       // Le kit n'expose que des composants fonctionnels typés : un `any` y
       // fuiterait dans la surface publique.

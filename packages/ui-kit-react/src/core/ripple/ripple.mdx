@@ -1,0 +1,377 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks';
+import * as RippleStories from './ripple.stories';
+
+<Meta of={RippleStories} />
+
+# Ripple
+
+Onde de pression sur les éléments interactifs : au `pointerdown`, une vague part du point de
+contact et couvre l'élément. Purement décorative, elle confirme que le clic a été reçu, y
+compris avant que l'action n'aboutisse.
+
+L'effet s'active **à trois portées** (application, sous-arbre, élément) et se règle
+**uniquement par des propriétés CSS**, héritées comme les autres jetons. Quatorze composants
+du kit sont **équipés d'office** : les activer ne demande aucune retouche, et chacun se coupe
+par `ripple={false}`.
+
+## Activation
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Portée</th>
+      <th>Écriture</th>
+      <th>Ce qui reçoit l'onde</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Globale</td>
+      <td>
+        <code>&lt;UiRippleProvider&gt;</code>
+      </td>
+      <td>
+        Toute l'application, par délégation sur <code>body</code>.
+      </td>
+    </tr>
+    <tr>
+      <td>Locale</td>
+      <td>
+        <code>useUiRippleScope()</code>
+      </td>
+      <td>Les descendants interactifs du conteneur.</td>
+    </tr>
+    <tr>
+      <td>Ciblée</td>
+      <td>
+        <code>useUiRipple()</code>
+      </td>
+      <td>L'élément qui la porte, et lui seul.</td>
+    </tr>
+  </tbody>
+</table>
+
+### 1. Globale
+
+```tsx
+import { UiRippleProvider } from '@4sh/ui-kit-react/ripple';
+
+<UiRippleProvider>
+  <App />
+</UiRippleProvider>;
+```
+
+Un seul écouteur `pointerdown` sur `body`. Ondulent alors les **contrôles du kit**, qui se
+déclarent eux-mêmes par `data-ripple="on"` sur le contrôle natif qu'ils rendent, et tout
+élément marqué de la même façon. Les boutons de l'application ne sont **pas** concernés par
+défaut : un Design System ne peint pas d'onde sur un balisage qui n'est pas le sien. Pour les
+inclure :
+
+```tsx
+import { UiRippleProvider, UI_RIPPLE_INTERACTIVE_SELECTOR } from '@4sh/ui-kit-react/ripple';
+
+// button, [role="button"], a[href], [data-ripple="on"]
+<UiRippleProvider selector={UI_RIPPLE_INTERACTIVE_SELECTOR}>…</UiRippleProvider>;
+```
+
+`global={false}` ne fait que poser ce sélecteur pour les portées locales qu'il contient.
+
+### 2. Locale
+
+```tsx
+function Toolbar() {
+  const scope = useUiRippleScope();
+  return (
+    <div className="toolbar" {...scope}>
+      <UiButton label="Enregistrer" />
+      <button type="button">Annuler</button>
+    </div>
+  );
+}
+```
+
+Même mécanique, bornée à un sous-arbre : un écouteur sur le conteneur. `selector` restreint
+ou élargit ce qui y ondule.
+
+### 3. Ciblée
+
+```tsx
+const ripple = useUiRipple({ centered: true });
+<button type="button" aria-label="Fermer" {...ripple}>
+  …
+</button>;
+```
+
+Les crochets rendent `ref` et `data-ripple`, à reverser sur l'élément. Sur un composant du
+kit, préférer sa prop `ripple` ou une portée : c'est son contrôle natif qu'il faut atteindre.
+
+<Canvas of={RippleStories.Default} />
+
+## API
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Surface</th>
+      <th>Option</th>
+      <th>Défaut</th>
+      <th>Rôle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowSpan="2">
+        <code>UiRippleProvider</code>
+      </td>
+      <td>
+        <code>global</code>
+      </td>
+      <td>
+        <code>true</code>
+      </td>
+      <td>Fait onduler tout le document.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>selector</code>
+      </td>
+      <td>
+        <code>[data-ripple="on"]</code>
+      </td>
+      <td>Ce que les racines déléguées font onduler.</td>
+    </tr>
+    <tr>
+      <td rowSpan="2">
+        <code>useUiRipple()</code>
+      </td>
+      <td>
+        <code>enabled</code>
+      </td>
+      <td>
+        <code>true</code>
+      </td>
+      <td>
+        Onde sur l'élément. <code>false</code> l'exclut, lui et son sous-arbre.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>centered</code>
+      </td>
+      <td>
+        <code>false</code>
+      </td>
+      <td>Départ au centre plutôt qu'au point de contact.</td>
+    </tr>
+    <tr>
+      <td rowSpan="2">
+        <code>useUiRippleScope()</code>
+      </td>
+      <td>
+        <code>enabled</code>, <code>centered</code>
+      </td>
+      <td>
+        <code>true</code>, <code>false</code>
+      </td>
+      <td>Comme ci-dessus, pour tout le sous-arbre.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>selector</code>
+      </td>
+      <td>celui du fournisseur</td>
+      <td>Ce qui ondule dans ce sous-arbre.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>launchRipple()</code>
+      </td>
+      <td>
+        <code>(host, event?, centered?)</code>
+      </td>
+      <td>
+        <code>&nbsp;</code>
+      </td>
+      <td>Fait onduler depuis un déclencheur de l'application, sans pression.</td>
+    </tr>
+  </tbody>
+</table>
+
+## Composants équipés
+
+Ces quatorze composants portent `data-ripple="on"` sur leur cible interactive. Sans
+activation, l'attribut ne produit rien et ne coûte rien.
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Composant</th>
+      <th>Cible marquée</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>ui-button</code>
+      </td>
+      <td>
+        Le <code>&lt;button&gt;</code> ou le <code>&lt;a&gt;</code> rendu, et la racine
+        confiée à <code>render</code>. Par composition, <code>ui-button-split</code> et{' '}
+        <code>ui-speed-dial</code> aussi.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>ui-menu</code>, <code>ui-context-menu</code>
+      </td>
+      <td>Les entrées, sous-menus et bascules compris.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>ui-sidebar-menu</code>
+      </td>
+      <td>Les entrées de navigation : lien, bouton, bascule de groupe.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>ui-tabs</code>
+      </td>
+      <td>Les en-têtes d'onglet, pas les navigateurs de défilement.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>ui-bottom-tab-bar</code>
+      </td>
+      <td>
+        Les onglets, selon la prop de la barre ET celle de l'onglet ; l'action surélevée, selon
+        la sienne.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>ui-paginator</code>
+      </td>
+      <td>Les numéros de page et les boutons de navigation.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>ui-select</code>, <code>ui-autocomplete</code>
+      </td>
+      <td>Les options de la liste ; les étiquettes de l'autocomplétion multiple.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>ui-datepicker</code>
+      </td>
+      <td>Les jours, mois, années et boutons de navigation. Pas les incréments d'heure.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>ui-toggle-button</code>, <code>ui-segment-control</code>
+      </td>
+      <td>La bascule, chaque bouton du groupe, chaque segment.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>ui-toggle-block</code>
+      </td>
+      <td>
+        Le bloc entier ; désactivé ou en lecture seule, aucune onde.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>ui-file-upload</code>
+      </td>
+      <td>La zone de déclenchement et les actions de la barre.</td>
+    </tr>
+  </tbody>
+</table>
+
+En sont absents les contrôles dont le changement d'état **est** le retour visuel, sur une
+cible trop petite (case à cocher, radio, interrupteur, curseur, note), les surfaces de
+révélation (accordéon, étapes), les ✕ de fermeture et de suppression, les liens en ligne,
+et les lignes de tableau, où une onde pleine largeur est envahissante.
+
+## Personnalisation
+
+Aucune option d'apparence côté TypeScript : tout passe par les propriétés CSS, posées sur
+`:root`, sur un conteneur ou sur l'élément lui-même.
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Propriété</th>
+      <th>Défaut</th>
+      <th>Rôle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>--ui-ripple-color</code>
+      </td>
+      <td>
+        <code>currentColor</code>
+      </td>
+      <td>Couleur de l'onde. Suit la couleur du texte, donc reste lisible sur tout fond.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>--ui-ripple-opacity</code>
+      </td>
+      <td>
+        <code>0.34</code>
+      </td>
+      <td>Opacité au départ, qui décroît jusqu'à 0.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>--ui-ripple-duration</code>
+      </td>
+      <td>
+        <code>--transition-slow</code>
+      </td>
+      <td>Durée d'expansion.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>--ui-ripple-easing</code>
+      </td>
+      <td>
+        <code>--transition-easeout</code>
+      </td>
+      <td>Courbe, décélérée.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>--ui-ripple-scale</code>
+      </td>
+      <td>
+        <code>1</code>
+      </td>
+      <td>Échelle finale. 1 couvre exactement l'élément.</td>
+    </tr>
+  </tbody>
+</table>
+
+<Canvas of={RippleStories.Custom} />
+
+## Performance
+
+- Un seul écouteur `pointerdown`, **passif**, par activation : une portée ne coûte pas un
+  écouteur par bouton.
+- Rien n'est créé ni mesuré avant la première pression. Chaque vague est une `<span>` retirée
+  à la fin de son animation, et quatre au plus coexistent sur un même élément.
+- L'animation ne porte que sur `transform` et `opacity` : ni mise en page, ni repeinture de
+  l'hôte.
+
+## Désactivation et accessibilité
+
+- **Par élément ou sous-arbre** : `ripple={false}` sur un composant du kit,
+  `data-ripple="off"` sur n'importe quel ancêtre, ou `enabled: false` sur un crochet.
+- **Mouvement réduit** : la préférence système, ou l'interrupteur `data-motion="off"` du kit,
+  coupe toute onde.
+- **Lecteur d'écran** : la couche porte `aria-hidden`, rien n'est annoncé.
+- **Clavier** : l'onde suit le pointeur ; `Entrée` et `Espace` gardent l'état `pressed` du
+  contrôle, qui est leur retour visuel.

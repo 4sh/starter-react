@@ -290,6 +290,12 @@ export interface UiDatepickerProps extends UiFieldSharedProps {
 
   /** Afficher la barre de boutons du bas, ou rendre `renderButtonBar`. */
   showButtonBar?: boolean;
+  /**
+   * Onde de pression sur les jours, les mois, les années et les boutons de
+   * navigation, quand elle est activée. Pas sur les incréments d'heure, qui sont
+   * des compteurs. `false` la coupe sur ce champ, activation globale comprise.
+   */
+  ripple?: boolean;
   /** Libelle du bouton « aujourd'hui ». */
   todayLabel?: string;
   /** Libelle du bouton d'effacement. */
@@ -411,6 +417,7 @@ export function UiDatepicker({
   stepMinute = 1,
   editableTime = true,
   showButtonBar = false,
+  ripple = true,
   todayLabel = "Aujourd'hui",
   clearLabel = 'Effacer',
   formatHintLabel,
@@ -2217,6 +2224,7 @@ export function UiDatepicker({
     <button
       type="button"
       className="ui-datepicker-nav"
+      data-ripple={ripple ? 'on' : 'off'}
       aria-label={dir === 'prev' ? prevAriaLabel : nextAriaLabel}
       onClick={() => step(dir === 'prev' ? -1 : 1)}
     >
@@ -2274,6 +2282,7 @@ export function UiDatepicker({
                       key={y.year}
                       type="button"
                       role="gridcell"
+                      data-ripple={ripple ? 'on' : 'off'}
                       className={cx(
                         'ui-datepicker-cell',
                         y.selected && '_selected',
@@ -2305,6 +2314,7 @@ export function UiDatepicker({
                       key={m.index}
                       type="button"
                       role="gridcell"
+                      data-ripple={ripple ? 'on' : 'off'}
                       className={cx(
                         'ui-datepicker-cell',
                         m.selected && '_selected',
@@ -2371,6 +2381,7 @@ export function UiDatepicker({
                             key={cell.ts}
                             type="button"
                             role="gridcell"
+                            data-ripple={ripple ? 'on' : 'off'}
                             className={cx(
                               'ui-datepicker-day',
                               cell.selected && '_selected',

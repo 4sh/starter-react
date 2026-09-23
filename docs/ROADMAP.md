@@ -38,13 +38,13 @@ La liste est longue parce que chaque entrée a coûté du temps une fois.
 | ----- | ------------------------------- | ----------------------------------------- |
 | 0     | Socle et décisions              | ✅ terminée                               |
 | 1     | Le patron, de bout en bout      | ✅ terminée (`ui-icon`, puis `ui-button`) |
-| 2     | Fondation transverse            | 🟡 **en cours** : voir ci-dessous         |
-| 3     | La vague des composants         | 🟡 58 sur 62                              |
+| 2     | Fondation transverse            | ✅ terminée (`core/ripple` en dernier)    |
+| 3     | La vague des composants         | ✅ 62 sur 62                              |
 | 4     | Mode copie et registry          | ⬜ pas commencée                          |
 | 5     | MCP, doc publique, publication  | ⬜ pas commencée                          |
 | 6     | Contrôle de parité entre stacks | ⬜ pas commencée                          |
 
-**Chiffres du jour** : 58 composants, 67 points d'entrée publics, 7 garde-fous en CI,
+**Chiffres du jour** : 62 composants, 72 points d'entrée publics, 7 garde-fous en CI,
 **deux** dépendances runtime (`@floating-ui/react-dom` et `@tanstack/react-virtual`, un seul
 fichier chacune).
 
@@ -79,7 +79,7 @@ elles, ont été exécutées avant d'y être écrites.
 | `core/virtual` | ✅ `use-ui-virtual-list` (TanStack Virtual, un seul fichier l'importe)                                                                                                                                                                                                               |
 | `core/forms`   | ✅ `useControllableState`, `useUiField`, types partagés, moteur de masque                                                                                                                                                                                                            |
 | `core/motion`  | ✅ jetons, `motion-transition`, `motion-reduce`, `overlay-motion` (entrée et sortie d'un panneau du calque supérieur, en CSS pur), `overlay-motion-enter` (entrée seule), et `useUiMotion` pour l'entrée et la sortie d'un élément HORS calque supérieur (listes, accordéon, toast). |
-| `core/ripple`  | ⬜ 338 lignes à porter                                                                                                                                                                                                                                                               |
+| `core/ripple`  | ✅ moteur sans React, `UiRippleProvider`, `useUiRipple`, `useUiRippleScope`, `launchRipple` ; prop `ripple` sur les quatorze composants équipés                                                                                                                                      |
 
 ---
 
@@ -89,8 +89,17 @@ elles, ont été exécutées avant d'y être écrites.
 les vingt composants listés dans `docs/components-index.md` sont tous portés. Le kit couvre
 donc la majorité des écrans d'un projet réel.
 
-**Il reste 4 composants sur les 62.** Ne pas confondre les deux comptes, ce qui a déjà induit
-en erreur : le kit COMPLET, encore loin, et ce noyau, désormais atteint.
+**Les phases 2 et 3 sont closes le 23 septembre** : les 62 composants sont portés, et
+`core/ripple`, la dernière brique, a donné la prop `ripple` aux quatorze composants équipés.
+La suite du plan est la phase 4, le mode copie et le registry (décision D7) ; sortir un
+`0.1.0` avant, ou non, est une décision à prendre.
+
+Restent ouverts, hors du plan : `format:check` absent de la CI (quatre fichiers ont dérivé),
+la page `specifications/responsive.mdx` qui documente Gridaflex, absent de ce dépôt, et les
+trois constats signalés le 23 septembre (contraste des jetons `informative-*low-content` en
+sombre, garde axe aveugle au contraste 1:1, test intermittent de `ui-tooltip`).
+
+Ce qui suit est l'historique de la vague, gardé pour ses mesures.
 
 **La vague continue**, décidée le 21 septembre plutôt que de sortir le `0.1.0` tout de suite.
 
@@ -98,34 +107,33 @@ L'ordre suit le **coût**, pas la famille : les briques `core/` dont dépendent 
 sont déjà là (sauf deux, voir plus bas), donc rien n'oblige à grouper par famille. Taille
 mesurée sur le starter Angular, `.ts` (hors `.spec`) + `.html` + `.scss` :
 
-| Composant              | Lignes | Famille       | Ce dont il dépend, et son état ici                                  |
-| ---------------------- | ------ | ------------- | ------------------------------------------------------------------- |
-| ✅ `ui-avatar-group`   | 53     | `informative` | `ui-avatar` ✅. Fait le 21 septembre                                |
-| ✅ `ui-input-group`    | 199    | `forms`       | `core/forms` ✅. Fait le 21 septembre                               |
-| ✅ `ui-button-split`   | 249    | `actions`     | `ui-button` ✅, `ui-menu` ✅. Fait le 21 septembre                  |
-| ✅ `ui-accordion`      | 432    | `informative` | `ui-icon` ✅, `ui-separator` ✅. Fait le 22 septembre               |
-| ✅ `ui-input-otp`      | 485    | `forms`       | `core/forms` ✅. Fait le 22 septembre                               |
-| ✅ `ui-knob`           | 489    | `forms`       | `core/forms` ✅. Fait le 22 septembre                               |
-| ✅ `ui-breadcrumb`     | 523    | `navigation`  | `ui-icon` ✅, routeur par `render`. Fait le 22 septembre            |
-| ✅ `ui-swatch-picker`  | 534    | `forms`       | `core/overlay` ✅. Fait le 22 septembre                             |
-| ✅ `ui-speed-dial`     | 703    | `actions`     | `ui-button` ✅, `ui-tooltip` ✅, `ui-menu` ✅. Fait le 22 septembre |
-| ✅ `ui-bottom-tab-bar` | 720    | `navigation`  | `ui-icon` ✅, routeur par `render`. Fait le 22 septembre            |
-| ✅ `ui-stepper`        | 773    | `navigation`  | `ui-icon` ✅. Fait le 22 septembre                                  |
-| ✅ `ui-toast`          | 780    | `informative` | `ui-icon` ✅, `core/motion` ✅. Fait le 22 septembre                |
-| ✅ `ui-bottom-sheet`   | 1041   | `layout`      | `core/overlay` ✅. Fait le 22 septembre                             |
-| `ui-image`             | 1167   | `base`        | rien, mais gros                                                     |
-| `ui-file-upload`       | 1227   | `forms`       | `ui-button` ✅, `ui-progress-bar` ✅                                |
-| `ui-sidebar`           | 1472   | `navigation`  | `ui-menu` ✅, `core/overlay` ✅                                     |
-| `ui-editor`            | 1780   | `forms`       | moteur de texte riche : **arbitrage de dépendance** avant de coder  |
+| Composant              | Lignes | Famille       | Ce dont il dépend, et son état ici                                          |
+| ---------------------- | ------ | ------------- | --------------------------------------------------------------------------- |
+| ✅ `ui-avatar-group`   | 53     | `informative` | `ui-avatar` ✅. Fait le 21 septembre                                        |
+| ✅ `ui-input-group`    | 199    | `forms`       | `core/forms` ✅. Fait le 21 septembre                                       |
+| ✅ `ui-button-split`   | 249    | `actions`     | `ui-button` ✅, `ui-menu` ✅. Fait le 21 septembre                          |
+| ✅ `ui-accordion`      | 432    | `informative` | `ui-icon` ✅, `ui-separator` ✅. Fait le 22 septembre                       |
+| ✅ `ui-input-otp`      | 485    | `forms`       | `core/forms` ✅. Fait le 22 septembre                                       |
+| ✅ `ui-knob`           | 489    | `forms`       | `core/forms` ✅. Fait le 22 septembre                                       |
+| ✅ `ui-breadcrumb`     | 523    | `navigation`  | `ui-icon` ✅, routeur par `render`. Fait le 22 septembre                    |
+| ✅ `ui-swatch-picker`  | 534    | `forms`       | `core/overlay` ✅. Fait le 22 septembre                                     |
+| ✅ `ui-speed-dial`     | 703    | `actions`     | `ui-button` ✅, `ui-tooltip` ✅, `ui-menu` ✅. Fait le 22 septembre         |
+| ✅ `ui-bottom-tab-bar` | 720    | `navigation`  | `ui-icon` ✅, routeur par `render`. Fait le 22 septembre                    |
+| ✅ `ui-stepper`        | 773    | `navigation`  | `ui-icon` ✅. Fait le 22 septembre                                          |
+| ✅ `ui-toast`          | 780    | `informative` | `ui-icon` ✅, `core/motion` ✅. Fait le 22 septembre                        |
+| ✅ `ui-bottom-sheet`   | 1041   | `layout`      | `core/overlay` ✅. Fait le 22 septembre                                     |
+| ✅ `ui-image`          | 1167   | `base`        | rien, mais gros. Fait le 22 septembre                                       |
+| ✅ `ui-file-upload`    | 1227   | `forms`       | `ui-button` ✅, `ui-spinner` ✅. Fait le 23 septembre                       |
+| ✅ `ui-sidebar`        | 1472   | `navigation`  | `ui-badge` ✅, `ui-tooltip` ✅, `core/overlay` ✅. Fait le 23 septembre     |
+| ✅ `ui-editor`         | 1780   | `forms`       | aucun moteur : `contenteditable` et commandes natives. Fait le 23 septembre |
 
 Un seul verrou reste :
 
 - ✅ **`core/motion` hors calque supérieur** est levé le 22 septembre : `useUiMotion` retient
   le nœud sortant le temps de son animation. `ui-accordion` et `ui-toast`, qui l'attendaient,
   sont portés le même jour.
-- **`ui-editor` demande un arbitrage de dépendance** au sens de D6 : aucun éditeur riche ne
-  s'écrit dans `core/`, donc c'est une décision d'architecture, pas une tâche de portage.
-  À garder pour la fin.
+- ✅ **L'arbitrage de dépendance de `ui-editor`** est rendu le 23 septembre : aucun moteur.
+  La prémisse était fausse, le kit Angular n'en a pas non plus ; voir le journal.
 
 Cette liste se **dérive**, ce qui vaut mieux que de la tenir à jour de mémoire :
 
@@ -174,10 +182,6 @@ Résumé pour ne pas avoir à ouvrir le fichier. La justification, elle, est dan
 
 Une dette écrite n'est pas une dette : c'est un choix. Ce qui suit est assumé, pas oublié.
 
-- **`core/ripple` non porté**, donc `ui-button`, `ui-tabs`, `ui-speed-dial` et
-  `ui-bottom-tab-bar` n'ont pas de prop `ripple` alors que la version Angular en a une. Quatre
-  composants attendent désormais cette brique. Son arrivée sera une évolution mineure, pas une
-  rupture.
 - **Un test de `ui-tooltip` est instable à froid.** « la bulle fermée n'occupe aucune place à
   l'écran » a échoué deux fois sur deux exécutions complètes lancées après un
   `rm -rf node_modules/.vite`, et passe à chaque fois seule ou à chaud (`:popover-open` vrai
@@ -545,6 +549,57 @@ Ne pas les repayer. Chacun est documenté sur place, dans le fichier concerné.
   HAUT et qu'on rend collé en haut de la page met ses actions hors écran : le clic attend, puis
   échoue sur « waiting for element to be visible ». Donner de la marge au montage du test plutôt
   que chercher un défaut de rendu.
+- **Un volet de navigateur masqué diffère `loading="lazy"`.** Quand le volet n'est pas affiché,
+  `document.visibilityState` vaut `hidden` et Chromium ne lance pas les images paresseuses : une
+  mesure prise en JavaScript lit `complete: false` indéfiniment, et on conclut à tort que le
+  composant ne charge rien. C'est la capture d'écran qui force le rendu, donc le chargement.
+  Vérifier une image dans le volet demande soit une capture d'abord, soit une sonde `new Image()`
+  qui, elle, n'est pas paresseuse. Le piège est retors parce qu'il désigne un faux coupable : on
+  se met à soupçonner l'adresse en échec, alors qu'une sonde isolée montre qu'elle répond en
+  quelques dizaines de millisecondes.
+- **axe ne voit pas un texte de la couleur de son fond.** Un contraste de 1:1 part dans les
+  cas `incomplete` (motif `equalRatio`), jamais dans `violations`, un texte invisible étant
+  souvent masqué exprès : le contrôle bloquant des stories passe donc au vert. Payé sur la
+  ligne en erreur de `ui-file-upload-list`, blanche sur blanc. Et un message qui n'existe
+  qu'après une interaction n'est pas audité du tout. Vérifier un état d'erreur, c'est mesurer
+  son contraste, en clair **et** en sombre.
+- **`*high-content` est le contenu posé SUR la surface `*high`, pas une couleur de texte.**
+  `--informative-errorhigh-content-default` vaut blanc, fait pour un fond rouge. Pour un texte
+  d'erreur sur fond neutre, c'est le jeton de la famille qui sert : `--form-error-content-default`
+  pour un champ, qui suit le mode. `informative-*low-content`, lui, ne varie pas avec le mode.
+- **Une divergence se compte dans l'homologue, pas de mémoire.** `DUAL-ENGINE.md` déclarait six
+  composants privés de `ripple` ; `grep data-ripple` dans le kit Angular en trouve treize, plus
+  `ui-context-menu` qui transmet la prop. Sept avaient perdu leur marqueur sans le dire, et la
+  ligne attribuait à tort la prop à `ui-speed-dial`, qui la tient de `ui-button`.
+- **Le projet TypeScript de Storybook compile en JSX classique, et embarque ce qu'il importe.**
+  Un fichier du kit importé par `preview.tsx` y est vérifié avec `"jsx": "react"` et refuse
+  son JSX. Depuis la prévisualisation, n'importer que des modules sans JSX : le moteur de
+  `core/ripple`, pas `UiRippleProvider`.
+- **Formater un dossier entier touche des fichiers qu'on n'a pas écrits.** `prettier --write`
+  sur `src/` a reformaté `ui-modal.test.tsx`, l'un des fichiers qui dérivaient déjà. Ne passer
+  le formateur que sur les fichiers modifiés.
+- **Une prémisse de la feuille de route se vérifie dans le code Angular.** `ui-editor` a été
+  gardé pour la fin comme « arbitrage de dépendance », au motif qu'aucun éditeur riche ne
+  s'écrit dans `core/`. Le kit Angular n'a jamais eu de moteur. Lire l'homologue avant de
+  cadrer une décision, pas après.
+- **Remplacer l'élément qui porte la sélection l'effondre.** Dans un `contenteditable`, une
+  conversion qui remplace un nœud (le `<font>` d'une commande, par exemple) laisse la sélection
+  repliée à l'endroit du retrait : le texte tout juste mis en forme n'est plus sélectionné. La
+  reposer explicitement sur le résultat.
+- **Le `onBeforeInput` de React n'a pas d'`inputType`.** C'est une émulation à partir de
+  `keypress` et de `textInput`. Pour savoir si une saisie insère ou supprime, écouter le
+  `beforeinput` natif.
+- **`<label for>` ne nomme pas une zone éditable.** Seuls les éléments étiquetables le sont : une
+  `<div contenteditable>` reste sans nom accessible malgré le libellé visible. Le libellé doit
+  devenir son `aria-label`.
+- **Une barre latérale statique rendue seule mesure zéro de haut.** Son rail s'étire dans une
+  rangée flex, et son panneau est positionné en absolu pour pouvoir flotter : hors d'une rangée
+  qui a une hauteur, rien ne lui en donne. Les clics de Playwright attendent alors « visible,
+  enabled and stable » sans fin. Donner au test la mise en page d'une application.
+- **Vider un `<input type="file">` vide aussi ce qu'il soumet.** La remise à zéro qui permet de
+  choisir à nouveau le même fichier retire la sélection du formulaire natif, qui reçoit un
+  fichier vide. Un champ ne peut pas servir aux deux : `ui-file-upload` en rend un second,
+  caché, pour la soumission.
 
 ---
 
@@ -1529,6 +1584,16 @@ Trois choses trouvées en regardant le rendu, dans cet ordre :
   Le piège est écrit dans ce fichier depuis une session précédente, et je l'ai repayé quand
   même : un résultat négatif obtenu juste après une édition se revérifie après
   `rm -rf node_modules/.vite`.
+- **Un crochet qui JETTE sans fournisseur rend un composant inutilisable ailleurs.**
+  `useUiTheme()` lève une erreur hors de `UiThemeProvider`, ce qui est juste pour un
+  composant de thème et faux pour une image : les treize stories de `ui-image` ont échoué
+  d'un coup, la `preview` de Storybook posant `data-theme` à la main sans passer par le
+  fournisseur. Lire l'ATTRIBUT sur `<html>`, qui est de toute façon ce que lisent les jetons,
+  marche dans les trois cas : fournisseur, script d'amorçage, barre d'outils.
+- **Une charge au niveau du module rend les tests dépendants de leur ordre.** Le cache de
+  SVG de `ui-image` fait son travail, et c'est justement pour ça qu'un test « le fichier est
+  introuvable » passait en vert : le test précédent avait mis le même nom en cache. Donner
+  un nom différent par cas, ou vider le cache, mais ne pas croire un vert obtenu ainsi.
 
 Trois écarts d'API déclarés dans `docs/DUAL-ENGINE.md`, plus deux de structure : la classe
 `.ui-tab-button` disparaît (React n'a pas d'élément hôte, donc `.ui-tab` EST le bouton), et un
@@ -1823,3 +1888,172 @@ composant d'aide qui rend `<Machin {...props}>texte</Machin>` écrase le `childr
 passe : le champ à focaliser n'existait tout simplement pas, et je cherchais un défaut de
 focus. Et tout ce qui vit hors d'un dialogue modal est inerte, y compris le bouton qu'un test
 pose à côté pour le piloter.
+
+### 2026-09-23 : `ui-image`, et l'exception de sécurité qui n'a pas eu lieu
+
+Le plus gros morceau restant hors `ui-editor`, et celui qui portait la seule **exception de
+sécurité** du kit Angular. `docs/SECURITY-PRACTICES.md` l'avait anticipée sans la concéder :
+« quand il arrivera, il devra soit refaire la démonstration au cas par cas, soit passer par
+une autre voie : un `<img src>`, ou un composant React qui construit les nœuds SVG en JSX
+plutôt que de coller une chaîne. Reprendre l'exception parce qu'elle existe côté Angular
+n'est pas un argument recevable. »
+
+C'est la seconde voie qui a été prise. `inlineSvgToReact()` analyse le balisage dans un
+document détaché, donc inerte, le nettoie (scripts, `foreignObject`, SMIL, gestionnaires
+d'événements, références non navigationnelles), puis construit des **éléments React**. Le
+vecteur hérite bien du CSS et de `currentColor`, ce qui est tout l'intérêt de l'inlining, et
+il n'y a **rien à contourner** : le registre reste vide. Neuf tests portent le nettoyage, y
+compris la vérification qu'un `<script>` inséré ne laisse ni exécution ni texte derrière lui.
+
+Deux autres choses disparaissent avec le portage. `NgOptimizedImage` et la branche de
+contournement que ses refus imposaient pour les charges `data:` et `blob:` : un `<img>` avec
+`loading` et `fetchpriority` couvre ce que `priority` promettait. Et le `::ng-deep` qui
+ciblait le SVG inliné, que l'absence d'encapsulation rend inutile.
+
+**Deux pièges payés, et le premier est instructif.** `useUiTheme()` lève une erreur hors de
+son fournisseur, ce qui est juste pour un composant de thème et faux pour une image : les
+treize stories ont échoué d'un coup, la `preview` de Storybook posant `data-theme` à la main.
+La bonne source est l'ATTRIBUT sur `<html>`, qui est de toute façon ce que lisent les jetons,
+et qu'un `MutationObserver` suffit à suivre. Le second : le cache de SVG au niveau du module
+faisait passer en vert un test « fichier introuvable », le test précédent ayant mis le même
+nom en cache.
+
+Il reste trois composants : `ui-file-upload` (1227), `ui-sidebar` (1472), et `ui-editor`
+(1780), ce dernier étant l'arbitrage de dépendance gardé pour la fin.
+
+### 2026-09-23 : `ui-file-upload`, et deux défauts hérités qu'aucun contrôle ne voyait
+
+Porté avec sa ligne de fichier, `ui-file-upload-list`, dans un seul point d'entrée. Le
+comportement suit Angular : un `<input type="file">` natif masqué porte la sélection, toute la
+surface accepte le dépôt, la validation porte sur le type, la taille et le nombre, et l'envoi
+passe par `XMLHttpRequest` ou par la fonction de l'application. Les trois gabarits deviennent
+des props de rendu ; les méthodes publiques, des actions qu'elles reçoivent.
+
+**La sélection vit à deux endroits, écrits ensemble.** L'état pour le rendu, une référence
+pour les lectures synchrones : une notification doit recevoir la sélection À JOUR, et `auto`
+enchaîne l'envoi dans le même geste. Un modificateur de `setState` ne peut ni l'un ni
+l'autre, et il s'exécute deux fois en mode strict, ce qui créerait deux fois chaque URL
+d'objet. Vérifié en retirant la lecture synchrone : trois tests tombent. Les rappels d'une
+requête, qui tirent longtemps après le rendu qui l'a lancée, lisent les props par une seconde
+référence ; sans elle, le test du rappel changé en vol tombe, et lui seul. Transmettre ces
+actions aux props de rendu déclenche `react-hooks/refs`, faute pour la règle de savoir que
+l'appelant ne les invoquera pas au rendu : même faux positif que `ui-swatch-picker`, même
+traitement, une exception justifiée par appel.
+
+**Premier défaut : `name` ne soumettait rien.** Le sélecteur est vidé après chaque choix, et
+c'est sur lui qu'Angular pose le nom. Mesuré dans un `FormData` : un fichier de nom vide,
+zéro octet. Un second champ, caché et rendu seulement avec `name`, porte ici la sélection
+courante ; le test du formulaire tombe sans lui.
+
+**Second défaut : les erreurs étaient invisibles.** Le message de refus et le texte d'une
+ligne en erreur prenaient `--informative-errorhigh-content-default`, blanc, sur un fond
+neutre. Le contrôle axe des stories est passé au vert quand même, et c'est la leçon rangée
+dans les pièges : un contraste de 1:1 est « à revoir » pour axe, pas une violation. Le jeton
+d'erreur de la famille formulaire le remplace, mesuré à 4.51:1 au pire en clair et 12.26:1 en
+sombre. Le jeton que prend `ui-helper`, essayé d'abord, ne tenait pas en sombre : 2.74:1.
+
+Au passage, un constat qui dépasse ce composant : en sombre, `ui-helper` passe sous le seuil
+AA pour quatre de ses cinq niveaux, les jetons `informative-*low-content` ne variant pas avec
+le mode. Signalé à part, non corrigé ici.
+
+39 tests unitaires, 12 stories auditées. Il reste deux composants : `ui-sidebar` (1472) et
+`ui-editor` (1780), ce dernier étant l'arbitrage de dépendance gardé pour la fin.
+
+### 2026-09-23 : `ui-sidebar`, et le déclencheur qui vit ailleurs
+
+Porté avec son menu, `ui-sidebar-menu`, et le pendant de sa directive de déclenchement. La
+présentation statique reprend le DOM d'Angular, rail dans le flux et panneau qui peut
+flotter ; la présentation superposée suit `ui-drawer` : le `<dialog>` natif EST le panneau,
+et le voile, le positionneur, le piège de focus et le z-index d'Angular disparaissent.
+
+**Le déclencheur est la vraie question de ce portage.** Angular le relie par une référence de
+gabarit (`[uiSidebarTrigger]="sb"`), que React n'a pas, et il vit souvent HORS de la barre.
+`UiSidebarProvider` rend l'état de la barre lisible autour d'elle ; la barre y publie par un
+magasin et `useSyncExternalStore`, pas par un état du fournisseur, qu'un enfant ferait rendre
+deux fois. `useUiSidebarTrigger()` en tire `aria-controls`, `aria-expanded` et la bascule.
+Défaut attrapé avant le test : le menu lisait d'abord cet état publié, si bien qu'un menu
+autonome posé à côté d'une barre se serait replié avec elle. Il ne lit plus que la barre qui
+le contient ; le test du menu voisin tombe sans ça.
+
+**Six choix vérifiés en les retirant**, chacun couvert par son test : la portée du menu,
+l'identifiant préfixé par l'instance, le test de boîte du clic sur le voile (un clic sur le
+bord du panneau vise aussi le `<dialog>`), `Échap` par `keydown` (un dialogue non modal ne
+reçoit pas `cancel`), la remise à faux de `visible` quand la barre repasse en statique, et
+`onHide` suivi sur l'état plutôt que sur le dialogue, qui disparaît sans se fermer.
+
+**Deux défauts Angular, déclarés.** `aria-modal` posé sur un `<aside>`, dont le rôle ne le
+prend pas en charge ; et des identifiants de section qui ne dépendent que de la position,
+donc en double dès que deux menus partagent une page, ce que fait justement la double barre.
+
+**Une exception de lint, et un oubli réparé.** `jsx-a11y/no-redundant-roles` refusait
+`role="list"`, qu'Angular pose parce que Safari retire la sémantique d'une liste en
+`list-style: none`. Une ligne de configuration l'autorise sur `<ul>`, et seulement là. Le rôle
+est rétabli au passage sur `ui-file-upload`, où je l'avais retiré sans le déclarer.
+
+Payé deux fois ce qui était déjà écrit : un `pointerenter` fabriqué ne déclenche pas le
+`onPointerEnter` de React, et le piège figurait dans la liste. Et un nouveau : rendue seule,
+une barre statique mesure zéro de haut.
+
+33 tests unitaires, 5 stories auditées. Il reste un composant : `ui-editor` (1780), qui
+demande d'abord un arbitrage de dépendance au sens de D6.
+
+### 2026-09-23 : `ui-editor`, et l'arbitrage qui n'en était pas un
+
+Le dernier composant, gardé pour la fin comme un arbitrage de dépendance au sens de D6. La
+mesure l'a dissous : **le kit Angular n'a pas de moteur**. Son éditeur est un
+`contenteditable` et 659 lignes de commandes natives confinées dans un module, 10,5 kB
+compressés. Contre lui, Tiptap pèse 105 kB pour son seul kit de base, Lexical 62 kB pour son
+cœur. Proposé, choisi : aucun moteur. D6 porte désormais la décision, avec ses chiffres.
+
+**Le nettoyage est un portage, pas une réinvention.** `sanitizeHtml` reprend le `DomSanitizer`
+d'Angular, lu dans ses sources : mêmes listes, même filtrage des URL, même boucle anti-mXSS.
+Une valeur stockée se rend donc à l'identique dans les deux stacks. Rien n'écrit de HTML :
+analyse par `DOMParser` dans un document inerte, insertion par nœuds. Les trois exceptions de
+sécurité d'Angular disparaissent ; seul reste le collage par `insertHTML`, pour que Ctrl+Z
+l'annule, désormais refusé par le lint sauf exception inscrite. Au passage, le registre de
+sécurité affirmait qu'Angular portait « exactement une » exception : il en porte cinq.
+
+**Trois défauts hérités, mesurés puis corrigés.** Chromium aligne en `style`, que le
+sanitizer d'Angular retire : l'alignement ne survivait pas au rechargement d'une valeur. Le
+style est ici réduit à l'alignement et au retrait ; avec la liste stricte, le test
+d'aller-retour tombe. Les deux autres se sont vus seulement à la souris, dans Storybook :
+recolorer un paragraphe qui contient un mot rouge laissait ce mot rouge, et chaque police,
+taille ou couleur désélectionnait le texte. Un test par défaut, chacun tombe sans sa
+correction.
+
+**Cinq choix vérifiés en les retirant** : l'écho de la saisie qui ne réécrit pas le DOM, le
+libellé qui nomme la zone, le style réduit, le `beforeinput` natif de `maxLength`, et le
+`tabIndex` que `ui-select` transmet désormais à son déclencheur, sans quoi la barre d'outils
+n'a pas d'arrêt de tabulation unique.
+
+33 tests unitaires, 19 stories auditées. **Les 62 composants sont portés.** Reste
+`core/ripple`, qui ajoutera la prop `ripple` à six composants.
+
+### 2026-09-23 : `core/ripple`, et les phases 2 et 3 closes
+
+La dernière brique. Le moteur Angular était déjà du DOM pur : un écouteur `pointerdown`
+passif par liaison, une couche de découpe par hôte, une `<span>` par onde. Il se porte presque
+tel quel, sans React ; `UiRippleProvider`, `useUiRipple()` et `useUiRippleScope()` remplacent
+le fournisseur d'environnement et les deux directives. Les crochets posent leur liaison une
+fois et relisent leurs réglages à chaque pression. Le symbole qui marque une pression déjà
+servie est global, donc deux copies du kit dans une page ne font toujours qu'une onde.
+
+**L'inventaire était faux.** `DUAL-ENGINE.md` déclarait six composants sans `ripple`. Le
+kit Angular en marque quatorze. Sept autres l'avaient perdu **sans le dire** : `ui-select`,
+`ui-autocomplete`, `ui-datepicker`, `ui-menu`, `ui-paginator`, `ui-toggle-button`,
+`ui-segment-control` et `ui-toggle-block`. Tous reçoivent maintenant la prop, sur les cibles
+exactes d'Angular : pas les incréments d'heure du calendrier, pas les navigateurs de
+`ui-tabs`, pas un bloc désactivé ; l'action de la barre basse garde sa propre prop.
+
+**Un seul test de contrat** couvre les quatorze, à l'image du tableau Angular : cible par
+cible, `"on"` par défaut, `"off"` avec `ripple={false}`, plus une onde de bout en bout sous le
+fournisseur. Vérifié en retirant un marqueur, puis la condition de `ui-toggle-block` : le cas
+concerné tombe à chaque fois. L'interrupteur de Storybook existait déjà ; il manquait le moteur,
+installé depuis `ripple-toolbar.ts` par le seul moteur, le projet TypeScript du manager
+refusant le JSX du fournisseur.
+
+Au passage, la page Angular annonce une opacité de `0.12`, sa SCSS en porte `0.34` : la page
+React donne la valeur réelle.
+
+32 tests unitaires (15 pour le moteur, 17 pour le contrat des quatorze) et deux stories auditées. **Les phases 2 et 3 sont
+closes.** La suite du plan est la phase 4, le mode copie.

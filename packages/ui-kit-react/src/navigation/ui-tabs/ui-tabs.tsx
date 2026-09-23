@@ -44,6 +44,7 @@ interface UiTabsApi {
   selectOnFocus: boolean;
   showNavigators: boolean;
   motion: boolean;
+  ripple: boolean;
   value: UiTabValue | null;
   isActive: (value: UiTabValue) => boolean;
   activate: (value: UiTabValue, event: SyntheticEvent) => void;
@@ -99,6 +100,11 @@ export interface UiTabsProps extends Omit<
   showNavigators?: boolean;
   /** Animer l'indicateur et l'apparition des panneaux. Le mouvement réduit gagne toujours. */
   motion?: boolean;
+  /**
+   * Onde de pression sur les en-têtes d'onglet, quand elle est activée. Pas sur
+   * les navigateurs : ils font glisser la bande, ils ne mènent nulle part.
+   */
+  ripple?: boolean;
   children?: ReactNode;
 }
 
@@ -120,6 +126,7 @@ export function UiTabs({
   selectOnFocus = false,
   showNavigators = true,
   motion = true,
+  ripple = true,
   className,
   children,
   ...rest
@@ -148,6 +155,7 @@ export function UiTabs({
       selectOnFocus,
       showNavigators,
       motion,
+      ripple,
       value: active,
       isActive: (v) => active === v,
       activate: (next, event) => {
@@ -166,6 +174,7 @@ export function UiTabs({
       selectOnFocus,
       showNavigators,
       motion,
+      ripple,
       active,
       setActive,
       onTabChange,
@@ -488,6 +497,7 @@ export function UiTab({
       )}
       aria-controls={tabs.panelId(value)}
       aria-selected={active}
+      data-ripple={tabs.ripple ? 'on' : 'off'}
       disabled={disabled}
       tabIndex={active ? 0 : -1}
       onClick={(event) => {
