@@ -1,15 +1,7 @@
 // =====================================================================
-// Ripple : global styles of the wave (`UiRipple` / `UiRippleScope`).
-//
-// The directives append a clipping layer, then one ink span per press. Both
-// are created outside any component, so their rules live here rather than in
-// a scoped `.scss`. Every value resolves from the `--ui-ripple-*` custom
-// properties, which INHERIT : set them on `:root`, on a container or on the
-// element itself to retune one wave, one screen or the whole application.
-//
-// Class contract :
-//   .ui-ripple-layer  → clip box, follows the host's border-radius
-//   .ui-ripple-ink    → one wave, removed on `animationend`
+// Ripple: global styles of the layer and ink the ripple engine appends outside
+// any component. Every value reads the INHERITED `--ui-ripple-*` properties:
+// set them on `:root`, a container or the element itself.
 // =====================================================================
 
 @use 'utils';

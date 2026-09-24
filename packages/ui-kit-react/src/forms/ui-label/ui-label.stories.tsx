@@ -18,14 +18,6 @@ const meta: Meta<typeof UiLabel> = {
       url: 'https://www.figma.com/design/GZww5hdUA49LB8XWeWP6tl/-Projet----UI-Kit?node-id=0-1',
     },
   },
-  // Un libellé sans contrôle associé est une violation d'accessibilité, et axe a
-  // raison de la signaler. Les stories rendent donc un vrai champ à côté.
-  render: (args) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--units-xs)' }}>
-      <UiLabel {...args} htmlFor="demo-label" />
-      <input id="demo-label" type="email" />
-    </div>
-  ),
 };
 
 export default meta;
@@ -46,16 +38,8 @@ export const Disabled: Story = { args: { disabled: true } };
  */
 export const DrivenByParent: Story = {
   render: (args) => (
-    <div
-      style={{
-        ['--ui-label-color' as string]: 'var(--informative-errorlow-content-default)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 'var(--units-xs)',
-      }}
-    >
-      <UiLabel {...args} htmlFor="demo-driven" />
-      <input id="demo-driven" type="email" />
+    <div style={{ ['--ui-label-color' as string]: 'var(--informative-errorlow-content-default)' }}>
+      <UiLabel {...args} />
     </div>
   ),
 };

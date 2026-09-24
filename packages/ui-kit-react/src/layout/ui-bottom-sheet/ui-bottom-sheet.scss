@@ -1,15 +1,8 @@
 @use 'utils';
 
 // =====================================================================
-// ui-bottom-sheet : co-located styles. All values come from design tokens.
-//
-// Built on the native `<dialog>`, like `ui-modal` and `ui-drawer`: the scrim
-// and the positioner of the Angular kit disappear, `::backdrop` does the
-// first and the dialog's own insets do the second.
-//
-// Two properties move, and only two: `translate` on the sheet (open, close,
-// drag down) and `height`, confined to the optional snap detent. Everything
-// else is static.
+// ui-bottom-sheet : co-located styles on a native `<dialog>`. Only two properties
+// move: `translate` (open, close, drag down) and `height` (snap detent only).
 // =====================================================================
 
 // --- Config -----------------------------------------------------------
@@ -23,8 +16,7 @@ $half-height: var(--ui-bottom-sheet-half-height, 50dvh); /// Hauteur du palier �
 $full-height: var(--ui-bottom-sheet-full-height, 100dvh); /// Hauteur du palier « plein écran ».
 $max-height: var(--ui-bottom-sheet-max-height, 92dvh); /// Plafond de hauteur en mode `auto`, qui laisse voir la page derrière.
 
-// Réserve du système en bas de l'écran : barre d'accueil iOS, gestes Android.
-// Vaut zéro partout ailleurs, chrome du navigateur compris.
+// Vaut zéro hors barre d'accueil iOS et gestes Android, chrome du navigateur compris.
 $safe-area: var(--ui-bottom-sheet-safe-area-offset, env(safe-area-inset-bottom, 0px)); /// Réserve sous le panneau pour l'incrustation système.
 
 $panel-padding: var(--ui-bottom-sheet-padding, var(--units-default)); /// Retrait horizontal du panneau, et retrait haut du corps.
@@ -36,8 +28,6 @@ $footer-gap: var(--ui-bottom-sheet-footer-gap, var(--units-default)); /// Espace
 $footer-padding-top: var(--ui-bottom-sheet-footer-padding-top, var(--units-sm)); /// Retrait haut du pied.
 $action-size: var(--ui-bottom-sheet-action-size, #{utils.rem-calc(32)}); /// Taille de la cible tactile de la fermeture.
 
-// Le filet du pied est éteint dans le dessin de référence ; un projet le
-// rallume en donnant une valeur au crochet de couleur.
 $footer-stroke: var(--ui-bottom-sheet-footer-stroke, transparent); /// Couleur du filet de séparation du pied, absent par défaut.
 $footer-stroke-width: var(--ui-bottom-sheet-footer-stroke-width, var(--stroke-sm)); /// Épaisseur du filet de séparation du pied.
 
@@ -48,9 +38,7 @@ $handle-width: var(--ui-bottom-sheet-handle-width, #{utils.rem-calc(54)}); /// L
 $handle-height: var(--ui-bottom-sheet-handle-height, #{utils.rem-calc(4)}); /// Épaisseur de la barre de préhension.
 $handle-radius: var(--ui-bottom-sheet-handle-radius, var(--radius-full)); /// Rayon de la barre de préhension.
 $handle-color: var(--ui-bottom-sheet-handle-color, var(--global-text-default)); /// Couleur de la barre de préhension.
-// Seul le mode palier fait de la poignée un bouton ; il lui faut alors une
-// cible assez grande pour être manipulable (WCAG 2.5.8), ce que la barre seule
-// n'est pas.
+// Poignée-bouton du mode palier : cible agrandie, la barre seule échoue à WCAG 2.5.8.
 $handle-target-width: var(--ui-bottom-sheet-handle-target-width, #{utils.rem-calc(64)}); /// Largeur de la cible tactile de la poignée manipulable.
 $handle-target-height: var(--ui-bottom-sheet-handle-target-height, #{utils.rem-calc(24)}); /// Hauteur de la cible tactile de la poignée manipulable.
 
@@ -58,9 +46,7 @@ $focus-ring-width: var(--ui-bottom-sheet-focus-ring-width, #{utils.$focus-ring-w
 
 .ui-bottom-sheet {
   // --- Base -----------------------------------------------------------
-  // Trois insets à zéro et le quatrième à `auto` collent le panneau au bord bas.
-  // La largeur doit être remise à `auto` explicitement : le style navigateur
-  // d'un `<dialog>` la met à `fit-content`, ce qui l'emporterait.
+  // `width: auto` explicite : le style navigateur d'un `<dialog>` impose `fit-content`.
   position: fixed;
   inset: auto 0 0 0;
   box-sizing: border-box;
@@ -83,15 +69,12 @@ $focus-ring-width: var(--ui-bottom-sheet-focus-ring-width, #{utils.$focus-ring-w
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 
-  // Le `display: none` d'un dialogue fermé vient du style NAVIGATEUR, que le
-  // `display: flex` ci-dessus bat. Il faut donc le redire, sinon le panneau
-  // fermé reste affiché en bas de l'écran.
+  // Le `display: none` d'un dialogue fermé est un style navigateur, que `display: flex` bat.
   &:not([open]) {
     display: none;
   }
 
-  // Entrée et sortie, par le mixin partagé du système de motion. La hauteur
-  // suit à part, pour le seul changement de palier.
+  // `height` rejoint la transition pour le seul changement de palier.
   @include utils.overlay-motion((opacity, translate, height)) {
     opacity: 0;
     translate: 0 100%;
@@ -116,7 +99,6 @@ $focus-ring-width: var(--ui-bottom-sheet-focus-ring-width, #{utils.$focus-ring-w
     }
   }
 
-  // Panneau non modal : pas de calque supérieur, donc rien à assombrir.
   &:not(:modal)::backdrop {
     background: none;
   }
@@ -157,7 +139,6 @@ $focus-ring-width: var(--ui-bottom-sheet-focus-ring-width, #{utils.$focus-ring-w
     }
   }
 
-  // Dégage la dernière rangée de la barre d'accueil et des gestes système.
   &._safe-area {
     padding-bottom: $safe-area;
   }
@@ -226,8 +207,7 @@ $focus-ring-width: var(--ui-bottom-sheet-focus-ring-width, #{utils.$focus-ring-w
     padding-top: $grab-padding-y;
   }
 
-  // Pas de poignée au-dessus : l'en-tête est la première rangée, son propre
-  // retrait suffit.
+  // Sans poignée au-dessus, le retrait de la zone de préhension suffit.
   &-grab > &-header:first-child {
     padding-top: 0;
   }

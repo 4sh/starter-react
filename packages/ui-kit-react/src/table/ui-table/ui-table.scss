@@ -3,8 +3,7 @@
 
 // =====================================================================
 // ui-table : co-located styles. All values come from design tokens.
-// Extend:
-//   • Size (cell density) → add an entry to $sizes (+ the `TableSize` type).
+// Extend: a new density goes in $sizes and in the `TableSize` type.
 // =====================================================================
 
 // --- Config (extension points) ---------------------------------------
@@ -46,7 +45,6 @@ $loading-padding-y: var(--ui-table-loading-padding-y, var(--units-3xl));        
     overflow-x: auto;
   }
 
-  // Loading state: the body rows are replaced by a single centered spinner
   &-loading-cell {
     text-align: center;
 
@@ -98,7 +96,6 @@ $loading-padding-y: var(--ui-table-loading-padding-y, var(--units-3xl));        
     border-bottom-color: transparent;
   }
 
-  // Striped rows
   &._striped &-tbody tr:nth-child(even) td {
     background-color: var(--ui-table-body-surface-even, var(--table-body-surface-even));  /// Fond d'une ligne paire, variante `striped`.
     color: var(--ui-table-body-color-even, var(--table-body-content-even));               /// Couleur du texte d'une ligne paire, variante `striped`.
@@ -131,7 +128,6 @@ $loading-padding-y: var(--ui-table-loading-padding-y, var(--units-3xl));        
     }
   }
 
-  // Reorderable rows: grab affordance + drop-edge indicator.
   &-reorderable-row {
     cursor: grab;
   }
@@ -250,10 +246,7 @@ $loading-padding-y: var(--ui-table-loading-padding-y, var(--units-3xl));        
     // Frozen rows: pinned right under the sticky header (measured height).
     .ui-table-tbody._frozen-rows td {
       position: sticky;
-      // `--_frozen-top` et non `--ui-table-frozen-top` : ce n'est pas un
-      // réglage public mais un canal privé entre la MESURE de l'en-tête, faite
-      // en JavaScript, et cette règle. Le préfixe `--ui-` promettrait un point
-      // d'extension thémable, ce que ce n'en est pas.
+      // `--_frozen-top`, pas `--ui-*` : canal privé avec la mesure JS, pas un réglage thémable.
       top: var(--_frozen-top, 0);
       z-index: 1;
       font-weight: var(--ui-table-weight, var(--weight-bold)); /// Graisse du texte.
@@ -280,9 +273,8 @@ $loading-padding-y: var(--ui-table-loading-padding-y, var(--units-3xl));        
   }
 
   // --- Virtual scroll ---------------------------------------------------------
-  // Scroll anchoring would fight the windowing: when the top spacer height
-  // changes, the browser "re-anchors" the scroll position, which fires a new
-  // scroll event, which moves the window again, an endless feedback loop.
+  // Scroll anchoring fights the windowing: each spacer change re-anchors the scroll,
+  // which moves the window again, in an endless loop.
   &._virtual .ui-table-wrapper {
     overflow-anchor: none;
   }

@@ -51,17 +51,8 @@ export interface UiIconFamilyProviderProps {
 /**
  * Déclare des familles d'icônes, et la famille par défaut d'un sous-arbre.
  *
- * Côté Angular, ces deux rôles étaient deux mécanismes distincts : un
- * multi-provider d'environnement (`provideUiIconFamilies()`) pour le registre,
- * et une directive (`uiIconFamily`) pour la portée locale, avec le détour par
- * l'injecteur d'élément pour atteindre le contenu déplacé dans un overlay CDK.
- * Le contexte React fait les deux nativement : imbriquer ce provider suffit à
- * redéfinir la famille d'un sous-arbre, et un portail conserve l'arbre React de
- * l'endroit où il est DÉCLARÉ, pas celui de sa position dans le DOM.
- *
- * Un provider imbriqué complète le registre du provider parent au lieu de le
- * remplacer : c'est ce qui permet à une page de changer la famille par défaut
- * sans avoir à redéclarer les familles enregistrées plus haut.
+ * Un provider imbriqué complète le registre du parent au lieu de le remplacer :
+ * une page change la famille par défaut sans redéclarer celles d'au-dessus.
  */
 export function UiIconFamilyProvider({
   children,

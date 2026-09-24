@@ -37,16 +37,9 @@ export interface UiFieldWiring {
 /**
  * Câblage partagé d'un champ : identifiants, niveau effectif, message et ARIA.
  *
- * Pendant React de `BaseFormField`, en hook plutôt qu'en classe de base. Deux
- * différences qui valent d'être connues :
- *
- * - les identifiants viennent de `useId()`, donc ils sont **stables entre le
- *   rendu serveur et l'hydratation**. Le compteur incrémental de la version
- *   Angular ne l'aurait pas été : deux rendus serveur concurrents auraient
- *   produit des identifiants différents de ceux du client ;
- * - `aria-describedby` chaîne l'id du message et celui fourni par l'appelant,
- *   et n'est posé que si le message est réellement rendu : un attribut qui
- *   pointe un élément absent est pire que pas d'attribut.
+ * Les identifiants viennent de `useId()`, donc stables entre serveur et
+ * hydratation. `aria-describedby` chaîne l'id du message, posé seulement s'il
+ * est rendu, et celui fourni par l'appelant.
  */
 export function useUiField(props: UiFieldSharedProps & { id?: string }): UiFieldWiring {
   const generatedId = useId();

@@ -35,7 +35,6 @@ import './ui-select.scss';
 
 export type SelectValue = unknown;
 
-/** Une ligne rendue dans le panneau : un en-tête de groupe, ou une option. */
 type SelectRow =
   | { kind: 'group'; key: string; label: string; original: unknown }
   | {
@@ -176,13 +175,9 @@ const warned = new Set<string>();
 /**
  * ui-select : liste déroulante posée sur la coquille `ui-field`.
  *
- * Suit le motif combobox de WAI-ARIA : le focus reste sur le déclencheur, et
- * l'option courante est désignée par `aria-activedescendant`. C'est ce qui
- * permet de taper dans le champ de recherche tout en naviguant dans la liste.
- *
- * Le panneau vit dans le **calque supérieur**, donc aucun ancêtre en
- * `overflow: hidden` ne le rogne, ce qui est le défaut le plus pénible d'un
- * select posé dans une zone défilante.
+ * Motif combobox WAI-ARIA : le focus reste sur le déclencheur et l'option courante est
+ * désignée par `aria-activedescendant`, ce qui laisse taper dans la recherche en naviguant.
+ * Le panneau vit dans le **calque supérieur** : aucun ancêtre en `overflow: hidden` ne le rogne.
  */
 export function UiSelect({
   options = [],
@@ -428,10 +423,8 @@ export function UiSelect({
     open,
   });
 
-  // Le déclencheur porte le focus et le clavier ; l'ANCRE du panneau, elle, est
-  // la boîte du champ. S'ancrer sur le déclencheur donnerait un panneau plus
-  // étroit que le champ (mesuré : 276 px pour un champ de 320), le bouton étant
-  // à l'intérieur des insets de la boîte.
+  // Le déclencheur porte le focus et le clavier, mais l'ancre du panneau est la boîte du
+  // champ : le déclencheur, dans ses insets, donnerait un panneau plus étroit que le champ.
   const setTrigger = useCallback(
     (node: HTMLElement | null) => {
       triggerRef.current = node;
@@ -470,9 +463,8 @@ export function UiSelect({
     onOpen?.();
   }, [disabled, readOnly, open, onOpen]);
 
-  // L'état pilote le calque, comme pour `ui-modal` : un popover s'ouvre par une
-  // méthode, et faire dépendre l'état de son événement `toggle` désaligne les
-  // deux dès que l'événement se fait attendre.
+  // L'état pilote le calque, et non l'inverse : l'événement `toggle` peut se faire
+  // attendre et désaligner les deux.
   useEffect(() => {
     const panel = panelRef.current;
     if (!panel) return;
@@ -481,8 +473,6 @@ export function UiSelect({
     else if (!open && isOpen) panel.hidePopover();
   }, [open]);
 
-  // `manual` et non `auto` : le light-dismiss natif fermerait aussi sur un clic
-  // sur le déclencheur, qui rouvrirait aussitôt. `useUiDismiss` connaît l'ancre.
   useUiDismiss({
     open,
     onDismiss: () => close(false),
@@ -687,7 +677,6 @@ export function UiSelect({
   const onTriggerKeyDown = (event: KeyboardEvent) => {
     if (disabled || readOnly) return;
 
-    // Multiple : Retour arrière retire la dernière valeur sélectionnée.
     if (event.key === 'Backspace' && !isEditable && multiple && hasValue) {
       event.preventDefault();
       removeValue(selectedValues[selectedValues.length - 1]);
@@ -696,8 +685,7 @@ export function UiSelect({
 
     if (handleNavigationKey(event)) return;
 
-    // Frappe rapide, sur le déclencheur bouton seulement : un champ éditable
-    // tape pour de vrai.
+    // Frappe rapide sur le déclencheur bouton seulement : un champ éditable tape pour de vrai.
     if (
       !isEditable &&
       event.key.length === 1 &&
@@ -777,9 +765,7 @@ export function UiSelect({
     }
 
     return (
-      // Motif combobox : le clavier et le focus vivent sur le déclencheur, et
-      // l'option courante est désignée par `aria-activedescendant`. L'option
-      // n'a donc ni `tabindex` ni gestionnaire de touches, et c'est correct.
+      // Motif combobox : clavier et focus vivent sur le déclencheur (`aria-activedescendant`).
       // eslint-disable-next-line jsx-a11y/click-events-have-key-events
       <li
         key={row.key}
@@ -799,8 +785,7 @@ export function UiSelect({
         aria-disabled={row.entry.disabled || undefined}
         aria-setsize={visibleOptions.length}
         aria-posinset={row.index + 1}
-        // Garder le focus sur le déclencheur : sans ça, cliquer une option le
-        // lui prend et la fermeture au clic extérieur se déclenche.
+        // Garde le focus sur le déclencheur, sinon la fermeture au clic extérieur se déclenche.
         onMouseDown={(event) => event.preventDefault()}
         onClick={(event) => {
           event.preventDefault();
@@ -840,10 +825,8 @@ export function UiSelect({
     'aria-multiselectable': multiple || undefined,
   };
 
-  // Toute l'ARIA du combobox vit ici, à côté du `role` qui la rend valide.
-  // `aria-required` y compris : sur un `<button>`, `jsx-a11y` la juge sur le
-  // rôle IMPLICITE de l'élément et non sur celui qu'on pose, d'où un faux
-  // positif quand on l'écrit en attribut JSX.
+  // L'ARIA du combobox vit ici, à côté du `role` qui la rend valide. `aria-required`
+  // inclus : en attribut JSX, `jsx-a11y` le jugerait sur le rôle implicite du `<button>`.
   const triggerShared = {
     id: field.inputId,
     // Transmis au déclencheur, seul élément focalisable du champ : c'est ce qui
@@ -863,10 +846,7 @@ export function UiSelect({
   };
 
   return (
-    // Aucun gestionnaire de clic sur cette enveloppe : le déclencheur bouton
-    // remplit déjà la boîte du champ (`flex: 1 1 auto` et `align-self:
-    // stretch`), donc un clic n'importe où dedans l'atteint. En mode éditable,
-    // c'est le chevron qui bascule, et il est alors un vrai bouton.
+    // Pas de clic sur l'enveloppe : le déclencheur bouton remplit déjà la boîte du champ.
     <div className={cx('ui-select', isEditable && '_editable', className)}>
       <UiField
         onBoxRef={position.setAnchor}
@@ -904,9 +884,7 @@ export function UiSelect({
                 aria-label="Chargement des options"
               />
             ) : isEditable ? (
-              // En mode éditable, le chevron est la SEULE façon d'ouvrir le
-              // panneau à la souris : c'est donc un vrai bouton, atteignable au
-              // clavier, et pas une icône décorative.
+              // Seul moyen d'ouvrir à la souris en mode éditable : un vrai bouton.
               <button
                 type="button"
                 className={cx('ui-select-toggle', open && '_open', disabled && '_disabled')}
@@ -950,11 +928,7 @@ export function UiSelect({
           />
         ) : (
           <>
-            {/*
-              Multiple avec rendu personnalisé : les valeurs vivent HORS du
-              bouton. Leurs propres boutons de retrait ne peuvent pas s'imbriquer
-              dans un bouton, ce serait du balisage invalide.
-            */}
+            {/* Hors du bouton : leurs boutons de retrait ne peuvent pas s'y imbriquer. */}
             {multiple && renderSelectedItem && hasValue && (
               <div className="ui-select-values">
                 {displayedSelected.map((entry, index) => (
@@ -979,15 +953,11 @@ export function UiSelect({
               type="button"
               className={cx('ui-select-trigger', size === 'small' && '_small')}
               disabled={disabled}
-              // Le bouton BASCULE : `useUiDismiss` épargne l'ancre, donc un
-              // clic dessus alors que le panneau est ouvert ne le ferme pas de
-              // lui-même. Sans cette bascule, le panneau ne se refermerait
-              // jamais par son déclencheur.
+              // Bascule : `useUiDismiss` épargne l'ancre, ce clic doit donc aussi fermer.
               onClick={() => (open ? close() : openPanel())}
             >
               {multiple && renderSelectedItem && hasValue ? (
-                // Valeur accessible du combobox : la valeur visible, ce sont
-                // les puces à côté.
+                // Valeur accessible du combobox ; la valeur visible, ce sont les puces à côté.
                 <span className="ui-select-sr">{selectedLabel}</span>
               ) : !multiple && renderSelectedItem && hasValue ? (
                 renderSelectedItem({
@@ -1009,12 +979,8 @@ export function UiSelect({
 
       <div
         ref={setPanel}
-        // `manual` : le light-dismiss natif fermerait sur un clic sur le
-        // déclencheur, qui rouvrirait aussitôt.
-        // Tant que la position n'est pas calculée, le panneau reste dans son
-        // état fermé : `computePosition` est asynchrone, et peindre l'image
-        // d'avant est ce qui fait apparaître un panneau au mauvais endroit
-        // avant qu'il se replace. Reconnu par `utils.overlay-motion`.
+        // `manual` : le light-dismiss natif fermerait sur un clic du déclencheur, qui rouvrirait.
+        // Reste fermé tant que la position asynchrone manque (lu par `utils.overlay-motion`).
         data-unpositioned={position.isPositioned ? undefined : ''}
         popover="manual"
         className={cx('ui-select-panel', size === 'small' && '_small', panelClassName)}
@@ -1054,10 +1020,8 @@ export function UiSelect({
         )}
 
         {virtualScroll ? (
-          // Les `<li>` restent enfants DIRECTS du `<ul role="listbox">`, placés
-          // en absolu : un niveau d'imbrication de plus casserait la relation
-          // que les technologies d'assistance attendent entre la liste et ses
-          // options.
+          // Les `<li>` restent enfants DIRECTS du `<ul role="listbox">`, placés en absolu :
+          // un niveau de plus casserait la relation liste/options des aides techniques.
           <div
             className="ui-select-viewport"
             style={{ height: Math.min(rows.length * virtualScrollItemSize, scrollHeightPx) }}

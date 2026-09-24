@@ -52,9 +52,8 @@ interface UiAccordionApi {
 const UiAccordionContext = createContext<UiAccordionApi | null>(null);
 
 /**
- * En-têtes navigables du groupe, dans l'ordre du DOM. Les désactivés sont hors
- * jeu, et ceux d'un accordéon imbriqué appartiennent à leur propre groupe : sans
- * ce filtre, les flèches du groupe extérieur emporteraient aussi les siens.
+ * En-têtes navigables du groupe, dans l'ordre du DOM, sans les désactivés ni ceux
+ * d'un accordéon imbriqué, qui appartiennent à leur propre groupe.
  */
 function enabledHeadersIn(root: HTMLElement | null): HTMLButtonElement[] {
   if (!root) return [];
@@ -170,10 +169,7 @@ export function UiAccordion({
       },
       headerId: (v) => `${uid}-header-${v}`,
       contentId: (v) => `${uid}-content-${v}`,
-      // Le clavier se branche sur les EN-TÊTES et non sur le conteneur : un
-      // élément porteur d'un `onKeyDown` devrait être focalisable pour
-      // satisfaire `jsx-a11y`, ce que le groupe n'est pas. L'ordre des en-têtes
-      // est de toute façon une propriété du DOM, pas de l'état React.
+      // Branché sur les en-têtes : sur le conteneur, `jsx-a11y` exigerait qu'il soit focalisable.
       onHeaderKeyDown: (event) => {
         if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
         const headers = enabledHeadersIn(rootRef.current);

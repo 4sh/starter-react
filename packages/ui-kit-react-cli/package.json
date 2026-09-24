@@ -16,9 +16,7 @@
     "react",
     "design-system",
     "cli",
-    "ui-kit",
-    "registry",
-    "shadcn"
+    "ui-kit"
   ],
   "publishConfig": {
     "access": "public",
@@ -30,7 +28,6 @@
   "files": [
     "dist",
     "assets",
-    "registry",
     "README.md"
   ],
   "scripts": {

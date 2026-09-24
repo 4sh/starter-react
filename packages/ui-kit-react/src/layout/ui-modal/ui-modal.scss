@@ -1,17 +1,9 @@
 @use 'utils';
 
 // =====================================================================
-// ui-modal : styles co-localisés. Toutes les valeurs viennent des jetons.
-//
-// La racine est un <dialog> NATIF. Trois conséquences sur cette feuille :
-//   • pas de scrim ni de positionneur, `::backdrop` et le calque supérieur
-//     les remplacent ;
-//   • pas de z-index, l'ordre d'ouverture suffit au calque supérieur ;
-//   • les positions se règlent par la MARGE, un dialogue étant déjà centré
-//     par `margin: auto`.
-//
-// Étendre :
-//   • Position → ajouter un bloc `._pos-<nom>` (marges).
+// ui-modal : styles co-localisés d'un <dialog> natif, dont `::backdrop` et le
+// calque supérieur remplacent scrim, positionneur et z-index.
+// Étendre : une position = un bloc `._pos-<nom>` (marges).
 // =====================================================================
 
 // --- Réglages ---------------------------------------------------------
@@ -31,7 +23,7 @@ $mask-background: var(--ui-modal-mask-background, var(--primitives-black-50));  
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  margin: auto; // centré : c'est le comportement natif d'un <dialog>
+  margin: auto;
   padding: 0;
   max-width: min(90vw, utils.rem-calc(560));
   max-height: 90vh;
@@ -44,17 +36,13 @@ $mask-background: var(--ui-modal-mask-background, var(--primitives-black-50));  
   outline: none;
   overflow: visible; // la poignée de redimensionnement déborde du coin
 
-  // Le style NAVIGATEUR dit `dialog:not([open]) { display: none }`, mais il est
-  // de niveau UA : notre `display: flex` d'auteur le bat. Sans cette règle, un
-  // dialogue fermé reste affiché, recouvre son propre déclencheur, et donne
-  // exactement l'impression d'un dialogue qu'on ne peut ni fermer ni rouvrir.
+  // Le `display: none` d'un dialogue fermé est un style navigateur, que `display: flex` bat.
   &:not([open]) {
     display: none;
   }
 
   // --- Entrée et sortie -----------------------------------------------
-  // L'état de départ dépend du préréglage, et passe par deux variables : le
-  // mixin n'est donc inclus qu'une fois, quel que soit le nombre de préréglages.
+  // Le préréglage passe par deux variables : le mixin n'est inclus qu'une fois.
   --_motion-scale: 1;
   --_motion-translate: 0 0;
 
@@ -70,8 +58,7 @@ $mask-background: var(--ui-modal-mask-background, var(--primitives-black-50));  
     translate: var(--_motion-translate);
   }
 
-  // L'arrière-plan a son propre fondu : c'est un pseudo-élément, donc il ne
-  // peut pas hériter de la transition du dialogue.
+  // `::backdrop` n'hérite pas de la transition du dialogue : il a la sienne.
   &::backdrop {
     background-color: $mask-background;
     transition:
@@ -91,20 +78,13 @@ $mask-background: var(--ui-modal-mask-background, var(--primitives-black-50));  
     }
   }
 
-  // Dialogue non modal : pas de calque supérieur, donc pas d'assombrissement.
   &:not(:modal)::backdrop {
     background: none;
   }
 
   // --- Contenu dans un conteneur borné -------------------------------
-  // Ouvert par `show()` et non `showModal()` : il reste dans le flux, donc se
-  // cale sur le premier ancêtre positionné.
-  //
-  // `inset: 0` est indispensable : le style navigateur ne contraint que l'axe
-  // horizontal d'un dialogue non modal, son `top` restant à `auto`. Le dialogue
-  // se posait donc à sa position statique, sous le contenu qui le précède, et
-  // débordait du cadre (mesuré : 87 px de débord). Avec les quatre insets, le
-  // `margin: auto` reprend son travail et centre dans l'ancêtre.
+  // `inset: 0` est indispensable : le style navigateur d'un dialogue non modal
+  // laisse `top` à `auto`, et `margin: auto` ne centrerait pas verticalement.
   &._contained {
     position: absolute;
     inset: 0;
@@ -213,7 +193,6 @@ $mask-background: var(--ui-modal-mask-background, var(--primitives-black-50));  
     line-height: 1.5;
   }
 
-  // En-tête présent : le corps ne reprend pas l'inset du haut.
   &-header + &-content {
     padding-top: 0;
   }

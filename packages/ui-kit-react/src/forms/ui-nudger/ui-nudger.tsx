@@ -72,12 +72,9 @@ export interface UiNudgerProps {
 /**
  * ui-nudger : compteur numérique (`[moins] valeur [plus]`).
  *
- * Compose deux `UiButton` en mode icône seule autour d'un affichage en lecture.
- * Les états « au minimum » et « au maximum » sont **dérivés de la valeur**,
- * jamais des props : c'est `min` et `max` qui désactivent le bouton concerné.
- *
- * Clavier : chaque bouton est un vrai `<button>`, donc Tab plus Entrée ou
- * Espace. La valeur est une région vive, annoncée à chaque changement.
+ * Compose deux `UiButton` en icône seule autour d'une valeur en région vive.
+ * « Au minimum » et « au maximum » sont **dérivés de la valeur** : `min` et `max`
+ * désactivent le bouton concerné.
  */
 export function UiNudger({
   value,
@@ -140,8 +137,7 @@ export function UiNudger({
     [disabled, readOnly, clamp, current, step, model, setModel],
   );
 
-  // Garde-fou d'accessibilité : un compteur a besoin d'un nom. Averti une fois
-  // par instance, comme les autres composants du kit.
+  // Garde-fou d'accessibilité : un compteur a besoin d'un nom.
   const ariaLabel = rest['aria-label'];
   const ariaLabelledBy = rest['aria-labelledby'];
   useEffect(() => {
@@ -155,7 +151,6 @@ export function UiNudger({
   }, [ariaLabel, ariaLabelledBy, rootId]);
 
   const handleBlur = (event: FocusEvent<HTMLDivElement>) => {
-    // Le focus qui passe d'un bouton à l'autre ne quitte pas le compteur.
     const next = event.relatedTarget as Node | null;
     if (next && event.currentTarget.contains(next)) return;
     onBlur?.(event);
@@ -207,7 +202,6 @@ export function UiNudger({
         onClick={() => stepBy(1)}
       />
 
-      {/* Porteur masqué, pour qu'un `name` natif parte avec le formulaire. */}
       {name && <input type="hidden" name={name} value={current} />}
     </div>
   );

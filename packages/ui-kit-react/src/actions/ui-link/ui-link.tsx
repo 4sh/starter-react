@@ -60,11 +60,8 @@ export interface UiLinkProps extends NativeProps {
   'aria-label'?: string;
   /**
    * Rend la racine avec un autre composant, typiquement le lien d'un routeur
-   * (Next, React Router, TanStack).
-   *
-   * Le kit n'impose aucun routeur : là où la version Angular dépendait de
-   * `RouterLink`, celle-ci passe la main. Les props reçues sont exactement
-   * celles que le lien aurait posées sur son `<a>`.
+   * (Next, React Router, TanStack), le kit n'en imposant aucun. Les props reçues
+   * sont exactement celles que le lien aurait posées sur son `<a>`.
    *
    * @example
    * ```tsx
@@ -89,8 +86,6 @@ export interface UiLinkProps extends NativeProps {
  * Le choix se fait sur le sens, pas sur l'apparence. Ce qui **navigue** vers une
  * URL est un lien ; ce qui **déclenche** une action est un `ui-button`, même
  * quand le design demande l'inverse de ce qu'on attendrait.
- *
- * Les états interactifs viennent du CSS, jamais des props.
  */
 export function UiLink({
   label,
@@ -159,8 +154,7 @@ export function UiLink({
       disabled && '_disabled',
       className,
     ),
-    // Une ancre n'a pas de `disabled` natif : retirer le `href` est ce qui la
-    // sort réellement du parcours, le reste n'est que cosmétique.
+    // Sans `disabled` natif, c'est le retrait du `href` qui sort l'ancre du parcours.
     href: disabled ? undefined : href,
     target: computedTarget,
     rel: computedRel,

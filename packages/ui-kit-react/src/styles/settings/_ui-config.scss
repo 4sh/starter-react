@@ -1,20 +1,7 @@
 // =====================================================================
-// ui-config : shared structural constants for ui-* components.
-//
-// Three levers, from the broadest to the narrowest: the design token each value
-// points at, the `--ui-<name>` hook declared here (kit-wide, no recompile), and
-// the LOCAL var of a component's .scss.
-//
-// Colours sit here too, but only the ones a SHARED mixin paints (`_mixins.scss`):
-// the hook has to be named after the category, since the mixin does not know which
-// component included it. The token set is never in the name: one hook per role and
-// state, the palette in force supplying the fallback. The mixin emits the read
-// (`var(--ui-form-field-color, var(--form-high-content-default))`); the constants
-// below are where that contract is declared and documented.
-//
-// Components interpolate these values, so a hook added here propagates into
-// every consumer on its own: `var(--ui-checkbox-box-size, var(--ui-form-control-size,
-// var(--size-components-2xs)))` : component, then category, then token.
+// ui-config: shared structural constants for ui-* components, each read through
+// its `--ui-*` hook (component, then category, then token). Colours sit here only
+// when a SHARED mixin paints them, hence a hook named after the category.
 // =====================================================================
 
 // --- Global UI --------------------------------------------------------
@@ -25,10 +12,8 @@ $control-transition-duration: var(--ui-control-transition-duration, var(--transi
 $control-transition-easing: var(--ui-control-transition-easing, var(--transition-easeinout));   /// Courbe des transitions d'état des contrôles.
 
 // --- Global : motion --------------------------------------------------
-// Shared timing for the motion system (enter/leave presets + transitions).
-// Not hooked here: the `--ui-motion-*` custom properties already expose duration,
-// easing, delay, distance and scale per instance (see utils/_motion.scss), and the
-// kit-wide default is the `--transition-*` token these point at.
+// Not hooked: `--ui-motion-*` already retunes each instance, and the kit-wide
+// default is the `--transition-*` token.
 $motion-duration-fast: var(--transition-fast);        /// Durée « micro-feedback ».
 $motion-duration-base: var(--transition-default);     /// Durée par défaut (apparition, disparition, collapse).
 $motion-duration-slow: var(--transition-slow);        /// Durée « grande surface ».
@@ -39,9 +24,7 @@ $motion-distance: 0.5rem;                             /// Distance du glissement
 $motion-scale: 0.96;                                  /// Échelle de départ / d’arrivée des presets `zoom`.
 
 // --- Global : ripple ---------------------------------------------------
-// Appearance of the press wave (base/_ripple.scss). Not hooked here: the
-// `--ui-ripple-*` custom properties already expose colour, opacity, duration,
-// easing and scale per instance, and they inherit down the cascade.
+// Not hooked: the inherited `--ui-ripple-*` properties already retune the wave.
 $ripple-opacity: 0.34;                      /// Opacité de départ de l'onde.
 $ripple-duration: var(--transition-slow);   /// Durée d'expansion de l'onde.
 $ripple-easing: var(--transition-easeout);  /// Courbe de l'onde (décélérée).
@@ -72,9 +55,8 @@ $form-field-font-family: var(--ui-form-field-font-family, var(--fontfamily-base)
 $form-field-stroke-width: $control-stroke-width;                                              /// Bordure de la boîte de champ (suit `--ui-control-stroke-width`).
 $form-field-focus-ring-width: $form-focus-ring-width;                                       /// Anneau de focus de la boîte de champ (suit `--ui-focus-ring-width`).
 
-// Selection controls (checkbox, radio): palette routed by `form-control-palette`.
-// Interpolated fallback (`--form-#{$palette}-…`), so the shipped default below is the
-// `high` palette; `._invalid` swaps it for `error` under the same hook names.
+// Selection controls (checkbox, radio), routed by `form-control-palette`: the defaults
+// below are the `high` palette, `._invalid` swaps in `error` under the same hooks.
 $form-control-surface: var(--ui-form-control-surface, var(--form-high-surface-default));                  /// Fond d'un contrôle de sélection.
 $form-control-surface-hover: var(--ui-form-control-surface-hover, var(--form-high-surface-hover));        /// Fond d'un contrôle de sélection au survol.
 $form-control-surface-checked: var(--ui-form-control-surface-checked, var(--form-high-surface-checked));  /// Fond d'un contrôle de sélection coché ou indéterminé.
@@ -118,9 +100,8 @@ $action-focus-ring-width: $focus-ring-width;                                    
 
 // --- Category : informative -------------------------------------------
 // Avatar
-// The four sizes stay raw numbers: they go through `rem-calc()`, which needs a
-// number, not a `var()`. Each is already reachable per component through
-// `--ui-avatar-size{,-tiny,-small,-large}`.
+// Raw numbers: `rem-calc()` needs a number, not a `var()`. The component hooks
+// them as `--ui-avatar-size{,-tiny,-small,-large}`.
 $avatar-size-tiny: 34px;    /// Diamètre de l’avatar en taille `tiny` (nombre brut : passe par `rem-calc`).
 $avatar-size-small: 42px;   /// Diamètre de l’avatar en taille `small` (nombre brut).
 $avatar-size-default: 56px; /// Diamètre de l’avatar en taille `default` (nombre brut).

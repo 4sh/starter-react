@@ -63,13 +63,7 @@ export interface UiInputNumberProps extends UiFieldSharedProps, NativeProps {
   useGrouping?: boolean;
   minFractionDigits?: number;
   maxFractionDigits?: number;
-  /**
-   * Remplace le formatage d'affichage.
-   *
-   * Côté Angular c'était une méthode protégée à redéfinir par héritage. React
-   * n'en a pas : la prop dit la même chose, en composition, et se change par
-   * instance plutôt que par sous-classe.
-   */
+  /** Remplace le formatage d'affichage. */
   formatValue?: (value: number) => string;
   ref?: Ref<HTMLInputElement>;
 }
@@ -159,10 +153,8 @@ export function UiInputNumber({
     [locale],
   );
 
-  // Le texte est un état À PART, pas une dérivée du modèle : pendant la frappe
-  // « 1, » ou « - » ne correspondent à aucun nombre, et reformater ferait sauter
-  // le curseur. C'est la différence avec `ui-input-mask`, dont l'affichage se
-  // déduit toujours de la valeur.
+  // Le texte est un état À PART, pas une dérivée du modèle : pendant la frappe « 1, » ou
+  // « - » ne sont aucun nombre, et reformater ferait sauter le curseur.
   const [text, setText] = useState(() => (model === null ? '' : format(model)));
 
   const separators = useMemo(() => {
@@ -233,14 +225,12 @@ export function UiInputNumber({
     rest.onKeyDown?.(event);
   };
 
-  // La devise porte déjà son symbole : afficher l'unité en plus ferait doublon.
   const displayUnit = currency ? undefined : unit;
 
   const spinnerButton = (direction: 1 | -1, ariaLabel: string, atBound: boolean) => (
     <button
       type="button"
-      // Hors du parcours clavier : les flèches font déjà le travail, et deux
-      // arrêts de tabulation par champ numérique alourdiraient tout formulaire.
+      // Hors du parcours clavier : les flèches du champ font déjà le travail.
       tabIndex={-1}
       aria-label={ariaLabel}
       disabled={disabled || readOnly || atBound}
@@ -298,10 +288,8 @@ export function UiInputNumber({
           else if (ref) ref.current = node;
         }}
         className={cx('ui-input-number-native', size === 'small' && '_small')}
-        // `type="text"` et non `number` : le champ natif refuse les séparateurs
-        // de la locale, avale les décimales selon le navigateur, et ajoute son
-        // propre pavé impossible à styler. `inputmode` suffit pour le clavier
-        // tactile.
+        // `text` et non `number` : le natif refuse les séparateurs de la locale, perd des
+        // décimales selon le navigateur et impose son pavé ; `inputMode` suffit au tactile.
         type="text"
         inputMode="decimal"
         id={field.inputId}

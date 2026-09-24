@@ -1,24 +1,7 @@
 // -----------------------------------------------------------------------------
-// @4sh/ui-kit : global stylesheet shipped with the package (compiled to
-// `dist/ui-kit/styles.css` by `npm run ui-kit:styles`).
-//
-// The components are headless: they read CSS custom properties and never hard
-// code a colour, size or spacing. Loading this file ONCE, globally, is what
-// gives them their appearance : without it they render unstyled.
-//
-//   // angular.json
-//   "styles": ["node_modules/@4sh/ui-kit/styles.css", "src/styles/main.scss"]
-//
-// Contains: the generated design tokens (all brands + light/dark + responsive),
-// the base layer that binds them to the page, the typography utility classes
-// and the motion presets the `UiMotion` directive toggles.
-//
-// NOT included: `@font-face` declarations. The tokens only *name* the families
-// (`--fontfamily-base`), so each project ships and declares its own font files;
-// override `--fontfamily-*` to point at yours. Every family token ends with a
-// system fallback stack (see `fontStacks` in tokens.config.json), so a project
-// that ships nothing still renders in the OS sans : never in the browser's
-// serif default. Keep that tail when you override.
+// Global stylesheet shipped with the package (`styles.css`): load it once, globally.
+// No `@font-face`: override `--fontfamily-*` to point at your fonts, keeping the
+// system fallback tail of each family token.
 // -----------------------------------------------------------------------------
 
 @use 'generated/tokens';

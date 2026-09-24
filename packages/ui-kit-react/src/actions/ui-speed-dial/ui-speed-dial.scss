@@ -2,10 +2,7 @@
 
 // =====================================================================
 // ui-speed-dial : co-located styles. All values come from design tokens.
-//
-// The root is a plain positioned wrapper: pinning it to a corner of the
-// page belongs to the caller. Trigger and actions are `ui-button`
-// instances, so every colour comes through them; nothing is painted here.
+// Colours come from the `ui-button`s; pinning the root to a page corner is the caller's job.
 // =====================================================================
 
 // --- Config -----------------------------------------------------------
@@ -25,15 +22,12 @@ $rotate-angle: 45deg;
   position: relative;
   z-index: $z-index;
   display: inline-flex;
-  // Surcharge explicite par la prop `radius` ; le défaut vit ici pour qu'un
-  // thème puisse le retoucher sans que le composant passe jamais un nombre.
+  // Défaut de l'arc, que la prop `radius` surcharge en ligne.
   --_radius: #{$radius-default};
 
   // --- Mask -------------------------------------------------------------
-  // En `fixed`, mais peint dans le contexte d'empilement de la racine, que
-  // `position` et `z-index` qualifient déjà : il reste DERRIÈRE le déclencheur
-  // et les actions, simples frères plus loin dans le DOM, sans un second
-  // z-index à tenir en phase.
+  // Peint dans le contexte d'empilement de la racine : il reste derrière le
+  // déclencheur et les actions, frères suivants, sans z-index propre.
   &-mask {
     position: fixed;
     inset: 0;
@@ -44,8 +38,7 @@ $rotate-angle: 45deg;
   &-trigger {
     position: relative;
 
-    // La rotation vit sur l'icône et non sur le bouton : faire pivoter le
-    // contrôle entier emporterait son anneau de focus et son ombre.
+    // La rotation vit sur l'icône : pivoter le bouton emporterait son anneau de focus.
     .ui-button-icon {
       @include utils.control-transition(rotate);
     }
@@ -63,10 +56,8 @@ $rotate-angle: 45deg;
     margin: 0;
     padding: 0;
     list-style: none;
-    // Sur un arc, la boîte de la liste recouvre exactement le déclencheur :
-    // sans ça, cette boîte vide, et pas seulement les espaces entre les
-    // actions, passe DEVANT lui dans l'ordre de peinture et avale ses clics.
-    // Les actions reprennent le pointeur une par une.
+    // Sur un arc, la liste recouvre le déclencheur et avalerait ses clics :
+    // seules les actions reprennent le pointeur.
     pointer-events: none;
   }
 
@@ -99,9 +90,7 @@ $rotate-angle: 45deg;
     translate: 0 -50%;
   }
 
-  // Sur un arc, la liste EST la boîte du déclencheur : chaque action s'y
-  // centre, puis sa propre `transform` la porte à `--_radius` sur sa place
-  // angulaire.
+  // Sur un arc, chaque action se centre sur le déclencheur, puis sa `transform` en ligne la place.
   &._circle &-list,
   &._semi-circle &-list,
   &._quarter-circle &-list {
@@ -117,11 +106,9 @@ $rotate-angle: 45deg;
   }
 
   &-item {
-    // La liste s'en retire ci-dessus ; chaque action reprend le pointeur.
     pointer-events: auto;
 
-    // Entrée décalée selon le rang, posée depuis `--_stagger-index` sur la
-    // propriété que le système de motion lit déjà.
+    // Entrée décalée par rang ; `--_stagger-index` est posé en ligne par le composant.
     --ui-motion-delay: calc(var(--_stagger-index, 0) * #{$item-delay});
   }
 }

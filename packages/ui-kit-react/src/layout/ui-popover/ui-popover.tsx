@@ -25,18 +25,11 @@ const ARROW_GAP = 8;
 /** Avertissements déjà émis, pour rester idempotent sous `<StrictMode>`. */
 const warned = new Set<string>();
 
-/**
- * Props à reverser sur le déclencheur.
- *
- * Le popover ne mute pas le DOM du déclencheur pour y poser `aria-expanded`,
- * comme le fait la version Angular : il les rend, et React s'occupe du reste.
- */
+/** Props à reverser sur le déclencheur. */
 export interface UiPopoverTriggerProps {
   /**
-   * Ref de rappel, et non un `Ref<HTMLElement>`. La différence compte : une
-   * union `Ref<HTMLElement>` ne se reverse pas sur un `<button>`, dont la ref
-   * attend un `HTMLButtonElement`, alors qu'une fonction acceptant le type
-   * large, elle, s'y assigne. Sans ça, chaque consommateur écrirait un cast.
+   * Ref de rappel et non `Ref<HTMLElement>` : une fonction au type large s'assigne
+   * à la ref d'un `<button>`, là où l'union exigerait un cast.
    */
   ref: (node: HTMLElement | null) => void;
   'aria-expanded': boolean;
@@ -85,16 +78,11 @@ export interface UiPopoverProps extends NativeProps {
 }
 
 /**
- * ui-popover : panneau flottant ancré à un déclencheur.
+ * ui-popover : panneau flottant ancré à un déclencheur, rendu par `trigger`.
  *
- * Le panneau vit dans le **calque supérieur**, `popover` en non modal et
- * `<dialog>` en modal. Il échappe donc au rognage d'un ancêtre en
- * `overflow: hidden`, et n'a besoin d'aucun z-index. En non modal, la fermeture
- * au clic extérieur et sur Échap est prise en charge par le navigateur.
- *
- * Là où la version Angular s'appelle par des méthodes (`show`, `hide`) et pose
- * elle-même les attributs ARIA sur le déclencheur, celle-ci est **contrôlée** et
- * rend le déclencheur par `trigger`.
+ * Il vit dans le **calque supérieur** (`popover` en non modal, `<dialog>` en
+ * modal) : ni rognage par un ancêtre en `overflow: hidden`, ni z-index. En non
+ * modal, le navigateur gère la fermeture au clic extérieur et sur Échap.
  */
 export function UiPopover({
   open,
@@ -228,10 +216,8 @@ export function UiPopover({
     className: cx('ui-popover', `_${side}`, !showArrow && '_no-arrow', className),
     style: { ...panelStyle, ...rest.style },
     tabIndex: -1,
-    // Tant que la position n'est pas calculée, le panneau reste dans son état
-    // fermé : `computePosition` est asynchrone, et peindre l'image d'avant fait
-    // apparaître le panneau au mauvais endroit avant qu'il se replace. Reconnu
-    // par `utils.overlay-motion`, en modal comme en non modal.
+    // Fermé tant que la position n'est pas calculée (`computePosition` est asynchrone),
+    // sinon il paraît une image au mauvais endroit. Lu par `utils.overlay-motion`.
     'data-unpositioned': isPositioned ? undefined : '',
   };
 
@@ -244,12 +230,7 @@ export function UiPopover({
 
   return (
     <>
-      {/*
-        Faux positif de `react-hooks/refs` : la règle voit un objet contenant
-        une clé `ref` lu au rendu et suppose une lecture de `.current`. Ici on
-        TRANSMET une ref de rappel à une prop de rendu, ce qui est le motif
-        normal d'un déclencheur. Aucune ref n'est lue.
-      */}
+      {/* Faux positif de `react-hooks/refs` : la ref de rappel est transmise, jamais lue. */}
       {/* eslint-disable-next-line react-hooks/refs */}
       {trigger?.(triggerProps)}
       {modal ? (

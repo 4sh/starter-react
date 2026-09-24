@@ -65,10 +65,8 @@ export interface UiDrawerProps extends NativeProps {
   backdropClassName?: string;
 
   /**
-   * Couper l'animation pour ce tiroir, sans toucher au réglage global.
-   *
-   * Il n'y a pas de prop de préréglage : un tiroir glisse depuis **son** bord,
-   * et c'est le seul mouvement qui ait du sens. Le bord suffit donc à le dire.
+   * Couper l'animation pour ce tiroir, sans toucher au réglage global. Pas de
+   * préréglage : un tiroir glisse toujours depuis son bord.
    */
   motionDisabled?: boolean;
 
@@ -81,13 +79,9 @@ export interface UiDrawerProps extends NativeProps {
 /**
  * ui-drawer : panneau glissant ancré à un bord de l'écran.
  *
- * Même socle que `ui-modal`, le `<dialog>` natif : le piège de focus, la
- * restitution du focus, l'inertie de l'arrière-plan et l'empilement viennent du
- * navigateur. Seuls changent l'ancrage, réglé par les insets, et la dimension du
- * panneau.
- *
- * Le choix entre les deux est une question de place, pas de style : un tiroir
- * garde le contexte visible autour de lui, une fenêtre modale le remplace.
+ * Même socle que `ui-modal`, le `<dialog>` natif : piège et restitution du focus,
+ * inertie de l'arrière-plan et empilement viennent du navigateur. Seuls changent
+ * l'ancrage, réglé par les insets, et la dimension du panneau.
  */
 export function UiDrawer({
   visible,
@@ -133,23 +127,25 @@ export function UiDrawer({
   const ariaLabelledBy = rest['aria-labelledby'];
   const labelledBy = ariaLabelledBy ?? (showHeader && header ? titleId : undefined);
 
-  // L'ÉTAT est la source de vérité, le DOM suit. Un `<dialog>` s'ouvre par une
-  // méthode et non par un attribut : `open` posé en JSX rendrait le tiroir sans
-  // calque supérieur, sans arrière-plan et sans piège de focus.
+  // L'état pilote le dialogue par ses méthodes (l'attribut `open` n'a pas de calque
+  // supérieur), sauf cantonné et ouvert au montage : `show()` y volerait le focus.
+  const mountingRef = useRef(true);
   useEffect(() => {
     const dialog = innerRef.current;
+    const mounting = mountingRef.current;
+    mountingRef.current = false;
     if (!dialog) return;
 
     if (open && !dialog.open) {
       if (isModalLayer) dialog.showModal();
+      else if (contained && mounting) dialog.setAttribute('open', '');
       else dialog.show();
       onShow?.();
     } else if (!open && dialog.open) {
       dialog.close();
       onHide?.();
     }
-    // `onShow` et `onHide` hors dépendances : recréés à chaque rendu, ils
-    // rejoueraient l'effet en boucle.
+    // `onShow` et `onHide` hors dépendances : recréés à chaque rendu, ils rejoueraient l'effet.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, isModalLayer]);
 

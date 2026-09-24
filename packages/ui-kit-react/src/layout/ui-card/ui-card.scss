@@ -1,17 +1,11 @@
 @use 'utils';
 
 // =====================================================================
-// ui-card : co-located styles. All values come from design tokens.
-//
-// Regions (media / header / content / footer) are rendered by the template
-// only when they hold content, so there is no empty-wrapper gap to guard here.
-//
-// Extend:
-//   • Variant (surface treatment) → add a `._<name>` block below.
+// ui-card : co-located styles. Extend: a variant (surface treatment) is a
+// `._<name>` block in the Variants section.
 // =====================================================================
 
 // --- Config (extension points) ---------------------------------------
-// Local structural constants : retune here to detune ONLY this component.
 $card-padding: var(--ui-card-padding, var(--units-lg));            /// Inset du corps.
 $card-gap: var(--ui-card-gap, var(--units-md));                    /// Espacement entre en-tête / contenu / pied.
 $card-header-gap: var(--ui-card-header-gap, var(--units-2xs));     /// Espacement titre ↔ sous-titre.
@@ -21,15 +15,10 @@ $card-stroke-width: var(--ui-card-stroke-width, var(--stroke-sm)); /// Épaisseu
 
 .ui-card {
   // --- Base ----------------------------------------------------------
-  // Read-only mirror of the gutter: a consumer re-applies it inside a flush
-  // content region. Distinct from the `--ui-card-padding` override it resolves,
-  // since a custom property cannot reference itself.
+  // Read-only mirror of the gutter, for flush content. Distinct from the
+  // `--ui-card-padding` override: a custom property cannot reference itself.
   --ui-card-gutter: #{$card-padding}; /// Gouttière relisible pour regouttiérer un contenu `contentFlush` (surcharge : `--ui-card-padding`).
 
-  // Côté Angular, l'hôte portait la boîte et `.ui-card` la remplissait par
-  // `flex: 1 1 auto`. Sans hôte, cette classe EST la boîte : elle reprend les
-  // règles de l'hôte et laisse tomber le `flex`, qui ferait maintenant grandir
-  // la carte dans la rangée du consommateur au lieu de remplir un parent.
   display: flex;
   flex-direction: column;
   overflow: hidden; // clips full-bleed media to the rounded corners
@@ -49,7 +38,6 @@ $card-stroke-width: var(--ui-card-stroke-width, var(--stroke-sm)); /// Épaisseu
     display: flex;
     overflow: hidden;
 
-    // Media content fills the region without overflowing.
     ::ng-deep img,
     ::ng-deep svg,
     ::ng-deep ui-image,
@@ -61,9 +49,8 @@ $card-stroke-width: var(--ui-card-stroke-width, var(--stroke-sm)); /// Épaisseu
     }
   }
 
-  // Region holding header + content + footer.
-  // Vertical inset lives here; horizontal gutter is per-region so the content
-  // slot can opt out (`._flush`) while header/footer stay padded.
+  // Vertical inset lives here; the horizontal gutter is per region so the
+  // content can opt out (`._flush`) while header and footer stay padded.
   &-body {
     display: flex;
     flex-direction: column;
@@ -103,7 +90,6 @@ $card-stroke-width: var(--ui-card-stroke-width, var(--stroke-sm)); /// Épaisseu
     line-height: 1.5;
     color: var(--ui-card-content-color, var(--global-text-default)); /// Couleur du corps de la carte.
 
-    // Full-bleed content: consumer owns the inner gutters.
     &._flush {
       padding-inline: 0;
     }
@@ -114,9 +100,7 @@ $card-stroke-width: var(--ui-card-stroke-width, var(--stroke-sm)); /// Épaisseu
     }
   }
 
-  // Footer aligned to the end by default.
-  // A full-width child (e.g. a Gridaflex `flex-x` group) overrides this to lay
-  // out its own distribution (tags left / action right, etc.).
+  // End-aligned by default; a full-width child lays out its own distribution.
   &-footer {
     display: flex;
     flex-wrap: wrap;

@@ -41,13 +41,7 @@ export interface UiButtonRootProps {
   /** Marqueur de l'onde de pression, lu par `UiRippleProvider`. */
   'data-ripple': 'on' | 'off';
   onClick: MouseEventHandler<HTMLElement>;
-  /**
-   * Typé pour une ancre, et non pour `HTMLElement` : `render` existe pour
-   * rendre un **lien**, et les composants de lien des routeurs (Next, React
-   * Router) transmettent tous leur ref à un `HTMLAnchorElement`. Un
-   * `Ref<HTMLElement>` ici obligerait chaque consommateur à écrire un cast
-   * dans son propre code : le cast doit vivre ici, une seule fois.
-   */
+  /** Typée pour une ancre : les liens des routeurs transmettent leur ref à un `HTMLAnchorElement`. */
   ref?: Ref<HTMLAnchorElement>;
 }
 
@@ -69,11 +63,6 @@ interface UiButtonOwnProps {
   /**
    * Icône. Une **chaîne** est un nom d'icône rendu par `ui-icon` ; un **nœud**
    * est rendu tel quel.
-   *
-   * Côté Angular il fallait deux entrées (`icon` pour le nom,
-   * `iconTemplate` pour un rendu personnalisé) parce qu'un `TemplateRef` ne
-   * peut pas voyager dans la même entrée qu'une chaîne. En React, `ReactNode`
-   * couvre les deux.
    */
   icon?: string | ReactNode;
   iconPos?: ButtonIconPos;
@@ -100,11 +89,8 @@ interface UiButtonOwnProps {
   rel?: string;
   /**
    * Rend la racine soi-même, pour brancher le composant de lien d'un routeur
-   * (Next, React Router, TanStack).
-   *
-   * Le kit n'impose aucun routeur : là où la version Angular pouvait dépendre
-   * de `RouterLink`, celle-ci passe la main. Les props reçues sont exactement
-   * celles que le bouton aurait posées sur son `<a>`.
+   * (Next, React Router, TanStack), le kit n'en imposant aucun. Les props reçues
+   * sont exactement celles que le bouton aurait posées sur son `<a>`.
    *
    * @example
    * ```tsx
@@ -126,26 +112,16 @@ interface UiButtonOwnProps {
 
 /**
  * La surface native reste ouverte : `...rest` transmet tout ce que le DOM
- * accepte (`aria-*`, `data-*`, `onFocus`, `form`, `name`…). C'est ce qui rend
- * inutile le `buttonProps` de la version Angular, dont l'unique rôle était de
- * réinjecter à la main des attributs qu'aucune entrée n'exposait.
+ * accepte (`aria-*`, `data-*`, `onFocus`, `form`, `name`…).
  */
 export type UiButtonProps = UiButtonOwnProps &
   Omit<ComponentPropsWithRef<'button'>, keyof UiButtonOwnProps> &
   Pick<ComponentPropsWithoutRef<'a'>, 'download' | 'hrefLang' | 'ping' | 'referrerPolicy'>;
 
-/** Avertissements déjà émis. Voir `ui-icon` : `<StrictMode>` monte deux fois. */
+/** Avertissements déjà émis, pour rester idempotent sous `<StrictMode>`. */
 const warned = new Set<string>();
 
-/**
- * Un nœud porte-t-il un contenu visible ?
- *
- * La version Angular devait le mesurer dans le DOM après le rendu
- * (`afterNextRender` sur le conteneur de `<ng-content>`), parce qu'un
- * `<ng-content>` ne se connaît pas avant d'être projeté. Ici `children` est une
- * valeur : la réponse est synchrone, et le mode icône seule est correct dès le
- * premier rendu au lieu de l'être au second.
- */
+/** Un nœud porte-t-il un contenu visible ? */
 function hasContent(node: ReactNode): boolean {
   if (node === null || node === undefined || typeof node === 'boolean') return false;
   if (typeof node === 'string') return node.trim() !== '';
@@ -184,9 +160,7 @@ export function UiButton({
   className,
   onClick,
   tabIndex,
-  // `ref` est sorti de `...rest` à dessein : la racine est un <button> OU un
-  // <a>, donc la cible du ref change de type d'une branche à l'autre. Le
-  // laisser voyager dans le spread obligerait à mentir sur l'une des deux.
+  // Hors de `...rest` : la racine est un <button> ou un <a>, la cible du ref change de type.
   ref,
   ...rest
 }: UiButtonProps) {
@@ -197,12 +171,9 @@ export function UiButton({
   const stacked = iconPos === 'top' || iconPos === 'bottom';
   const iconBefore = iconPos === 'left' || iconPos === 'top';
 
-  // Mode icône seule : forcé, ou déduit d'une icône sans texte visible. Une
-  // icône empilée n'y entre jamais : elle suppose un libellé sous ou sur elle.
+  // Une icône empilée n'entre jamais en mode icône seule : elle suppose un libellé.
   const isIconOnly = iconOnly || (!stacked && !hasVisibleText && hasIcon);
 
-  // Nom accessible : explicite d'abord ; sinon le libellé, qui n'est pas rendu
-  // visuellement en mode icône seule ; sinon rien, le texte visible suffit.
   const accessibleLabel = ariaLabel ?? (isIconOnly ? label : undefined);
 
   const isLink = Boolean(href) || Boolean(render);
@@ -231,8 +202,7 @@ export function UiButton({
     rounded && '_rounded',
     isIconOnly && '_icon-only',
     loading && '_loading',
-    // Un `<a>` n'a pas de `disabled` natif : la classe porte l'état visuel, et
-    // `aria-disabled` plus un `tabIndex` à -1 portent l'état réel.
+    // Un `<a>` n'a pas de `disabled` natif : la classe porte l'état visuel.
     isLink && disabled && '_disabled',
     iconPos === 'top' && '_icon-top',
     iconPos === 'bottom' && '_icon-bottom',
@@ -265,11 +235,7 @@ export function UiButton({
   const inner = (
     <>
       {iconBefore && iconNode}
-      {/*
-        Toujours rendu, jamais conditionné à `isIconOnly` : le sélecteur
-        `.ui-button-content:empty` l'escamote quand il n'y a rien, ce qui évite
-        une gouttière fantôme sans avoir à raisonner sur le contenu.
-      */}
+      {/* Toujours rendu : `.ui-button-content:empty` l'escamote quand il est vide. */}
       <span className="ui-button-content">
         {label && !isIconOnly && <span className="ui-button-label">{label}</span>}
         {children}
@@ -295,9 +261,7 @@ export function UiButton({
 
     if (render) return <>{render(rootProps, inner)}</>;
 
-    // `rest` est typé pour un <button> : les attributs propres au bouton
-    // (`form`, `name`…) n'ont pas de sens ici et le DOM les ignorerait, mais
-    // TypeScript n'a pas de raison de le savoir sur une union aussi large.
+    // Cast : les attributs propres au <button> (`form`, `name`…) sont ignorés par une ancre.
     const anchorRest = rest as ComponentPropsWithoutRef<'a'>;
     return (
       <a {...anchorRest} {...rootProps}>

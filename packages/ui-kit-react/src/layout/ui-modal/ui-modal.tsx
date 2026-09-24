@@ -135,10 +135,6 @@ export interface UiModalProps extends NativeProps {
  * l'empilement et Échap sont **pris en charge par le navigateur**. Ce composant
  * ajoute ce qui manque : le blocage du défilement, le clic sur l'arrière-plan,
  * les positions, le glissement, le redimensionnement et l'agrandissement.
- *
- * C'est la différence la plus visible avec la version Angular, qui reconstruit
- * tout cela à la main faute de pouvoir compter sur `<dialog>` à l'époque. Le
- * relevé qui a mené là est dans « Spécifications / Couches et focus ».
  */
 export function UiModal({
   visible,
@@ -216,28 +212,23 @@ export function UiModal({
   const labelledBy = ariaLabelledBy ?? (showHeader && header ? titleId : undefined);
 
   // --- Ouverture et fermeture du dialogue natif ------------------------
-  // Un `<dialog>` s'ouvre par une méthode, pas par un attribut : `open` posé en
-  // JSX rendrait bien le dialogue, mais SANS calque supérieur, sans arrière-plan
-  // et sans piège de focus. C'est le piège central de ce composant.
+  // Un `<dialog>` s'ouvre par une méthode, pas par un attribut : `open` en JSX
+  // n'a ni calque, ni arrière-plan, ni piège de focus.
   const isModalLayer = modal && !contained;
 
-  //
-  // L'ÉTAT est la source de vérité, et le DOM suit. C'est cet effet, et lui
-  // seul, qui ouvre et ferme, dans les deux sens.
-  //
-  // La première version faisait l'inverse : le bouton appelait `dialog.close()`
-  // et l'état se mettait à jour depuis l'événement `close`. Or `close` est
-  // **mis en file**, donc il n'arrive pas toujours (mesuré : jamais, dans un
-  // onglet en arrière-plan). L'état restait alors à `true` avec un dialogue
-  // fermé à l'écran, et le déclencheur ne rouvrait plus rien, `setOpen(true)`
-  // ne changeant rien. Symptôme vu par l'utilisateur : « je ne peux pas la
-  // fermer ».
+  // L'état pilote le dialogue natif, dans les deux sens : l'événement `close`
+  // est mis en file et peut ne jamais arriver. Cantonné et ouvert dès le
+  // montage, il s'ouvre par l'attribut : `show()` volerait le focus.
+  const mountingRef = useRef(true);
   useEffect(() => {
     const dialog = innerRef.current;
+    const mounting = mountingRef.current;
+    mountingRef.current = false;
     if (!dialog) return;
 
     if (open && !dialog.open) {
       if (isModalLayer) dialog.showModal();
+      else if (contained && mounting) dialog.setAttribute('open', '');
       else dialog.show();
       onShow?.();
     } else if (!open && dialog.open) {
@@ -246,8 +237,7 @@ export function UiModal({
       gestures.reset();
       onHide?.();
     }
-    // `onShow` et `onHide` volontairement hors dépendances : des fonctions
-    // recréées à chaque rendu rejoueraient l'effet en boucle.
+    // `onShow` et `onHide` hors dépendances : recréés à chaque rendu, ils rejoueraient l'effet.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, isModalLayer]);
 
@@ -255,24 +245,17 @@ export function UiModal({
     const dialog = innerRef.current;
     if (!dialog) return;
 
-    // Filet de sécurité : si quelque chose d'autre ferme le dialogue (un
-    // `<form method="dialog">`), l'état se réaligne. Idempotent.
+    // Si autre chose ferme le dialogue (un `<form method="dialog">`), l'état se réaligne.
     const onClose = () => setOpen(false);
 
     const onCancel = (event: Event) => {
-      // Échap arrive par `cancel`, qui est annulable. On l'annule TOUJOURS et
-      // on passe par l'état : une seule voie de fermeture, donc un seul
-      // endroit où `onHide` part et où l'état se met à jour. C'est aussi ce
-      // qui permet de retenir un dialogue non fermable.
+      // Échap arrive par `cancel`, annulable. On l'annule toujours et on passe par
+      // l'état : une seule voie de fermeture, qui peut retenir un dialogue non fermable.
       event.preventDefault();
       if (closeOnEscape && closable) setOpen(false);
     };
 
-    // Un clic sur `::backdrop` a pour cible le `<dialog>` lui-même : c'est ce
-    // qui le distingue d'un clic sur le contenu, qui cible un descendant.
-    // Posé ici et non en JSX : le câblage du dialogue natif tient en un seul
-    // endroit, et `jsx-a11y` n'a pas à trancher sur un `onClick` porté par un
-    // élément qu'il considère non interactif.
+    // Un clic sur `::backdrop` a pour cible le `<dialog>` lui-même, jamais un descendant.
     const onClick = (event: Event) => {
       if (!isModalLayer || !dismissableMask || !closable) return;
       if (event.target === dialog) setOpen(false);
@@ -300,10 +283,6 @@ export function UiModal({
   };
 
   // --- Corps défilant : un arrêt de tabulation, seulement s'il le faut ---
-  // Mesuré et non déduit : le contenu est projeté, donc ni sa hauteur ni ce
-  // qu'il contient ne se lisent dans les props. Sans ça, axe signale une région
-  // défilante inatteignable au clavier ; avec un `tabindex` inconditionnel, on
-  // ajouterait un arrêt inutile à tous les dialogues.
   const [contentNeedsFocus, setContentNeedsFocus] = useState(false);
 
   useEffect(() => {
@@ -322,9 +301,7 @@ export function UiModal({
     observer.observe(element);
     measure();
     return () => observer.disconnect();
-    // `children` volontairement hors dépendances : un tableau d'enfants est
-    // recréé à chaque rendu, et l'observateur serait reconstruit pour rien. Un
-    // changement de contenu qui change la hauteur le réveille de lui-même.
+    // Pas de `children` : l'observateur se réveille seul quand le contenu change de taille.
   }, [open]);
 
   // --- Largeurs par point de rupture -----------------------------------
@@ -353,9 +330,6 @@ export function UiModal({
     }
   }, [open, labelledBy, ariaLabel, uid]);
 
-  // Couper le mouvement passe par la DURÉE, pas par une classe : la même
-  // variable sert au dialogue, à son arrière-plan et à tout ce qui s'y branche,
-  // et le réglage reste lisible depuis les outils du navigateur.
   const resolvedStyle: CSSProperties = motionDisabled
     ? { ['--ui-motion-duration' as string]: '0ms', ...style }
     : { ...style };
@@ -365,8 +339,6 @@ export function UiModal({
       resolvedStyle.height = gestures.size.height;
     }
     if (gestures.dragOffset) {
-      // `translate` et non `transform` : la propriété indépendante n'entre pas
-      // en conflit avec une animation d'ouverture, qui pilote `transform`.
       resolvedStyle.translate = `${gestures.dragOffset.x}px ${gestures.dragOffset.y}px`;
     }
   }
@@ -428,14 +400,7 @@ export function UiModal({
         </div>
       )}
 
-      {/*
-        `jsx-a11y` refuse un `tabIndex` sur un élément non interactif, et axe
-        EXIGE qu'une région défilante soit atteignable au clavier
-        (`scrollable-region-focusable`). Les deux règles se contredisent, et
-        c'est axe qui tranche : lui mesure le rendu réel. Le `tabIndex` n'est
-        d'ailleurs posé que quand la région déborde ET ne contient rien de
-        focalisable, donc jamais « au cas où ».
-      */}
+      {/* axe exige une région défilante atteignable au clavier, quoi qu'en dise `jsx-a11y`. */}
       {/* eslint-disable jsx-a11y/no-noninteractive-tabindex */}
       <div
         ref={contentRef}

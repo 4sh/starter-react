@@ -27,33 +27,17 @@ export interface UiIconProps extends Omit<ComponentPropsWithRef<'i'>, 'children'
 }
 
 /**
- * Avertissements déjà émis, par nom d'icône.
- *
- * En développement, React monte deux fois chaque composant sous
- * `<StrictMode>` : un simple `console.warn` dans un effet s'afficherait en
- * double et ferait douter du diagnostic. La déduplication rend l'effet
- * idempotent, ce qui est la règle pour tout ce qui, côté Angular, vivait dans
- * un `afterNextRender`.
+ * Avertissements déjà émis. `<StrictMode>` monte deux fois chaque composant en
+ * développement : dédupliquer garde l'effet idempotent.
  */
 const warned = new Set<string>();
 
 /**
- * ui-icon : rend une icône depuis une fonte configurable.
+ * ui-icon : rend une icône depuis une fonte configurable, FontAwesome par défaut.
  *
- * FontAwesome est la famille intégrée par défaut. Déclarez-en d'autres
- * (Material Symbols, Bootstrap Icons, une fonte maison) avec
- * `<UiIconFamilyProvider>`, puis choisissez-la par icône avec `family`, par
- * sous-arbre en imbriquant un provider, ou pour toute l'application via son
- * `defaultFamily`.
- *
- * Accessible : décorative par défaut (`aria-hidden`). Passez
- * `decorative={false}` et un `aria-label` quand l'icône porte du sens à elle
- * seule.
- *
- * ⚠️ Le jeu « outline » de FontAwesome Free est minuscule : la plupart des noms
- * n'y existent pas et rendent un caractère de remplacement. `type` reste donc à
- * « solid » par défaut, et ne devrait être changé qu'avec une fonte qui couvre
- * réellement les deux variantes.
+ * Les autres fontes se déclarent avec `<UiIconFamilyProvider>` et se choisissent par
+ * `family`. Décorative par défaut ; `decorative={false}` demande un `aria-label`.
+ * `type` reste à « solid » : le jeu « outline » de FontAwesome Free est presque vide.
  */
 export function UiIcon({
   name,

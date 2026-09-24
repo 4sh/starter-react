@@ -1,16 +1,8 @@
 @use 'utils';
 
 // =====================================================================
-// ui-bottom-tab-bar : co-located styles for the whole family (bar, tab and
-// the raised action). All values come from the `navigation` and `actions`
-// tokens.
-//
-// No host element here, so `.ui-bottom-tab-bar` IS the <nav> landmark and
-// `.ui-bottom-tab` IS the native control: the three `display: contents`
-// hosts of the Angular kit have nowhere left to live.
-//
-// The touch rules sit on the bar rather than on the items: they must hold
-// for the gaps and for the raised action too.
+// ui-bottom-tab-bar : co-located styles for the bar, its tabs and the raised
+// action. The touch rules sit on the bar: they must hold for the gaps too.
 // =====================================================================
 
 // --- Config : the bar --------------------------------------------------
@@ -166,9 +158,7 @@ $action-focus-ring-width: var(
     cursor: not-allowed;
   }
 
-  // La destination courante en dernier, pour gagner sur le survol et l'appui :
-  // l'onglet choisi garde son fond plein sous le pointeur, ce qui est justement
-  // ce qui dit où l'on est.
+  // En dernier, pour gagner sur le survol et l'appui : l'onglet courant garde son fond.
   &._active {
     background-color: var(
       --ui-bottom-tab-bar-tab-surface-active,
@@ -210,10 +200,8 @@ $action-focus-ring-width: var(
 }
 
 // --- The raised action -------------------------------------------------
-// Une commande, pas une destination : elle lit les familles `actions` comme
-// n'importe quel bouton, jamais `navigation`. Elle est soulevée par une
-// transformation et non par une marge négative, pour que la hauteur de la barre
-// reste exactement celle que ses items demandent.
+// Une commande : familles `actions`, jamais `navigation`. Soulevée par une
+// transformation, pas une marge négative, qui changerait la hauteur de la barre.
 .ui-bottom-tab-action {
   display: inline-flex;
   flex: none;

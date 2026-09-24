@@ -1,14 +1,8 @@
 @use 'utils';
 @use 'sass:map';
 
-// =====================================================================
-// ui-segment-control : styles co-localisés. Toutes les valeurs viennent des
-// jetons.
-//
-// Étendre :
-//   - une taille : ajouter une entrée à `$sizes` (et au type
-//     `SegmentControlSize`).
-// =====================================================================
+// ui-segment-control : styles co-localisés, jetons uniquement.
+// Étendre : une taille = une entrée dans `$sizes` (et le type `SegmentControlSize`).
 
 $gutter: var(--ui-segment-control-padding, var(--units-xs)); /// Gouttière interne autour des segments.
 $gutter-size: 4px; /// Miroir numérique de la gouttière, pour le calcul des tailles.
@@ -70,24 +64,14 @@ $option-gap: var(--ui-segment-control-option-gap, var(--units-sm)); /// Espaceme
   position: relative;
   display: inline-flex;
   align-items: stretch;
-  // `inline-flex` promet de se dimensionner au contenu, mais un parent flex ou
-  // grid **bloquifie** ses enfants et les étire dans l'axe transverse : le
-  // `display` calculé devient `flex`, et la piste part à la largeur du parent
-  // pendant que les segments, eux, restent collés à leur contenu. Mesuré :
-  // piste de 420 px pour 326 px de contenu, donc 94 px de vide à droite.
-  //
-  // Une largeur EXPLICITE bat l'étirement (il ne s'applique qu'à une taille
-  // transverse `auto`), et contrairement à `align-self: start` elle ne touche
-  // que l'axe horizontal : la piste garde donc son alignement vertical à côté
-  // d'un champ plus haut. `_fluid` reste le moyen explicite de remplir.
+  // `fit-content` : un parent flex ou grid étirerait la piste à sa largeur, les
+  // segments restant collés à leur contenu. `_fluid` reste le moyen de remplir.
   width: fit-content;
   box-sizing: border-box;
   padding: $gutter;
   gap: $gap;
   border-radius: $radius;
-  // La bordure est une ombre INTÉRIEURE et non un `border` : elle n'occupe donc
-  // aucune boîte de mise en page, et le calcul de position de l'indicateur
-  // (`offsetLeft`, `offsetTop`) reste exact quelle que soit son épaisseur.
+  // Ombre intérieure, pas `border` : les `offsetLeft/Top` de l'indicateur restent exacts.
   box-shadow: inset 0 0 0 $stroke-width var(--ui-segment-control-stroke, var(--global-border-default)); /// Couleur de bordure de la piste.
   font-family: var(--ui-segment-control-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
   user-select: none;
@@ -120,7 +104,6 @@ $option-gap: var(--ui-segment-control-option-gap, var(--units-sm)); /// Espaceme
     }
   }
 
-  // Renoncement explicite, par `motion={false}`.
   &._no-motion &-thumb {
     transition: none;
   }
@@ -130,9 +113,7 @@ $option-gap: var(--ui-segment-control-option-gap, var(--units-sm)); /// Espaceme
     line-height: 0;
   }
 
-  // Le libellé réserve sa largeur EN GRAS dans tous les états, par un fantôme
-  // caché : passer en `_selected`, donc en gras, ne décale alors jamais le
-  // segment ni la piste.
+  // Fantôme caché en gras : la largeur du libellé ne bouge pas en passant `_selected`.
   &-label {
     display: inline-flex;
     flex-direction: column;
@@ -202,8 +183,7 @@ $option-gap: var(--ui-segment-control-option-gap, var(--units-sm)); /// Espaceme
     }
   }
 
-  // --- Mode multiple : pas d'indicateur, chaque segment choisi peint sa
-  // propre surface.
+  // --- Mode multiple : pas d'indicateur, le segment choisi peint sa surface.
   &._multiple &-option._selected {
     background-color: var(--ui-segment-control-option-surface-selected, var(--actions-high-surface-default)); /// Fond d'un segment sélectionné, mode `multiple` (sans indicateur glissant).
 

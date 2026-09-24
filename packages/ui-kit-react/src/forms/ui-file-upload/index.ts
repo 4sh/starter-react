@@ -1,8 +1,5 @@
-/*
- * ui-file-upload livre aussi `ui-file-upload-list` : la ligne rend le modèle de
- * fichier de l'envoi, donc les deux partagent un seul point d'entrée (deux
- * points d'entrée formeraient un cycle).
- */
+// Livre aussi `ui-file-upload-list` : la ligne rend le modèle de l'envoi, et deux
+// points d'entrée formeraient un cycle.
 
 export {
   UiFileUpload,

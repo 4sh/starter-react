@@ -1,12 +1,9 @@
 @use 'utils';
 
 // =====================================================================
-// ui-image : co-located styles for the whole family (the image, its
-// preview trigger, and the enlarged view). All values come from tokens.
-//
-// No host element here, so `.ui-image-root` is the image's own box and
-// `.ui-image-preview` IS the native <dialog>: the mask of the Angular kit
-// folds into `::backdrop`.
+// ui-image : co-located styles for the whole family (the image, its preview
+// trigger, and the enlarged view). All values come from tokens.
+// `.ui-image-preview` IS the native <dialog>: its mask is `::backdrop`.
 // =====================================================================
 
 // --- Config : the image ------------------------------------------------
@@ -16,9 +13,7 @@ $placeholder-min-width: var(--ui-image-placeholder-min-width, var(--units-xl)); 
 $placeholder-min-height: var(--ui-image-placeholder-min-height, var(--units-xl)); /// Hauteur minimale de la vignette.
 $placeholder-radius: var(--ui-image-placeholder-radius, var(--radius-default)); /// Rayon des coins de la vignette.
 
-// Carré par défaut, comme l'image qu'il enveloppe : un voile arrondi sur des
-// coins droits laisse quatre éclats visibles. Un projet qui arrondit ses images
-// le règle une fois.
+// Carré par défaut, comme l'image : un voile arrondi sur des coins droits laisse des éclats.
 $trigger-radius: var(--ui-image-trigger-radius, 0); /// Rayon du déclencheur d'aperçu, que le voile suit.
 $trigger-focus-ring-width: var(
   --ui-image-trigger-focus-ring-width,
@@ -28,9 +23,8 @@ $trigger-focus-ring-width: var(
 $indicator-font-size: var(--ui-image-indicator-font-size, var(--size-typography-text-lg)); /// Taille de l'indicateur d'aperçu.
 
 // --- Config : the enlarged view ---------------------------------------
-// Le fond reste sombre dans les deux modes : le but est d'ôter la page de
-// devant l'image. Ses couleurs sont donc des primitives derrière des crochets,
-// l'exception que les règles de jetons réservent aux fonds de calque.
+// Fond sombre dans les deux modes, pour ôter la page de devant l'image : d'où
+// des primitives, l'exception réservée aux fonds de calque.
 $mask-background: var(--ui-image-preview-mask-background, var(--primitives-black-80)); /// Assombrissement du fond de l'aperçu.
 $preview-padding: var(--ui-image-preview-padding, var(--units-lg)); /// Retrait autour de l'image agrandie.
 $preview-gap: var(--ui-image-preview-gap, var(--units-md)); /// Espace entre la barre d'actions et l'image.
@@ -52,10 +46,8 @@ $media-max-width: var(--ui-image-preview-media-max-width, 100%); /// Largeur max
 $media-max-height: var(--ui-image-preview-media-max-height, 100%); /// Hauteur maximale de l'image agrandie.
 $media-shadow: var(--ui-image-preview-media-shadow, var(--shadow-default-lg)); /// Ombre de l'image agrandie.
 
-// Un quart de tour échange les axes de ce qui est DESSINÉ, jamais ceux de la
-// boîte : il faut donc échanger les bornes aussi, sinon une photo en paysage
-// mise debout est coupée en haut et en bas. Les unités de conteneur lisent la
-// scène sans avoir à la mesurer.
+// Un quart de tour échange les axes du dessin, pas ceux de la boîte : les bornes
+// s'échangent aussi, en unités de conteneur (la scène) pour ne rien mesurer.
 $media-max-width-rotated: var(--ui-image-preview-media-max-width-rotated, 100cqh); /// Largeur maximale de l'image après un quart de tour.
 $media-max-height-rotated: var(--ui-image-preview-media-max-height-rotated, 100cqw); /// Hauteur maximale de l'image après un quart de tour.
 
@@ -84,8 +76,6 @@ $media-max-height-rotated: var(--ui-image-preview-media-max-height-rotated, 100c
   display: flex;
   width: 100%;
 
-  // Sans encapsulation, le SVG inliné se cible directement : le `::ng-deep` de
-  // la version Angular n'a plus lieu d'être.
   > svg {
     width: 100%;
     height: 100%;
@@ -104,8 +94,6 @@ $media-max-height-rotated: var(--ui-image-preview-media-max-height-rotated, 100c
 }
 
 // --- Preview trigger ---------------------------------------------------
-// Un bouton natif, pour que la vue agrandie soit atteignable au clavier ; il
-// épouse l'image et n'ajoute aucune boîte.
 .ui-image-trigger {
   position: relative;
   display: inline-flex;
@@ -122,8 +110,7 @@ $media-max-height-rotated: var(--ui-image-preview-media-max-height-rotated, 100c
       var(--ui-image-trigger-focus-ring-color, var(--global-border-focus)); /// Couleur de l'anneau de focus du déclencheur d'aperçu.
   }
 
-  // Le voile EST l'affordance : caché au repos, révélé au survol comme au focus
-  // clavier, un indice réservé au pointeur laissant le clavier de côté.
+  // Révélé au focus clavier comme au survol : un indice réservé au pointeur exclurait le clavier.
   &:hover .ui-image-indicator,
   &:focus-visible .ui-image-indicator {
     opacity: 1;
@@ -167,8 +154,7 @@ $media-max-height-rotated: var(--ui-image-preview-media-max-height-rotated, 100c
   background: none;
   outline: none;
 
-  // Le `display: none` d'un dialogue fermé vient du style NAVIGATEUR, que le
-  // `display: flex` ci-dessus bat. Il faut donc le redire.
+  // Le `display: flex` ci-dessus bat le `display: none` natif d'un dialogue fermé.
   &:not([open]) {
     display: none;
   }
@@ -190,8 +176,7 @@ $media-max-height-rotated: var(--ui-image-preview-media-max-height-rotated, 100c
     background-color: $toolbar-background;
   }
 
-  // Des boutons d'icône natifs, pas des `ui-button` : ils se posent sur le
-  // fond, pas sur une surface.
+  // Boutons natifs, pas des `ui-button` : ils se posent sur le fond, pas sur une surface.
   &-action {
     display: inline-flex;
     align-items: center;
@@ -234,8 +219,6 @@ $media-max-height-rotated: var(--ui-image-preview-media-max-height-rotated, 100c
   }
 
   // --- Stage ----------------------------------------------------------
-  // Occupe ce que la barre laisse ; un clic qui atterrit là, et jamais sur
-  // l'image, est un clic dehors.
   &-stage {
     flex: 1 1 auto;
     display: flex;
@@ -252,11 +235,9 @@ $media-max-height-rotated: var(--ui-image-preview-media-max-height-rotated, 100c
     max-height: $media-max-height;
     box-shadow: $media-shadow;
     object-fit: contain;
-    // La transformation est la seule propriété animée, et elle est écrite en
-    // ligne par le composant : rien ici ne doit la contrarier.
+    // `transform` est écrite en ligne par le composant : rien ici ne doit la contrarier.
     transform-origin: center;
-    // La molette zoome et le glissement déplace : le navigateur ne doit pas
-    // défiler en plus.
+    // La molette zoome et le glissement déplace : le navigateur ne défile pas en plus.
     touch-action: none;
     user-select: none;
     -webkit-user-drag: none;

@@ -1,28 +1,14 @@
 import { createElement, type CSSProperties, type ReactElement, type ReactNode } from 'react';
 
 /**
- * Inlining d'un SVG par `ui-image`, **sans jamais coller une chaîne**.
- *
- * Inliner un SVG est ce qui lui fait hériter du CSS, `currentColor` et le thème,
- * ce qu'un `<img>` ne permet pas. Côté Angular cela passe par un
- * `bypassSecurityTrustHtml()`, la seule exception de sécurité du kit. Ici le
- * balisage est **converti en éléments React** : rien n'est écrit en HTML, donc
- * il n'y a pas d'exception à lever, et `docs/SECURITY-PRACTICES.md` peut rester
- * vide.
- *
- * Le modèle de menace n'est pas « les images du kit » : c'est un projet qui sert
- * `assets/img/` depuis un CDN, ou qui laisse un client déposer son logo dans un
- * dossier de marque. Dans les deux cas le SVG est du balisage d'origine inconnue
- * rendu dans l'origine de l'application, d'où le nettoyage qui précède la
- * conversion.
+ * Inlining d'un SVG par `ui-image`, **sans jamais coller une chaîne** : le balisage
+ * est nettoyé, puis converti en éléments React. Menace : un SVG « local » servi par
+ * un CDN ou déposé par un client, donc d'origine inconnue.
  */
 
 /**
- * Balises retirées AVEC leur contenu : les déballer poserait leur corps dans le
- * document, ou laisserait le vecteur intact.
- *
- * `foreignObject` rouvre tout l'espace de noms HTML dans le SVG, et les
- * éléments SMIL peuvent recibler un attribut APRÈS ce nettoyage.
+ * Balises retirées avec leur contenu, jamais déballées. `foreignObject` rouvre
+ * l'espace de noms HTML ; SMIL peut recibler un attribut après ce nettoyage.
  */
 const VOIDED_TAGS = new Set([
   'script',
@@ -119,8 +105,7 @@ function toReact(node: Node, key: number): ReactNode {
 export function inlineSvgToReact(raw: string): ReactElement | null {
   if (typeof DOMParser === 'undefined') return null;
 
-  // `text/html` et non `image/svg+xml` : l'analyse HTML est tolérante, là où
-  // l'analyse XML rejette en bloc un fichier mal formé.
+  // `text/html` : l'analyse XML rejetterait en bloc un fichier mal formé.
   const parsed = new DOMParser().parseFromString(raw, 'text/html');
   const svg = parsed.body.querySelector('svg');
   if (!svg) return null;

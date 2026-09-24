@@ -1,20 +1,7 @@
 // =====================================================================
-// Nettoyage du HTML de l'éditeur.
-//
-// `sanitizeHtml` est le portage du `DomSanitizer` d'Angular pour le contexte
-// HTML (`SecurityContext.HTML`) : mêmes listes d'éléments et d'attributs, même
-// filtrage des URL, même boucle contre les mutations au réanalyse (mXSS). Une
-// valeur stockée se rend donc à l'identique dans les deux stacks.
-//
-// Une seule extension, mesurée : l'attribut `style`, réduit aux déclarations
-// que l'éditeur écrit lui-même. Chromium aligne par `style="text-align: …"` et
-// met en retrait par un `<blockquote style="margin: …">` ; le sanitizer
-// d'Angular retire tout `style`, et l'éditeur Angular perd l'alignement et le
-// retrait dès qu'une valeur enregistrée lui revient.
-//
-// Rien ici n'écrit de HTML dans le document : l'analyse se fait dans un
-// document détaché (`DOMParser`, inerte, sans exécution ni chargement), et le
-// seul `innerHTML` touché est une LECTURE.
+// Nettoyage du HTML de l'éditeur. Seule extension aux listes : `style`, réduit à
+// ce que l'éditeur écrit (Chromium aligne et met en retrait par `style`). L'analyse
+// se fait dans un document détaché et inerte ; `innerHTML` n'y est que LU.
 // =====================================================================
 
 function tagSet(tags: string): Set<string> {
@@ -68,7 +55,7 @@ const SKIP_CONTENT = tagSet('script,style,template');
 
 const SAFE_URL_PATTERN = /^(?!javascript:)(?:[a-z0-9+.-]+:|[^&:/?#]*(?:[/?#]|$))/i;
 
-/** Une URL sûre passe telle quelle ; une autre est neutralisée, comme chez Angular. */
+/** Une URL sûre passe telle quelle ; une autre est neutralisée. */
 export function sanitizeUrl(url: string): string {
   return SAFE_URL_PATTERN.test(url) ? url : `unsafe:${url}`;
 }
@@ -116,7 +103,7 @@ export function parseInert(html: string): HTMLElement {
   return new DOMParser().parseFromString(html, 'text/html').body;
 }
 
-// --- Sérialisation filtrante (portage de `SanitizingHtmlSerializer`) ---------------
+// --- Sérialisation filtrante -------------------------------------------------------
 
 const SURROGATE_PAIR = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g;
 const NON_ALPHANUMERIC = /([^#-~ |!])/g;
@@ -216,8 +203,7 @@ function serialize(root: Node): string {
 }
 
 /**
- * Le HTML d'une valeur, rendu sûr. Même contrat que le `DomSanitizer` d'Angular
- * en contexte HTML, plus le `style` réduit décrit en tête de fichier.
+ * Le HTML d'une valeur, rendu sûr, `style` réduit compris.
  *
  * Une entrée instable (qui change encore après cinq réanalyses, signe d'une
  * tentative de mutation) rend une chaîne vide plutôt que de lever : un champ

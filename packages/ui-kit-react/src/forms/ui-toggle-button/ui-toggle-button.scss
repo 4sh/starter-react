@@ -1,22 +1,9 @@
 @use 'utils';
 @use 'sass:map';
 
-// =====================================================================
-// ui-toggle-button : styles co-localisés. Toutes les valeurs viennent des
-// jetons.
-//
-// Deux axes, deux familles de jetons : `$levels` peint l'état PRESSÉ (plein),
-// `$off-sets` dessine l'état RELÂCHÉ. Les deux honorent le même contrat à cinq
-// états, donc une nouvelle entrée n'a besoin d'aucune CSS propre.
-//
-// Étendre :
-//   - un niveau   : ajouter un nom à `$levels` (les jetons `--actions-<nom>-*`
-//     doivent exister) ;
-//   - une variante : ajouter une entrée à `$off-sets` (et au type
-//     `ToggleButtonVariant`) ;
-//   - une taille   : ajouter une entrée à `$sizes` (et au type
-//     `ToggleButtonSize`).
-// =====================================================================
+// ui-toggle-button : `$levels` peint l'état PRESSÉ, `$off-sets` l'état RELÂCHÉ.
+// Étendre = une entrée dans `$levels` (jetons `--actions-<nom>-*` requis), `$off-sets`
+// ou `$sizes`, sans CSS propre (plus le type `ToggleButtonVariant` / `ToggleButtonSize`).
 
 $levels: high, low, success, warning, error; /// Familles de couleur de l'état pressé.
 
@@ -67,9 +54,8 @@ $size-default: map.get($sizes, 'default'); /// Raccourci vers l'entrée `default
   }
 }
 
-// Un état ne fait que repointer les miroirs privés. `border-color` et l'anneau
-// de focus sont déclarés UNE FOIS sur le bouton, donc `_invalid` écrase tous
-// les états à n'importe quelle spécificité, par héritage d'une seule propriété.
+// Un état ne fait que repointer les miroirs privés : `border-color` et l'anneau,
+// déclarés une fois sur le bouton, laissent `_invalid` gagner sur tous les états.
 @mixin action-colors($set) {
   --_surface: var(--ui-toggle-button-surface, var(--actions-#{$set}-surface-default)); /// Fond d'un bouton.
   --_content: var(--ui-toggle-button-color, var(--actions-#{$set}-content-default));   /// Couleur du libellé et des icônes.
@@ -148,8 +134,6 @@ $size-default: map.get($sizes, 'default'); /// Raccourci vers l'entrée `default
     line-height: 0;
   }
 
-  // Le libellé réserve la même largeur dans les deux états, donc presser ne
-  // redistribue jamais la mise en page du groupe.
   &-label {
     display: inline-block;
   }

@@ -48,14 +48,7 @@ export interface UiTableSortMeta {
   order: number;
 }
 
-/**
- * État de tri, quel que soit le mode.
- *
- * Une seule valeur là où la version Angular en a trois (`sortField`,
- * `sortOrder`, `multiSortMeta`) : le tri EST une chose, et les signaux sont ce
- * qui rendait le découpage gratuit là-bas. Ici une valeur unique se branche
- * directement sur le contrat contrôlé du kit.
- */
+/** État de tri, quel que soit le mode. */
 export interface UiTableSortState {
   /** Mode simple : champ trié. */
   field?: string;
@@ -165,13 +158,9 @@ export interface UiTableReorderableRowProps {
 }
 
 /**
- * Ce que le tableau met à disposition du balisage projeté.
- *
- * Là où la version Angular attache ses comportements par des **directives**
- * (`uiSortableColumn`, `uiSelectableRow`…), React n'a pas de directives : ce
- * sont des **fabriques de props**, à reverser sur les éléments que l'appelant
- * rend lui-même. Et ce ne sont pas des crochets, à dessein : une ligne se rend
- * dans une boucle, où le nombre d'appels varie, ce qu'un crochet interdit.
+ * Ce que le tableau met à disposition du balisage projeté : des **fabriques de
+ * props**, à reverser sur les éléments que l'appelant rend lui-même. Pas des
+ * crochets, à dessein : une ligne se rend dans une boucle, où un crochet est interdit.
  */
 export interface UiTableApi<T = unknown> {
   /** Rend un `<th>` triable : clic, clavier, et `aria-sort`. */
@@ -385,15 +374,10 @@ export interface UiTableProps<T = unknown> extends NativeProps {
 /**
  * ui-table : tableau de données headless.
  *
- * L'appelant possède le **balisage** des lignes : `renderHeader`, `renderBody`
- * et `renderFooter` rendent de vrais `<tr>`, `<th>` et `<td>`. Le composant
- * possède le **pipeline** (tri, puis pagination, sauf en mode `lazy` où
- * l'appelant les possède), l'état de sélection et de dépliage, la coquille
- * défilante et la barre de pagination.
- *
- * Les comportements de colonne et de ligne s'attachent par les fabriques de
- * props de {@link UiTableApi}, passées au balisage projeté, et les contrôles
- * par les parties (`UiTableCheckbox`, `UiTableSortIcon`…).
+ * L'appelant rend le **balisage** (`renderHeader`, `renderBody`, `renderFooter`) et y
+ * attache les fabriques de props de {@link UiTableApi} et les parties (`UiTableCheckbox`…).
+ * Le composant possède le **pipeline** (tri puis pagination, sauf en `lazy`), la
+ * sélection, le dépliage, la coquille défilante et la barre de pagination.
  */
 export function UiTable<T = unknown>({
   value = [],
@@ -483,9 +467,7 @@ export function UiTable<T = unknown>({
     onChange: onFirstChange,
   });
 
-  // Le tri est un état contrôlable comme les autres ; `onSortChange` reçoit en
-  // plus le mode, qui est ce dont un appelant en mode serveur a besoin pour
-  // reformuler sa requête.
+  // Pas d'`onChange` : `onSortChange` est émis à la main, sa charge porte en plus le mode.
   const [sortValue, setSortState] = useControllableState<UiTableSortState>({
     value: sort,
     defaultValue: defaultSort ?? {},
@@ -497,12 +479,8 @@ export function UiTable<T = unknown>({
   const [viewportHeight, setViewportHeight] = useState(0);
   const [scrollTop, setScrollTop] = useState(0);
   /**
-   * La zone défilante a besoin d'un arrêt de tabulation à elle.
-   *
-   * Optimiste au départ, et c'est délibéré : la mesure n'a pas encore eu lieu à
-   * la première image, et axe refuse une région défilante sans accès clavier.
-   * Un arrêt en trop se retire dès la mesure ; un arrêt manquant, lui, est une
-   * violation qu'on aurait peinte.
+   * La zone défilante a besoin d'un arrêt de tabulation, supposé d'emblée : avant
+   * la mesure, axe refuserait une région défilante sans accès clavier.
    */
   const [wrapperNeedsFocus, setWrapperNeedsFocus] = useState(true);
 
@@ -572,12 +550,8 @@ export function UiTable<T = unknown>({
   const clampedFirst = Math.min(Math.max(0, firstValue), (pageCount - 1) * perPage);
 
   /**
-   * Fenêtre rendue du défilement virtuel.
-   *
-   * Écrit ici plutôt que sur `core/virtual` : cette brique place ses entrées en
-   * absolu, ce qu'une ligne de tableau ne supporte pas sans quitter la mise en
-   * page du tableau. La technique est donc celle du kit Angular, deux lignes
-   * d'espacement qui tiennent la barre de défilement honnête.
+   * Fenêtre du défilement virtuel, sans `core/virtual` : ses entrées en absolu
+   * sortiraient de la mise en page du tableau. Deux lignes d'espacement la bordent.
    */
   const virtualRange = useMemo(() => {
     const total = processedData.length;
@@ -604,8 +578,7 @@ export function UiTable<T = unknown>({
     return processedData.slice(clampedFirst, clampedFirst + perPage);
   }, [processedData, virtualScroll, virtualRange, paginator, lazy, clampedFirst, perPage]);
 
-  // La fenêtre virtuelle paresseuse se signale à l'appelant. `onLazyLoad` est
-  // hors dépendances : recréé à chaque rendu, il émettrait en boucle.
+  // `onLazyLoad` est hors dépendances : recréé à chaque rendu, il émettrait en boucle.
   const lastRange = useRef<UiTableLazyLoadEvent | null>(null);
   useEffect(() => {
     if (!virtualScroll || !lazy) return;
@@ -618,12 +591,8 @@ export function UiTable<T = unknown>({
 
   // --- Faits mesurés dans le DOM ------------------------------------------
   /**
-   * Un seul observateur pour tout ce qui se mesure.
-   *
-   * `ResizeObserver` tire une première fois dès qu'on observe : la mesure
-   * initiale vient donc de son rappel, comme les suivantes. C'est ce qui évite
-   * un `setState` synchrone dans un effet, que `react-hooks/set-state-in-effect`
-   * refuse à juste titre, là où la version Angular a un `afterRenderEffect`.
+   * Un seul `ResizeObserver` pour tout ce qui se mesure. Il tire dès qu'on observe :
+   * la mesure initiale vient de son rappel, sans `setState` synchrone dans l'effet.
    */
   useEffect(() => {
     const thead = theadRef.current;
@@ -641,10 +610,8 @@ export function UiTable<T = unknown>({
       if (table) positionFrozenColumns(table);
       if (wrapper) {
         setViewportHeight(wrapper.clientHeight);
-        // Le `tabIndex` n'est posé que si la région DÉBORDE et ne contient rien
-        // de focalisable : sinon un utilisateur clavier atteint son contenu par
-        // le contenu, et un arrêt de tabulation de plus ne servirait qu'à
-        // l'encombrer. Même contrat que `ui-modal`.
+        // `tabIndex` seulement si la région déborde sans rien de focalisable : sinon
+        // le clavier atteint déjà son contenu.
         const overflows =
           wrapper.scrollHeight > wrapper.clientHeight || wrapper.scrollWidth > wrapper.clientWidth;
         setWrapperNeedsFocus(overflows && focusableWithin(wrapper).length === 0);
@@ -660,10 +627,8 @@ export function UiTable<T = unknown>({
     if (table) observer.observe(table);
     if (wrapper) observer.observe(wrapper);
     return () => observer.disconnect();
-    // Posé une fois par montage. Le reconnecter à chaque rendu annulerait son
-    // premier rappel, qui est asynchrone, et la mesure n'arriverait jamais.
-    // Les changements de contenu, eux, changent une taille : l'observateur les
-    // voit tout seul.
+    // Une fois par montage : reconnecté à chaque rendu, il perdrait son premier
+    // rappel (asynchrone). Un changement de contenu change une taille, qu'il voit.
   }, []);
 
   const onWrapperScroll = useCallback(() => {
@@ -740,7 +705,6 @@ export function UiTable<T = unknown>({
   );
 
   // --- Sélection ------------------------------------------------------------
-  /** Égalité de lignes : par `dataKey` s'il est fourni, par référence sinon. */
   const rowEquals = useCallback(
     (a: T, b: T): boolean =>
       dataKey ? getFieldPath(a, dataKey) === getFieldPath(b, dataKey) : a === b,
@@ -1026,8 +990,6 @@ export function UiTable<T = unknown>({
             ? 0
             : -1,
         'aria-selected': isSelected(data),
-        // Registre lu par Maj et les flèches : la ligne visée doit pouvoir
-        // retrouver sa donnée et son index depuis son seul élément.
         ref: (node) => {
           if (node) rowRefs.current.set(node, { data, index });
         },
@@ -1160,7 +1122,6 @@ export function UiTable<T = unknown>({
     dropRow,
   ]);
 
-  /** Ce que les parties lisent en plus de l'API publique. */
   const parts = useMemo<UiTablePartsValue<T>>(
     () => ({
       api,
@@ -1197,7 +1158,6 @@ export function UiTable<T = unknown>({
     table: api,
   });
 
-  /** Clé de rendu : `dataKey` s'il existe, la position sinon. */
   const rowKeyOf = (row: T, pageIndex: number, prefix = ''): string =>
     dataKey ? `${prefix}${String(getFieldPath(row, dataKey))}` : `${prefix}${pageIndex}`;
 
@@ -1251,14 +1211,7 @@ export function UiTable<T = unknown>({
         {renderCaption && <div className="ui-table-caption">{renderCaption()}</div>}
 
         <div className="ui-table-container">
-          {/*
-            `jsx-a11y` refuse un `tabIndex` sur un élément non interactif, et axe
-            EXIGE qu'une région défilante soit atteignable au clavier
-            (`scrollable-region-focusable`). Les deux règles se contredisent, et
-            c'est axe qui tranche : lui mesure le rendu réel. Le `tabIndex` n'est
-            d'ailleurs posé que quand la région déborde ET ne contient rien de
-            focalisable, donc jamais « au cas où ».
-          */}
+          {/* axe exige ce `tabIndex` (région défilante), que jsx-a11y refuse : axe prime. */}
           {/* eslint-disable jsx-a11y/no-noninteractive-tabindex */}
           <div
             ref={attachWrapper}
@@ -1350,13 +1303,8 @@ export function UiTable<T = unknown>({
 }
 
 /**
- * Empile les décalages collants des lignes figées.
- *
- * Chaque ligne se colle sous la précédente. Les hauteurs s'accumulent en
- * fractions et sont ARRONDIES VERS LE BAS : arrondir vers le haut ouvrirait un
- * interstice d'un sous-pixel où le contenu défilant apparaîtrait entre deux
- * lignes collées, alors qu'arrondir vers le bas les fait se chevaucher de moins
- * d'un pixel, ce qui ne se voit pas.
+ * Empile les décalages collants des lignes figées, ARRONDIS VERS LE BAS : vers le
+ * haut, un interstice d'un sous-pixel laisserait voir le contenu défilant.
  */
 function stackFrozenRows(thead: HTMLTableSectionElement, headerHeight: number): void {
   const frozen = thead.parentElement?.querySelector<HTMLTableSectionElement>('tbody._frozen-rows');
@@ -1371,11 +1319,6 @@ function stackFrozenRows(thead: HTMLTableSectionElement, headerHeight: number): 
 /**
  * Place les colonnes figées : le décalage d'une cellule est la largeur cumulée
  * des colonnes figées qui la précèdent sur le même bord.
- *
- * Fait ici, pour toutes les lignes d'un coup, là où la version Angular a une
- * directive par cellule avec son propre observateur. Le tableau voit la ligne
- * entière, donc il n'a besoin de rien observer de plus, et une colonne figée
- * n'est plus qu'une classe côté appelant.
  */
 function positionFrozenColumns(table: HTMLTableElement): void {
   for (const row of [...table.rows]) {
@@ -1517,14 +1460,11 @@ export function UiTableRadio<T = unknown>({
 }: UiTableRadioProps<T>) {
   const { api, selectRowWithRadio } = useParts<T>('UiTableRadio');
   const selected = api.isSelected(value);
-  // Identité stable du bouton dans son groupe : l'index quand il est fourni,
-  // sinon une clé dérivée du rendu. Elle ne sert qu'à l'exclusivité native.
   const rowId = `row-${index ?? 0}`;
   return (
     <UiRadio
-      // Le GROUPE porte la valeur : c'est le contrat de `ui-radio`, et
-      // l'exclusivité entre les lignes vient de là. La valeur du bouton est la
-      // clé de la ligne, pas la ligne : un objet ne se compare pas.
+      // Le groupe porte la valeur (contrat de `ui-radio`) : celle du bouton est la clé
+      // de la ligne, pas la ligne, un objet ne se comparant pas.
       value={rowId}
       groupValue={selected ? rowId : ''}
       name={name}
@@ -1538,9 +1478,6 @@ export function UiTableRadio<T = unknown>({
 /**
  * Poignée de redimensionnement, à placer dans un `<th>` marqué par
  * `table.resizableColumn()`.
- *
- * Un vrai élément rendu par l'appelant, là où la version Angular l'injecte dans
- * le DOM depuis sa directive : React possède le balisage, on ne le mute pas.
  */
 export function UiTableColumnResizer() {
   const { lockColumnWidths, resizeColumnFit, notifyColResize } = useParts('UiTableColumnResizer');

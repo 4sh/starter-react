@@ -45,6 +45,10 @@ le dialogue, mais **sans** calque supérieur, sans arrière-plan et sans piège 
 ressemble à un dialogue sans en être un. C'est pour cela que ce composant appelle
 `showModal()` dans un effet, et jamais `<dialog open>`.
 
+Seule exception : un dialogue `contained` ouvert dès le montage. Il n'a aucun de ces trois
+mécanismes à perdre, et `show()` y poserait le focus, donc ferait défiler la page jusqu'à
+lui. Ouvert plus tard, par un déclencheur, il repasse par `show()` et reçoit le focus.
+
 ## Modal ou non
 
 `modal` (par défaut) ouvre par `showModal()` : arrière-plan assombri et inerte, défilement

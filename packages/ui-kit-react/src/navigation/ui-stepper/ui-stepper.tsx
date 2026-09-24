@@ -65,10 +65,8 @@ function useStepper(part: string): UiStepperApi {
 /**
  * Ce qu'un contenu du stepper peut piloter : la progression elle-même.
  *
- * C'est le pendant React des méthodes `next()` et `prev()` de la version
- * Angular, qui s'appelaient sur une référence de gabarit. Un bouton « Suivant »
- * vit dans un panneau : il lit donc le contexte, plutôt qu'une poignée que le
- * parent devrait lui faire descendre.
+ * Un bouton « Suivant » vit dans un panneau : il lit donc le contexte, plutôt
+ * qu'une poignée que le parent devrait lui faire descendre.
  */
 export interface UiStepperControls {
   value: UiStepValue | undefined;
@@ -99,13 +97,8 @@ export function useUiStepper(): UiStepperControls {
 }
 
 /**
- * Les valeurs des étapes, dans l'ordre, lues dans les `children`.
- *
- * Là où Angular interroge sa projection (`contentChildren`), React a ses enfants
- * sous la main comme une **valeur** : la séquence est une fonction pure des
- * `children`, donc ni état ni effet, et elle est juste dès le premier rendu. Un
- * `UiStepItem` porte la valeur de l'étape et du panneau qu'il enveloppe, d'où
- * l'arrêt de la descente à son niveau.
+ * Les valeurs des étapes, dans l'ordre, lues dans les `children`. La descente
+ * s'arrête à un `UiStepItem`, qui porte la valeur de l'étape qu'il enveloppe.
  */
 function collectOrder(children: ReactNode, out: UiStepValue[] = []): UiStepValue[] {
   Children.forEach(children, (child) => {
@@ -168,12 +161,9 @@ export interface UiStepperProps extends Omit<
 /**
  * ui-stepper : conteneur qui guide dans une progression numérotée.
  *
- * API de composition calquée sur `ui-tabs`. En **horizontal**, une bande
- * `UiStepList` d'en-têtes au-dessus d'un `UiStepPanels` ; en **vertical**, chaque
- * `UiStepItem` enveloppe son en-tête et son panneau, qui paraît juste dessous.
- *
- * La sémantique ARIA suit la disposition : onglets en horizontal, accordéon en
- * vertical, un onglet qui contiendrait son propre panneau étant invalide.
+ * En **horizontal**, une bande `UiStepList` au-dessus d'un `UiStepPanels`
+ * (sémantique d'onglets) ; en **vertical**, chaque `UiStepItem` enveloppe son
+ * en-tête et son panneau (sémantique d'accordéon).
  */
 export function UiStepper({
   value,
@@ -202,8 +192,7 @@ export function UiStepper({
     },
   });
 
-  // Reconstruit à chaque rendu, et sans `useMemo` : la séquence se déduit des
-  // `children`, qui sont un tableau neuf à chaque fois de toute façon.
+  // Sans `useMemo` : les `children` sont un tableau neuf à chaque rendu.
   const order = collectOrder(children);
   const hasPanels = hasPanelIn(children);
   const activeIndex = order.indexOf(active as UiStepValue);
@@ -227,9 +216,7 @@ export function UiStepper({
     stepNumber: (candidate) => order.indexOf(candidate as UiStepValue) + 1,
     isLast: (candidate) => order.length > 0 && order[order.length - 1] === candidate,
     stepId: (candidate) => `${uid}-step-${candidate}`,
-    // Un `aria-controls` qui ne résout rien est refusé par axe, et un stepper
-    // sans panneaux est un usage prévu : la bande seule fait un indicateur
-    // d'avancement.
+    // Un stepper peut n'avoir aucun panneau : un `aria-controls` sans cible est refusé par axe.
     panelId: (candidate) => (hasPanels ? `${uid}-panel-${candidate}` : undefined),
     activate: (candidate, event) => {
       if (active === candidate) return;
@@ -242,10 +229,7 @@ export function UiStepper({
     <div
       {...rest}
       className={cx('ui-stepper', orientation === 'vertical' && '_vertical', className)}
-      // En vertical chaque panneau est imbriqué sous son en-tête, donc le
-      // conteneur ne peut pas être une bande d'onglets : un onglet contenant son
-      // propre panneau est de l'ARIA invalide. `group` porte le même nom sans
-      // rien promettre de plus.
+      // En vertical, `group` et non `tablist` : un onglet ne peut contenir son panneau.
       role={orientation === 'vertical' ? 'group' : undefined}
       aria-label={orientation === 'vertical' ? ariaLabel || undefined : undefined}
     >
@@ -368,8 +352,6 @@ export function UiStep({
 
   const state = api.stepState(value);
   const vertical = api.orientation === 'vertical';
-  // En mode linéaire, une étape encore à venir n'est pas atteignable : on ne
-  // saute pas en avant.
   const isDisabled = disabled || (api.linear && state === 'upcoming');
   const showSeparator = !vertical && !api.isLast(value);
   const markerIcon = icon ?? (state === 'completed' ? api.completedIcon : undefined);
@@ -391,8 +373,7 @@ export function UiStep({
         type="button"
         className="ui-step-header"
         id={api.stepId(value)}
-        // Horizontal : un vrai onglet de la bande. Vertical : le motif accordéon,
-        // le panneau étant imbriqué sous son en-tête.
+        // Onglet en horizontal ; motif accordéon en vertical, le panneau étant imbriqué.
         role={vertical ? undefined : 'tab'}
         aria-controls={api.panelId(value)}
         aria-selected={vertical ? undefined : state === 'active'}
@@ -456,9 +437,8 @@ export function UiStepPanel({
   const active = value !== undefined && api.value === value;
   const isLazy = lazy ?? api.lazy;
 
-  // Colle une fois le panneau activé : paresseux ne veut pas dire démonté à
-  // chaque sortie. L'ajustement se fait PENDANT le rendu, là où un effet ferait
-  // clignoter le panneau vide.
+  // Reste rendu une fois vu. Ajusté pendant le rendu et non dans un effet, qui
+  // ferait clignoter le panneau vide.
   const [seen, setSeen] = useState(active);
   if (active && !seen) setSeen(true);
 
@@ -466,8 +446,7 @@ export function UiStepPanel({
     <div
       {...rest}
       className={cx('ui-step-panel', active && '_active', className)}
-      // Horizontal : un vrai panneau d'onglet. Vertical : une région, comme
-      // `ui-accordion-panel`, un panneau d'onglet sans bande étant invalide.
+      // Région en vertical : un panneau d'onglet sans bande serait invalide.
       role={api.orientation === 'vertical' ? 'region' : 'tabpanel'}
       id={api.panelId(value)}
       aria-labelledby={api.stepId(value)}

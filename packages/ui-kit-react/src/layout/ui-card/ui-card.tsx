@@ -37,14 +37,10 @@ export interface UiCardProps extends NativeProps {
 
 /**
  * ui-card : conteneur qui compose des zones optionnelles, visuel, en-tête
- * (titre et sous-titre), corps et pied.
+ * (titre et sous-titre), corps et pied : `media`, `header`, `subheader`,
+ * `footer`, et `children` pour le corps.
  *
- * Chaque zone n'est rendue que si elle a du contenu : pas de conteneur vide,
- * donc pas d'espacement fantôme.
- *
- * Là où la version Angular détectait ses zones par des directives marqueurs et
- * une inspection du DOM après rendu, ici ce sont des props : `media`, `header`,
- * `subheader`, `footer`, et `children` pour le corps.
+ * Chaque zone n'est rendue que si elle a du contenu : pas d'espacement fantôme.
  */
 export function UiCard({
   media,

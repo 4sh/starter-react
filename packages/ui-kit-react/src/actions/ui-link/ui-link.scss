@@ -58,7 +58,6 @@ $underline-offset: var(--ui-link-underline-offset, 0.15em);          /// Décala
     }
   }
 
-  // Icon-only: no underline, tight box around the glyph.
   &._icon-only {
     gap: 0;
     text-decoration: none;

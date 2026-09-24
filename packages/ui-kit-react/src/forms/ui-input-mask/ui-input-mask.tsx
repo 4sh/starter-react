@@ -65,11 +65,8 @@ export interface UiInputMaskProps extends UiFieldSharedProps, NativeProps {
 /**
  * ui-input-mask : champ masqué, bâti sur la coquille `ui-field`.
  *
- * Le masquage lui-même vit dans `core/forms/mask-engine`, porté tel quel du kit
- * Angular : c'est ce qui garantit que les deux stacks masquent à l'identique.
- *
- * La valeur du modèle est masquée par défaut (`12/09/2024`), brute avec
- * `unmask` (`12092024`).
+ * Le masquage lui-même vit dans `core/forms/mask-engine`. La valeur du modèle est
+ * masquée par défaut (`12/09/2024`), brute avec `unmask` (`12092024`).
  */
 export function UiInputMask({
   mask,
@@ -98,8 +95,7 @@ export function UiInputMask({
   ...rest
 }: UiInputMaskProps) {
   const innerRef = useRef<HTMLInputElement>(null);
-  // Position à restaurer après le rendu. Une valeur contrôlée réécrite par React
-  // remet sinon le curseur en fin de champ à chaque frappe.
+  // Curseur à restaurer après le rendu : réécrire la valeur contrôlée le renvoie en fin de champ.
   const pendingCaret = useRef<number | null>(null);
 
   const [model, setModel] = useControllableState<string>({
@@ -135,8 +131,7 @@ export function UiInputMask({
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
     const raw = event.target.value;
     const caret = event.target.selectionStart ?? raw.length;
-    // Ancre stable : le nombre de caractères de DONNÉE avant le curseur, qui ne
-    // bouge pas quand un littéral est inséré automatiquement.
+    // Ancre stable : les caractères de donnée avant le curseur, insensibles aux littéraux insérés.
     const dataBeforeCaret = extractMaskData(raw.slice(0, caret)).length;
 
     const next = applyMaskTemplate(slots, extractMaskData(raw), slotChar);

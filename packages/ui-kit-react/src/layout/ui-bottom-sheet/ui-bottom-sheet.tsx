@@ -81,7 +81,7 @@ export interface UiBottomSheetProps extends NativeProps {
   header?: ReactNode;
   /** Zone de pied, typiquement les actions. */
   footer?: ReactNode;
-  /** Afficher le bouton de fermeture. Absent du dessin de référence, donc éteint. */
+  /** Afficher le bouton de fermeture. */
   closable?: boolean;
   closeIcon?: string;
   closeAriaLabel?: string;
@@ -114,14 +114,9 @@ export interface UiBottomSheetProps extends NativeProps {
 /**
  * ui-bottom-sheet : panneau qui glisse depuis le bord bas de l'écran.
  *
- * Même socle que `ui-modal` et `ui-drawer`, le `<dialog>` natif : le piège de
- * focus, la restitution du focus, l'inertie de l'arrière-plan et l'empilement
- * viennent du navigateur. Ce que ce composant ajoute lui est propre : les
- * paliers de hauteur, le glissement vers le bas qui referme, et le passage de
- * `half` à `full` en tirant vers le haut.
- *
- * Le glissement coule dans l'animation de fermeture parce que les deux touchent
- * la même propriété, `translate`.
+ * Bâti sur le `<dialog>` natif (piège et restitution du focus, inertie,
+ * empilement). Il ajoute les paliers de hauteur, le glissement vers le bas qui
+ * referme, et le passage de `half` à `full` en tirant vers le haut.
  */
 export function UiBottomSheet({
   visible,
@@ -173,14 +168,8 @@ export function UiBottomSheet({
   const [dragHeight, setDragHeight] = useState<number | null>(null);
   const [dragging, setDragging] = useState(false);
 
-  /**
-   * L'état vif du geste.
-   *
-   * Une valeur lue par deux gestionnaires d'un même geste est une **ref**,
-   * jamais un état : `pointermove` et `pointerup` peuvent arriver dans la même
-   * tâche, et le second lirait alors l'état d'avant le premier. Les états
-   * `dragOffset` et `dragHeight` ne servent qu'au RENDU.
-   */
+  // Ref et non état : `pointermove` et `pointerup` peuvent tomber dans la même
+  // tâche, et le second lirait l'état d'avant. Les états ne servent qu'au rendu.
   const gesture = useRef<{
     pointerId: number;
     startY: number;
@@ -209,11 +198,13 @@ export function UiBottomSheet({
 
   const close = useCallback(() => setOpen(false), [setOpen]);
 
-  // L'ÉTAT est la source de vérité, le DOM suit. Un `<dialog>` s'ouvre par une
-  // méthode et non par un attribut : `open` posé en JSX rendrait le panneau sans
-  // calque supérieur, sans arrière-plan et sans piège de focus.
+  // L'état pilote le dialogue par ses méthodes (l'attribut `open` n'a pas de calque
+  // supérieur), sauf cantonné et ouvert au montage : `show()` y volerait le focus.
+  const mountingRef = useRef(true);
   useEffect(() => {
     const dialog = innerRef.current;
+    const mounting = mountingRef.current;
+    mountingRef.current = false;
     if (!dialog) return;
 
     if (open && !dialog.open) {
@@ -221,14 +212,14 @@ export function UiBottomSheet({
       setDragOffset(0);
       setDragHeight(null);
       if (isModalLayer) dialog.showModal();
+      else if (contained && mounting) dialog.setAttribute('open', '');
       else dialog.show();
       onShow?.();
     } else if (!open && dialog.open) {
       dialog.close();
       onHide?.();
     }
-    // `onShow` et `onHide` hors dépendances : recréés à chaque rendu, ils
-    // rejoueraient l'effet en boucle.
+    // `onShow` et `onHide` hors dépendances : recréés à chaque rendu, ils rejoueraient l'effet.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, isModalLayer]);
 
@@ -262,13 +253,6 @@ export function UiBottomSheet({
     };
   });
 
-  /**
-   * Focus dirigé à l'ouverture.
-   *
-   * Une seule tentative suffit : les enfants sont rendus avant que l'effet ne
-   * tire, là où la version Angular doit réessayer parce que son contenu projeté
-   * arrive un tour plus tard.
-   */
   useEffect(() => {
     if (!open || !autoFocusElement) return;
     const target = innerRef.current?.querySelector<HTMLElement>(autoFocusElement);
@@ -316,8 +300,6 @@ export function UiBottomSheet({
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (!dragEnabled || gesture.current) return;
     if (event.pointerType === 'mouse' && event.button !== 0) return;
-    // Un contrôle posé dans la zone de préhension garde son propre geste, bouton
-    // de fermeture ou lien. Sauf la poignée, qui est un bouton en mode palier.
     const control = (event.target as Element | null)?.closest(INTERACTIVE);
     if (control && !control.classList.contains(HANDLE_CLASS)) return;
 
@@ -338,7 +320,7 @@ export function UiBottomSheet({
     const delta = event.clientY - current.startY;
 
     if (delta >= 0) {
-      // Vers le bas : on translate le panneau, la propriété qui ne coûte rien.
+      // Vers le bas : `translate`, que l'animation de fermeture prolonge sans saut.
       current.height = null;
       current.offset = enableDragToClose ? delta : 0;
       setDragHeight(null);
@@ -479,16 +461,7 @@ export function UiBottomSheet({
         </div>
       )}
 
-      {/*
-        Le corps défile nativement, et garde son défilement chez lui.
-
-        `jsx-a11y` refuse un `tabIndex` sur un élément non interactif, et axe
-        EXIGE qu'une région défilante soit atteignable au clavier
-        (`scrollable-region-focusable`). Les deux règles se contredisent, et
-        c'est axe qui tranche : lui mesure le rendu réel. Même contrat que
-        `ui-modal` : le `tabIndex` n'est posé que quand la région déborde ET ne
-        contient rien de focalisable, donc jamais « au cas où ».
-      */}
+      {/* axe exige une région défilante atteignable au clavier, quoi qu'en dise `jsx-a11y`. */}
       {/* eslint-disable jsx-a11y/no-noninteractive-tabindex */}
       <div
         ref={contentRef}

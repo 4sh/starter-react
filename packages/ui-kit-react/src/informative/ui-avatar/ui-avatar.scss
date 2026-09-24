@@ -3,12 +3,8 @@
 
 // =====================================================================
 // ui-avatar : co-located styles. All values come from design tokens.
-//
-// Extend:
-//   • Size  → add an entry to $sizes (+ the `AvatarSize` type). Diameters
-//             live in ui-config ($avatar-size-*) as they are shared with
-//             ui-avatar-group.
-//   • Shape → add a modifier driving --_radius (+ the `AvatarShape` type).
+// Extend: a size mirrors the `AvatarSize` type; its diameter lives in ui-config
+// ($avatar-size-*) because ui-avatar-group shares it.
 // =====================================================================
 
 // --- Config ---------------------------------------
@@ -83,7 +79,6 @@ $badge-z-index: var(--ui-avatar-badge-z-index, 1);      /// Plan d'empilement du
 
   &-icon { line-height: 0; }
 
-  // Status indicator overlaid on the top-right corner (projected content).
   &-badge {
     position: absolute;
     top: 0;

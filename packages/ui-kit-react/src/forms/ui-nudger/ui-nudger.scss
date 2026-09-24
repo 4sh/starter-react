@@ -1,15 +1,9 @@
 @use 'utils';
 @use 'sass:map';
 
-// =====================================================================
-// ui-nudger : styles co-localisés. Toutes les valeurs viennent des jetons.
-// Les deux boutons portent leurs propres couleurs et états (`ui-button`) ;
-// ce fichier ne fait que disposer le compteur et habiller la valeur.
-//
-// Étendre :
-//   - une taille : ajouter une entrée à `$sizes` (et au type `NudgerSize`).
-//     La taille est transmise telle quelle à `ui-button`.
-// =====================================================================
+// ui-nudger : dispose le compteur et habille la valeur, les boutons (`ui-button`)
+// portent leurs propres couleurs et états. Étendre : une taille = une entrée dans
+// `$sizes` (et le type `NudgerSize`), transmise telle quelle à `ui-button`.
 
 // `default` = styles de base ; les autres clés deviennent des modifiers `._x`.
 /// Typo de la valeur et largeur minimale qui stabilise le rendu, par taille.

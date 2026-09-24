@@ -1,12 +1,9 @@
 @use 'utils';
 @use 'sass:map';
 
-// =====================================================================
-// ui-toggle : co-located styles. All values come from design tokens.
-// Extend:
-//   • Size → add an entry to $sizes (+ the `ToggleSize` type). `offset` (thumb
-//     slide) = track-w − 4·pad − thumb (2·pad + the 2 track borders).
-// =====================================================================
+// ui-toggle: co-located styles, tokens only. Extend: a size = an entry in `$sizes`
+// (+ the `ToggleSize` type). Its `offset` (thumb slide) = track-w − 4·pad − thumb
+// (2·pad + the 2 track borders).
 
 $focus-ring-width: var(--ui-toggle-focus-ring-width, #{utils.$form-focus-ring-width}); /// Épaisseur de l'anneau de focus
 $gap: var(--ui-toggle-gap, #{utils.$form-control-gap});                                /// Espace entre l'interrupteur et le label

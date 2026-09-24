@@ -1,18 +1,9 @@
 @use 'utils';
 
 // =====================================================================
-// ui-toast : co-located styles for the whole family (card and region).
-// Every colour is an `informative` token; the region owns positioning,
-// stacking and spacing only.
-//
-// The region lives in the TOP LAYER (`popover="manual"`), so no z-index
-// can bury it under a native `<dialog>`. `_contained` opts out and falls
-// back to an absolutely placed stack, where the z-index hook applies.
-//
-// Extend:
-//   • Level     → add to $levels (tokens --informative-{level}{sub}-* must
-//                 exist + extend the `UiFeedbackLevel` type).
-//   • Sub-level → add to $sublevels (+ the `UiSubLevel` type).
+// ui-toast : co-located styles for the card and its region (top layer, so no
+// z-index except in `_contained`). Extend: a level or sub-level goes in $levels
+// or $sublevels, with its `--informative-*` tokens and the matching TS type.
 // =====================================================================
 
 // --- Config -----------------------------------------------------------
@@ -46,10 +37,9 @@ $stack-gap: var(--ui-toast-stack-gap, var(--units-sm));                  /// Esp
   border-radius: var(--radius-default);
   background-color: var(--ui-toast-surface, var(--informative-defaulthigh-surface-default));
   color: var(--ui-toast-color, var(--informative-defaulthigh-content-default));
-  box-shadow: var(--shadow-default-md); // une notification flotte au-dessus de la page
+  box-shadow: var(--shadow-default-md);
   font-family: var(--ui-toast-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
 
-  // Banner mode: fill the region width instead of hugging the content.
   &._expanded {
     display: flex;
     width: 100%;
@@ -137,9 +127,8 @@ $stack-gap: var(--ui-toast-stack-gap, var(--units-sm));                  /// Esp
 
 // --- Region -----------------------------------------------------------
 .ui-toast-region {
-  // Le calque supérieur pose sa propre feuille sur `[popover]` : cadre, fond,
-  // marge automatique et `inset: 0` la centreraient. Tout est repris ici, comme
-  // sur `ui-tooltip`.
+  // Le style navigateur de `[popover]` (cadre, fond, marge automatique, `inset: 0`)
+  // centrerait la région : tout est repris ici.
   position: fixed;
   inset: auto;
   z-index: $z-index;
@@ -164,7 +153,6 @@ $stack-gap: var(--ui-toast-stack-gap, var(--units-sm));                  /// Esp
   &._expanded {
     width: min(#{$width-expanded}, calc(100vw - #{$edge-gap} * 2));
 
-    // Mode bannière : chaque carte occupe toute la largeur de la région.
     .ui-toast-region-item > .ui-toast {
       flex: 1 1 auto;
     }
@@ -177,10 +165,8 @@ $stack-gap: var(--ui-toast-stack-gap, var(--units-sm));                  /// Esp
 
   &-item {
     display: flex;
-    // La bande fait toute la largeur de la région, la carte seulement sa
-    // largeur de contenu. Rendre le pointeur à la bande lui ferait donc avaler
-    // les clics destinés à la page à côté de la carte, et suspendrait le compte
-    // à rebours dès que le pointeur passe sur la même ligne.
+    // La bande fait toute la largeur de la région : lui rendre le pointeur avalerait
+    // les clics à côté de la carte et suspendrait son compte à rebours.
     pointer-events: none;
 
     > .ui-toast {

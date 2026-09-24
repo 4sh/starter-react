@@ -42,8 +42,7 @@ $option-radius: var(--ui-select-option-radius, var(--radius-sm));             //
 $option-gap: var(--ui-select-option-gap, var(--units-sm));                    /// Espace entre case/contenu/coche dans une ligne
 $values-gap: var(--ui-select-values-gap, var(--units-xs));                    /// Espacement entre les valeurs affichées dans le déclencheur (mode `multiple`).
 $checkbox-size: var(--ui-select-checkbox-size, #{utils.rem-calc(18)});        /// Taille de la case visuelle (mode `checkbox`)
-// The mark has to follow the box, same reason as ui-checkbox: falls back to the `sm`
-// step of the icon scale, which is what it is rendered at.
+// The mark follows the box: falls back to the icon scale's `sm` step, its rendered size.
 $checkbox-icon-size: var(--ui-select-checkbox-icon-size, var(--ui-icon-size-sm, var(--size-typography-icon-sm))); /// Taille de la coche dans la case (mode `checkbox`).
 $checkbox-radius: var(--ui-select-checkbox-radius, var(--radius-xs));         /// Rayon de la case visuelle (mode `checkbox`).
 $stroke-width: var(--ui-select-stroke-width, #{utils.$control-stroke-width}); /// Épaisseur de bordure (case visuelle)
@@ -113,8 +112,7 @@ $focus-ring-width: var(--ui-select-focus-ring-width, #{utils.$form-focus-ring-wi
     gap: $values-gap;
     min-width: 0;
     @include utils.field-float-inset;
-    // La boîte du champ n'a AUCUN inset : chaque enfant direct porte le sien
-    // sur les bords qu'il touche. Sans ça, les puces sont collées à la bordure.
+    // La boîte du champ n'a AUCUN inset : chaque enfant direct porte le sien.
     @include utils.field-inset-edges;
   }
 
@@ -183,11 +181,8 @@ $focus-ring-width: var(--ui-select-focus-ring-width, #{utils.$form-focus-ring-wi
     &._open { rotate: 180deg; }
   }
 
-  // Chevron CLIQUABLE, en mode éditable : c'est alors la seule façon d'ouvrir
-  // le panneau à la souris, donc un vrai bouton. `field-action` lui donne la
-  // pleine hauteur, le collage à droite et le rayon du coin, ce que
-  // `field-affix` (écrit pour une icône) ne fait pas : un `<button>` garde
-  // sinon ses styles navigateur et ses marges.
+  // Chevron CLIQUABLE du mode éditable, un vrai `<button>` : `field-action` et non
+  // `field-affix`, écrit pour une icône, qui lui laisserait ses styles navigateur.
   &-toggle {
     @include utils.field-action;
 
@@ -205,26 +200,22 @@ $focus-ring-width: var(--ui-select-focus-ring-width, #{utils.$form-focus-ring-wi
 }
 
 // --- Panel----------
-// Le panneau d'options vit dans le CALQUE SUPÉRIEUR (`popover="manual"`) :
-// aucun z-index, et aucun rognage par un ancêtre en `overflow: hidden`, ce qui
-// est le défaut le plus pénible d'un select posé dans une zone défilante.
+// Le panneau vit dans le CALQUE SUPÉRIEUR (`popover="manual"`) : ni z-index, ni rognage
+// par un ancêtre en `overflow: hidden`.
 .ui-select-panel {
   @include utils.overlay-panel($panel-surface, $panel-stroke);
 
-  // Styles navigateur du calque : `inset` et `margin` centreraient le panneau,
-  // c'est le placement calculé qui décide.
+  // `inset` et `margin` du navigateur centreraient le popover : le placement calculé décide.
   position: fixed;
   inset: auto;
   margin: 0;
   border-width: utils.$overlay-panel-stroke-width;
 
-  // Le `display: none` d'un popover fermé vient du style navigateur, que le
-  // `display` de ce bloc écrase : il faut le redire.
+  // Le `display` de ce bloc écrase le `display: none` navigateur du popover fermé : le redire.
   &:not(:popover-open) {
     display: none;
   }
 
-  // Entrée et sortie, par le mixin partagé du système de motion.
   @include utils.overlay-motion {
     opacity: 0;
     translate: 0 calc(-1 * var(--ui-motion-distance, #{utils.$motion-distance}));

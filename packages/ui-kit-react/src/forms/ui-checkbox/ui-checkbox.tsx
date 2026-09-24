@@ -107,18 +107,14 @@ export function UiCheckbox<T = boolean>({
 
   const checked = model === trueValue;
 
-  // `indeterminate` n'existe que comme PROPRIÉTÉ du DOM : il n'y a pas
-  // d'attribut correspondant, donc React ne peut pas le poser en JSX.
+  // `indeterminate` n'est qu'une propriété du DOM, sans attribut : React ne peut pas la poser.
   useLayoutEffect(() => {
     if (innerRef.current) innerRef.current.indeterminate = indeterminate;
   }, [indeterminate]);
 
   const onNativeChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (readOnly) {
-      // Un `<input type="checkbox">` n'a pas de `readOnly` natif : le navigateur
-      // a déjà basculé la propriété du DOM. On la remet, faute de quoi l'affichage
-      // et le modèle divergeraient : React ne re-rend pas, puisque l'état ne
-      // change pas.
+      // Pas de `readOnly` natif : le navigateur a déjà basculé, et React ne re-rendra pas.
       event.target.checked = checked;
       return;
     }
@@ -154,8 +150,7 @@ export function UiCheckbox<T = boolean>({
           aria-label={field.ariaLabel}
           aria-describedby={field.describedBy}
           aria-invalid={field.ariaInvalid}
-          // `readOnly` n'existe pas sur une case : on l'annonce à l'assistance
-          // technique, et on annule la bascule dans le gestionnaire.
+          // Pas de `readOnly` natif : annoncé ici, la bascule est annulée au `change`.
           aria-readonly={readOnly ? true : undefined}
           onChange={onNativeChange}
         />

@@ -22,12 +22,7 @@ export type TooltipEvent = 'hover' | 'focus' | 'both';
 /** Écart entre le déclencheur et la bulle, qui laisse la place à la flèche. */
 const ARROW_GAP = 8;
 
-/**
- * Props à reverser sur le déclencheur.
- *
- * Là où Angular pose une **directive** sur l'élément hôte, React n'en a pas :
- * le composant enveloppe le déclencheur et lui rend ses props.
- */
+/** Props à reverser sur le déclencheur. */
 export interface UiTooltipTriggerProps {
   /** Ref de rappel : voir la note de `UiPopoverTriggerProps`. */
   ref: (node: HTMLElement | null) => void;
@@ -76,14 +71,9 @@ export interface UiTooltipProps {
 /**
  * ui-tooltip : bulle d'aide attachée à un déclencheur.
  *
- * La bulle vit dans le **calque supérieur** (`popover="manual"`) : pas de
- * z-index, et aucun rognage par un ancêtre en `overflow: hidden`. Le mode
- * `manual` est délibéré : une bulle ne doit pas se fermer au clic à côté, elle
- * suit le survol et le focus.
- *
- * Conforme à WCAG 1.4.13 : elle se **rejette** par Échap, elle est
- * **survolable** avec `autoHide={false}`, et elle **persiste** tant que le
- * déclencheur garde le survol ou le focus.
+ * Elle vit dans le **calque supérieur** (`popover="manual"`) : ni z-index ni rognage
+ * par un ancêtre en `overflow: hidden`. Conforme à WCAG 1.4.13 : rejetable par Échap,
+ * survolable avec `autoHide={false}`, persistante tant que dure le survol ou le focus.
  */
 export function UiTooltip({
   content,
@@ -109,9 +99,7 @@ export function UiTooltip({
   const timers = useRef<{ show?: number; hide?: number; life?: number }>({});
   const tooltipId = useId();
 
-  // Un seul état. L'apparition en fondu est jouée par le navigateur
-  // (`@starting-style`), ce qui évite le second état « monté puis rendu
-  // opaque » qu'il faudrait sinon pour donner une frame de départ.
+  // Un seul état : `@starting-style` fournit l'image de départ du fondu d'apparition.
   const [mounted, setMounted] = useState(false);
 
   // Dérivé, et non synchronisé : désactiver la bulle ou lui retirer son contenu
@@ -200,8 +188,6 @@ export function UiTooltip({
   const onHover = event === 'hover' || event === 'both';
   const onFocusEvent = event === 'focus' || event === 'both';
 
-  // Extrait de l'objet de props et mémorisé : le linter des hooks refuse qu'un
-  // objet contenant une ref soit construit et lu au fil du rendu.
   const attachTrigger = useCallback(
     (node: HTMLElement | null) => {
       triggerRef.current = node;
@@ -223,12 +209,7 @@ export function UiTooltip({
 
   return (
     <>
-      {/*
-        Faux positif de `react-hooks/refs` : la règle voit un objet contenant
-        une clé `ref` lu au rendu et suppose une lecture de `.current`. Ici on
-        TRANSMET une ref de rappel à une prop de rendu, ce qui est le motif
-        normal d'un déclencheur. Aucune ref n'est lue.
-      */}
+      {/* Faux positif de `react-hooks/refs` : la ref de rappel est transmise, jamais lue. */}
       {/* eslint-disable-next-line react-hooks/refs */}
       {trigger(triggerProps)}
       <div
@@ -238,13 +219,9 @@ export function UiTooltip({
         }}
         id={tooltipId}
         role="tooltip"
-        // `manual` et non `auto` : une bulle ne se ferme pas au clic à côté,
-        // elle suit le survol et le focus.
-        // Tant que la position n'est pas calculée, la bulle reste dans son état
-        // fermé : `computePosition` est asynchrone, et peindre l'image d'avant
-        // la ferait apparaître au mauvais endroit avant qu'elle se replace.
-        // Reconnu par `utils.overlay-motion`.
+        // Fermée tant que la position n'est pas calculée (`computePosition` est asynchrone).
         data-unpositioned={isPositioned ? undefined : ''}
+        // `manual` et non `auto` : une bulle suit le survol et le focus, pas le clic à côté.
         popover="manual"
         className={cx('ui-tooltip', `_${side}`, !autoHide && '_interactive', className)}
         style={{

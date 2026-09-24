@@ -56,8 +56,7 @@ export interface UiInputProps extends UiFieldSharedProps, NativeInputProps {
 }
 
 /**
- * ui-input : champ texte composé, bâti sur la coquille `ui-field` et un
- * `<input>` natif.
+ * ui-input : champ texte composé, bâti sur la coquille `ui-field` et un `<input>` natif.
  *
  * Révéler un mot de passe ou vider une recherche passent par la zone d'action
  * de droite, pas par une prop dédiée : un seul mécanisme pour tous les cas.
@@ -112,7 +111,6 @@ export function UiInput({
 
   const iconSize: UiIconSize = size === 'small' ? 'sm' : 'md';
   const hasFloatLabel = Boolean(floatLabel) && Boolean(label);
-  // La zone d'action n'existe que si elle a un nom accessible.
   const hasRightAction = Boolean(iconRight) && Boolean(iconRightAriaLabel);
 
   const renderIcon = (icon: string | ReactNode) =>
@@ -157,7 +155,6 @@ export function UiInput({
       size={size}
       level={field.level}
       floatLabel={floatLabel}
-      // Le libellé flottant reste levé tant que le champ porte du texte.
       filled={text !== ''}
       disabled={disabled}
       readOnly={readOnly}
@@ -176,8 +173,7 @@ export function UiInput({
         type={type}
         id={field.inputId}
         value={text}
-        // Au repos, le libellé flottant occupe déjà cette place : y laisser un
-        // texte indicatif superposerait les deux.
+        // Au repos, le libellé flottant occupe cette place : un placeholder s'y superposerait.
         placeholder={hasFloatLabel ? '' : rest.placeholder}
         required={required}
         disabled={disabled}
@@ -185,8 +181,7 @@ export function UiInput({
         aria-label={field.ariaLabel}
         aria-describedby={field.describedBy}
         aria-invalid={field.ariaInvalid}
-        // Pas de rechaînage de `rest.onInput` ici : le spread l'a déjà attaché
-        // à l'élément, et l'appeler à nouveau le ferait tirer deux fois.
+        // `rest.onInput` est déjà attaché par le spread : le rechaîner le ferait tirer deux fois.
         onChange={(event: ChangeEvent<HTMLInputElement>) => setText(event.target.value)}
       />
     </UiField>

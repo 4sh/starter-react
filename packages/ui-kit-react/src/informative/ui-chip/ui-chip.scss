@@ -3,12 +3,8 @@
 
 // =====================================================================
 // ui-chip : co-located styles. All values come from design tokens.
-//
-// Extend:
-//   • Level     → add to $levels (tokens --informative-{level}{sub}-* must
-//                 exist + extend the `UiFeedbackLevel` type).
-//   • Sub-level → add to $sublevels (+ the `UiSubLevel` type).
-//   • Size      → add an entry to $sizes (+ the `ChipSize` type).
+// Extend: $levels, $sublevels, $sizes mirror `UiFeedbackLevel`, `UiSubLevel`, `ChipSize`;
+// a new level also needs its --informative-{level}{sub}-* tokens.
 // =====================================================================
 
 // --- Config ---------------------------------------
@@ -94,7 +90,6 @@ $focus-ring-width: var(--ui-chip-focus-ring-width, #{utils.$focus-ring-width}); 
     text-overflow: ellipsis;
   }
 
-  // Remove action : native <button>, focusable with Tab.
   &-remove {
     flex: none;
     display: inline-flex;
@@ -181,7 +176,6 @@ $focus-ring-width: var(--ui-chip-focus-ring-width, #{utils.$focus-ring-width}); 
       }
     }
 
-    // Focus ring for the whole selectable chip (keyboard), per level.
     &._#{$lvl}._selectable:focus-visible {
       outline: none;
       box-shadow: 0 0 0 $focus-ring-width var(--ui-chip-focus-ring-color, var(--informative-#{$lvl}high-surface-default)); /// Couleur de l'anneau de focus d'une puce sélectionnable.

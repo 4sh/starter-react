@@ -127,8 +127,6 @@ export interface DatepickerButtonBarContext {
 /**
  * Separateur de `range` **tape** : placeholder, masque vif, et decoupage. Un
  * trait d'union simple, distinct du tiret demi-cadratin AFFICHE ci-dessous.
- * Reutiliser celui-ci pour l'affichage changeait en silence l'allure de tous les
- * consommateurs qui ne tapent pas.
  */
 const RANGE_SEPARATOR = ' - ';
 /** Separateur de `range` affiche, une fois la plage validee. */
@@ -140,11 +138,8 @@ const MULTIPLE_SEPARATOR = ', ';
 type DateField = 'day' | 'month' | 'year';
 
 /**
- * Date temoin dont derivent le placeholder automatique et la sonde d'ordre des
- * champs (22 novembre 2023) : jour, mois et annee sont deux a deux distincts,
- * donc chacun est identifiable dans la sortie d'un formateur. Une instance
- * fraiche a chaque appel : un `dateFormat` du consommateur la recoit, et une
- * instance partagee pourrait etre mutee sur place.
+ * Date temoin du placeholder et de la sonde d'ordre des champs : jour, mois et annee
+ * distincts, donc reperables. Fraiche a chaque appel, un `dateFormat` pouvant la muter.
  */
 function probeDate(): Date {
   return new Date(2023, 10, 22);
@@ -261,7 +256,7 @@ export interface UiDatepickerProps extends UiFieldSharedProps {
    * dans l'ordre si tapees a l'envers), `"jj/mm/aaaa, jj/mm/aaaa, ..."` pour
    * `multiple` (n'importe quel nombre, doublons fondus).
    *
-   * Un champ tapable est d'abord un champ texte : **un clic dedans n'ouvre plus
+   * Un champ tapable est d'abord un champ texte : **un clic dedans n'ouvre pas
    * le panneau**. L'icone, `Bas` et le clavier s'en chargent. `allowInput`
    * a `false` (ou `readOnly`, ou `timeOnly`) rend le clic ouvrant, le champ
    * etant alors la seule affordance ; `showIcon` a `false` aussi, faute d'icone
@@ -383,11 +378,9 @@ export interface UiDatepickerProps extends UiFieldSharedProps {
 /**
  * ui-datepicker : selecteur de date, de mois ou d'annee, avec heure optionnelle.
  *
- * Un declencheur ouvre un panneau dans le **calque superieur** (`<dialog>` en
- * modal, `[popover]` quand `showOnFocus` le rend non modal), ou rend le panneau
- * en ligne. Selection `single` / `multiple` / `range`, forage jour -> mois ->
- * annee, modes MonthPicker et YearPicker, plusieurs mois cote a cote, ligne
- * d'heure, et focus rotatif au clavier dans les trois grilles.
+ * Un declencheur ouvre un panneau dans le **calque superieur** (`<dialog>` en modal,
+ * `[popover]` quand `showOnFocus` le rend non modal), ou rend le panneau en ligne.
+ * Selection `single` / `multiple` / `range`, forage jour -> mois -> annee, multi-mois.
  */
 export function UiDatepicker({
   value,
@@ -472,31 +465,24 @@ export function UiDatepicker({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const panelRef = useRef<HTMLElement | null>(null);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-  /** Element ou la pression en cours a COMMENCE, voir `onOutsideClick`. */
+  /** Element ou la pression en cours a COMMENCE. */
   const pressOrigin = useRef<Node | null>(null);
   /**
-   * Pose pendant que nous rendons nous-memes le focus au declencheur, pour que
-   * ce focus de retour ne rouvre pas le panneau qui vient de se fermer.
-   * `focus()` part de facon synchrone, donc un drapeau suffit : aucun minuteur a
-   * fuir.
+   * Pose pendant que nous rendons le focus au declencheur, pour qu'il ne rouvre pas le
+   * panneau. `focus()` est synchrone : un drapeau suffit, sans minuteur.
    */
   const suppressFocusOpen = useRef(false);
   /**
-   * Un geste utilisateur vient d'avoir lieu. C'est ce qui remplace le
-   * `FocusMonitor` du CDK : `showOnFocus` ne doit PAS ouvrir sur un focus
-   * programmatique (un `autofocus`, une application hote qui appelle `focus()`),
-   * qui ferait surgir un calendrier que personne n'a demande. Un focus issu
-   * d'un geste part dans la meme tache que ce geste, donc le drapeau est encore
-   * leve ; un `focus()` appele depuis un effet ou un minuteur arrive seul.
+   * Un geste utilisateur vient d'avoir lieu : `showOnFocus` n'ouvre PAS sur un focus
+   * programmatique. Un focus issu d'un geste part dans la meme tache que lui.
    */
   const recentGesture = useRef(false);
 
   // --- Etat ----------------------------------------------------------------
   const [open, setOpen] = useState(false);
   /**
-   * Niveau de forage actif. Il se remet a `view` quand celui-ci change : ajuste
-   * au rendu plutot que dans un effet, pour qu'aucune image intermediaire ne
-   * montre l'ancien niveau.
+   * Niveau de forage actif, remis a `view` quand celui-ci change : ajuste au rendu et
+   * non dans un effet, pour qu'aucune image ne montre l'ancien niveau.
    */
   const [currentView, setCurrentView] = useState<DatepickerView>(view);
   const [prevView, setPrevView] = useState(view);
@@ -514,9 +500,8 @@ export function UiDatepicker({
   /** Texte brut pendant que l'utilisateur edite le declencheur ; `null` au repos. */
   const [typedValue, setTypedValue] = useState<string | null>(null);
   /**
-   * Masque vif abandonne pour le reste de la saisie en cours, parce que
-   * l'utilisateur a edite a l'interieur du texte au lieu d'ajouter a sa queue.
-   * Leve par tout enregistrement, et des que le champ se lit vide.
+   * Masque vif abandonne pour la saisie en cours (edition a l'interieur du texte, pas a
+   * sa queue). Leve par tout enregistrement, et des que le champ se lit vide.
    */
   const [maskSuspended, setMaskSuspended] = useState(false);
   /** Chiffres bruts pendant qu'un champ d'heure est tape ; `null` au repos. */
@@ -528,10 +513,8 @@ export function UiDatepicker({
   const [yearFocusRequest, setYearFocusRequest] = useState(0);
 
   /**
-   * Le panneau est non modal exactement quand `showOnFocus` est pose : c'est ce
-   * qui garde le champ vivant sous un panneau ouvert au focus. La saveur ne
-   * depend donc PAS de la facon d'ouvrir, ce qui evite qu'un clic promeuve un
-   * panneau non modal en modal au milieu d'une interaction.
+   * Non modal exactement quand `showOnFocus` est pose, jamais selon la facon d'ouvrir :
+   * un clic ne doit pas promouvoir le panneau en modal au milieu d'une interaction.
    */
   const nonModal = showOnFocus;
 
@@ -548,10 +531,8 @@ export function UiDatepicker({
   );
 
   /**
-   * Date interne -> la forme que `valueType` s'engage a emettre : une `Date`
-   * FRAICHE (ramenee a minuit quand aucune heure n'est affichee, jamais la
-   * reference d'origine) en `'date'`, une chaine ISO en `'iso'`. Le seul endroit
-   * qui decide du type emis.
+   * Date interne -> forme emise : une `Date` FRAICHE (a minuit sans heure affichee) en
+   * `'date'`, une chaine ISO en `'iso'`. Le seul endroit qui decide du type emis.
    */
   const serializeValue = useCallback(
     (d: Date): Date | string => {
@@ -562,10 +543,8 @@ export function UiDatepicker({
   );
 
   /**
-   * Un element entrant, `Date` ou chaine ISO, detecte : l'entree accepte les
-   * deux formes quel que soit `valueType`. Clone quand c'est deja une `Date`,
-   * jamais la reference de l'appelant : symetrique de `serializeValue`, et cela
-   * protege d'un appelant qui muterait cette `Date` sur place ensuite.
+   * Element entrant, `Date` ou chaine ISO, quel que soit `valueType`. Une `Date` est
+   * clonee : l'appelant pourrait la muter sur place ensuite.
    */
   const parseValue = useCallback(
     (v: Date | string): Date | null => (v instanceof Date ? new Date(v) : fromIsoValue(v)),
@@ -575,8 +554,7 @@ export function UiDatepicker({
   const toExternalValue = useCallback(
     (v: DatepickerDateValue): DatepickerValue => {
       if (!v) return null;
-      // La conversion ne branche que sur `valueType`, constant sur tout le
-      // `map` : le tableau est donc homogene, jamais melange.
+      // Homogene, jamais melange : la conversion ne branche que sur `valueType`.
       if (Array.isArray(v)) return v.map((d) => serializeValue(d)) as Date[] | string[];
       return serializeValue(v);
     },
@@ -584,9 +562,8 @@ export function UiDatepicker({
   );
 
   /**
-   * Valeur publique -> date(s) interne(s). Une entree invalide est ecartee
-   * plutot que de faire echouer l'ensemble : un element malforme au milieu d'un
-   * tableau `multiple` ne doit pas effacer le reste.
+   * Valeur publique -> date(s) interne(s). Une entree invalide est ecartee seule : un
+   * element malforme d'un tableau `multiple` n'efface pas le reste.
    */
   const toInternalValue = useCallback(
     (v: DatepickerValue): DatepickerDateValue => {
@@ -615,15 +592,8 @@ export function UiDatepicker({
   const hasValue = selectedDates.length > 0;
 
   /**
-   * Le calendrier suit la valeur : mois affiche, cellule au focus rotatif, et
-   * heure. C'est le pendant du `writeValue` d'Angular, sans lequel un
-   * calendrier EN LIGNE porte une valeur de juillet en affichant le mois
-   * courant : il ne passe jamais par une ouverture, seul autre endroit qui
-   * amorce la vue.
-   *
-   * Ajuste au rendu, avec l'horodatage precedent en temoin, plutot que dans un
-   * effet : le panneau afficherait sinon une image du mauvais mois avant de se
-   * corriger.
+   * Le calendrier suit la valeur (mois, focus rotatif, heure), meme en ligne sans ouverture.
+   * Ajuste au rendu et non dans un effet, pour ne peindre aucune image du mauvais mois.
    */
   const firstTs = firstSelected?.getTime() ?? null;
   const [prevFirstTs, setPrevFirstTs] = useState<number | null>(null);
@@ -693,22 +663,13 @@ export function UiDatepicker({
   const triggerReadonly = readOnly || !allowInput || timeOnly;
 
   /**
-   * Ordre des champs qu'un `dateFormat` personnalise ecrit vraiment, sonde
-   * depuis sa sortie pour la date temoin. `null` quand il n'y a pas de
-   * formateur, ou quand sa sortie n'est pas assez numerique pour trancher
-   * (« 22 novembre 2023 ») : l'ordre de la locale tient alors.
-   *
-   * Le lecteur par defaut et le masque vif doivent relire le texte dans l'ordre
-   * ou le champ l'AFFICHE, et un `dateFormat` est libre d'utiliser sa propre
-   * locale : un formateur `fr-FR` sous une locale `en-US` affichait
-   * « 08/07/2026 » mais le relisait mois d'abord, donc finir la saisie
-   * echangeait jour et mois en silence.
+   * Ordre des champs qu'un `dateFormat` ecrit vraiment, sonde sur la date temoin : la
+   * saisie se relit dans l'ordre AFFICHE. `null` sans formateur ou sortie non numerique.
    */
   const customFormatFieldOrder = useMemo<DateField[] | null>(() => {
     if (!dateFormat) return null;
     const out = dateFormat(probeDate());
-    // L'annee sur 4 chiffres sondee avant celle sur 2 : « 23 » apparait aussi
-    // dans « 2023 » (« 20|23 »), a un decalage qui n'est pas son debut.
+    // « 2023 » sonde avant « 23 », qui apparait aussi dans « 2023 » a un autre decalage.
     const probed: [DateField, number][] = [
       ['day', firstIndexOf(out, ['22'])],
       ['month', firstIndexOf(out, ['11'])],
@@ -739,11 +700,8 @@ export function UiDatepicker({
   );
 
   /**
-   * Jeton de placeholder pour une date seule (« jj/mm/aaaa »), brique que
-   * `resolvedPlaceholder` compose. Avec un `dateFormat` personnalise, le jeton
-   * numerique de la locale serait franchement faux : il decrirait un format que
-   * rien ne produit ni n'accepte. Montrer la sortie de ce formateur pour une
-   * date temoin correspond au moins a ce que le champ attend vraiment.
+   * Placeholder d'une date seule (« jj/mm/aaaa »). Avec un `dateFormat`, sa sortie pour
+   * la date temoin : le jeton de la locale decrirait un format que rien n'accepte.
    */
   const singleDatePlaceholder = useMemo(() => {
     if (dateFormat) return dateFormat(probeDate());
@@ -769,8 +727,6 @@ export function UiDatepicker({
   }, [dateFormat, locale, view]);
 
   const resolvedPlaceholder = useMemo(() => {
-    // On garde le placeholder du consommateur, et on n'indique rien
-    // automatiquement sur un declencheur en lecture seule.
     if (placeholder || triggerReadonly) return placeholder;
     if (selectionMode === 'range')
       return `${singleDatePlaceholder}${RANGE_SEPARATOR}${singleDatePlaceholder}`;
@@ -788,8 +744,7 @@ export function UiDatepicker({
   const formatDate = useCallback(
     (date: Date): string => {
       if (dateFormat) return dateFormat(date);
-      // Declencheur tapable -> format numerique qui fait l'aller-retour avec le
-      // lecteur par defaut.
+      // Tapable : format numerique, qui fait l'aller-retour avec le lecteur par defaut.
       if (allowInput) {
         const opts: Intl.DateTimeFormatOptions = {
           day: '2-digit',
@@ -842,8 +797,6 @@ export function UiDatepicker({
   );
 
   const displayValue = useMemo(() => {
-    // Pendant l'edition, on reflete le texte brut pour que le champ garde ce
-    // que l'utilisateur tape.
     if (typedValue !== null) return typedValue;
     const [first] = selectedDates;
     if (!first) return '';
@@ -867,17 +820,8 @@ export function UiDatepicker({
   ]);
 
   /**
-   * Masque dynamique (largeurs jour/mois/annee, plus l'heure si `showTime`, plus
-   * une seconde date en `range`) qui pilote le formatage auto du declencheur.
-   * `null` le desarme.
-   *
-   * `hasValue` : re-deriver le masque depuis le flux de chiffres brut ne marche
-   * que pour CONSTRUIRE une valeur depuis rien, pas pour en editer une sur
-   * place. Il est donc coupe des qu'une valeur existe, et se rearme des que le
-   * champ se lit vide.
-   *
-   * `maskSuspended` : la meme limite, rencontree avant qu'une valeur existe, sur
-   * une edition faite a l'interieur du texte plutot qu'a sa queue.
+   * Masque dynamique du formatage auto, `null` pour le desarmer. Coupe par `hasValue` et
+   * `maskSuspended` : re-deriver depuis les chiffres bruts CONSTRUIT, mais n'edite pas.
    */
   const typingSlots = useMemo<MaskSlot[] | null>(() => {
     if (
@@ -906,8 +850,7 @@ export function UiDatepicker({
       });
     }
     if (selectionMode === 'range') {
-      // Seconde date, memes largeurs, jointe par le separateur tape. Pas de
-      // `showTime` ici : un `range` tape est toujours a minuit.
+      // Seconde date jointe par le separateur tape ; sans heure, un `range` tape est a minuit.
       mask += RANGE_SEPARATOR + activeFields.map((f) => widths[f]).join('/');
       segmentBounds.push(...activeFields.map((f) => bounds[f]));
     }
@@ -926,10 +869,8 @@ export function UiDatepicker({
 
   // --- Lecture du texte tape ----------------------------------------------
   /**
-   * Lecteur numerique sensible a la locale (ordre jour/mois/annee depuis
-   * `dateFieldOrder`). Avec `requireComplete`, renvoie `null` tant que toutes
-   * les composantes ne sont pas la (et que l'annee n'a pas 2 ou au moins 4
-   * chiffres) : c'est ce qui evite les sauts pendant l'apercu vif.
+   * Lecteur numerique dans l'ordre de `dateFieldOrder`. Avec `requireComplete`, `null` tant
+   * qu'une composante manque (annee de 2 ou 4+ chiffres) : pas de saut pendant l'apercu.
    */
   const defaultParse = useCallback(
     (text: string, requireComplete = false): Date | null => {
@@ -992,11 +933,8 @@ export function UiDatepicker({
   );
 
   /**
-   * Decoupe le texte `range`/`multiple` en segments. Un `text.split(sep)` casse
-   * des que le texte formate d'une date contient `sep` (un `dateFormat` en
-   * « , » en `multiple`, ou un tiret ISO en `range`) : une occurrence de `sep`
-   * n'est donc acceptee comme frontiere qu'une fois que le texte qui la precede
-   * se lit deja comme une date complete.
+   * Decoupe le texte `range`/`multiple`. Pas de `split(sep)` : une date formatee peut
+   * contenir `sep`, qui n'est une frontiere que derriere une date deja complete.
    */
   const splitTypedSegments = useCallback(
     (text: string, sep: string): string[] => {
@@ -1027,10 +965,8 @@ export function UiDatepicker({
   );
 
   /**
-   * Saisie `range`/`multiple`. `range` exige exactement deux parties, remises
-   * dans l'ordre chronologique ; `multiple` en prend n'importe quel nombre, sans
-   * doublon. Une seule partie mauvaise ou desactivee fait echouer le tout.
-   * Toujours a minuit : pas de `showTime` ici.
+   * Saisie `range` (deux dates, remises dans l'ordre) ou `multiple` (sans doublon), a
+   * minuit. Une seule partie mauvaise ou desactivee fait echouer le tout.
    */
   const parseTypedMulti = useCallback(
     (text: string, requireComplete: boolean): Date[] | null => {
@@ -1059,11 +995,7 @@ export function UiDatepicker({
   );
 
   // --- Ecriture ------------------------------------------------------------
-  /**
-   * Le seul chemin d'ecriture normal : prend des dates internes et serialise
-   * ici, avant que quoi que ce soit n'atteigne le modele. Le contrat de type vit
-   * entierement dans cette fonction.
-   */
+  /** Le seul chemin d'ecriture normal : serialise les dates internes avant le modele. */
   const commit = useCallback(
     (next: DatepickerDateValue) => {
       setTypedValue(null); // toute valeur enregistree reformate le declencheur
@@ -1189,10 +1121,8 @@ export function UiDatepicker({
   );
 
   /**
-   * Cellules mois et annees decoupees dans les lignes que la CSS rend vraiment
-   * (3 et 2 colonnes). Un `role="grid"` exige que ses `gridcell` soient dans un
-   * `role="row"` ; sans lui la grille entiere est de l'ARIA invalide. Garder ces
-   * tailles en phase avec le nombre de colonnes du SCSS.
+   * Lignes `role="row"` exigees par `role="grid"`, aux colonnes que la CSS rend (3 et 2) :
+   * garder ces tailles en phase avec le SCSS.
    */
   const monthRows = useMemo(() => chunk(months, 3), [months]);
   const yearRows = useMemo(() => chunk(years, 2), [years]);
@@ -1238,9 +1168,8 @@ export function UiDatepicker({
   const queueYearFocus = useCallback(() => setYearFocusRequest((n) => n + 1), []);
 
   /**
-   * `origin` dit si le focus doit filer dans la grille : toujours depuis
-   * l'icone du calendrier, seulement sur un champ non tapable sinon, jamais
-   * quand c'est le focus lui-meme qui a ouvert.
+   * `origin` dit si le focus file dans la grille : toujours depuis l'icone, seulement sur
+   * un champ non tapable sinon, jamais quand c'est le focus qui a ouvert.
    */
   const openFrom = useCallback(
     (origin: 'icon' | 'field' | 'focus') => {
@@ -1253,11 +1182,7 @@ export function UiDatepicker({
       setFocusedYear(base.getFullYear());
       setOpen(true);
       onOpen?.();
-      // Le focus reste dans le champ des qu'il est tapable ; il ne file dans la
-      // grille que quand il ne l'est pas, ou sur un clic d'icone (« je veux la
-      // grille »). Jamais sur `'focus'` : deplacer le focus en CONSEQUENCE d'un
-      // focus est un changement de contexte au sens de WCAG 3.2.1. `Bas` est la
-      // facon de demander la grille dans ce cas.
+      // Jamais sur `'focus'` : deplacer le focus en consequence d'un focus enfreint WCAG 3.2.1.
       if (origin !== 'focus' && showCalendar && (triggerReadonly || origin === 'icon')) {
         if (view === 'date') queueDayFocus();
         else if (view === 'month') queueMonthFocus();
@@ -1287,9 +1212,6 @@ export function UiDatepicker({
       setOpen(false);
       onClose?.();
       if (focusTrigger) {
-        // On garde tout le trajet (synchrone) du focus : avec `showOnFocus`, le
-        // focus de retour rouvrirait sinon le panneau qu'on ferme, sur Echap
-        // comme a chaque selection.
         suppressFocusOpen.current = true;
         inputRef.current?.focus();
         suppressFocusOpen.current = false;
@@ -1298,11 +1220,8 @@ export function UiDatepicker({
     [open, onClose],
   );
 
-  /**
-   * L'ETAT pilote le calque superieur, le DOM suit. Un panneau du calque
-   * s'ouvre par une methode imperative, et faire dependre l'etat de son
-   * evenement desaligne les deux des que l'evenement se fait attendre.
-   */
+  // L'ETAT pilote le calque superieur, le DOM suit : faire dependre l'etat de l'evenement
+  // du calque desaligne les deux des que celui-ci se fait attendre.
   useEffect(() => {
     const panel = panelRef.current;
     if (!panel || inline) return;
@@ -1317,10 +1236,7 @@ export function UiDatepicker({
     else if (!open && dialog.open) dialog.close();
   }, [open, inline, nonModal]);
 
-  /**
-   * `manual` et non `auto`, et pas de fermeture sur Echap ici : le clavier du
-   * declencheur sait, lui, si la touche ferme vraiment quelque chose.
-   */
+  // `manual` et non `auto`, sans Echap : le clavier du declencheur sait si elle ferme vraiment.
   useUiDismiss({
     open: open && !inline,
     onDismiss: () => close(false),
@@ -1331,15 +1247,8 @@ export function UiDatepicker({
 
   useCloseOnNavigation(open, () => close(false));
 
-  /**
-   * Une pression n'est dismissive que depuis l'endroit ou elle a COMMENCE.
-   * Relachee ailleurs, le navigateur envoie le clic sur l'ancetre commun des
-   * deux cibles, ce que l'on prendrait pour un clic dehors : presser dans le
-   * champ, le panneau s'ouvrant sous le curseur, le refermerait au relachement.
-   * Ecouter pendant toute la vie du composant et pas seulement panneau ouvert
-   * est ce qui rend cette pression-la attrapable, puisqu'elle precede
-   * l'ouverture.
-   */
+  // Une pression n'est dismissive que depuis son origine : relachee ailleurs, le clic part
+  // sur l'ancetre commun. Ecoute permanente, car la pression precede l'ouverture.
   useEffect(() => {
     if (inline) return;
     const record = (event: Event) => {
@@ -1359,8 +1268,7 @@ export function UiDatepicker({
     const mark = () => {
       recentGesture.current = true;
       window.clearTimeout(timer);
-      // `setTimeout(0)` et non `requestAnimationFrame` : dans un onglet
-      // ralenti, une rAF ne part jamais et le drapeau resterait leve.
+      // `setTimeout(0)` et non rAF, qui ne part jamais dans un onglet ralenti.
       timer = window.setTimeout(() => {
         recentGesture.current = false;
       }, 0);
@@ -1374,11 +1282,8 @@ export function UiDatepicker({
     };
   }, [showOnFocus]);
 
-  /**
-   * Un `<dialog>` modal ferme sur Echap via `cancel`, qui est annulable :
-   * l'annuler toujours et repasser par l'etat, pour n'avoir qu'une seule voie de
-   * fermeture.
-   */
+  // Un `<dialog>` modal ferme sur Echap via `cancel` : l'annuler et repasser par l'etat,
+  // seule voie de fermeture.
   useEffect(() => {
     const panel = panelRef.current;
     if (!panel || inline || nonModal) return;
@@ -1392,10 +1297,7 @@ export function UiDatepicker({
   }, [inline, nonModal, close]);
 
   // --- Focus des cellules --------------------------------------------------
-  /**
-   * Le focus est pose dans un effet : le DOM reflete deja la cellule rotative
-   * qui vient d'etre calculee, donc aucun minuteur n'est necessaire.
-   */
+  /** Pose le focus depuis un effet, quand le DOM reflete deja la cellule rotative. */
   const focusCell = useCallback((selector: string) => {
     panelRef.current?.querySelector<HTMLElement>(selector)?.focus();
   }, []);
@@ -1583,9 +1485,8 @@ export function UiDatepicker({
     } else if (currentView === 'month') {
       setFocusedYear(viewDate.getFullYear());
       setCurrentView('year');
-      // Dernier niveau : le titre passe `disabled` ici, donc le focus qu'il
-      // tenait va tomber sur `<body>` et la grille qui vient d'apparaitre ne
-      // repondrait a aucune fleche. On le confie a la cellule rotative.
+      // Dernier niveau : le titre passe `disabled` et son focus tomberait sur `<body>`,
+      // on le confie donc a la cellule rotative.
       queueYearFocus();
     }
   }, [singleMonth, currentView, viewDate, queueYearFocus]);
@@ -1599,9 +1500,8 @@ export function UiDatepicker({
     (raw: string) => {
       if (!raw.trim()) return;
       if (selectionMode === 'single') {
-        // Sans ce controle, `hasValue` basculait des que jour/mois/annee etaient
-        // tapes, avant le moindre chiffre d'heure : le chiffre suivant se
-        // collait alors a l'annee, sans masque pour inserer « HH:MM ».
+        // Pas d'apercu avant les chiffres d'heure : `hasValue` couperait le masque, qui ne
+        // pourrait plus inserer « HH:MM ».
         if (showTime && view === 'date') {
           const groups = raw.trim().match(/\d+/g) ?? [];
           if (groups.length < activeFields.length + 2) return;
@@ -1611,9 +1511,7 @@ export function UiDatepicker({
       if (!picked) return;
       const first = Array.isArray(picked) ? picked[0] : picked;
       if (!first) return;
-      // On met le modele a jour (surbrillance et valeur vive) mais on GARDE
-      // `typedValue`, pour que l'affichage rende encore le texte brut : pas de
-      // saut de curseur.
+      // `setModel` et non `commit` : `typedValue` reste affiche, pas de saut de curseur.
       setModel(toExternalValue(picked));
       setViewDate(firstOfMonth(first));
       setFocusedDate(startOfDay(first));
@@ -1626,12 +1524,8 @@ export function UiDatepicker({
       if (triggerReadonly) return;
       if (!typingSlots) {
         setTypedValue(raw);
-        // Le masque est coupe parce qu'une valeur existe deja, ou qu'une edition
-        // sur place l'a suspendu, mais le champ vient d'etre vide a la main,
-        // sans flou ni Entree pour passer par l'enregistrement. On enregistre
-        // ici plutot que d'attendre un enregistrement qui peut ne jamais venir :
-        // `hasValue` bascule pour de bon et la suspension se leve, donc le
-        // masque se rearme des la frappe suivante.
+        // Champ vide a la main : enregistrer tout de suite, sans attendre flou ou Entree,
+        // pour que le masque se rearme des la frappe suivante.
         if (!raw.trim()) {
           setMaskSuspended(false);
           if (hasValue) clear();
@@ -1644,31 +1538,16 @@ export function UiDatepicker({
       // Nombre de caracteres de donnee AVANT le curseur : ancre stable.
       const dataBeforeCaret = extractMaskData(raw.slice(0, caret)).length;
       const newData = extractMaskData(raw);
-      // Edition A L'INTERIEUR du texte (il reste de la donnee apres le curseur)
-      // plutot qu'un ajout a sa queue : le masque ne sait re-deriver le champ
-      // entier que depuis un flux plat de chiffres, donc le relancer ici
-      // re-decoupe chaque segment suivant de ce que cette edition a gagne ou
-      // perdu. Remplacer le mois « 07 » par un « 1 » transformait
-      // « 08/07/2026 » en « 08/12/026 », l'annee perdant un chiffre en silence.
-      // On abandonne donc le masque pour le reste de la saisie, exactement ce
-      // que `allowInput` promet deja une fois une valeur posee. Pour le RESTE de
-      // la saisie et pas seulement cette frappe : les chiffres encore a venir
-      // appartiennent au segment qu'on corrige, et rearmer sous le curseur les
-      // decalerait de nouveau.
+      // Edition A L'INTERIEUR du texte : le masque re-decouperait les segments suivants. Il
+      // est suspendu pour toute la saisie, pas cette frappe : la suite corrige ce segment.
       if (dataBeforeCaret < newData.length) {
         setMaskSuspended(true);
         setTypedValue(raw);
         if (open) previewTyped(raw);
         return;
       }
-      // Une suppression ne laisse derriere elle que des chiffres DEJA valides :
-      // relancer le controle de bornes sur eux (concu pour refuser un premier
-      // chiffre tout juste tape et impossible, « 8 » ne pouvant pas commencer un
-      // jour de 1 a 31) peut au contraire en sauter un encore valide et
-      // desaligner tous les segments suivants. Comparer les longueurs de donnee,
-      // et non `inputType` (indisponible ici), distingue la frappe et le collage
-      // (qui grandissent ou tiennent, toujours bornes) de la suppression (qui
-      // rapetisse, bornee seulement a la lecture finale).
+      // Bornes controlees a la frappe et au collage, pas a la suppression, qui ne laisse que
+      // des chiffres DEJA valides : la longueur de donnee les distingue (`inputType` absent).
       const enforceBounds = newData.length >= extractMaskData(displayValue).length;
       const { text, tokenIndices, dataEnd } = autoFormatSegments(typingSlots, newData, {
         enforceBounds,
@@ -1676,14 +1555,8 @@ export function UiDatepicker({
       setTypedValue(text);
       if (el) {
         el.value = text;
-        // Une suppression dont le curseur etait a la fin de la donnee (edition
-        // en queue, le cas courant) atterrit toujours sur `dataEnd`, jamais sur
-        // le resultat de `caretForMask` : cette fonction repond « ou est le
-        // prochain emplacement a remplir », ce qui pour un segment tout juste
-        // vide est la position juste apres son separateur auto-insere. Atterrir
-        // la ferait supprimer ce separateur decoratif a la touche suivante
-        // (re-insere en silence au rendu d'apres), donc la suppression aurait
-        // l'air bloquee une frappe trop court, pour toujours.
+        // Suppression en queue : `dataEnd` et non `caretForMask`, qui pointerait apres le
+        // separateur auto-insere, que la touche suivante effacerait en vain.
         const atTail = dataBeforeCaret >= newData.length;
         const pos =
           !enforceBounds && atTail ? dataEnd : caretForMask(tokenIndices, dataBeforeCaret, dataEnd);
@@ -1698,8 +1571,7 @@ export function UiDatepicker({
   const commitTyped = useCallback(() => {
     if (triggerReadonly) return;
     if (typedValue === null) return; // pas touche
-    // Lu, efface ou revenu en arriere, cet enregistrement termine la saisie en
-    // cours : le masque vif se rearme pour la suivante.
+    // Quelle que soit l'issue, la saisie est terminee : le masque vif se rearme.
     setMaskSuspended(false);
     const text = typedValue.trim();
     if (!text) {
@@ -1711,9 +1583,7 @@ export function UiDatepicker({
     if (picked) {
       commit(picked);
       const first = Array.isArray(picked) ? picked[0] : picked;
-      // `onDateSelect` rapporte « quel jour vient d'etre choisi » : cela n'a pas
-      // de sens pour une plage ou une liste enregistrees d'un coup, donc c'est
-      // reserve au mode `single`.
+      // `onDateSelect` rapporte un jour choisi : sans objet pour une plage ou une liste tapees.
       if (!Array.isArray(picked)) onDateSelect?.(serializeValue(picked));
       if (first) {
         setViewDate(firstOfMonth(first));
@@ -1757,25 +1627,15 @@ export function UiDatepicker({
   );
 
   /**
-   * Un clic sur le declencheur ouvre-t-il ? Oui quand le champ n'est pas
-   * tapable (il EST alors le bouton), et quand `showIcon` est coupe (plus
-   * aucune bascule : sans cela, rien n'ouvrirait le panneau a la souris).
-   *
-   * Sur un champ tapable, NON. Le panneau est dans le calque superieur avec un
-   * arriere-plan qui avale les clics suivants sur le champ : le premier posait
-   * le curseur, le suivant perdait le focus sans le deplacer, donc corriger un
-   * seul segment a la souris etait impossible. Ouvrir enregistre aussi le texte
-   * tape en apercu, ce qui desarme le masque auto en pleine saisie. L'icone,
-   * `Bas` et la frappe ne sont pas touches.
+   * Le clic ouvre si le champ n'est pas tapable (il EST le bouton) ou n'a pas d'icone.
+   * Tapable, non : l'arriere-plan du panneau modal avalerait les clics suivants.
    */
   const openOnTriggerClick = triggerReadonly || !showIcon || showOnFocus;
 
   const onTriggerClick = useCallback(() => {
     if (!openOnTriggerClick) return;
-    // Le clic a pu tomber sur le libelle ou l'indication de format, laissant le
-    // focus hors de l'enveloppe : Echap et `Bas` y sont attaches, ils seraient
-    // muets pendant que le panneau est ouvert. Un clic dans le champ lui-meme
-    // est deja focalise a ce stade, donc cela ne deplace jamais le curseur.
+    // Le clic a pu tomber sur le libelle, hors du champ ou vivent Echap et `Bas`. Dans le
+    // champ, il est deja focalise : le curseur ne bouge pas.
     if (!triggerReadonly) inputRef.current?.focus();
     openFrom('field');
   }, [openOnTriggerClick, triggerReadonly, openFrom]);
@@ -1800,22 +1660,19 @@ export function UiDatepicker({
         close(false);
         return;
       }
-      // L'enveloppe attrape aussi les touches pressees sur le bouton d'action du
-      // champ. C'est un `<button>` natif : `Entree` et `Espace` doivent
-      // l'atteindre. Seule Echap reste a nous.
+      // Touches du bouton d'action du champ : `Entree` et `Espace` doivent atteindre ce
+      // `<button>` natif, seule Echap reste a nous.
       if (inputRef.current && event.target !== inputRef.current) {
         handleEscape(event);
         return;
       }
-      // `Alt+Haut` ferme, quelle que soit la saveur de declencheur.
       if (event.key === 'ArrowUp' && event.altKey) {
         event.preventDefault();
         close();
         return;
       }
       if (!triggerReadonly) {
-        // Declencheur tapable : on laisse passer les touches imprimables, on
-        // n'intercepte que la navigation et l'enregistrement.
+        // Tapable : seules la navigation et l'enregistrement sont interceptes.
         if (event.key === 'ArrowDown') {
           event.preventDefault();
           openFrom('field');
@@ -1878,9 +1735,8 @@ export function UiDatepicker({
   );
 
   /**
-   * Presser la structure meme du panneau ne doit pas tirer le focus hors du
-   * champ : un panneau non modal se ferait renvoyer par son propre focusout.
-   * Ses controles gardent le comportement par defaut.
+   * Presser le fond du panneau ne tire pas le focus hors du champ : un panneau non modal
+   * se fermerait sur son propre focusout. Ses controles gardent le comportement natif.
    */
   const onPanelMouseDown = useCallback(
     (event: ReactMouseEvent<HTMLElement>) => {
@@ -1900,10 +1756,7 @@ export function UiDatepicker({
   const minutesValue = minutesDraft ?? minutesLabel;
   const hourBounds = hourFormat === '12' ? { min: 1, max: 12 } : { min: 0, max: 23 };
   const timeEditable = editableTime && !disabled && !readOnly;
-  /**
-   * Les compteurs restent utilisables meme sans `editableTime` : seuls
-   * `disabled` et `readOnly` les figent.
-   */
+  /** Utilisables sans `editableTime` : seuls `disabled` et `readOnly` figent les compteurs. */
   const timeControlsEnabled = !disabled && !readOnly;
 
   const to24 = useCallback(
@@ -1943,9 +1796,8 @@ export function UiDatepicker({
   }, [timeControlsEnabled, hours, minutes, applyTime]);
 
   /**
-   * Garde un champ d'heure a deux chiffres au plus et refuse ce qui ne pourra
-   * jamais etre dans les bornes (« 33 », ou « 13 » sur une horloge 12 h) : le
-   * champ revient a `current`, donc la frappe est simplement refusee.
+   * Deux chiffres au plus ; ce qui ne pourra jamais tenir dans les bornes (« 33 », ou
+   * « 13 » en 12 h) ramene le champ a `current` : la frappe est refusee.
    */
   const acceptTimeDigits = useCallback(
     (el: HTMLInputElement, current: string, max: number): string | null => {
@@ -2070,10 +1922,8 @@ export function UiDatepicker({
   );
 
   /**
-   * Mathematique de fleches partagee par une grille de taille fixe a `columns`
-   * colonnes : la seule part de focus rotatif vraiment commune aux trois
-   * grilles. `PageUp`/`PageDown`/`Entree`/Echap different par grille et restent
-   * dans leur propre gestionnaire.
+   * Fleches d'une grille fixe a `columns` colonnes, seule part commune aux grilles :
+   * `PageUp`/`PageDown`/`Entree`/Echap restent dans le gestionnaire de chacune.
    */
   const navigateGridIndex = useCallback(
     (key: string, current: number, columns: number, count: number): number | null => {
@@ -2174,9 +2024,8 @@ export function UiDatepicker({
   );
 
   /**
-   * La cellule au focus rotatif. Les cellules d'un mois voisin sont exclues,
-   * pour qu'une date montree deux fois dans deux panneaux adjacents ne donne
-   * qu'un seul arret de tabulation.
+   * La cellule au focus rotatif, hors mois voisins : une date montree dans deux panneaux
+   * adjacents ne donne qu'un arret de tabulation.
    */
   const isFocusableDay = useCallback(
     (cell: DatepickerDay) => !cell.otherMonth && isSameDay(cell.date, focusedDate),
@@ -2185,12 +2034,8 @@ export function UiDatepicker({
 
   // --- Rendu du declencheur ------------------------------------------------
   /**
-   * L'action de droite efface au lieu de basculer le panneau. Conditionne a
-   * `!showIcon` : la bascule calendrier gagne toujours l'unique emplacement
-   * d'icone quand elle est affichee, donc il reste toujours une cible pour
-   * rouvrir le panneau et choisir une autre date. La croix ne la remplace que
-   * dans les configurations qui l'ont masquee, ou elle est la seule affordance
-   * restante pour vider le champ sans clavier.
+   * L'action de droite efface au lieu de basculer, seulement sans `showIcon` : la bascule
+   * garde sinon l'unique emplacement, pour toujours pouvoir rouvrir le panneau.
    */
   const showClearButton = showClear && hasValue && !disabled && !readOnly && !showIcon;
   const triggerIcon = showClearButton
@@ -2249,8 +2094,7 @@ export function UiDatepicker({
     <>
       {showCalendar && (
         <>
-          {/* En-tete partage (un seul mois) : precedent / titre (forage) / suivant.
-              En multi-mois, les fleches et les titres vivent dans chaque panneau. */}
+          {/* Un seul mois : en-tete partage. En multi-mois, chaque panneau porte le sien. */}
           {singleMonth && (
             <div className="ui-datepicker-header">
               {navButton('prev')}
@@ -2270,9 +2114,7 @@ export function UiDatepicker({
           {currentView === 'year' && (
             /*
               eslint-disable-next-line jsx-a11y/interactive-supports-focus --
-              Motif grille de l'APG : le clavier est delegue au conteneur, mais
-              le focus vit sur les cellules, qui portent le tabindex rotatif. Un
-              tabindex sur la grille elle-meme ajouterait un arret parasite.
+              Motif grille APG : clavier delegue au conteneur, focus rotatif sur les cellules.
             */
             <div className="ui-datepicker-picker _year" role="grid" onKeyDown={onYearGridKeyDown}>
               {yearRows.map((row, i) => (
@@ -2336,9 +2178,7 @@ export function UiDatepicker({
           {currentView === 'date' && (
             /*
               eslint-disable-next-line jsx-a11y/no-static-element-interactions --
-              Simple relais de touches : le `role="grid"` et le focus vivent
-              plus bas, sur chaque panneau de mois et ses cellules. Ce div ne
-              fait que factoriser le gestionnaire commun aux panneaux.
+              Relais de touches commun aux panneaux : `role="grid"` et focus vivent plus bas.
             */
             <div className="ui-datepicker-months" onKeyDown={onGridKeyDown}>
               {monthPanels.map((mp) => (
@@ -2567,10 +2407,7 @@ export function UiDatepicker({
     <div className={cx('ui-datepicker', className)}>
       {/*
         eslint-disable-next-line jsx-a11y/no-static-element-interactions --
-        Enveloppe de commodite : le focus et le clavier sont portes par le champ
-        natif qu'elle contient. Elle ecoute au-dessus de lui parce qu'un clic ou
-        une touche peut tomber sur le libelle, l'indication de format ou le
-        bouton de bascule, tous hors du champ.
+        Relais du champ natif : clic et touches peuvent tomber sur le libelle ou la bascule.
       */}
       <div
         ref={wrapperRef}
@@ -2651,8 +2488,6 @@ export function UiDatepicker({
             onFocus={(event) => {
               onFocus?.(event);
               if (disabled || readOnly) return;
-              // `showOnFocus` n'ouvre que sur un focus issu d'un geste, et jamais
-              // sur celui que nous rendons nous-memes a la fermeture.
               if (showOnFocus && recentGesture.current && !suppressFocusOpen.current) {
                 openFrom('focus');
               }
@@ -2669,10 +2504,8 @@ export function UiDatepicker({
         <div
           {...panelProps}
           ref={setPanel}
-          // Tant que la position n'est pas calculée, le panneau reste dans son
-          // état fermé : `computePosition` est asynchrone, et peindre l'image
-          // d'avant fait apparaître le panneau au mauvais endroit avant qu'il
-          // se replace. Reconnu par `utils.overlay-motion`.
+          // Reste fermé tant que la position asynchrone n'est pas calculée : attribut lu
+          // par `utils.overlay-motion`.
           data-unpositioned={position.isPositioned ? undefined : ''}
           popover="manual"
           style={position.panelStyle as CSSProperties}

@@ -32,7 +32,6 @@ $size-default: map.get($sizes, 'default'); /// Raccourci vers l'entrée `default
   gap: var(--units-sm);
   color: var(--ui-spinner-color, var(--informative-highlightlow-content-default)); /// Couleur du marqueur (le SVG et l’icône utilisent `currentColor`).
 
-  // Horizontal orientation: mark beside the label.
   &._horizontal { flex-direction: row; }
 
   // --- Mark box ------------------------------------------------------

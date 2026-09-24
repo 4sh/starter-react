@@ -180,16 +180,9 @@ function seedKeys(nodes: MenuNode[], out: string[] = []): string[] {
 /**
  * ui-sidebar-menu : menu de navigation déclaratif pour `ui-sidebar`.
  *
- * Rend un modèle `UiSidebarMenuItem[]` en région de navigation : un `<nav>` qui
- * enveloppe des listes. Sections libellées, groupes repliables sur plusieurs
- * niveaux, et entrée courante ; un groupe qui contient l'entrée courante se
- * déplie d'office.
- *
- * Posé dans une `UiSidebar`, il lit l'état replié résolu par contexte et se
- * replie en rail d'icônes. Seul, `collapsed` pilote le rail.
- *
- * Le clavier est natif : `Tab` parcourt liens et boutons, `Entrée` et `Espace`
- * les activent.
+ * Rend un modèle `UiSidebarMenuItem[]` dans un `<nav>` ; un groupe qui contient
+ * l'entrée courante se déplie d'office. Posé dans une `UiSidebar`, il se replie
+ * avec elle en rail d'icônes ; seul, `collapsed` pilote le rail.
  */
 export function UiSidebarMenu({
   items = [],
@@ -208,17 +201,14 @@ export function UiSidebarMenu({
 }: UiSidebarMenuProps) {
   const uid = useId();
   const sidebar = useEnclosingSidebar();
-  // Une barre parente l'emporte, mais seulement celle qui CONTIENT le menu : un
-  // fournisseur publie aussi l'état d'une barre, et un menu autonome placé à côté
-  // ne doit pas s'en croire le descendant.
+  // Seule la barre qui CONTIENT le menu l'emporte, pas celle publiée par un fournisseur.
   const isCollapsed = sidebar ? sidebar.collapsed : collapsed;
   const showTooltips = tooltips && isCollapsed;
 
   const nodes = useMemo(() => resolve(items, 0, 'n'), [items]);
 
-  // Non contrôlé et jamais touché : les groupes dépliés se DÉDUISENT du modèle
-  // (`expanded`, entrée courante), à chaque rendu. Le premier dépliage manuel
-  // fige la liste.
+  // Tant que rien n'est déplié à la main, les groupes ouverts se déduisent du
+  // modèle (`expanded`, entrée courante) ; le premier dépliage fige la liste.
   const [keys, setKeys] = useControllableState<string[] | undefined>({
     value: expandedKeys,
     defaultValue: defaultExpandedKeys,

@@ -151,15 +151,10 @@ const warned = new Set<string>();
 
 /**
  * ui-autocomplete : champ de saisie assistée, posé sur la coquille `ui-field`.
- *
  * Le composant **ne filtre rien** : il émet une requête par `onComplete`, et
- * l'appelant répond en mettant `suggestions` à jour. C'est ce qui le distingue
- * de `ui-select`, dont la liste est connue d'avance, et ce qui permet
- * d'interroger un serveur.
- *
- * Même motif combobox que `ui-select` : le focus reste sur le champ, l'option
- * courante est désignée par `aria-activedescendant`, et le panneau vit dans le
- * calque supérieur.
+ * l'appelant répond en mettant `suggestions` à jour, ce qui permet d'interroger un
+ * serveur. Motif combobox : le focus reste sur le champ, l'option courante est
+ * désignée par `aria-activedescendant`, et le panneau vit dans le calque supérieur.
  */
 export function UiAutocomplete({
   suggestions = [],
@@ -329,9 +324,8 @@ export function UiAutocomplete({
   }, [model, multiple]);
 
   /**
-   * Libellés retenus AU MOMENT du choix. Les suggestions changent à chaque
-   * requête : sans ce cache, une puce perdrait son libellé dès la requête
-   * suivante, et n'afficherait plus que sa valeur brute.
+   * Libellés retenus AU MOMENT du choix : les suggestions changent à chaque requête,
+   * et une puce n'afficherait plus que sa valeur brute.
    */
   const [labelCache, setLabelCache] = useState<Map<unknown, string>>(() => new Map());
 
@@ -441,8 +435,6 @@ export function UiAutocomplete({
     (entry: OptionEntry, closePanel = true) => {
       if (entry.disabled || readOnly) return;
 
-      // Le libellé est retenu MAINTENANT : la prochaine requête remplacera les
-      // suggestions, et la puce n'aurait plus de quoi s'afficher.
       setLabelCache((cache) => new Map(cache).set(entry.value, entry.label));
 
       if (multiple) {
@@ -526,8 +518,6 @@ export function UiAutocomplete({
   );
 
   // --- Focus glissant sur les puces ----------------------------------------
-  // C'est le motif que `useRovingTabIndex` sert : un seul arrêt de tabulation
-  // pour toute la liste de puces, les flèches naviguant dedans.
   const roving = useRovingTabIndex({
     count: visibleTags.length,
     orientation: 'horizontal',
@@ -538,9 +528,8 @@ export function UiAutocomplete({
   const focusTag = useCallback(
     (index: number) => {
       roving.setActiveIndex(index);
-      // Le nœud existe déjà, mais son `tabIndex` change au rendu suivant :
-      // `setTimeout` et non `requestAnimationFrame`, qui ne tire pas dans un
-      // onglet en arrière-plan.
+      // Focus après le rendu qui pose le `tabIndex`, par `setTimeout` :
+      // `requestAnimationFrame` ne tire pas dans un onglet en arrière-plan.
       window.setTimeout(() => tagRefs.current[index]?.focus());
     },
     [roving],
@@ -586,9 +575,8 @@ export function UiAutocomplete({
     const query = event.target.value;
     setInputText(query);
 
-    // Texte libre pendant la frappe. `forceSelection` attend une vraie
-    // suggestion, et `multiple` ne laisse jamais la requête toucher la
-    // sélection.
+    // Texte libre pendant la frappe, sauf avec `forceSelection` (une vraie suggestion
+    // est attendue) et `multiple` (la requête ne touche jamais la sélection).
     if (!forceSelection && !multiple) commit(query === '' ? null : query);
 
     window.clearTimeout(searchTimer.current);
@@ -608,9 +596,8 @@ export function UiAutocomplete({
   };
 
   /**
-   * `forceSelection` : à la sortie du champ, le texte doit correspondre à une
-   * suggestion connue. Sinon on remet à zéro, pour que le modèle ne contienne
-   * jamais de texte libre.
+   * `forceSelection` : à la sortie du champ, un texte sans suggestion correspondante
+   * est effacé, pour que le modèle ne contienne jamais de texte libre.
    */
   const validateForceSelection = useCallback(() => {
     const text = inputText.trim();
@@ -641,13 +628,10 @@ export function UiAutocomplete({
 
     if (multiple && selectedValues.length) {
       const input = event.currentTarget;
-      // Retour arrière sur un champ vide : on retire la dernière puce, comme
-      // dans tous les champs à jetons.
       if (event.key === 'Backspace' && !inputText) {
         removeAt(selectedValues.length - 1);
         return;
       }
-      // Flèche gauche curseur au début : on entre dans les puces.
       if (
         event.key === 'ArrowLeft' &&
         !renderSelectedItem &&
@@ -715,9 +699,8 @@ export function UiAutocomplete({
       close();
       return;
     }
-    // Marqué AVANT le focus : `focus()` déclenche un événement synchrone, et
-    // `completeOnFocus` lancerait sa propre requête en plus de celle-ci. Un
-    // clic sur le bouton ne doit émettre qu'une requête.
+    // Marqué AVANT le focus, qui est synchrone : sinon `completeOnFocus` lancerait
+    // une seconde requête.
     queryDirty.current = true;
     inputRef.current?.focus();
     runSearch(dropdownMode === 'current' ? inputText : '');
@@ -771,8 +754,7 @@ export function UiAutocomplete({
     }
 
     return (
-      // Motif combobox : le clavier et le focus vivent sur le champ, et
-      // l'option courante est désignée par `aria-activedescendant`.
+      // Motif combobox : le clavier et le focus vivent sur le champ (`aria-activedescendant`).
       // eslint-disable-next-line jsx-a11y/click-events-have-key-events
       <li
         key={row.key}
@@ -872,9 +854,8 @@ export function UiAutocomplete({
       >
         <div className={cx('ui-autocomplete-control', size === 'small' && '_small')}>
           {multiple && visibleTags.length > 0 && (
-            // `display: contents` : le rôle de liste est porté ici, mais les
-            // puces restent des enfants directs du contrôle pour la mise en
-            // page. C'est ce qui permet au champ de s'enrouler autour d'elles.
+            // `display: contents` : le rôle de liste est porté ici, mais les puces
+            // restent des enfants du contrôle, et le champ s'enroule autour d'elles.
             <div
               className="ui-autocomplete-tags"
               id={tagsId}
@@ -908,22 +889,12 @@ export function UiAutocomplete({
                     label={tag.label}
                     size="small"
                     disabled={disabled}
-                    // PAS `removable` : la puce y rendrait un `<button>`, donc
-                    // un contrôle interactif IMBRIQUÉ dans une `option`
-                    // elle-même interactive, ce qu'axe refuse à juste titre
-                    // (`nested-interactive`). Un `tabindex="-1"` n'y change
-                    // rien. La croix est donc une DÉCORATION cliquable, et le
-                    // retrait au clavier passe par Suppr sur l'option : motif
-                    // « liste de jetons » de l'APG. Même traitement que
-                    // `ui-input-tags`.
+                    // Pas `removable` : son `<button>` serait imbriqué dans une `option`
+                    // (`nested-interactive`). La croix est décorative, Suppr retire au clavier.
                     onKeyDown={(event) => onTagKeyDown(event, tag.index)}
                     onFocus={() => roving.setActiveIndex(tag.index)}
                   >
                     {!disabled && !readOnly && (
-                      /*
-                        Décoration cliquable, hors de l'arbre d'accessibilité :
-                        le chemin clavier est Suppr sur l'option qui l'englobe.
-                      */
                       <span
                         className="ui-autocomplete-remove"
                         aria-hidden="true"
@@ -985,10 +956,8 @@ export function UiAutocomplete({
 
       <div
         ref={setPanel}
-        // Tant que la position n'est pas calculée, le panneau reste dans son
-        // état fermé : `computePosition` est asynchrone, et peindre l'image
-        // d'avant est ce qui fait apparaître un panneau au mauvais endroit
-        // avant qu'il se replace. Reconnu par `utils.overlay-motion`.
+        // Fermé tant que la position n'est pas calculée, `computePosition` étant
+        // asynchrone. Lu par `utils.overlay-motion`.
         data-unpositioned={position.isPositioned ? undefined : ''}
         popover="manual"
         className={cx('ui-autocomplete-panel', size === 'small' && '_small', panelClassName)}

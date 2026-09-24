@@ -3,12 +3,8 @@
 
 // =====================================================================
 // ui-tag : co-located styles. All values come from design tokens.
-//
-// Extend:
-//   • Level     → add to $levels (tokens --informative-{level}{sub}-* must
-//                 exist + extend the `UiFeedbackLevel` type).
-//   • Sub-level → add to $sublevels (+ the `UiSubLevel` type).
-//   • Size      → add an entry to $sizes (+ the `TagSize` type).
+// Extend: $levels, $sublevels, $sizes mirror `UiFeedbackLevel`, `UiSubLevel`, `TagSize`;
+// a new level also needs its --informative-{level}{sub}-* tokens.
 // =====================================================================
 
 // --- Config ---------------------------------------

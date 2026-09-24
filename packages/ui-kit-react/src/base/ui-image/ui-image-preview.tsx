@@ -65,14 +65,9 @@ export interface UiImagePreviewProps extends Omit<
 /**
  * ui-image-preview : la vue agrandie qu'ouvre le mode `preview` de `ui-image`.
  *
- * Une scène qui porte l'image et une barre d'actions, et trois transformations
- * qu'une seule `transform` applique : déplacement, échelle, rotation. Le zoom
- * s'atteint au pointeur, barre et molette, comme au clavier, `+`, `-`, `0`, `r`
- * et les flèches pour déplacer : un zoom qu'on ne peut pas déplacer au clavier
- * est un zoom qu'on ne peut pas lire.
- *
- * Bâti sur le `<dialog>` natif, comme les panneaux de la famille `layout` : le
- * piège de focus, la restitution du focus et `Échap` viennent du navigateur.
+ * Déplacement, échelle et rotation passent par une seule `transform`, au pointeur
+ * comme au clavier (`+`, `-`, `0`, `r`, flèches). Bâti sur le `<dialog>` natif :
+ * piège de focus, restitution du focus et `Échap` viennent du navigateur.
  */
 export function UiImagePreview({
   visible,
@@ -113,16 +108,14 @@ export function UiImagePreview({
     [isControlled, onVisibleChange],
   );
 
-  // Les trois transformations vivent dans UN état : elles se remettent à neuf
-  // ensemble, et un seul `setState` suffit à l'ajustement au rendu ci-dessous.
+  // Un seul état pour les trois transformations : elles se remettent à neuf ensemble.
   const [view, setView] = useState(NEUTRAL);
   const scale = view.scale;
   const rotation = view.rotation;
   const pan = view;
 
-  // Une nouvelle image, ou une réouverture, repart de la vue neutre : garder le
-  // zoom de la précédente n'a aucun sens. Ajusté PENDANT le rendu, là où un
-  // effet peindrait d'abord l'ancienne vue.
+  // Une nouvelle image, ou une réouverture, repart de la vue neutre. Ajusté au
+  // rendu : un effet peindrait d'abord l'ancienne vue.
   const viewKey = `${src}|${isOpen}`;
   const [lastViewKey, setLastViewKey] = useState(viewKey);
   if (lastViewKey !== viewKey) {
@@ -260,12 +253,8 @@ export function UiImagePreview({
       aria-label={ariaLabel || undefined}
       onKeyDown={onKeyDown}
     >
-      {/*
-        Une action indisponible est `aria-disabled`, jamais `disabled` : un vrai
-        `disabled` laisse tomber le focus sur le corps dès que le bouton qui le
-        porte atteint une borne, et `Échap` n'atteint plus le dialogue. Les
-        gestionnaires bornent, donc un appui à la borne ne fait rien.
-      */}
+      {/* `aria-disabled`, jamais `disabled` : un bouton désactivé sous le focus le
+          lâche sur le corps, et `Échap` n'atteint plus le dialogue. */}
       <div className="ui-image-preview-toolbar">
         <button
           type="button"
@@ -338,8 +327,6 @@ export function UiImagePreview({
         </button>
       </div>
 
-      {/* La scène est la cible du clic extérieur : un appui qui l'atteint, et
-          non l'image, referme. Échap en est l'équivalent clavier. */}
       <div
         ref={stageRef}
         className="ui-image-preview-stage"

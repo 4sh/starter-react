@@ -22,10 +22,8 @@ function publish(next: readonly UiToastMessage[]): void {
 /**
  * uiToast : le magasin des messages, point d'entrée programmatique.
  *
- * C'est un **module**, et non un contexte : une notification se déclenche aussi
- * depuis un intercepteur HTTP ou un gestionnaire d'erreurs, c'est-à-dire hors de
- * tout composant. Là où le kit Angular injecte un service `providedIn: 'root'`,
- * ce singleton rend le même service sans forcer un fournisseur à la racine.
+ * Un **module** et non un contexte : une notification se déclenche aussi hors de
+ * tout composant, depuis un intercepteur HTTP ou un gestionnaire d'erreurs.
  *
  * @example
  * ```ts
@@ -75,9 +73,8 @@ export const uiToast = {
   },
 };
 
-// Le magasin vit au niveau du module, donc il est partagé par toutes les
-// requêtes d'un serveur : l'instantané serveur est toujours vide, et le premier
-// rendu client repart de là.
+// Magasin de module, partagé par toutes les requêtes d'un serveur : l'instantané
+// serveur est toujours vide, et le premier rendu client repart de là.
 const serverSnapshot = () => EMPTY;
 
 /**

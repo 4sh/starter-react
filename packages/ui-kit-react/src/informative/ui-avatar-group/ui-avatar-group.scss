@@ -2,13 +2,6 @@
 
 // =====================================================================
 // ui-avatar-group : co-located styles for the stacked avatars.
-//
-// Le chevauchement vient de la constante partagée de `ui-config`, donc il se
-// règle pour tout le kit d'un coup, ou pour un groupe par son hook.
-//
-// La version Angular vise l'élément `ui-avatar` ; ici c'est la CLASSE
-// `.ui-avatar`, le kit n'ayant pas d'élément hôte et interdisant les sélecteurs
-// d'élément nu, qui fuiraient sur toute la page.
 // =====================================================================
 
 $overlap: var(--ui-avatar-group-overlap, #{utils.$avatar-group-overlap}); /// Chevauchement horizontal entre avatars empilés.

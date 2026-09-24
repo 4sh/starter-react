@@ -1,11 +1,7 @@
 /*
- * Briques de type partagées par plusieurs composants `ui-*` (`UiLevel` en
- * premier lieu). Aucun code exécuté : un composant qui n'a besoin que d'un
- * type ne paie rien pour dépendre de cette entrée.
- *
- * ⚠️ Ces noms sont un invariant entre les stacks : ils portent la même
- * sémantique que dans `@4sh/ui-kit` côté Angular, et le contrôle de parité les
- * compare. Ne pas en renommer un sans le faire des deux côtés.
+ * Types partagés par plusieurs composants `ui-*`, sans code exécuté.
+ * ⚠️ Ces noms sont un invariant entre les stacks : ne pas en renommer un sans le
+ * faire des deux côtés.
  */
 
 /**

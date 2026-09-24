@@ -78,7 +78,6 @@ export interface ToggleButtonOptionClickEvent<T = unknown> {
   originalEvent: ReactMouseEvent;
 }
 
-/** Vue interne, normalisée, d'une option de groupe. */
 interface NormalizedToggle {
   key: string;
   index: number;
@@ -178,9 +177,6 @@ export interface UiToggleButtonProps<T = boolean> {
    * sur le rôle `button`, et c'est cohérent, la validité portant sur une saisie
    * et non sur une commande. L'annonce revient donc au champ englobant ou à son
    * message d'erreur, comme pour `ui-radio`.
-   *
-   * ⚠️ Écart assumé avec la version Angular, qui pose l'attribut sur les deux
-   * boutons. Relevé par jsx-a11y ; à corriger côté Angular.
    */
   invalid?: boolean;
   name?: string;
@@ -199,18 +195,12 @@ export interface UiToggleButtonProps<T = boolean> {
 }
 
 /**
- * ui-toggle-button : un bouton qui garde un état pressé.
+ * ui-toggle-button : un bouton qui garde un état pressé (`<button aria-pressed>` natif).
  *
- * Deux modes, un composant :
- *
- * - **simple**, par défaut : un `<button aria-pressed>` natif adossé à un
- *   booléen, ou à la paire `trueValue` / `falseValue`. Libellé et icône peuvent
- *   différer selon l'état.
- * - **groupe**, dès que `options` est fourni : un bouton par option, `role="group"`
- *   sur la racine, et le modèle devient le tableau des valeurs pressées.
- *   Délibérément toujours multi-sélection : un choix exclusif est le travail de
- *   `ui-segment-control`, qui le dit avec une sémantique `radiogroup` plutôt
- *   qu'avec `aria-pressed`.
+ * - **simple**, par défaut : adossé à un booléen, ou à la paire `trueValue` / `falseValue`.
+ * - **groupe**, dès que `options` est fourni : un bouton par option, `role="group"`,
+ *   et le modèle est le tableau des valeurs pressées. Toujours multi-sélection : le
+ *   choix exclusif revient à `ui-segment-control` (sémantique `radiogroup`).
  */
 export function UiToggleButton<T = boolean>({
   ripple = true,
@@ -266,8 +256,7 @@ export function UiToggleButton<T = boolean>({
     onChange: onValueChange,
   });
 
-  // La variante « forme riche » : la clé `value` gagne, et un objet sans clé
-  // `label` reste sans libellé, ce qui est le cas d'un bouton en icône seule.
+  // Forme riche : la clé `value` gagne, un objet sans `label` reste en icône seule.
   const resolver = useMemo(
     () => createRichOptionResolver({ optionValue, optionLabel, optionDisabled, dataKey }),
     [optionValue, optionLabel, optionDisabled, dataKey],
@@ -291,7 +280,6 @@ export function UiToggleButton<T = boolean>({
   }, [disabled, readOnly, checked, allowEmpty, setModel, falseValue, trueValue]);
 
   // --- Mode groupe ---------------------------------------------------------
-  /** Icône d'une option, l'état pressé pouvant en substituer une autre. */
   const resolveIcon = useCallback(
     (option: unknown, selected: boolean): string | null => {
       if (selected && isRecord(option)) {
@@ -305,7 +293,6 @@ export function UiToggleButton<T = boolean>({
     [resolver, optionIcon],
   );
 
-  /** Le modèle d'un groupe est le tableau des valeurs pressées. */
   const isPressed = useCallback(
     (v: unknown) => Array.isArray(model) && model.some((m) => resolver.equals(m, v)),
     [model, resolver],
@@ -389,8 +376,6 @@ export function UiToggleButton<T = boolean>({
         '[ui-toggle-button] Bouton en icône seule sans nom accessible : renseignez `aria-label`.',
       );
     } else if (hasStateLabels && !ariaLabel && !ariaLabelledBy) {
-      // Un nom qui change avec l'état est réannoncé au focus : le contrôle sonne
-      // alors comme un bouton différent selon sa valeur.
       prevenus.add(uid);
       console.warn(
         '[ui-toggle-button] `onLabel` et `offLabel` diffèrent : renseignez un `aria-label` indépendant de l’état.',
@@ -423,8 +408,7 @@ export function UiToggleButton<T = boolean>({
     <div
       ref={ref}
       className={classesRacine}
-      // Seul le GROUPE porte le nommage de niveau groupe : en mode simple, c'est
-      // le bouton lui-même qui est nommé.
+      // En mode simple, c'est le bouton qui est nommé, pas la racine.
       role={isGroup ? 'group' : undefined}
       aria-label={isGroup ? ariaLabel : undefined}
       aria-labelledby={isGroup ? ariaLabelledBy : undefined}
@@ -481,8 +465,6 @@ export function UiToggleButton<T = boolean>({
           disabled={disabled}
           tabIndex={tabIndex}
           aria-pressed={checked}
-          // Un nom explicite gagne ; sinon, seul un bouton en icône seule a
-          // besoin qu'on lui en fabrique un depuis son libellé courant.
           aria-label={ariaLabel || (isIconOnly ? (currentLabel ?? undefined) : undefined)}
           aria-labelledby={ariaLabelledBy}
           onClick={toggle}

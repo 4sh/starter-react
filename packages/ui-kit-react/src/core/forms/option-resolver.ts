@@ -5,10 +5,6 @@
  * Une option est une primitive ou un objet. `optionValue`, `optionLabel` et
  * `optionDisabled` sont des chemins de champ (notation pointée) lus sur un
  * objet, et `dataKey` décide de l'égalité entre objets.
- *
- * Porté du kit Angular, à une adaptation près : là-bas les accesseurs sont des
- * fonctions, pour que le résolveur reste réactif quand il est branché sur des
- * signaux. Ici ce sont des valeurs simples, React re-rendant de lui-même.
  */
 
 import { getFieldPath } from '../utils';
@@ -49,8 +45,6 @@ const isObject = (option: unknown): option is Record<string, unknown> =>
   typeof option === 'object' && option !== null;
 
 export function createOptionResolver(fields: OptionResolverFields): OptionResolver {
-  // Délégué à `core/utils` : le tableau lit les mêmes chemins pointés sur ses
-  // lignes, et une seule implémentation vaut mieux que deux qui dérivent.
   const getField = getFieldPath;
 
   const asText = (value: unknown): string | null =>
@@ -90,23 +84,12 @@ export function createOptionResolver(fields: OptionResolverFields): OptionResolv
 }
 
 /**
- * Variante pour les composants qui documentent une **forme riche**
- * `{ value, label, icon, disabled, ariaLabel }` : `ui-segment-control` et
- * `ui-toggle-button`.
+ * Variante pour les composants qui documentent une forme riche
+ * `{ value, label, icon, disabled, ariaLabel }` (`ui-segment-control`, `ui-toggle-button`).
  *
- * Deux comportements du résolveur de liste y sont faux, alors qu'ils sont justes
- * pour `ui-select` et `ui-autocomplete` (dont le spec Angular les épingle) :
- *
- * - **la valeur** : sans `optionValue`, la liste renvoie l'option ENTIÈRE, ce
- *   qui est le bon défaut pour des options quelconques. Ici la clé `value` est
- *   documentée, donc elle doit gagner, sinon le modèle reçoit l'objet complet.
- * - **le libellé** : la liste retombe sur `String(option)`, donc
- *   `"[object Object]"` pour un objet sans clé `label`. Afficher quelque chose
- *   vaut mieux qu'une option vide dans une liste ; ici un bouton en **icône
- *   seule** est un usage légitime, et il ne doit porter aucun texte.
- *
- * Le reste (désactivation, égalité par `dataKey`, chemins pointés) est
- * strictement celui du résolveur de liste.
+ * Deux écarts avec le résolveur de liste : sans `optionValue`, la clé `value` gagne sur
+ * l'option entière ; sans `optionLabel`, un objet sans clé `label` n'a aucun libellé (bouton
+ * en icône seule) au lieu de `"[object Object]"`. Le reste est celui du résolveur de liste.
  */
 export function createRichOptionResolver(fields: OptionResolverFields): OptionResolver {
   const base = createOptionResolver(fields);

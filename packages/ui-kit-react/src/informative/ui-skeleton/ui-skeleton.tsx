@@ -25,12 +25,9 @@ export interface UiSkeletonProps extends Omit<ComponentPropsWithRef<'div'>, 'chi
 /**
  * ui-skeleton : bloc affiché à la place d'un contenu en cours de chargement.
  *
- * Trois formes avec leurs dimensions par défaut ; `width`, `height` et
- * `borderRadius` prennent le dessus pour une mise en page sur mesure.
- *
- * Le composant est masqué aux lecteurs d'écran : le chargement est un état
- * purement visuel. Pour l'annoncer, poser `aria-busy="true"` sur le conteneur
- * qui regroupe les blocs.
+ * Trois formes, que `width`, `height` et `borderRadius` redimensionnent. Masqué aux
+ * lecteurs d'écran : pour annoncer le chargement, poser `aria-busy="true"` sur le
+ * conteneur qui regroupe les blocs.
  */
 export function UiSkeleton({
   shape = 'text',

@@ -20,18 +20,12 @@ export interface UiLabelProps extends Omit<ComponentPropsWithRef<'label'>, 'chil
 }
 
 /**
- * ui-label : libellé de champ de formulaire.
+ * ui-label : libellé de champ de formulaire, un `<label>` natif avec marqueur requis
+ * optionnel. Utilisé seul, ou composé dans un champ (`ui-field`, `ui-checkbox`, `ui-radio`…).
  *
- * Rend un `<label>` natif avec un marqueur requis optionnel. Utilisé seul, ou
- * composé dans un champ (`ui-field`, `ui-checkbox`, `ui-radio`…).
- *
- * Point d'extension : la couleur du texte lit `--ui-label-color` en premier,
- * de sorte qu'un composant parent pilote l'état du libellé (survol, désactivé)
- * sans avoir à écrire de sélecteur qui traverse ce composant :
- *
- * ```scss
- * .ui-checkbox:hover { --ui-label-color: var(--form-high-content-hover); }
- * ```
+ * Point d'extension : la couleur du texte lit `--ui-label-color` en premier, pour qu'un
+ * parent pilote l'état du libellé (survol, désactivé) sans sélecteur traversant :
+ * `.ui-checkbox:hover { --ui-label-color: var(--form-high-content-hover); }`
  */
 export function UiLabel({
   label,

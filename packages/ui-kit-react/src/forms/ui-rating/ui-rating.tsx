@@ -74,14 +74,9 @@ export interface UiRatingProps {
 /**
  * ui-rating : note en étoiles, bâtie sur un `<input type="range">` natif.
  *
- * Les étoiles sont purement visuelles : le focus, le clavier et la sémantique
- * de valeur sont portés par le champ natif, masqué visuellement. On hérite donc
- * de tout ce que le navigateur sait déjà faire d'un curseur, y compris son
- * annonce par les lecteurs d'écran.
- *
- * L'étoile pleine est empilée sur l'étoile vide et **découpée** à la portion
- * remplie : la demi-étoile marche avec n'importe quelle famille d'icônes, et
- * avec un rendu personnalisé.
+ * Les étoiles sont purement visuelles : le focus, le clavier et l'annonce sont
+ * portés par le champ natif, masqué visuellement. L'étoile pleine, empilée sur la
+ * vide, est **découpée** à la portion remplie : la demi-étoile marche avec toute icône.
  */
 export function UiRating({
   value,
@@ -119,14 +114,9 @@ export function UiRating({
 
   const [hoverValue, setHoverValue] = useState(0);
 
-  /** Granularité : une étoile, ou une moitié quand `allowHalf`. */
   const step = allowHalf ? 0.5 : 1;
 
-  /**
-   * Valeur utilisée pour l'affichage. Ramenée à la granularité, pour qu'une
-   * valeur hors pas poussée par l'hôte (une moyenne à 4,3) ne rende jamais un
-   * remplissage que l'utilisateur n'aurait pas pu choisir.
-   */
+  // Ramenée au pas : une moyenne à 4,3 ne rend pas un remplissage hors d'atteinte.
   const current = useMemo(() => Math.floor(Math.max(0, model ?? 0) / step) * step, [model, step]);
 
   const starList = useMemo(() => {
@@ -138,12 +128,8 @@ export function UiRating({
     }));
   }, [hoverValue, current, stars]);
 
-  /**
-   * Valeur pointée par le curseur : l'étoile, ou sa première moitié quand
-   * `allowHalf`. On lit le sens d'écriture pour que « la première moitié »
-   * reste celle du début en RTL, comme le découpage appliqué par la feuille de
-   * style.
-   */
+  // Valeur pointée : l'étoile, ou sa première moitié avec `allowHalf`, lue selon
+  // le sens d'écriture comme le découpage RTL de la feuille de style.
   const pointedValue = useCallback(
     (star: number, event: MouseEvent<HTMLElement>): number => {
       if (!allowHalf) return star;
@@ -236,8 +222,7 @@ export function UiRating({
         {starList.map((star) => (
           /*
             eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions --
-            Etoiles purement visuelles : le focus, le clavier et la semantique
-            de valeur sont portes par le `<input type="range">` ci-dessus.
+            Étoiles visuelles : focus, clavier et valeur sont portés par le range.
           */
           <div
             key={star.index}
@@ -248,7 +233,6 @@ export function UiRating({
               setHoverValue(pointedValue(star.index, event));
             }}
           >
-            {/* L'icône pleine est empilée sur la vide et découpée à `fill`. */}
             <span className="ui-rating-icon-stack">
               <span className="ui-rating-icon-base">{defautOff(star)}</span>
               {star.fill > 0 && (

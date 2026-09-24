@@ -52,8 +52,7 @@ export type UiSpeedDialItem = Pick<
 > & {
   /**
    * Rend l'action soi-même, pour brancher le lien d'un routeur. Typé pour
-   * `ui-button`, et non pour `ui-menu` : c'est un bouton que l'action rend, et
-   * ses props ne sont pas celles d'une entrée de menu.
+   * `ui-button` : c'est un bouton que l'action rend, pas une entrée de menu.
    */
   render?: UiButtonProps['render'];
 };
@@ -74,15 +73,7 @@ interface SpeedDialNode {
 /** Arrondit le bruit flottant qu'un `calc()` CSS ne sait pas lire. */
 const round = (value: number): number => Math.round(value * 1e6) / 1e6;
 
-/**
- * L'ouverture angulaire d'un arc, en degrés horaires depuis le haut : 0° en
- * haut, 90° à droite, 180° en bas, 270° à gauche.
- *
- * `circle` ignore `direction`, un anneau entier n'ayant pas de côté.
- * `semi-circle` centre sa moitié dessus. `quarter-circle` remplit le quart du
- * coin nommé, et retombe sur `up-right` pour un cardinal, n'ayant lui-même pas
- * de « haut ».
- */
+/** L'ouverture angulaire d'un arc, en degrés horaires : 0° en haut, 90° à droite. */
 function arcSpan(
   type: Exclude<SpeedDialType, 'linear'>,
   direction: SpeedDialDirection,
@@ -154,14 +145,9 @@ export interface UiSpeedDialProps extends Omit<
 /**
  * ui-speed-dial : un bouton flottant qui déploie ses actions autour de lui.
  *
- * Les actions viennent d'un modèle déclaratif, le même sous-ensemble feuille
- * que `ui-menu`, donc les entrées d'un menu alimentent un bouton sans être
- * remodelées. Quatre dispositions : empilée le long de `direction`, ou posée
- * sur un anneau, une moitié ou un quart d'arc.
- *
- * Les actions ne sont rendues qu'à l'ouverture, donc ni lues ni atteignables
- * une fois refermées, et elles forment **un seul** arrêt de tabulation. Le
- * placement du bouton dans la page appartient à l'appelant.
+ * Les actions reprennent le modèle feuille de `ui-menu`, empilées le long de
+ * `direction` ou posées sur un arc. Rendues à l'ouverture seulement, elles forment
+ * **un seul** arrêt de tabulation. Le placement dans la page revient à l'appelant.
  */
 export function UiSpeedDial({
   items,
@@ -217,16 +203,8 @@ export function UiSpeedDial({
     [ref],
   );
 
-  /**
-   * Un seul mouvement pour toute la liste, et non un par action.
-   *
-   * La sortie décalée a été essayée côté Angular puis annulée : une action dont
-   * le délai est plus court finit avant ses voisines, perd sa classe de sortie
-   * et revient à pleine opacité le temps qu'elles terminent, ce qui se lit
-   * comme un clignotement. Les actions partent donc ensemble, ce qu'une seule
-   * disparition de la liste donne gratuitement, et l'entrée reste décalée par
-   * `--_stagger-index`.
-   */
+  // Un seul mouvement pour toute la liste : une sortie décalée par action
+  // clignote. Seule l'entrée se décale, par `--_stagger-index`.
   const {
     present,
     ref: attachMotion,
@@ -239,11 +217,9 @@ export function UiSpeedDial({
     setFocusedKey(null);
   }, [setOpen]);
 
-  // Un bouton déclaré dans une coquille d'application survit à la vue routée :
-  // on le referme plutôt que de le laisser ouvert par-dessus la page suivante.
+  // Posé dans la coquille de l'application, le bouton survit au changement de route.
   useCloseOnNavigation(isOpen, close);
 
-  // Fermeture au clic en dehors, branchée seulement tant que c'est ouvert.
   useEffect(() => {
     if (!isOpen || !hideOnClickOutside) return;
     const onPointerDown = (event: PointerEvent) => {
@@ -269,8 +245,7 @@ export function UiSpeedDial({
     listRef.current?.querySelector<HTMLElement>(`[data-key="${CSS.escape(key)}"]`)?.focus();
   }, []);
 
-  // À l'ouverture au clavier, le focus part sur l'arrêt de tabulation, déjà
-  // posé dans le DOM : le relire évite de recopier la règle qui l'a choisi.
+  // Ouverture au clavier : le focus va à l'arrêt de tabulation, relu dans le DOM.
   const openedByKeyboard = useRef(false);
   useEffect(() => {
     if (!isOpen || !openedByKeyboard.current) return;
@@ -278,7 +253,6 @@ export function UiSpeedDial({
     listRef.current?.querySelector<HTMLElement>('[data-key][tabindex="0"]')?.focus();
   }, [isOpen]);
 
-  // Le focus revient au déclencheur quand il était dans la liste qui se ferme.
   const wasOpen = useRef(isOpen);
   useEffect(() => {
     const closing = wasOpen.current && !isOpen;
@@ -292,23 +266,14 @@ export function UiSpeedDial({
     const step = type === 'circle' ? span / nodes.length : span / Math.max(nodes.length - 1, 1);
     return (index: number) => {
       const angle = ((start + step * index) * Math.PI) / 180;
-      // Le bruit flottant, `sin(π)` valant 1,2e-16, s'écrit en notation
-      // exponentielle, qu'un `calc()` CSS ne sait pas lire.
       const x = round(Math.sin(angle));
       const y = round(-Math.cos(angle));
       return `translate(-50%, -50%) translate(calc(${x} * var(--_radius)), calc(${y} * var(--_radius)))`;
     };
   })();
 
-  /**
-   * Préréglage d'entrée d'une action.
-   *
-   * Sur un arc, chaque action porte déjà sa propre `transform`, sa place
-   * angulaire : `zoom` et les glissements animent `transform` eux aussi, et une
-   * animation CSS gagne sur un style en ligne pour la même propriété, ce qui
-   * effacerait la position le temps de l'animation. `fade`, qui ne touche que
-   * l'opacité, est le seul préréglage qui ne peut pas entrer en conflit.
-   */
+  // Sur un arc, `fade` seul : les autres préréglages animent `transform`, et une
+  // animation CSS l'emporte sur la position angulaire posée en ligne.
   const itemPreset: UiMotionPreset =
     type !== 'linear'
       ? 'fade'
@@ -316,7 +281,7 @@ export function UiSpeedDial({
         ? (`slide-${direction}` as UiMotionPreset)
         : 'slide-up';
 
-  /** La bulle se pose à l'opposé du déploiement, pour ne jamais couvrir une action. */
+  /** La bulle se pose en travers de l'axe de déploiement, pour ne jamais couvrir une action voisine. */
   const tooltipPosition: TooltipPosition =
     type === 'linear' && (direction === 'up' || direction === 'down') ? 'right' : 'top';
 
@@ -338,17 +303,14 @@ export function UiSpeedDial({
 
   const onListKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     if (!focusableKeys.length) return;
-    // La clé courante se lit sur l'ÉVÉNEMENT avant l'état : une touche qui suit
-    // immédiatement un `focus()` arrive avant que React ait traité le rendu que
-    // ce focus déclenche, et l'état pointerait encore l'action d'avant.
+    // La clé courante se lit sur l'événement, pas sur l'état : une touche juste
+    // après un `focus()` précède le rendu qui mettrait l'état à jour.
     const from = (event.target as HTMLElement).closest?.('[data-key]');
     const current = from?.getAttribute('data-key') ?? focusedKey;
     const index = current ? focusableKeys.indexOf(current) : -1;
 
     switch (event.key) {
-      // Les deux paires de flèches avancent pareil quelle que soit la
-      // disposition : mieux vaut une correspondance simple et prévisible que
-      // huit règles dérivées de la direction.
+      // Flèches indépendantes de la disposition, à dessein : simple et prévisible.
       case 'ArrowUp':
       case 'ArrowRight':
         event.preventDefault();
@@ -400,8 +362,7 @@ export function UiSpeedDial({
       style={hostStyle}
     >
       {mask && present && (
-        // Le masque partage la durée de vie de la liste : il n'a donc pas
-        // besoin de sa propre rétention, seulement de la classe qui va avec.
+        // Le masque vit avec la liste : pas de rétention propre, seulement sa classe.
         <div
           className={cx('ui-speed-dial-mask', motion && isOpen && motionEnterClass('fade'))}
           style={motionStyle}

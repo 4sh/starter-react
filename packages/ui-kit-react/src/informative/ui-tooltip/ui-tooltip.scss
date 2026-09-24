@@ -1,17 +1,12 @@
 @use 'utils';
 
 // =====================================================================
-// ui-tooltip : styles co-localisés de la bulle (panneau + flèche).
-//
-// La bulle vit dans le CALQUE SUPÉRIEUR (`popover="manual"`) : aucun z-index,
-// et aucun rognage par un ancêtre en `overflow: hidden`. Il faut en revanche
-// neutraliser les styles navigateur du calque, qui centreraient la bulle.
+// ui-tooltip : styles co-localisés de la bulle (panneau + flèche), qui vit dans
+// le calque supérieur (`popover="manual"`) : aucun z-index.
 // =====================================================================
 
 // --- Réglages ---------------------------------------------------------
-// Max content width before wrapping.
 $tooltip-max-width: var(--ui-tooltip-max-width, #{utils.rem-calc(256)});   /// Largeur max avant retour à la ligne.
-// Diamètre de la flèche, tenu en phase avec `ARROW_GAP` dans le .tsx.
 $tooltip-arrow-size: var(--ui-tooltip-arrow-size, #{utils.rem-calc(8)});   /// Taille de la flèche, tenue en phase avec la constante `ARROW_GAP` du `.tsx`.
 $tooltip-arrow-half: calc(#{$tooltip-arrow-size} / 2);                     /// Demi-largeur de la flèche, dérivée de sa taille.
 $tooltip-padding-y: var(--ui-tooltip-padding-y, var(--units-sm));          /// Inset vertical de la bulle.
@@ -21,20 +16,15 @@ $tooltip-stroke-width: var(--ui-tooltip-stroke-width, var(--stroke-sm));   /// �
 $tooltip-font-size: var(--ui-tooltip-font-size, var(--size-typography-text-md)); /// Taille de police du contenu.
 
 .ui-tooltip {
-  // Le calque supérieur pose `inset: 0` et `margin: auto` : c'est le placement
-  // calculé qui doit décider, donc on les annule. `fixed` établit aussi le bloc
-  // conteneur de la flèche, qui est en `absolute`.
+  // Le calque supérieur pose `inset: 0` et `margin: auto` : annulés, le placement
+  // calculé décide. `fixed` sert aussi de bloc conteneur à la flèche.
   position: fixed;
   inset: auto;
   margin: 0;
   overflow: visible;
 
-  // Une bulle ne se met JAMAIS entre le pointeur et ce qu'elle recouvre. Côté
-  // Angular c'est le panneau du CDK qui le pose ; ici il n'y a pas de calque à
-  // part, donc c'est la bulle elle-même. Sans ça, elle avale les clics de ce
-  // qu'elle surplombe, et avec `autoHide` elle clignote : le pointeur qui
-  // l'atteint quitte le déclencheur, elle se ferme, le pointeur retombe sur le
-  // déclencheur, elle se rouvre.
+  // Une bulle ne se met jamais entre le pointeur et ce qu'elle recouvre : elle
+  // avalerait ses clics et, avec `autoHide`, clignoterait.
   pointer-events: none;
 
   display: inline-block;
@@ -53,15 +43,13 @@ $tooltip-font-size: var(--ui-tooltip-font-size, var(--size-typography-text-md));
   overflow-wrap: break-word;
 
   // --- Fade / slide transition (shared motion system) ----------------
-  // Snappy, decelerating feel: fast duration + ease-out. Timing flows through
-  // the motion system, so `data-motion="off"` / reduced-motion apply here too.
+  // Snappy: fast duration, ease-out. The motion kill-switches still apply.
   --ui-motion-duration: #{utils.$motion-duration-fast};
   --ui-motion-easing: #{utils.$motion-easing-enter};
 
   // --- Entrée et sortie -----------------------------------------------
-  // Même mixin partagé que `ui-modal`, `ui-drawer` et `ui-popover` : la bulle
-  // glisse depuis le côté OPPOSÉ à celui où elle s'affiche, de la distance du
-  // système. Une variable par côté, donc une seule inclusion.
+  // La bulle glisse depuis le côté opposé au sien : une variable par côté, et le
+  // mixin n'est inclus qu'une fois.
   --_motion-slide: 0 0;
 
   &._top { --_motion-slide: 0 var(--ui-motion-distance, #{utils.$motion-distance}); }
@@ -74,10 +62,8 @@ $tooltip-font-size: var(--ui-tooltip-font-size, var(--size-typography-text-md));
     translate: var(--_motion-slide);
   }
 
-  // Le `display: none` d'un popover fermé vient du style NAVIGATEUR, que le
-  // `display` de ce bloc écrase : il faut le redire. `display` étant dans la
-  // transition avec `allow-discrete`, la bulle reste affichée le temps du
-  // fondu de sortie.
+  // Le `display: none` d'un popover fermé est un style navigateur, que `display` bat.
+  // `allow-discrete` le retarde le temps du fondu de sortie.
   &:not(:popover-open) {
     display: none;
   }
@@ -88,7 +74,6 @@ $tooltip-font-size: var(--ui-tooltip-font-size, var(--size-typography-text-md));
     pointer-events: auto;
   }
 
-  // Respect reduced-motion preferences / the global motion kill-switch.
   @include utils.motion-reduce {
     transition-duration: 0.01ms;
     translate: none;

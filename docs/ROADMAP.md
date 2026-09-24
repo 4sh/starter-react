@@ -40,7 +40,7 @@ La liste est longue parce que chaque entrée a coûté du temps une fois.
 | 1     | Le patron, de bout en bout      | ✅ terminée (`ui-icon`, puis `ui-button`) |
 | 2     | Fondation transverse            | ✅ terminée (`core/ripple` en dernier)    |
 | 3     | La vague des composants         | ✅ 62 sur 62                              |
-| 4     | Mode copie et registry          | ⬜ pas commencée                          |
+| 4     | Mode copie (CLI)                | ⬜ pas commencée                          |
 | 5     | MCP, doc publique, publication  | ⬜ pas commencée                          |
 | 6     | Contrôle de parité entre stacks | ⬜ pas commencée                          |
 
@@ -91,7 +91,7 @@ donc la majorité des écrans d'un projet réel.
 
 **Les phases 2 et 3 sont closes le 23 septembre** : les 62 composants sont portés, et
 `core/ripple`, la dernière brique, a donné la prop `ripple` aux quatorze composants équipés.
-La suite du plan est la phase 4, le mode copie et le registry (décision D7) ; sortir un
+La suite du plan est la phase 4, le mode copie par CLI (décision D7) ; sortir un
 `0.1.0` avant, ou non, est une décision à prendre.
 
 Restent ouverts, hors du plan : `format:check` absent de la CI (quatre fichiers ont dérivé),
@@ -173,7 +173,7 @@ Résumé pour ne pas avoir à ouvrir le fichier. La justification, elle, est dan
 | D4  | Le sous-chemin public ne porte pas la catégorie : `@4sh/ui-kit-react/ui-button`.           |
 | D5  | SCSS co-localisé, classes publiques stables, CSS porté par le composant.                   |
 | D6  | Aucune librairie de composants. Deux dépendances ciblées, un fichier propriétaire chacune. |
-| D7  | Mode copie : un CLI maison **et** un registry compatible shadcn.                           |
+| D7  | Mode copie : un CLI maison, pendant des schematics Angular. Registry shadcn écarté.        |
 | D8  | Tests dans un vrai navigateur. Contrôle axe bloquant.                                      |
 
 ---
@@ -210,9 +210,16 @@ Une dette écrite n'est pas une dette : c'est un choix. Ce qui suit est assumé,
 - **Gridaflex n'est pas tranché** pour React. `storybook/docs/specifications/responsive.mdx`
   en parle comme s'il était là.
 - **Les trois paquets sont `private: true`** en attendant la phase 5.
-- **`data-unpositioned` est posé par les huit panneaux flottants, mais le mixin ne s'en sert
+- **`data-unpositioned` est posé par tous les panneaux flottants, mais le mixin ne s'en sert
   que là.** Un composant qui ajouterait un panneau devra penser à l'attribut : rien ne le lui
-  rappelle, `docs.config` ne voyant que les hooks `--ui-*`.
+  rappelle, `docs.config` ne voyant que les hooks `--ui-*`. Les sous-menus en cascade de
+  `ui-menu` l'avaient oublié jusqu'au 2026-09-24.
+- **`component-vars.build.mjs` ne lit pas les `.tsx`.** Il repère une variable posée par le
+  composant lui-même par la syntaxe Angular (`[style.--ui-x]`, `setProperty`) dans les `.scss`,
+  `.ts` et `.html`. Un style en ligne React (`style={{ '--ui-x': … }}`) lui échappe : six hooks
+  sont concernés, et `--ui-editor-swatch-indicator-color` ne reste classé que grâce à un
+  commentaire de `ui-editor.scss` qui cite la forme Angular. Le corriger change la doc de
+  theming publiée de cinq autres hooks : à trancher à part.
 - **`docs:config` affiche une ligne d'avertissement attendue** : « 1 variable sans commentaire
   `///` ». C'est `$months-stack-below` de `ui-datepicker`, un breakpoint SCSS interne qui n'a
   ni hook `--ui-*` ni raison d'être publié. Ne pas partir à sa recherche.
@@ -433,10 +440,32 @@ Ne pas les repayer. Chacun est documenté sur place, dans le fichier concerné.
   Elle porte la position d'avant, et le panneau paraît apparaître ailleurs puis se replacer.
   `useUiPosition` expose `isPositioned` : tant qu'il est faux, le panneau porte
   `data-unpositioned` et `utils.overlay-motion` le garde dans son état fermé.
+- **`scale` et `translate` s'appliquent PAR-DESSUS `transform`.** Positionner un panneau par
+  `transform: translate()` et animer son entrée par la propriété `scale` réduit donc les
+  coordonnées elles-mêmes : le panneau part vers l'origine du document et glisse jusqu'à sa
+  place, d'autant plus loin qu'il est bas dans la page (127 px pour un menu contextuel, 331 px
+  sur l'Overview). C'était le « panneau qui se replace » signalé et jamais reproduit :
+  invisible en haut d'une story, flagrant en bas d'une page de doc. `useUiPosition` pose
+  `top` / `left`, et un `transform-origin` calculé sur l'ancre.
+- **Un panneau en `display: none` se mesure faux, et en silence.** Taille nulle, et Floating UI
+  lui cherche un parent de positionnement dans le DOM au lieu du viewport. Que l'effet qui
+  appelle `showPopover()` coure avant ou après la mesure dépend de la priorité de la mise à
+  jour React, pas du composant : `useUiPosition` refuse de mesurer un panneau qui n'est pas
+  encore dans son calque.
+- **L'état d'attente d'un panneau ne doit JAMAIS s'appliquer à sa sortie.** `isPositioned`
+  retombe à la fermeture, pendant que la sortie `allow-discrete` le garde peint : un style
+  d'attente (origine du viewport) posé sur ce seul critère l'a fait clignoter en haut à gauche
+  à chaque fermeture. Fermé, un panneau garde sa dernière position.
+- **Une animation se mesure dans un onglet VISIBLE.** Le panneau navigateur de Claude, masqué,
+  gèle les transitions (`opacity: 0`, `scale: 0.96` indéfiniment) : ses rectangles mentent.
+  Un Chromium sans tête piloté par Playwright, échantillonné après chaque peinture (une tâche
+  `MessageChannel` postée depuis `requestAnimationFrame`), donne la vérité image par image.
 - **Un résultat négatif obtenu juste après une édition ne prouve rien.** J'ai conclu qu'un
   survol n'était pas en cause en neutralisant son gestionnaire et en voyant le défaut
   persister : c'était le cache de modules qui servait l'ancienne version. La trace, elle, a
-  montré l'inverse. Vider `node_modules/.vite` avant de croire une absence.
+  montré l'inverse. Vider `node_modules/.vite` avant de croire une absence. Même famille : le
+  rapport `.vitest/json/output.json` n'est pas réécrit par un run qui échoue à démarrer, et on
+  relit alors le verdict du run d'avant. La sortie brute de `vitest run` fait foi.
 - **Une boîte à zéro ne veut pas dire « repositionné en haut à gauche ».** Un élément dont un
   ANCÊTRE est en `display: none` n'a plus de boîte du tout, et son rectangle se lit (0, 0),
   transform intact. J'ai failli corriger un repositionnement qui n'existait pas : c'est le
@@ -631,9 +660,11 @@ Jira en tête, et un `git add` par fichier nommé, jamais `git add .`.
 tâche**, et ajouter une ligne au journal. Deux minutes, et c'est ce qui évite de rouvrir des
 décisions déjà prises à la session suivante.
 
-Un piège nouvellement payé va dans **Pièges déjà payés** _et_ en commentaire à l'endroit
-concerné. Le commentaire est ce qui le rend visible au bon moment ; cette liste est ce qui le
-rend trouvable quand on ne sait pas encore qu'on le cherche.
+Un piège nouvellement payé va dans **Pièges déjà payés**, avec son histoire et ses mesures.
+Dans le code, il ne laisse qu'**une ligne au présent**, et seulement si la contrainte ne se
+lit pas dans le code : la règle et sa raison, jamais le récit (voir « Écrire les
+commentaires » dans `AGENTS.md`). La ligne est ce qui le rend visible au bon moment ; cette
+liste est ce qui le rend trouvable quand on ne sait pas encore qu'on le cherche.
 
 ---
 
@@ -2057,3 +2088,60 @@ React donne la valeur réelle.
 
 32 tests unitaires (15 pour le moteur, 17 pour le contrat des quatorze) et deux stories auditées. **Les phases 2 et 3 sont
 closes.** La suite du plan est la phase 4, le mode copie.
+
+### 2026-09-23 : D7 révisée, le registry shadcn écarté
+
+La première version de D7 prévoyait deux canaux pour le mode copie : un CLI maison, et un
+registry statique compatible shadcn (`npx shadcn add <url>`). Le registry est abandonné : le
+kit React s'en tient au modèle Angular, un package classique et un package en mode copie, le
+CLI jouant le rôle des schematics de `@4sh/ui-kit-schematics` (`init`, `add`, `update`).
+`docs/DECISIONS.md`, cette feuille de route, le `package.json` du CLI et la page Getting Started
+sont alignés.
+
+### 2026-09-24 : l'ouverture et la fermeture des panneaux flottants
+
+Trois défauts de Storybook signalés par le user, puis deux autres sur tous les overlays.
+
+**L'Overview arrivait déroulée** jusqu'à `ui-modal` (9 397 px). Les stories `Opened` de
+`ui-drawer` et `ui-modal` ouvrent un dialogue `contained` au montage, et `show()` y posait le
+focus, que Chrome fait suivre d'un défilement. Un dialogue cantonné ouvert dès le montage fait
+partie de la page : il s'ouvre par l'attribut, qui ne touche pas au focus, et ne perd rien, un
+dialogue cantonné n'ayant ni calque, ni arrière-plan, ni piège. Même règle pour
+`ui-bottom-sheet`. **`ui-label`** rendait un `<input>` brut : retiré, comme côté Angular, axe
+ne signalant pas un libellé orphelin, contrairement à ce qu'affirmait sa doc. **Le popover de
+l'Overview ramenait la page en haut** : focalisé avant d'avoir sa position, il était encore à
+l'origine du document.
+
+**Puis le vrai sujet**, sur `ui-context-menu` et `ui-popover` : le panneau s'ouvrait plus haut
+que le pointeur et glissait jusqu'à lui ; il clignotait en haut à gauche en se fermant. Mesuré
+image par image sous Playwright, dans un Chromium sans tête dont le rendu tourne, là où le
+panneau navigateur masqué gelait les transitions. Le premier défaut était ancien, et c'était
+le « panneau qui se replace » du 2026-09-08 : l'échelle d'entrée s'applique par-dessus le
+`transform` de positionnement. Le second était **de moi**, au même tour que le correctif du
+focus : l'état d'attente (origine du viewport) s'appliquait aussi pendant la sortie. Il n'avait
+pas été commité.
+
+`useUiPosition` tient désormais lui-même son cycle de vie, sur `computePosition` et
+`autoUpdate` : position en `top` / `left`, `transform-origin` calculé sur l'ancre, mesure
+refusée tant que le panneau n'est pas dans son calque, résultat périmé ignoré, dernière
+position gardée à la fermeture, ancre virtuelle stable. L'API publique ne change pas, les
+composants non plus, sauf les sous-menus en cascade qui posent enfin `data-unpositioned`.
+Six tests de contrat, chacun vérifié en échec sur l'ancienne version, sur celle du tour
+précédent, ou les deux : 1 334 tests unitaires et 716 stories auditées passent.
+
+### 2026-09-24 : une passe sur les commentaires du kit
+
+À la demande du user, qui trouvait le code alourdi par le récit des correctifs. Les 166
+fichiers source concernés perdent 30 % de leurs lignes de commentaire (7 671 → 5 357) :
+historique, mesures, symptômes, comparaisons avec le kit Angular et paraphrases sont partis ;
+une contrainte non évidente reste en une ligne au présent. Les JSDoc d'API sont gardées
+(tableaux de Storybook), les `///` de theming intacts, les directives aussi. La règle est
+écrite dans `AGENTS.md` (« Pas d'historique dans le code ») et « Tenir ce fichier à jour » ne
+demande plus le récit d'un piège en commentaire.
+
+Vérifié par un garde-fou jetable qui réimprime chaque fichier sans ses commentaires (printer
+de TypeScript, décapage du SCSS) et le compare à l'instantané d'avant : aucun octet de code
+n'a bougé. Les fichiers générés par `docs:config` sont identiques, après une surprise : un
+commentaire citant la syntaxe Angular portait la classification d'un hook (voir la dette).
+Les agents de la passe ont relevé en chemin une quinzaine de défauts de code, non corrigés
+et listés pour une passe dédiée.

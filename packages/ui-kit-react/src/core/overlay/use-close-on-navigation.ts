@@ -2,32 +2,23 @@
 
 import { useEffect, useRef } from 'react';
 
-/** Partie chemin d'une URL, requête et fragment retirés. */
 function pathOf(url: string): string {
   return url.split(/[?#]/)[0] ?? '';
 }
 
 /**
- * Ferme un panneau flottant quand la page change.
+ * Ferme un panneau flottant quand la page change : une coquille d'application
+ * (en-tête, barre latérale) le garde monté pendant la navigation.
  *
- * Un panneau monté dans une coquille d'application (en-tête, barre latérale)
- * survit à la navigation : son composant hôte n'est pas démonté. Il resterait
- * donc ouvert par-dessus la page suivante, et se replacerait en haut à gauche
- * dès qu'on le repositionne, son ancre ayant disparu avec la page précédente.
- *
- * Côté Angular, la brique équivalente dépend du `Router`. Ici elle écoute
- * l'**API History** : le kit n'impose toujours aucun routeur, et le mécanisme
- * marche avec tous, puisque tous finissent par appeler `pushState`.
- *
- * Seul un changement de **page** ferme : réécrire la requête ou le fragment
- * (filtres, pagination, état poussé par le panneau lui-même) le laisse ouvert.
+ * Écoute l'API History, que tout routeur finit par appeler : le kit n'en impose
+ * aucun. Seul un changement de chemin ferme : la requête ou le fragment réécrits
+ * le laissent ouvert.
  *
  * @param close Doit être idempotent, et ne pas voler le focus : la navigation
  * s'en occupe.
  */
 export function useCloseOnNavigation(open: boolean, close: () => void): void {
-  // Écrite dans un effet et non au rendu : écrire une ref pendant le rendu n'est
-  // pas sûr en rendu concurrent, et le linter des hooks le refuse.
+  // Écrite dans un effet : écrire une ref au rendu n'est pas sûr en rendu concurrent.
   const closeRef = useRef(close);
   useEffect(() => {
     closeRef.current = close;
@@ -45,9 +36,8 @@ export function useCloseOnNavigation(open: boolean, close: () => void): void {
       closeRef.current();
     };
 
-    // `popstate` couvre le retour arrière ; les routeurs, eux, appellent
-    // `pushState` / `replaceState`, qui n'émettent aucun événement. On enveloppe
-    // donc les deux, en restaurant l'original au démontage.
+    // `pushState` / `replaceState` n'émettent aucun événement (seul le retour
+    // arrière émet `popstate`) : les deux sont enveloppés le temps de l'ouverture.
     const { pushState, replaceState } = window.history;
     const wrap =
       (original: typeof pushState) =>

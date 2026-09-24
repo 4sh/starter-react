@@ -104,14 +104,10 @@ export interface UiMenuItem {
   target?: string;
   /**
    * Rend l'entrée avec le composant de lien du projet (Next, React Router,
-   * TanStack). Le kit n'impose aucun routeur : là où la version Angular
-   * dépendait de `RouterLink`, celle-ci passe la main.
+   * TanStack). Le kit n'impose aucun routeur.
    */
   render?: (props: UiMenuItemRootProps, children: ReactNode) => ReactNode;
-  /**
-   * Entrée de la page courante. Remplace le `routerLinkActive` d'Angular :
-   * l'appelant connaît sa route, le kit non.
-   */
+  /** Entrée de la page courante : l'appelant connaît sa route, le kit non. */
   active?: boolean;
   /**
    * En-tête de groupe repliable. Par défaut `true` pour un groupe imbriqué et
@@ -139,10 +135,8 @@ interface MenuNode {
 }
 
 /**
- * Props à reverser sur le déclencheur du popup.
- *
- * Comme `ui-popover`, le menu ne mute pas le DOM du déclencheur pour y poser
- * son état ARIA : il le rend, et React s'occupe du reste.
+ * Props à reverser sur le déclencheur du popup. Le menu ne mute pas le DOM du
+ * déclencheur pour y poser son état ARIA : il le rend, et React s'occupe du reste.
  */
 export interface UiMenuTriggerProps {
   /** Ref de rappel, et non un `Ref<HTMLElement>` : l'union ne se reverse pas
@@ -154,7 +148,6 @@ export interface UiMenuTriggerProps {
   onClick: () => void;
 }
 
-// La racine est un panneau `<div>`, en ligne ou dans le calque supérieur.
 type NativeProps = Omit<HTMLAttributes<HTMLElement>, 'children'>;
 
 export interface UiMenuProps extends NativeProps {
@@ -234,16 +227,13 @@ function buildNodes(
         return { item, key, kind: 'separator', children: [], expanded: false } satisfies MenuNode;
       }
       if (item.items) {
-        // En cascade, tout groupe devient un panneau latéral.
         if (flyout) {
           return {
             item,
             key,
             kind: 'flyout',
             children: [],
-            // `expanded` garde le même sens dans les deux rendus : le groupe
-            // s'ouvre au repos. C'est aussi ce qui rend le panneau latéral
-            // observable sans interaction, donc contrôlable par axe.
+            // Même sens qu'en rendu `inline` : le panneau latéral s'ouvre au repos.
             expanded: item.expanded ?? false,
           } satisfies MenuNode;
         }
@@ -284,13 +274,9 @@ function focusPath(nodes: MenuNode[]): string[] {
 /**
  * ui-menu : menu de navigation et de commandes, statique ou en popup.
  *
- * Piloté par un modèle déclaratif `items` : sections titrées, séparateurs,
- * groupes repliables, sous-menus en cascade, commandes et liens. En popup, le
- * panneau vit dans le **calque supérieur** : aucun z-index, et aucun rognage
- * par un ancêtre en `overflow: hidden`.
- *
- * Le clavier suit le motif menu de l'APG : un seul arrêt de tabulation, les
- * flèches naviguant à l'intérieur.
+ * Piloté par un modèle déclaratif `items`. En popup, le panneau vit dans le
+ * **calque supérieur** : ni z-index, ni rognage par un ancêtre en `overflow: hidden`.
+ * Le clavier suit le motif menu de l'APG.
  */
 export function UiMenu({
   items = [],
@@ -318,9 +304,7 @@ export function UiMenu({
   className,
   style,
   ref,
-  // Sortis de `...rest` à dessein : le nom accessible appartient au
-  // `role="menu"`, et un panneau `<div>` nu qui le porterait serait un élément
-  // sans rôle mais avec un nom, ce qu'axe refuse.
+  // Sortis de `...rest` : le nom va au `role="menu"`, axe refuse un `<div>` sans rôle nommé.
   'aria-label': ariaLabel,
   'aria-labelledby': ariaLabelledBy,
   ...rest
@@ -354,40 +338,20 @@ export function UiMenu({
   });
   /** Clé de l'entrée qui porte l'arrêt de tabulation. */
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
-  /**
-   * Le pointeur n'a pas bougé depuis la dernière activation.
-   *
-   * Masquer un sous-menu change l'élément sous le pointeur, et le navigateur
-   * émet alors un `mouseenter` sur ce qui se retrouve dessous, **sans que
-   * l'utilisateur ait bougé**. Mesuré : 7 ms après la fermeture, l'entrée
-   * parente en reçoit un et rouvre le panneau qu'on venait de refermer, ce qui
-   * donne l'impression que les menus s'empilent au lieu de se fermer.
-   *
-   * Ce drapeau distingue ce faux survol d'un vrai : levé à l'activation, il
-   * retombe au premier `pointermove`, qu'un pointeur immobile ne produit jamais.
-   */
+  // Masquer un panneau émet un `mouseenter` sous un pointeur immobile : levé à
+  // l'activation, ce drapeau l'ignore jusqu'au prochain `pointermove`.
   const pointerStale = useRef(false);
 
   // --- Focus glissant -----------------------------------------------------
-  // La liste des entrées atteignables CHANGE de longueur quand un groupe se
-  // replie : un index gardé en état pointerait alors sur une autre entrée. La
-  // clé, elle, reste juste. Le crochet est donc piloté en mode contrôlé, l'index
-  // se déduisant de la clé à chaque rendu.
+  // L'index se déduit de la clé : la liste change de longueur quand un groupe se replie.
   const activeIndex = focusedKey ? path.indexOf(focusedKey) : -1;
 
-  /**
-   * Déplace le focus du DOM sur une entrée, et RIEN d'autre.
-   *
-   * L'état `focusedKey` n'est pas posé ici : chaque entrée a son propre
-   * `onFocus` qui le met à jour. Le DOM reste donc la source de vérité, et
-   * l'ouverture du popup n'a plus à écrire d'état dans un effet, ce que
-   * `react-hooks/set-state-in-effect` refuse à juste titre.
-   */
+  // Focus du DOM seulement : l'`onFocus` de l'entrée pose `focusedKey`, ce qui
+  // évite un `setState` dans l'effet d'ouverture.
   const focusEntry = useCallback((key: string | undefined) => {
     if (!key) return;
-    // Le nœud existe déjà, mais son `tabIndex` ne change qu'au rendu suivant :
-    // `setTimeout` et non `requestAnimationFrame`, qui ne tire pas dans un
-    // onglet en arrière-plan.
+    // Après le rendu qui pose le `tabIndex`. `setTimeout` : un
+    // `requestAnimationFrame` ne tire pas dans un onglet en arrière-plan.
     window.setTimeout(() =>
       panelRef.current?.querySelector<HTMLElement>(`[data-key="${CSS.escape(key)}"]`)?.focus(),
     );
@@ -402,14 +366,10 @@ export function UiMenu({
   });
 
   // --- Popup --------------------------------------------------------------
-  /**
-   * Ferme le popup. Le focus est rendu au déclencheur par l'effet qui masque le
-   * panneau, et non ici : la lecture d'une ref appartient au DOM, pas au chemin
-   * de rendu d'où cette fonction est atteignable.
-   */
+  // Le focus est rendu par l'effet qui masque le panneau : cette fonction est
+  // atteignable depuis le rendu, où une ref ne se lit pas.
   const close = useCallback(() => {
-    // `useControllableState` ne prend pas de fonction de mise à jour : l'état
-    // courant se lit au rendu, et il est juste au moment de l'appel.
+    // `useControllableState` n'accepte pas de fonction de mise à jour : on lit l'état.
     if (isOpen) {
       setOpen(false);
       onClose?.();
@@ -418,9 +378,6 @@ export function UiMenu({
     setFocusedKey(null);
   }, [isOpen, onClose, setOpen]);
 
-  // Destructuré, et non lu par `position.x` au rendu : le linter des hooks voit
-  // un objet porteur de refs de rappel et refuse d'en lire les propriétés
-  // pendant le rendu. C'est de toute façon la forme idiomatique.
   const { setAnchor, setPanel, panelStyle, isPositioned } = useUiPosition<
     HTMLElement,
     HTMLDivElement
@@ -449,9 +406,7 @@ export function UiMenu({
     [popup, setPanel, ref],
   );
 
-  // L'état pilote le calque, jamais l'inverse : un popover s'ouvre par une
-  // MÉTHODE, et faire dépendre l'état de son événement `toggle` désaligne les
-  // deux dès que l'événement se fait attendre (leçon de `ui-modal`).
+  // L'état pilote le popover, jamais l'inverse : son événement `toggle` peut se faire attendre.
   useEffect(() => {
     const panel = panelRef.current;
     if (!panel || !popup) return;
@@ -464,23 +419,15 @@ export function UiMenu({
 
     const hadFocus = panel.contains(document.activeElement);
     panel.hidePopover();
-    // Mesuré : un `popover="manual"` ne mémorise PAS l'élément focalisé avant
-    // son ouverture, là où un `auto` le fait et rend le focus tout seul en se
-    // fermant. La restitution reste donc à notre charge, et seulement si le
-    // focus était DANS le panneau : sinon on le volerait là où l'utilisateur
-    // vient d'aller.
+    // Un popover `manual` ne rend pas le focus : on le restitue, s'il était dans le panneau.
     if (hadFocus) triggerRef.current?.focus();
   }, [isOpen, popup]);
 
-  // À l'ouverture, le focus va sur l'arrêt de tabulation. `path` n'est pas une
-  // dépendance : il change à chaque repli de groupe, et refocaliserait.
   useEffect(() => {
     if (!popup || !isOpen) return;
     onOpen?.();
     focusEntry(path[0]);
-    // `path` et `onOpen` hors dépendances : le premier change à chaque repli de
-    // groupe, le second est recréé à chaque rendu. Les garder refocaliserait le
-    // menu pendant qu'on s'en sert.
+    // `path` et `onOpen` hors dépendances : les garder refocaliserait le menu en cours d'usage.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [popup, isOpen]);
 
@@ -511,8 +458,7 @@ export function UiMenu({
         event.preventDefault();
         return;
       }
-      // Une entrée sans URL n'est pas une navigation : un `<a>` sans `href` ne
-      // fait rien, mais un `render` peut en poser un.
+      // Pas de navigation sans URL, sauf si un `render` pose son propre `href`.
       if (!item.url && !item.render) event.preventDefault();
       setFocusedKey(node.key);
       const payload = { originalEvent: event, item };
@@ -548,8 +494,7 @@ export function UiMenu({
           }
           return;
         case 'Escape':
-          // Fermeture confiée à `useUiDismiss`, qui sait rendre le focus et ne
-          // consomme la touche que si elle ferme quelque chose.
+          // Confiée à `useUiDismiss`, qui ne consomme la touche que si elle ferme quelque chose.
           return;
         default:
           roving.onKeyDown(event);
@@ -560,8 +505,7 @@ export function UiMenu({
 
   const entryProps = useCallback(
     (node: MenuNode): MenuEntryProps => ({
-      // Une entrée désactivée n'est pas dans le parcours : `indexOf` rend -1,
-      // et `tabIndexFor` en fait un -1, ce qui est exactement voulu.
+      // Désactivée, l'entrée est hors du parcours : `indexOf` rend -1, `tabIndexFor` aussi.
       tabIndex: roving.tabIndexFor(path.indexOf(node.key)),
       'data-key': node.key,
       'data-ripple': ripple ? 'on' : 'off',
@@ -569,8 +513,6 @@ export function UiMenu({
       'aria-label': node.item.ariaLabel || undefined,
       onKeyDown: (event: KeyboardEvent<HTMLElement>) => onEntryKeyDown(event, node),
       onMouseEnter: () => {
-        // Un survol qui n'est que la conséquence d'un panneau disparu sous le
-        // pointeur ne commande rien.
         if (pointerStale.current) return;
         setFlyout(node.kind === 'flyout' ? { key: node.key, focus: false } : null);
       },
@@ -596,8 +538,7 @@ export function UiMenu({
       const { item, key } = node;
 
       if (node.kind === 'separator') {
-        // La sémantique est portée par le `<li>`, seul enfant autorisé d'un
-        // `role="menu"` : le filet, lui, redevient décoratif.
+        // Le `<li>`, seul enfant permis d'un `role="menu"`, porte la sémantique : filet décoratif.
         return (
           <li key={key} className="ui-menu-separator" role="separator">
             <UiSeparator aria-hidden="true" />
@@ -637,8 +578,7 @@ export function UiMenu({
               }}
             >
               {entryContent(item, true)}
-              {/* `_open` et non `_expanded` : une classe utilitaire globale
-                  `._expanded` existe déjà, en `width: 100%`. */}
+              {/* `_open` et non `_expanded` : `._expanded` est une classe utilitaire globale. */}
               <UiIcon
                 className={cx('ui-menu-chevron', node.expanded && '_open')}
                 name="chevron-down"
@@ -674,11 +614,7 @@ export function UiMenu({
             renderHeader={renderHeader}
             entryProps={entryProps(node)}
             content={entryContent(item, false)}
-            // Le clic OUVRE, il ne bascule pas. À la souris, le survol a déjà
-            // ouvert le panneau avant que le clic n'arrive : une bascule le
-            // referme donc aussitôt, et cliquer un parent de cascade paraît ne
-            // rien faire. Un sous-menu se ferme en survolant un voisin, par
-            // `←`, par Échap, ou en activant une feuille.
+            // Le clic ouvre sans basculer : le survol l'a déjà ouvert, une bascule le refermerait.
             onOpenFlyout={() => {
               setFocusedKey(key);
               setFlyout({ key, focus: false });
@@ -753,14 +689,11 @@ export function UiMenu({
         popup && '_popup',
         className,
       )}
-      // Un pointeur immobile n'émet aucun `pointermove` : c'est donc le signal
-      // qui distingue un vrai survol d'un survol provoqué par le DOM.
       onPointerMove={(event) => {
         pointerStale.current = false;
         rest.onPointerMove?.(event);
       }}
-      // Un seul crochet coupe les deux animations, le repli et l'entrée du
-      // panneau : les deux lisent la même durée.
+      // `--ui-motion-duration` règle à la fois le repli et l'entrée du panneau.
       style={
         motionDisabled
           ? { ...(popup ? panelStyle : null), ['--ui-motion-duration' as string]: '0ms', ...style }
@@ -770,31 +703,20 @@ export function UiMenu({
         ? {
             popover: 'manual' as const,
             id: uid,
-            // Le panneau reste dans son état fermé tant que sa position n'est
-            // pas calculée : `computePosition` est asynchrone, et peindre
-            // l'image d'avant est ce qui donne le panneau qui apparaît ailleurs
-            // puis se replace.
+            // Invisible tant que la position, asynchrone, n'est pas calculée.
             'data-unpositioned': isPositioned ? undefined : '',
           }
         : null)}
     >
       {start && <div className="ui-menu-start">{start}</div>}
-      {/* Le clavier est branché sur les ENTRÉES et non sur la liste : le focus
-          y vit déjà, et une liste porteuse de gestionnaires devrait être
-          focalisable pour satisfaire `jsx-a11y`. */}
+      {/* Clavier sur les entrées, pas sur la liste : `jsx-a11y` la voudrait focalisable. */}
       <ul
         className="ui-menu-list"
         role="menu"
         aria-label={ariaLabel || undefined}
         aria-labelledby={ariaLabelledBy || undefined}
       >
-        {/*
-          Faux positif de `react-hooks/refs` : la règle voit que les
-          gestionnaires construits par `renderNodes` lisent une ref, et suppose
-          une lecture pendant le rendu. Ces lectures vivent dans des
-          gestionnaires d'ÉVÉNEMENT, jamais dans le rendu. Forme bloc parce que
-          la ligne fautive est une expression JSX imbriquée.
-        */}
+        {/* Faux positif de `react-hooks/refs` : refs lues seulement dans des gestionnaires. */}
         {/* eslint-disable react-hooks/refs */}
         {renderNodes(nodes)}
         {/* eslint-enable react-hooks/refs */}
@@ -815,12 +737,7 @@ export function UiMenu({
 
   return (
     <>
-      {/*
-        Faux positif de `react-hooks/refs` : la règle voit un objet contenant
-        une clé `ref` lu au rendu et suppose une lecture de `.current`. Ici on
-        TRANSMET une ref de rappel à une prop de rendu, ce qui est le motif
-        normal d'un déclencheur.
-      */}
+      {/* Faux positif de `react-hooks/refs` : une ref de rappel est transmise, pas lue. */}
       {/* eslint-disable-next-line react-hooks/refs */}
       {trigger?.(triggerProps)}
       {panel}
@@ -858,10 +775,8 @@ interface MenuFlyoutEntryProps {
 }
 
 /**
- * Entrée qui ouvre un sous-menu en cascade.
- *
- * Un composant, et non une branche du rendu récursif : chaque sous-menu a
- * besoin de son propre positionnement, donc de son propre crochet.
+ * Entrée qui ouvre un sous-menu en cascade. Un composant, et non une branche du
+ * rendu récursif : chaque sous-menu a son propre crochet de positionnement.
  */
 function MenuFlyoutEntry({
   node,
@@ -879,11 +794,12 @@ function MenuFlyoutEntry({
   onChildItemClick,
 }: MenuFlyoutEntryProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
-  const { setAnchor, setPanel, panelStyle } = useUiPosition<HTMLLIElement, HTMLDivElement>({
+  const { setAnchor, setPanel, panelStyle, isPositioned } = useUiPosition<
+    HTMLLIElement,
+    HTMLDivElement
+  >({
     placement: 'right-start',
-    // L'axe transverse remonte le panneau de sa propre gouttière, ce qui aligne
-    // son premier item sur l'item parent : c'est cet alignement qui fait lire la
-    // cascade comme une continuation, et non comme un panneau posé à côté.
+    // Remonté de sa gouttière : son premier item s'aligne sur l'item parent.
     offset: { main: 0, cross: -PANEL_OFFSET },
     open,
   });
@@ -904,8 +820,7 @@ function MenuFlyoutEntry({
     else if (!open && shown) element.hidePopover();
   }, [open]);
 
-  // Ouvert au clavier, le sous-menu prend le focus ; ouvert au survol, non :
-  // le pointeur n'a rien demandé au clavier.
+  // Le focus n'entre qu'à une ouverture au clavier, pas au survol.
   useEffect(() => {
     if (!open || !takeFocus) return;
     window.setTimeout(() =>
@@ -929,9 +844,15 @@ function MenuFlyoutEntry({
         <UiIcon className="ui-menu-chevron" name="chevron-right" size="sm" />
       </button>
 
-      {/* Le sous-menu vit dans le CALQUE SUPÉRIEUR, comme le panneau parent :
-          sans lui, le `overflow: auto` du panneau le rognerait. */}
-      <div ref={attachPanel} popover="manual" className="ui-menu-flyout" style={panelStyle}>
+      {/* Calque supérieur : sinon le `overflow: auto` du panneau parent le rognerait. */}
+      <div
+        ref={attachPanel}
+        popover="manual"
+        // Invisible tant que sa position n'est pas calculée (lu par `utils.overlay-motion-enter`).
+        data-unpositioned={isPositioned ? undefined : ''}
+        className="ui-menu-flyout"
+        style={panelStyle}
+      >
         <UiMenu
           items={node.item.items ?? []}
           level={level}
@@ -943,14 +864,11 @@ function MenuFlyoutEntry({
           className="_floating"
           aria-label={node.item.label}
           onItemClick={onChildItemClick}
-          // Posé sur le PANNEAU du sous-menu, où les entrées vivent, et non sur
-          // l'enveloppe de positionnement : celle-ci reste un pur porteur de
-          // coordonnées, sans rôle et sans comportement.
+          // Sur le panneau du sous-menu, pas sur l'enveloppe, pur porteur de coordonnées.
           onKeyDown={(event) => {
             if (event.key !== 'ArrowLeft' && event.key !== 'Escape') return;
             event.preventDefault();
-            // Consommée ici : sinon Échap fermerait aussi le menu parent, et
-            // l'utilisateur en perdrait deux d'un coup.
+            // Sinon Échap fermerait aussi le menu parent.
             event.stopPropagation();
             onCloseFlyout();
           }}

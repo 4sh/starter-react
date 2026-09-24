@@ -1,19 +1,9 @@
 @use 'utils';
 @use 'sass:map';
 
-// =====================================================================
-// ui-toggle-block : styles co-localisés. Toutes les valeurs viennent des
-// jetons.
-//
-// L'indicateur est une instance de ui-checkbox / ui-radio / ui-toggle, donc
-// rien ici ne le peint : le bloc ne dessine que sa propre surface. La
-// superposition (corps dans le flux < zone de clic étirée < indicateur et
-// contenu interactif) est ce qui rend toute la surface cliquable tout en
-// gardant les liens utilisables.
-//
-// Étendre :
-//   - une taille : ajouter une entrée à `$sizes` (et au type `ToggleBlockSize`).
-// =====================================================================
+// ui-toggle-block : le bloc ne dessine que sa surface, l'indicateur se peint seul.
+// Superposition : corps < zone de clic étirée < indicateur et contenu interactif.
+// Étendre : une taille = une entrée dans `$sizes` (et le type `ToggleBlockSize`).
 
 $radius: var(--ui-toggle-block-radius, var(--radius-md)); /// Rayon des coins du bloc.
 $stroke-width: var(--ui-toggle-block-stroke-width, #{utils.$control-stroke-width}); /// Épaisseur de la bordure du bloc.
@@ -73,8 +63,6 @@ $sizes: (
   user-select: none;
   @include utils.control-transition(background-color, border-color, box-shadow);
 
-  // Aucune largeur propre : un parent en bloc donne déjà 100 %, un parent flex
-  // ou grid dimensionne au contenu sauf si `fluid` demande autre chose.
   &._fluid {
     width: 100%;
   }
@@ -89,9 +77,6 @@ $sizes: (
   }
 
   // --- Zone de clic ---------------------------------------------------
-  // Au-dessus du corps, pour qu'un clic sur le texte sélectionne le bloc ; en
-  // dessous de l'indicateur et du contenu interactif, pour que ceux-là gardent
-  // leur propre comportement.
   &-hit {
     position: absolute;
     inset: 0;
@@ -106,8 +91,7 @@ $sizes: (
     z-index: 2;
     display: inline-flex;
     flex-shrink: 0;
-    // C'est le bloc qui dessine l'anneau de focus. Un second anneau autour du
-    // petit contrôle imbriquerait deux contours dans la même zone de clic.
+    // Le bloc dessine l'anneau de focus : pas de second anneau sur le contrôle.
     --ui-checkbox-focus-ring-width: 0;
     --ui-radio-focus-ring-width: 0;
     --ui-toggle-focus-ring-width: 0;
@@ -121,10 +105,7 @@ $sizes: (
     flex: 1 1 auto;
     min-width: 0;
 
-    // Le contenu projeté reste opérable : élevé au-dessus de la zone de clic,
-    // pour qu'un lien ou un bouton garde son propre clic au lieu de
-    // sélectionner le bloc. Pas de `::ng-deep` ici, React n'ayant aucune
-    // encapsulation à percer.
+    // Au-dessus de la zone de clic : un lien ou un bouton projeté garde son propre clic.
     :where(a, button, select, textarea, summary, [role='button'], [tabindex]) {
       position: relative;
       z-index: 2;

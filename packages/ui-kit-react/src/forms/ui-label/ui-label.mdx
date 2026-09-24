@@ -18,8 +18,9 @@ ou composé dans un champ : c'est `ui-field` qui l'instancie pour tous les champ
 ## Accessibilité
 
 Un libellé doit être **associé à un contrôle**, par `htmlFor` pointant l'`id` de celui-ci.
-Un `<label>` orphelin est une violation signalée par axe, et à raison : il annonce une
-étiquette qui n'étiquette rien.
+axe ne signale pas un `<label>` orphelin, c'est donc à l'intégration d'y veiller : sans
+contrôle, il annonce une étiquette qui n'étiquette rien. Les exemples ci-dessus le rendent
+seul, pour le rendu uniquement.
 
 Le marqueur requis est `aria-hidden` : l'astérisque est un signal visuel, et c'est
 l'attribut `required` du contrôle qui porte l'information pour un lecteur d'écran.

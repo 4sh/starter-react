@@ -33,10 +33,7 @@ export const UI_TOAST_POSITIONS: readonly UiToastPosition[] = [
 export interface UiToastMessage {
   /** Identifiant unique. Généré à l'ajout quand il est omis. */
   id?: UiToastId;
-  /**
-   * Achemine le message vers la ou les piles de même `channel`. Là où le kit
-   * Angular dit `key`, React réserve ce nom pour l'identité d'un élément.
-   */
+  /** Achemine le message vers la ou les piles de même `channel`. */
   channel?: string;
   /** Niveau sémantique : couleurs et icône par défaut. */
   level?: UiFeedbackLevel;

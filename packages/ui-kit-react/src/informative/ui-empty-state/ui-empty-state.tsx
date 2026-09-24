@@ -9,8 +9,7 @@ import './ui-empty-state.scss';
 
 export type EmptyStateSize = 'default' | 'small';
 
-// `title` est repris pour le titre affiché, comme côté Angular : l'attribut
-// natif du même nom (l'infobulle du navigateur) est donc écarté.
+// `title` sert au titre affiché : l'attribut natif (l'infobulle du navigateur) est écarté.
 type NativeProps = Omit<ComponentPropsWithRef<'div'>, 'title'>;
 
 export interface UiEmptyStateProps extends NativeProps {

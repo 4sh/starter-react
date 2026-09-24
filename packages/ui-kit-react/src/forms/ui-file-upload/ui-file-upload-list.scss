@@ -3,11 +3,7 @@
 
 // =====================================================================
 // ui-file-upload-list : a single file row. All values come from tokens.
-//
-// No host element here, so `.ui-file-upload-list` IS the row.
-//
-// Extend:
-//   • Size → add an entry to $sizes (+ the `UiFileUploadListSize` type).
+// New size: add an entry to $sizes (+ the `UiFileUploadListSize` type).
 // =====================================================================
 
 // --- Config ----------------------------------------------------------
@@ -115,7 +111,6 @@ $progress-color: var(--ui-file-upload-item-progress-color, var(--global-text-def
     font-family: var(--ui-file-upload-font-family, var(--fontfamily-base)); /// Famille typographique du nom.
     font-weight: var(--ui-file-upload-name-weight, var(--weight-bold)); /// Graisse du nom.
     line-height: 1.3;
-    // Truncate long names on a single line.
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -170,9 +165,7 @@ $progress-color: var(--ui-file-upload-item-progress-color, var(--global-text-def
   &._error {
     border-color: var(--ui-file-upload-list-stroke-error, var(--informative-errorhigh-stroke-default)); /// Couleur de bordure d'une ligne en erreur.
     .ui-file-upload-list-media,
-    // Même jeton que le message de `ui-file-upload`, et pour la même raison : la
-    // ligne garde son fond neutre, où `informative-errorhigh-content` (blanc) ne se
-    // voit pas.
+    // Fond neutre : `informative-errorhigh-content` (blanc) ne s'y verrait pas.
     .ui-file-upload-list-meta { color: var(--ui-file-upload-list-color-error, var(--form-error-content-default)); } /// Couleur du texte d'une ligne en erreur.
   }
 }

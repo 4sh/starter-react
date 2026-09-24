@@ -247,15 +247,8 @@ export function UiChip({
       {...rest}
       ref={ref as Ref<HTMLSpanElement>}
       className={classes}
-      // `group` quand la puce contient un bouton, `img` quand elle n'est qu'un
-      // visuel nommé. Sans nom, aucun rôle : rien à annoncer.
-      //
-      // Un rôle fourni par l'appelant GAGNE. Côté Angular, l'hôte `<ui-chip>` et
-      // le span interne sont deux éléments, donc un `role` posé de l'extérieur
-      // cohabite avec celui du composant. Ici c'est le même élément : sans cette
-      // priorité, une puce servant d'option dans une liste
-      // (`ui-autocomplete`) verrait son `role="option"` remplacé par `group`,
-      // et la liste perdrait ses options.
+      // `group` avec un bouton, `img` pour un simple visuel nommé, aucun rôle sans nom.
+      // Un `role` de l'appelant gagne : une puce option d'une liste reste `option`.
       role={
         rest.role ?? (rootAriaLabel || ariaLabelledBy ? (showRemove ? 'group' : 'img') : undefined)
       }

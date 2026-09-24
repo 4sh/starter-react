@@ -29,17 +29,11 @@ export interface UiRovingResult {
 }
 
 /**
- * Focus glissant : un seul arrêt de tabulation pour tout un groupe, les flèches
- * naviguant à l'intérieur.
- *
- * C'est le motif que le clavier attend d'une liste, d'un menu ou d'un groupe de
- * boutons : Tab entre dans le groupe et en sort, il ne le parcourt pas. Un
- * groupe de vingt entrées qui serait vingt arrêts de tabulation rend le reste de
- * la page inatteignable au clavier.
+ * Focus glissant : un seul arrêt de tabulation pour tout un groupe (liste, menu,
+ * groupe de boutons), les flèches naviguant à l'intérieur.
  *
  * Le composant reste maître du rendu : ce crochet ne dit que quel index est
- * actif et quel `tabIndex` poser. C'est du **contrat de Design System**, pas de
- * la mécanique de navigateur : il n'a rien à faire dans une librairie tierce.
+ * actif et quel `tabIndex` poser.
  */
 export function useRovingTabIndex({
   count,
@@ -67,8 +61,7 @@ export function useRovingTabIndex({
     (from: number, direction: 1 | -1): number => {
       if (count === 0) return from;
       let next = from;
-      // Borné par `count` : sans cette borne, un groupe entièrement désactivé
-      // ferait tourner la boucle indéfiniment.
+      // Borné par `count` : un groupe entièrement désactivé bouclerait sans fin.
       for (let tried = 0; tried < count; tried += 1) {
         next += direction;
         if (next < 0) {

@@ -11,7 +11,6 @@ import './ui-helper.scss';
 export type HelperSize = 'default' | 'small';
 export type HelperAriaLive = 'off' | 'polite' | 'assertive';
 
-/** Icône associée à chaque niveau, par défaut. */
 const LEVEL_ICONS: Record<UiFeedbackLevel, string> = {
   default: 'question-circle',
   highlight: 'info-circle',
@@ -35,15 +34,11 @@ export interface UiHelperProps extends Omit<ComponentPropsWithRef<'div'>, 'child
 }
 
 /**
- * ui-helper : texte d'aide ou retour contextuel.
+ * ui-helper : texte d'aide ou retour contextuel, sous un champ (relié par
+ * `aria-describedby`) ou seul.
  *
- * Affiche un message précédé d'une icône dont le sens dépend du `level`.
- * Utilisé sous un champ (relié par `aria-describedby`) ou seul.
- *
- * Accessibilité : c'est le **texte** qui porte l'information, l'icône est
- * décorative (`aria-hidden`). Pour un retour qui apparaît ou change en cours de
- * saisie, passer `ariaLive="polite"` (ou `"assertive"` pour une erreur) sans
- * quoi un lecteur d'écran n'annoncera jamais le changement.
+ * L'icône est décorative. Un retour qui change en cours de saisie demande
+ * `ariaLive="polite"` (`"assertive"` pour une erreur), sinon il n'est pas annoncé.
  */
 export function UiHelper({
   message,
@@ -61,8 +56,6 @@ export function UiHelper({
     <div
       {...rest}
       className={cx('ui-helper', `_${level}`, size !== 'default' && `_${size}`, className)}
-      // `off` n'est pas posé : l'attribut absent dit déjà « pas une région
-      // vivante », et le poser polluerait le DOM sans rien changer.
       aria-live={ariaLive === 'off' ? undefined : ariaLive}
     >
       {showIcon && resolvedIcon && (

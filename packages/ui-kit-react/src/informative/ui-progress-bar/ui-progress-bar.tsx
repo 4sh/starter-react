@@ -38,12 +38,9 @@ export interface UiProgressBarProps extends Omit<ComponentPropsWithRef<'div'>, '
 /**
  * ui-progress-bar : indicateur d'avancement d'un traitement.
  *
- * Trois présentations : une piste remplie à `value`%, une animation en boucle
- * sans valeur suivie (`indeterminate`), ou des segments discrets avec `steps`.
- *
- * La piste porte `role="progressbar"` avec ses bornes ; la nommer par
- * `aria-label` ou `aria-labelledby`. L'animation respecte la préférence système
- * de mouvement réduit et l'interrupteur `data-motion="off"` du kit.
+ * Trois présentations : une piste remplie à `value`%, une boucle sans valeur
+ * (`indeterminate`), ou des segments discrets avec `steps`. La piste porte
+ * `role="progressbar"` : la nommer par `aria-label` ou `aria-labelledby`.
  */
 export function UiProgressBar({
   value = 0,

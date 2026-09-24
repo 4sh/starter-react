@@ -1,16 +1,13 @@
 /**
- * Pure masking engine, shared by `ui-input-mask` and later `ui-datepicker`.
- *
- * Framework-free functions, no component and no hook: any field that needs
- * literal-inserting input masking can use them. Ported byte for byte from the
- * Angular kit, which is what keeps both stacks masking identically.
+ * Pure masking engine, shared by `ui-input-mask` and `ui-datepicker`: framework-free
+ * functions for any field that needs literal-inserting input masking.
  */
 
 /** Mask tokens → accepted character class. */
 export const MASK_TOKENS: Record<string, RegExp> = {
-  '9': /[0-9]/, // digit
-  a: /[a-zA-Z]/, // letter
-  '*': /[a-zA-Z0-9]/, // alphanumeric
+  '9': /[0-9]/,
+  a: /[a-zA-Z]/,
+  '*': /[a-zA-Z0-9]/,
 };
 
 export interface MaskBounds {
@@ -67,9 +64,8 @@ export function buildMaskSlots(
     }
   }
 
-  // Every segment gets a `.bound`, even unranged ones (±Infinity = no-op range): `pos`/`len` are
-  // needed for `atSegmentEnd` regardless, else an unranged segment (e.g. ui-datepicker's year)
-  // never auto-inserts its own following literal (FSHSP-118).
+  // Every segment gets a `.bound`, even unranged ones (±Infinity): `atSegmentEnd` needs
+  // `pos`/`len` to auto-insert the literal that follows it.
   segments.forEach((seg, i) => {
     const range = bounds[i] ?? { min: -Infinity, max: Infinity };
     seg.forEach((slot, pos) => (slot.bound = { ...range, pos, len: seg.length }));
@@ -89,12 +85,9 @@ export function extractMaskData(raw: string): string {
  * completion of the remaining positions (`2` then `4` is refused on `0-23`, `2` then `3` is
  * accepted).
  *
- * `enforceBounds = false` skips that second check (still requires the token class to match):
- * meant for re-deriving the mask after characters were REMOVED, not typed. The bounds check
- * exists to reject an invalid *new* leading digit while typing forward (e.g. `8` can never start
- * a valid `1-31` day, so it's skipped rather than accepted): applied instead to the digits left
- * over after a deletion, that same skip can discard a still-valid residual digit and misalign
- * every segment after it. See `autoFormatSegments`.
+ * `enforceBounds = false` skips that second check (the token class still applies): for
+ * re-deriving the mask after a deletion, where the bounds check could discard a still-valid
+ * residual digit and misalign every following segment. See `autoFormatSegments`.
  */
 export function acceptsMaskChar(
   slot: MaskSlot,
@@ -131,7 +124,7 @@ export function applyMaskTemplate(
       masked += slot.char;
       continue;
     }
-    tokenIndices.push(display.length); // index of this token position in `display`
+    tokenIndices.push(display.length);
     if (!slot.bound || slot.bound.pos === 0) segment = '';
     while (di < data.length && !acceptsMaskChar(slot, segment, data.charAt(di))) di++;
     if (di < data.length) {
@@ -153,16 +146,14 @@ export function applyMaskTemplate(
 /** Caret position for `n` typed data characters (literals skipped, end-of-text once all filled). */
 export function caretForMask(tokenIndices: number[], n: number, length: number): number {
   if (n <= 0) return tokenIndices[0] ?? 0;
-  if (n >= tokenIndices.length) return length; // all filled, go to the end
-  return tokenIndices[n] ?? length; // next input position (literals skipped)
+  if (n >= tokenIndices.length) return length;
+  return tokenIndices[n] ?? length;
 }
 
 /**
  * Auto-format-as-you-type variant of {@link applyMaskTemplate}: inserts a literal separator as
- * soon as the segment right before it is complete, without ever padding unfilled positions with
- * a filler character (unlike `applyMaskTemplate`, meant for a field that displays the full
- * template at rest). Used by `ui-datepicker`'s typeable trigger to auto-insert "/" as digits are
- * typed, the same way a card-expiry field auto-inserts its "/".
+ * soon as the segment right before it is complete, and never pads unfilled positions (unlike
+ * `applyMaskTemplate`, meant for a field that displays the full template at rest).
  */
 export function autoFormatSegments(
   slots: MaskSlot[],
@@ -174,19 +165,14 @@ export function autoFormatSegments(
   let segment = '';
   let atSegmentEnd = false;
   const tokenIndices: number[] = [];
-  // Position right after the last DATA character appended: unlike `text.length`, never lands
-  // after a separator inserted eagerly (see the "auto-insert" doc above) with nothing typed past
-  // it yet. Landing the caret there instead (see call sites) means a Backspace right after a
-  // just-completed segment removes that segment's last digit, not the decorative separator:
-  // which would otherwise be silently re-inserted next render, making Backspace look like it did
-  // nothing (FSHSP-118).
+  // Right after the last DATA character, never after an eager separator: a caret there lets
+  // Backspace remove a digit rather than a separator that would be re-inserted.
   let dataEnd = 0;
 
   for (const slot of slots) {
     if (slot.char !== null) {
-      // Append EVERY consecutive literal after a completed segment, not just the first: needed
-      // for a multi-char separator like range's " - " (FSHSP-118). `atSegmentEnd` is left as-is
-      // here; the next digit slot always resets it before it's read again.
+      // Every consecutive literal, for a multi-char separator (" - "). `atSegmentEnd` stays
+      // as is: the next digit slot resets it before it is read again.
       if (atSegmentEnd) text += slot.char;
       continue;
     }
@@ -194,7 +180,7 @@ export function autoFormatSegments(
     if (!slot.bound || slot.bound.pos === 0) segment = '';
     while (di < data.length && !acceptsMaskChar(slot, segment, data.charAt(di), enforceBounds))
       di++;
-    if (di >= data.length) break; // no more data: stop, no filler
+    if (di >= data.length) break;
     const ch = data.charAt(di);
     text += ch;
     dataEnd = text.length;

@@ -1,14 +1,8 @@
 @use 'utils';
 @use 'sass:map';
 
-// =====================================================================
-// ui-input-otp : co-located styles. All values come from design tokens.
-//
-// No host element here, so `.ui-input-otp` IS the `role="group"` row.
-//
-// Extend:
-//   • Size → add an entry to $sizes (+ the `InputOtpSize` type).
-// =====================================================================
+// ui-input-otp: co-located styles, tokens only.
+// Extend: a size = an entry in `$sizes` (+ the `InputOtpSize` type).
 
 // --- Config (extension points) ---------------------------------------
 // `default` = base styles; other keys become `._<name>` modifiers.

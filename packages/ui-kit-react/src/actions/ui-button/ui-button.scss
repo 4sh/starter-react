@@ -4,24 +4,8 @@
 
 // =====================================================================
 // ui-button : co-located styles. All values come from design tokens.
-//
-// Copied near-verbatim from the Angular kit: this file carries no framework
-// notion at all. `.ui-button` was already the styling root there (no `:host`),
-// so the port is comments only. That is the point of decision D5.
-//
-// Extend:
-//   • Level (color)  → add a name to $levels (tokens --actions-<name>-*
-//                      must exist + add it to the `UiLevel` type).
-//   • Size           → add an entry to $sizes (+ the `ButtonSize` type).
-//   • Variant        → add a name to $variants + the matching token set
-//                      (--actions-<level><variant>-*, `<level><variant>` in
-//                      semantics.json) + the `ButtonVariant` type. `filled`
-//                      emits no class (it IS the bare $levels set).
-//   • onColor        → add a name to $polarities + the token sets
-//                      --actions-on<name>-{outlined,ghost,filled-<level>}-*
-//                      + the `ButtonOnColor` type.
-//
-// The three axes compose: level x variant x onColor, one token set each.
+// Extend: add the name to its config list and its TS type (`UiLevel`, `ButtonSize`,
+// `ButtonVariant`, `ButtonOnColor`); a colour axis also needs its `--actions-*` token set.
 // =====================================================================
 
 // --- Config (extension points) ---------------------------------------
@@ -57,8 +41,7 @@ $sizes: (
 );
 $size-default: map.get($sizes, 'default');         /// Raccourci vers l'entrée `default` de `$sizes`.
 
-// A $sizes height is either a token reference (`var(...)`, passed through as-is)
-// or a raw px number, which goes through rem-calc.
+// A $sizes height is a token reference (passed as-is) or a raw px number (rem-calc'd).
 @function size-length($value) {
   @if meta.type-of($value) == 'number' {
     @return utils.rem-calc($value);
@@ -67,18 +50,14 @@ $size-default: map.get($sizes, 'default');         /// Raccourci vers l'entrée 
   @return $value;
 }
 
-// Height/padding/font-size for a $sizes entry.
 @mixin button-size($size) {
   height: size-length(map.get($size, height));
   padding: 0 map.get($size, padding-x);
   font-size: map.get($size, font-size);
 }
 
-// Full color set of an `--actions-<set>-*` token set (5 states x
-// content/surface/stroke). Every set honours the same contract, so a variant
-// needs no CSS of its own: transparency is carried by the token (an outlined
-// `surface-default` resolves to `transparent`, a ghost `stroke-hover` too),
-// never hardcoded here.
+// Paints an `--actions-<set>-*` token set. A variant needs no CSS of its own:
+// transparency comes from the token (outlined `surface-default`), never hardcoded.
 @mixin action-colors($set) {
   background-color: var(--ui-button-surface, var(--actions-#{$set}-surface-default)); /// Fond du bouton.
   color: var(--ui-button-color, var(--actions-#{$set}-content-default));              /// Couleur du libellé et des icônes.
@@ -149,11 +128,9 @@ $size-default: map.get($sizes, 'default');         /// Raccourci vers l'entrée 
   // --- Layout --------------------------------------------------------
   &._expanded { width: 100%; }
 
-  // Pill shape. Keeps the `--ui-button-radius` hook so a host (ui-button-split)
-  // can still reshape glued corners.
+  // Pill shape. `--ui-button-radius` still wins, so a host can square glued corners.
   &._rounded { border-radius: $radius-rounded; }
 
-  // iconPos top | bottom
   &._icon-top,
   &._icon-bottom {
     flex-direction: column;
@@ -162,7 +139,6 @@ $size-default: map.get($sizes, 'default');         /// Raccourci vers l'entrée 
     padding: $icon-stacked-padding-y $icon-stacked-padding-x;
   }
 
-  // Icon-only: square (width = size height), no horizontal padding.
   &._icon-only {
     width: size-length(map.get($size-default, height));
     padding: 0;
@@ -182,8 +158,7 @@ $size-default: map.get($sizes, 'default');         /// Raccourci vers l'entrée 
     &._#{$lvl} {
       @include action-colors($lvl); // filled (no variant class)
 
-      // onColor + filled: opaque pill, level-independent chrome, but the label
-      // keeps the level's hue : hence a per-level token set.
+      // onColor + filled: the label keeps the level's hue, hence a per-level token set.
       @each $pol in $polarities {
         &._on-#{$pol} { @include action-colors('on#{$pol}-filled-#{$lvl}'); }
       }
@@ -192,8 +167,7 @@ $size-default: map.get($sizes, 'default');         /// Raccourci vers l'entrée 
         &._#{$variant} {
           @include action-colors('#{$lvl}#{$variant}');
 
-          // onColor + outlined/ghost: the backdrop carries the colour, so the
-          // chrome is level-independent (white on dark, dark on light).
+          // onColor + outlined/ghost: level-independent chrome, the backdrop carries the colour.
           @each $pol in $polarities {
             &._on-#{$pol} { @include action-colors('on#{$pol}-#{$variant}'); }
           }

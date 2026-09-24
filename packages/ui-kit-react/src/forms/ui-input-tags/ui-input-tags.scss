@@ -64,9 +64,8 @@ $input-min-width: var(--ui-input-tags-input-min-width, #{utils.rem-calc(80)}); /
     @include utils.field-float-inset;
   }
 
-  // Enveloppe d'accessibilité seulement (le `role="listbox"` autour des tags) :
-  // aucune boîte propre, pour que tags et saisie continuent de s'enrouler sur
-  // les mêmes lignes.
+  // Enveloppe d'accessibilité seulement (le `listbox` des tags) : sans boîte propre,
+  // tags et saisie s'enroulent sur les mêmes lignes.
   &-list {
     display: contents;
   }
@@ -236,9 +235,8 @@ $input-min-width: var(--ui-input-tags-input-min-width, #{utils.rem-calc(80)}); /
   }
 }
 
-// Croix de retrait d'un tag. Ce n'est PAS un bouton : elle vit dans une
-// `option` interactive, où un contrôle imbriqué serait invalide. Elle est donc
-// `aria-hidden`, et le retrait au clavier passe par Suppr sur l'option.
+// Croix de retrait d'un tag : PAS un bouton, un contrôle imbriqué dans une `option`
+// serait invalide. Elle est `aria-hidden`, et Suppr sur l'option retire au clavier.
 .ui-input-tags-remove {
   display: inline-flex;
   align-items: center;

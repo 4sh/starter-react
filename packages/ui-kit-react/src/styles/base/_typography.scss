@@ -1,25 +1,8 @@
 /**
- * Les polices (DM Sans + Inter) sont embarquées en local : cf. `src/vendors/_fonts.scss`.
+ * Classes typographiques sur les jetons générés, responsives par ces jetons
+ * (`_tokens-responsive.scss`) : `.title-{size}`, `.text-{weight}-{size}`, `.accent-{size}`.
  */
 
-/**
- * Classes typographiques basées sur les tokens générés
- * Les tailles sont automatiquement responsives grâce aux media queries dans _tokens-responsive.scss
- *
- * Usage:
- * - .title-{size}         : Titres (sm, md, default, lg, xl, 2xl)
- * - .text-{weight}-{size} : Textes (light, regular, bold, italic) x (sm, md, default, lg, xl)
- * - .accent-{size}        : Textes d'accentuation (sm, default, lg)
- */
-
-/**
- * Mixin pour générer les classes typographiques
- * type: "title" | "text" | "accent"
- * size: sm | md | default | lg | xl | 2xl (pour title)
- *       sm | md | default | lg | xl (pour text)
- *       sm | default | lg (pour accent)
- * font-weight: light | regular | bold | italic (optionnel, utilisé pour text)
- */
 @mixin ds-typography-class($type, $size, $font-weight: null) {
   $class-name: ".#{$type}-#{$size}";
 
@@ -34,13 +17,10 @@
   }
 
   #{$class-name} {
-    // Font family basée sur le type
     font-family: $font-family;
 
-    // Font size responsive automatique via les tokens générés
     font-size: var(--size-typography-#{$type}-#{$size});
 
-    // Font weight
     @if $type =="title" and $font-weight ==null {
       font-weight: var(--weight-bold);
     }

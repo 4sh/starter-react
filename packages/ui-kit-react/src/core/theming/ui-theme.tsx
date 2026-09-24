@@ -24,27 +24,16 @@ const THEMES: readonly UiThemeMode[] = ['light', 'dark'];
 const BRANDS: readonly UiBrandId[] = ['brand1', 'brand2', 'brand3'];
 
 /**
- * `useLayoutEffect` avertit bruyamment au rendu serveur, où il n'a de toute
- * façon rien à faire : il n'y a pas de DOM à peindre. On garde la version
- * synchrone côté navigateur (l'attribut est posé avant la peinture, donc sans
- * clignotement) et on retombe sur `useEffect` côté serveur.
+ * `useLayoutEffect` pose l'attribut avant la peinture, mais avertit au rendu
+ * serveur : `useEffect` y prend sa place.
  */
 const useIsomorphicLayoutEffect = typeof document === 'undefined' ? useEffect : useLayoutEffect;
 
 /**
- * Préférence lue comme une source EXTERNE, via `useSyncExternalStore`.
- *
- * C'est ce qui règle proprement le problème d'hydratation : la valeur mémorisée
- * n'existe que dans le navigateur, donc l'initialiser dans un `useState`
- * produirait un premier rendu différent côté serveur. La rattraper ensuite dans
- * un effet marcherait, mais au prix d'un `setState` dans un effet : un rendu en
- * cascade, que `react-hooks` signale à juste titre. `useSyncExternalStore`
- * existe exactement pour ce cas : il prend un instantané SERVEUR distinct de
- * l'instantané client.
- *
- * Deux bénéfices en prime : la synchronisation entre onglets est gratuite
- * (événement `storage`), et aucun cache d'instantané n'est nécessaire puisque
- * la valeur est une chaîne, comparée par valeur.
+ * Préférence lue comme une source externe, via `useSyncExternalStore` : la valeur
+ * mémorisée n'existe que dans le navigateur, et un instantané serveur distinct évite
+ * l'écart d'hydratation sans `setState` dans un effet. Une chaîne se compare par
+ * valeur : aucun cache d'instantané n'est nécessaire.
  */
 function createPreferenceStore<T extends string>(
   key: string,
@@ -65,8 +54,7 @@ function createPreferenceStore<T extends string>(
       const value = localStorage.getItem(key);
       return value && (allowed as readonly string[]).includes(value) ? (value as T) : fallback;
     } catch {
-      // Navigation privée, cookies bloqués, contexte sans `localStorage` : la
-      // préférence n'est pas mémorisable, ce n'est pas une erreur.
+      // Stockage indisponible (navigation privée, cookies bloqués) : pas une erreur.
       return fallback;
     }
   };
@@ -140,13 +128,8 @@ export interface UiThemeProviderProps {
 
 /**
  * Pose le mode et la marque actifs sur le document, et les expose aux
- * composants.
- *
- * C'est le pendant React de `ThemeService` et `BrandService` du starter
- * Angular : mêmes attributs, mêmes valeurs, mêmes jetons derrière. La
- * différence est le mode contrôlé : un projet qui stocke la préférence côté
- * serveur passe `theme` et garde la main, là où le service Angular était
- * toujours la source de vérité.
+ * composants. Un projet qui stocke la préférence côté serveur passe `theme`
+ * (mode contrôlé) et garde la main.
  */
 export function UiThemeProvider({
   children,
@@ -159,9 +142,8 @@ export function UiThemeProvider({
   persist = true,
   target,
 }: UiThemeProviderProps) {
-  // Un magasin par provider : `persist` et les valeurs de repli en font partie,
-  // et deux providers imbriqués (un aperçu isolé) ne doivent pas se marcher
-  // dessus.
+  // Un magasin par provider : `persist` et les replis en font partie, et deux
+  // providers imbriqués (un aperçu isolé) ne se marchent pas dessus.
   const themeStore = useMemo(
     () => createPreferenceStore(STORAGE_KEY_THEME, THEMES, defaultTheme, persist),
     [defaultTheme, persist],
@@ -189,9 +171,7 @@ export function UiThemeProvider({
     const root = target?.() ?? document.documentElement;
     if (!root) return;
 
-    // `light` est l'état par défaut des jetons (`:root`), donc l'attribut est
-    // RETIRÉ plutôt que posé à 'light' : le poser marcherait aussi, mais
-    // laisserait croire que deux écritures sont nécessaires.
+    // `light` est l'état par défaut des jetons (`:root`) : l'attribut est retiré, pas posé.
     if (theme === 'dark') root.setAttribute('data-theme', 'dark');
     else root.removeAttribute('data-theme');
 
@@ -255,9 +235,8 @@ export function useUiBrand() {
  * Script à injecter dans le `<head>`, avant tout rendu, pour poser le mode et
  * la marque mémorisés AVANT la première peinture.
  *
- * Sans lui, une page rendue côté serveur s'affiche en clair puis bascule en
- * sombre à l'hydratation : le fameux clignotement. Le provider ne peut pas le
- * régler seul, puisqu'il ne s'exécute qu'après.
+ * Sans lui, une page rendue côté serveur s'affiche en clair puis bascule à
+ * l'hydratation : le provider ne s'exécute qu'après.
  *
  * @example
  * ```tsx

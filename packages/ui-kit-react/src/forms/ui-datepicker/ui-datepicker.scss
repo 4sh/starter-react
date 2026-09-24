@@ -1,11 +1,8 @@
 @use 'utils';
 
 // =====================================================================
-// ui-datepicker : la boîte du déclencheur et son message vivent dans
-// `ui-field`. Ici, le panneau calendrier (calque supérieur ou en ligne).
-// 100 % jetons de design ; les constantes structurelles sont les
-// variables locales ci-dessous, ou `panelClassName` pour une peau par
-// instance.
+// ui-datepicker : le panneau calendrier (calque supérieur ou en ligne) ; la boîte du
+// déclencheur vit dans `ui-field`. Peau par instance : `panelClassName`.
 // =====================================================================
 
 // --- Configuration structurelle locale ------------
@@ -91,18 +88,16 @@ $buttonbar-padding-top: var(
     cursor: pointer;
   }
 
-  // Le champ natif. Même recette que tous les champs en boîte du kit.
   &-input {
     @include utils.field-native-input;
   }
 
-  // Bascule d'ouverture : action de champ à ras bord, pleine hauteur.
   &-toggle {
     @include utils.field-action;
   }
 
   // Indication de format masquée visuellement : elle n'existe que comme cible
-  // d'`aria-describedby`. Même technique de découpe que `.ui-select-sr`.
+  // d'`aria-describedby`.
   &-format-hint {
     position: absolute;
     width: 1px;
@@ -116,9 +111,8 @@ $buttonbar-padding-top: var(
 }
 
 // --- Panneau -----------------------------------------------------------
-// Le panneau vit dans le CALQUE SUPÉRIEUR (`<dialog>` en modal, `[popover]`
-// sinon) : aucun z-index, et aucun rognage par un ancêtre en
-// `overflow: hidden`. En ligne, c'est une simple boîte dans le flux.
+// CALQUE SUPÉRIEUR (`<dialog>` en modal, `[popover]` sinon) : ni z-index, ni rognage par
+// un ancêtre en `overflow: hidden`. En ligne, une simple boîte dans le flux.
 .ui-datepicker-panel {
   @include utils.overlay-panel($panel-surface, $panel-stroke);
 
@@ -132,29 +126,22 @@ $buttonbar-padding-top: var(
   border-radius: $panel-radius;
   border-width: $stroke-width;
   box-shadow: $panel-shadow;
-  // Un contenu plus large que le panneau défile plutôt que de peindre hors de
-  // la boîte arrondie : un calendrier en ligne est plafonné à la largeur de son
-  // conteneur, et un `renderButtonBar` peut en demander davantage.
+  // Un contenu plus large (en ligne, `renderButtonBar`) défile au lieu de déborder.
   overflow: auto;
 
   &:not(._inline) {
-    // Styles navigateur du calque : `inset` et `margin` centreraient le
-    // panneau, c'est le placement calculé qui décide.
+    // `inset` et `margin` du navigateur centreraient le calque : le placement calculé décide.
     position: fixed;
     inset: auto;
     margin: 0;
     max-height: $panel-max-height;
     overscroll-behavior: contain;
 
-    // Le `display: none` d'un panneau fermé vient du style NAVIGATEUR
-    // (`dialog:not([open])`, `[popover]:not(:popover-open)`), qui est de niveau
-    // UA : le `display: flex` d'auteur ci-dessus le bat. Il faut le redire, ou
-    // le panneau fermé reste affiché par-dessus son propre déclencheur.
+    // Le `display: flex` ci-dessus bat le `display: none` navigateur du panneau fermé : le redire.
     &:not(:popover-open):not([open]) {
       display: none;
     }
 
-    // Entrée et sortie, par le mixin partagé du système de motion.
     @include utils.overlay-motion {
       opacity: 0;
       translate: 0 calc(-1 * var(--ui-motion-distance, #{utils.$motion-distance}));
@@ -166,9 +153,8 @@ $buttonbar-padding-top: var(
     max-width: min(100%, #{$panel-max-width});
   }
 
-  // L'arrière-plan du `<dialog>` modal reste transparent : le calendrier est un
-  // panneau ancré, pas un dialogue plein écran. Il ne sert qu'à intercepter le
-  // clic extérieur.
+  // Arrière-plan transparent : le calendrier est un panneau ancré, son `<dialog>` modal
+  // n'en a besoin que pour intercepter le clic extérieur.
   &::backdrop {
     background: transparent;
   }
@@ -270,8 +256,7 @@ $buttonbar-padding-top: var(
     }
   }
 
-  // En-tête d'un panneau : [précédent|cale] titre [suivant|cale]. Les flèches
-  // aux bords extérieurs, le titre centré sur sa colonne.
+  // En-tête d'un mois : [précédent|cale] titre [suivant|cale], titre centré sur sa colonne.
   .ui-datepicker-subheader {
     display: flex;
     align-items: center;
@@ -421,7 +406,6 @@ $buttonbar-padding-top: var(
       box-shadow: 0 0 0 $focus-ring-width rgb(from var(--ui-datepicker-day-focus-ring-color, var(--actions-high-stroke-focused)) r g b / 50%); /// Teinte de l'anneau de focus d'un jour.
     }
 
-    // Mois précédent / suivant.
     &._other-month {
       color: $day-color-other-month;
       opacity: $day-opacity-other-month;
@@ -458,9 +442,7 @@ $buttonbar-padding-top: var(
       }
     }
 
-    // La bande de plage est sa propre couche, dimensionnée exactement comme la
-    // pastille d'extrémité et arrêtée à son centre : elle ne peut plus déborder
-    // de la zone, ni en hauteur ni sur les côtés.
+    // Bande de plage : sa propre couche, arrêtée au centre des pastilles d'extrémité.
     &._in-range::after,
     &._range-start::after,
     &._range-end::after {
@@ -483,10 +465,8 @@ $buttonbar-padding-top: var(
       content: none;
     }
 
-    // Seules les deux extrémités d'une ligne de semaine sont arrondies, et elles
-    // s'arrêtent là où tombe le bord d'une pastille plutôt qu'à celui de la
-    // cellule : une zone finissant sur la dernière colonne s'aligne alors sur la
-    // ligne du dessus, au lieu de s'arrêter une demi-gouttière trop court.
+    // Bouts de ligne arrondis, arrêtés au bord de la pastille et non de la cellule : une
+    // zone finissant en dernière colonne s'aligne ainsi sur la ligne du dessus.
     &:first-child::after {
       inset-inline-start: $cap-inset;
       border-start-start-radius: $day-radius;
@@ -498,10 +478,8 @@ $buttonbar-padding-top: var(
       border-end-end-radius: $day-radius;
     }
 
-    // Dans la zone, le chiffre est posé sur la bande, jamais sur la surface du
-    // panneau : il prend le jeton de contenu apparié, identique en clair et en
-    // sombre, contrairement à `--form-high-content-default`, qui devient
-    // presque blanc en sombre au-dessus d'une bande claire.
+    // Chiffre posé sur la bande : jeton de contenu apparié, et non
+    // `--form-high-content-default`, presque blanc en sombre sur une bande claire.
     &._in-range {
       color: $range-color;
       &:disabled {
@@ -523,10 +501,8 @@ $buttonbar-padding-top: var(
     }
   }
 
-  // Un début de plage dont la fin n'est pas encore choisie n'est pas une zone :
-  // la pastille reste seule jusqu'au second clic. Seul le panneau le sait : la
-  // grille seule ne peut pas distinguer cette cellule du début d'une plage
-  // terminée dont la fin est dans un mois qu'elle n'affiche pas.
+  // Plage sans fin choisie : pastille seule. Seul le panneau le sait, la grille ne distingue
+  // pas ce début de celui d'une plage finissant dans un mois non affiché.
   &:not(._range-complete) .ui-datepicker-day._range-start::after {
     content: none;
   }

@@ -220,6 +220,11 @@ par `useSyncExternalStore` avec un instantané serveur distinct : voir `core/the
 - **Rester bref.** Le code se lit tout seul : on ne commente que le non évident,
   la recette, le piège, le point d'extension. Jamais une paraphrase de la ligne
   suivante.
+- **Pas d'historique dans le code.** Un commentaire décrit le code tel qu'il est :
+  ni la version d'avant, ni le défaut corrigé, ni son symptôme, ni la mesure qui
+  l'a révélé, ni la comparaison avec le kit Angular. Un piège non évident tient en
+  une ligne au présent (la règle et sa raison) ; son histoire va dans le CHANGELOG,
+  la ROADMAP (« Pièges déjà payés ») ou le message de commit.
 - **Le JSDoc d'un composant tient en trois à six lignes.** Ce qu'il faut vraiment
   expliquer va dans la page MDX, où c'est rendu, indexé et lisible par le
   consommateur. Un pavé dans la source le cache à ceux qui en ont besoin et

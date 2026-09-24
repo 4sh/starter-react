@@ -1,16 +1,8 @@
 @use 'utils';
 
 // =====================================================================
-// ui-accordion : co-located styles for the whole family (container and
-// panel). All values come from tokens.
-//
-// The whole header is the toggle button; the chevron sits in a circular
-// "control" affordance whose surface reacts to the header state.
-// The body collapses with the grid-rows technique, timed by the motion
-// system (utils.motion-transition), and stays in the DOM (form state kept).
-//
-// No host element here, so `.ui-accordion-panel` is the panel's own root:
-// the `:host` rules of the Angular kit fold into it.
+// ui-accordion : co-located styles for the container and its panels. The whole
+// header is the toggle; the body collapses with the grid-rows technique.
 // =====================================================================
 
 // --- Config -----------------------------------------------------------
@@ -123,7 +115,6 @@ $focus-ring-width: var(--ui-accordion-focus-ring-width, #{utils.$action-focus-ri
       opacity: 1;
     }
 
-    // Group opt-out (`motion={false}`).
     &._no-motion {
       transition: none;
     }

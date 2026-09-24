@@ -110,8 +110,7 @@ export function UiButtonSplit({
   children,
   ...rest
 }: UiButtonSplitProps) {
-  // Sorti de `...rest` : la racine est un `<div>` sans rôle, et un nom
-  // accessible y serait refusé par axe. Il appartient au bouton d'action.
+  // Hors de `...rest` : axe refuse un nom accessible sur un `<div>` sans rôle.
   const ariaLabel = rest['aria-label'];
   delete rest['aria-label'];
 

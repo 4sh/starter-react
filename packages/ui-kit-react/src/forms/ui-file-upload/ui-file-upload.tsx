@@ -183,19 +183,10 @@ function revoke(file: UiUploadFile): void {
 }
 
 /**
- * ui-file-upload : téléversement de fichiers, en champ compact ou en zone de
- * glisser-déposer.
- *
- * Un `<input type="file">` natif, masqué visuellement, porte la sélection : le
- * sélecteur du système, le clavier et les lecteurs d'écran marchent donc
- * nativement, et tout le composant est aussi une cible de dépôt. La sélection
- * est validée côté client (type, taille, nombre), puis envoyée d'elle-même
- * (`auto`), à la demande, ou par la fonction de l'application (`customUpload`).
- * La progression passe par `XMLHttpRequest`, ce qui n'exige aucun client HTTP.
- *
- * Sécurité : la validation côté client est un confort, le serveur doit
- * revalider. Les aperçus d'image sont des URL d'objet, révoquées au retrait, au
- * remplacement, à l'effacement et au démontage.
+ * ui-file-upload : téléversement de fichiers, en champ compact ou en zone de dépôt.
+ * Un `<input type="file">` natif, masqué visuellement, porte la sélection, validée
+ * côté client puis envoyée par `XMLHttpRequest` ou par l'application (`customUpload`).
+ * Sécurité : cette validation est un confort, le serveur doit revalider.
  */
 export function UiFileUpload({
   mode = 'field',
@@ -249,13 +240,8 @@ export function UiFileUpload({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const formValueRef = useRef<HTMLInputElement | null>(null);
 
-  // La sélection vit dans l'état pour le rendu, ET dans une référence pour les
-  // lectures synchrones. Les deux sont écrites ensemble, par `commit` seul.
-  // Pourquoi les deux : une notification doit recevoir la sélection À JOUR
-  // (Angular relit son signal juste après l'avoir écrit), et `auto` enchaîne
-  // l'envoi dans le même geste. Un modificateur fonctionnel de `setState` ne
-  // peut ni l'un ni l'autre : il s'exécute plus tard, et deux fois en mode
-  // strict, ce qui créerait deux fois chaque URL d'objet.
+  // État ET ref, écrits ensemble par `commit` seul : les notifications lisent la sélection
+  // à jour. Un `setState` fonctionnel est différé, et rejoué en mode strict.
   const [files, setFiles] = useState<UiUploadFile[]>([]);
   const filesRef = useRef<UiUploadFile[]>([]);
   const [dragging, setDragging] = useState(false);
@@ -264,9 +250,8 @@ export function UiFileUpload({
   /** Requêtes en cours, par identifiant de fichier, pour pouvoir les annuler. */
   const requests = useRef(new Map<string, XMLHttpRequest>());
 
-  // Les rappels d'une requête tirent longtemps après le rendu qui l'a lancée :
-  // ils lisent les props par cette référence, tenue à jour après chaque rendu,
-  // pour ne jamais appeler une fonction périmée de l'appelant.
+  // Les rappels d'une requête tirent longtemps après son rendu : ils lisent les props
+  // par cette ref, tenue à jour, pour ne jamais appeler une fonction périmée.
   const latest = useRef({
     onFilesChange,
     onUploadComplete,
@@ -291,7 +276,6 @@ export function UiFileUpload({
     setFiles(next);
   }, []);
 
-  /** Remplace les champs d'un fichier, sans toucher aux autres. */
   const patch = useCallback(
     (id: string, changes: Partial<UiUploadFile>) => {
       commit(filesRef.current.map((f) => (f.id === id ? { ...f, ...changes } : f)));
@@ -302,7 +286,6 @@ export function UiFileUpload({
   const current = (id: string, fallback: UiUploadFile): UiUploadFile =>
     filesRef.current.find((f) => f.id === id) ?? fallback;
 
-  // Au démontage, rien ne doit survivre : ni URL d'objet, ni requête en vol.
   useEffect(() => {
     const inFlight = requests.current;
     return () => {
@@ -312,10 +295,8 @@ export function UiFileUpload({
     };
   }, []);
 
-  // Le sélecteur est vidé après chaque choix, pour qu'un nouveau choix du même
-  // fichier redéclenche `change` : il ne peut donc pas porter la sélection
-  // jusqu'au formulaire. C'est un second champ, caché, qui le fait. Sans lui,
-  // un formulaire natif recevait un fichier VIDE (nom '', 0 octet), mesuré.
+  // Le sélecteur est vidé après chaque choix (pour redéclencher `change`) : c'est ce
+  // second champ, caché, qui porte la sélection jusqu'au formulaire natif.
   useEffect(() => {
     const el = formValueRef.current;
     if (!el) return;
@@ -410,16 +391,9 @@ export function UiFileUpload({
   };
 
   // --- Sélection -------------------------------------------------------------
-  //
-  // `choose`, `upload`, `clear` et `remove` lisent la sélection par sa
-  // référence, et sont TRANSMISES aux props de rendu (`renderToolbar`,
-  // `renderContent`, `renderFile`). `react-hooks/refs` le signale, faute de
-  // pouvoir prouver que l'appelant ne les invoquera pas pendant le rendu. Ce
-  // serait un défaut chez lui quelle que soit la conception, une action qui
-  // change la sélection n'ayant rien à faire dans un rendu. Même faux positif
-  // que `ui-swatch-picker`, et même traitement : une exception par appel.
+  // `choose`, `upload`, `clear` et `remove` lisent la sélection par sa ref et sont
+  // transmises aux props de rendu : faux positif de `react-hooks/refs`, levé par appel.
 
-  /** Ouvre le sélecteur natif. */
   const choose = () => {
     if (disabled) return;
     inputRef.current?.click();
@@ -429,7 +403,6 @@ export function UiFileUpload({
     if (inputRef.current) inputRef.current.value = '';
   };
 
-  /** Retire un fichier : annule son envoi, révoque son aperçu. */
   const remove = (target: UiUploadFile) => {
     requests.current.get(target.id)?.abort();
     requests.current.delete(target.id);
@@ -439,7 +412,6 @@ export function UiFileUpload({
     onFilesChange?.(filesRef.current);
   };
 
-  /** Vide toute la sélection. */
   const clear = () => {
     for (const xhr of requests.current.values()) xhr.abort();
     requests.current.clear();
@@ -566,7 +538,6 @@ export function UiFileUpload({
       onDragLeave={onDragLeave}
       onDrop={onDrop}
     >
-      {/* Le vrai contrôle natif, masqué visuellement : clavier et lecteurs d'écran restent natifs. */}
       <input
         ref={inputRef}
         className="ui-file-upload-input"

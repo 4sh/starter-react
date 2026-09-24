@@ -34,16 +34,10 @@ export interface UiFileUploadListProps extends Omit<ComponentPropsWithRef<'div'>
 }
 
 /**
- * ui-file-upload-list : une ligne de fichier, l'unité qui se répète dans la
- * liste d'un envoi.
- *
- * Présentationnel : une vignette pour une image, une icône sinon, le nom avec
- * la taille ou l'état, et un bouton de retrait. Pendant l'envoi, un
- * `ui-spinner` prend la place de l'icône et une barre de progression fine
- * apparaît en pied de ligne.
- *
- * Le nom suit le composant Figma ; `ui-file-upload` empile une ligne par
- * fichier.
+ * ui-file-upload-list : une ligne de fichier (le nom suit le composant Figma), que
+ * `ui-file-upload` empile une par fichier. Présentationnel : vignette ou icône, nom
+ * avec taille ou état, bouton de retrait ; pendant l'envoi, un `ui-spinner` remplace
+ * l'icône et une barre de progression apparaît en pied de ligne.
  */
 export function UiFileUploadList({
   file,
