@@ -95,19 +95,42 @@ est ce qui aligne le premier item d'un sous-menu en cascade sur son item parent.
 `anchorPoint` remplace l'élément d'ancrage par un simple **point** du viewport, pour ce qui ne
 s'ancre à rien : un menu contextuel s'ancre sur le pointeur.
 
-`isPositioned` dit si la position a déjà été calculée. Il compte : `computePosition` est
-**asynchrone**, donc entre l'ouverture et sa réponse le panneau porte encore la position
-d'avant, et peindre cette image donne le panneau qui apparaît ailleurs puis se replace. Un
-panneau porte donc `data-unpositioned` tant qu'elle vaut `false`, et
-`utils.overlay-motion` le garde dans son état fermé, invisible. Les **huit** panneaux
-flottants du kit le posent. L'attribut retiré, la
+`isPositioned` dit si la position a été calculée **pour l'ouverture en cours**.
+`computePosition` est asynchrone : tant qu'il vaut `false`, le panneau porte
+`data-unpositioned`, et `utils.overlay-motion` le garde dans son état fermé, invisible. Tous
+les panneaux flottants du kit le posent, sous-menus en cascade compris. L'attribut retiré, la
 transition d'entrée part de cet état : l'animation reste entière.
+
+Trois règles tiennent le cycle d'ouverture, et chacune corrige un défaut mesuré image par
+image :
+
+- **La position passe par `top` / `left`, jamais par `transform`.** Une propriété de
+  transformation individuelle (`scale`, `translate`) s'applique **par-dessus** `transform` :
+  l'échelle d'entrée réduisait donc les coordonnées elles-mêmes, et le panneau partait vers le
+  haut à gauche de la page avant de glisser à sa place. Mesuré : 127 px au-dessus du pointeur
+  pour un menu contextuel, 331 px pour le popover de l'Overview. Un panneau anime donc
+  librement `scale` et `translate`, et il **grandit depuis son ancre** : `transform-origin`
+  vise le centre de l'ancre, ramené sur le bord du panneau qui la touche, même retourné ou
+  décalé contre un bord du viewport.
+- **Seul un panneau rendu se mesure.** Fermé, il est en `display: none` : sa taille vaut zéro,
+  et Floating UI lui cherche un parent de positionnement dans le DOM au lieu du viewport.
+  Cette mesure fausse n'est plus retenue, quel que soit l'ordre dans lequel les effets React
+  courent, ce qui dépend de la priorité de la mise à jour (un clic, un survol, une minuterie).
+- **Fermé, le panneau garde sa dernière position.** Sa sortie s'anime avec `allow-discrete`,
+  donc il reste peint le temps du fondu, et le déplacer à ce moment le montre ailleurs. Mesuré
+  sur une version intermédiaire qui le posait à l'origine : un flash en haut à gauche de
+  l'écran à chaque fermeture.
+
+À sa toute première ouverture, sans position antérieure, un panneau du calque supérieur attend
+en `position: fixed` à l'origine du **viewport**. Il est déjà ouvert, parfois déjà focalisé
+(`showModal()` le fait tout seul), et un focus posé à l'origine du **document** faisait
+défiler la page tout en haut.
 
 ⚠️ Une ancre **élément** qu'on déplacerait en CSS n'est pas resuivie : `autoUpdate` observe le
 défilement et les redimensionnements, pas un déplacement d'auteur. Une ancre mobile est donc
 un `anchorPoint`, dont le changement de coordonnées suffit à replacer le panneau. Et
-`computePosition` étant **asynchrone**, le premier rendu après une ouverture porte encore la
-position d'avant : un test de placement passe par `expect.poll`.
+`computePosition` étant **asynchrone**, le premier rendu après une ouverture n'a pas encore sa
+position : un test de placement passe par `expect.poll`.
 
 C'est le seul fichier du kit qui importe Floating UI, et `pnpm deps:check` le vérifie.
 

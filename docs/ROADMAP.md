@@ -210,9 +210,10 @@ Une dette écrite n'est pas une dette : c'est un choix. Ce qui suit est assumé,
 - **Gridaflex n'est pas tranché** pour React. `storybook/docs/specifications/responsive.mdx`
   en parle comme s'il était là.
 - **Les trois paquets sont `private: true`** en attendant la phase 5.
-- **`data-unpositioned` est posé par les huit panneaux flottants, mais le mixin ne s'en sert
+- **`data-unpositioned` est posé par tous les panneaux flottants, mais le mixin ne s'en sert
   que là.** Un composant qui ajouterait un panneau devra penser à l'attribut : rien ne le lui
-  rappelle, `docs.config` ne voyant que les hooks `--ui-*`.
+  rappelle, `docs.config` ne voyant que les hooks `--ui-*`. Les sous-menus en cascade de
+  `ui-menu` l'avaient oublié jusqu'au 2026-09-24.
 - **`docs:config` affiche une ligne d'avertissement attendue** : « 1 variable sans commentaire
   `///` ». C'est `$months-stack-below` de `ui-datepicker`, un breakpoint SCSS interne qui n'a
   ni hook `--ui-*` ni raison d'être publié. Ne pas partir à sa recherche.
@@ -433,10 +434,32 @@ Ne pas les repayer. Chacun est documenté sur place, dans le fichier concerné.
   Elle porte la position d'avant, et le panneau paraît apparaître ailleurs puis se replacer.
   `useUiPosition` expose `isPositioned` : tant qu'il est faux, le panneau porte
   `data-unpositioned` et `utils.overlay-motion` le garde dans son état fermé.
+- **`scale` et `translate` s'appliquent PAR-DESSUS `transform`.** Positionner un panneau par
+  `transform: translate()` et animer son entrée par la propriété `scale` réduit donc les
+  coordonnées elles-mêmes : le panneau part vers l'origine du document et glisse jusqu'à sa
+  place, d'autant plus loin qu'il est bas dans la page (127 px pour un menu contextuel, 331 px
+  sur l'Overview). C'était le « panneau qui se replace » signalé et jamais reproduit :
+  invisible en haut d'une story, flagrant en bas d'une page de doc. `useUiPosition` pose
+  `top` / `left`, et un `transform-origin` calculé sur l'ancre.
+- **Un panneau en `display: none` se mesure faux, et en silence.** Taille nulle, et Floating UI
+  lui cherche un parent de positionnement dans le DOM au lieu du viewport. Que l'effet qui
+  appelle `showPopover()` coure avant ou après la mesure dépend de la priorité de la mise à
+  jour React, pas du composant : `useUiPosition` refuse de mesurer un panneau qui n'est pas
+  encore dans son calque.
+- **L'état d'attente d'un panneau ne doit JAMAIS s'appliquer à sa sortie.** `isPositioned`
+  retombe à la fermeture, pendant que la sortie `allow-discrete` le garde peint : un style
+  d'attente (origine du viewport) posé sur ce seul critère l'a fait clignoter en haut à gauche
+  à chaque fermeture. Fermé, un panneau garde sa dernière position.
+- **Une animation se mesure dans un onglet VISIBLE.** Le panneau navigateur de Claude, masqué,
+  gèle les transitions (`opacity: 0`, `scale: 0.96` indéfiniment) : ses rectangles mentent.
+  Un Chromium sans tête piloté par Playwright, échantillonné après chaque peinture (une tâche
+  `MessageChannel` postée depuis `requestAnimationFrame`), donne la vérité image par image.
 - **Un résultat négatif obtenu juste après une édition ne prouve rien.** J'ai conclu qu'un
   survol n'était pas en cause en neutralisant son gestionnaire et en voyant le défaut
   persister : c'était le cache de modules qui servait l'ancienne version. La trace, elle, a
-  montré l'inverse. Vider `node_modules/.vite` avant de croire une absence.
+  montré l'inverse. Vider `node_modules/.vite` avant de croire une absence. Même famille : le
+  rapport `.vitest/json/output.json` n'est pas réécrit par un run qui échoue à démarrer, et on
+  relit alors le verdict du run d'avant. La sortie brute de `vitest run` fait foi.
 - **Une boîte à zéro ne veut pas dire « repositionné en haut à gauche ».** Un élément dont un
   ANCÊTRE est en `display: none` n'a plus de boîte du tout, et son rectangle se lit (0, 0),
   transform intact. J'ai failli corriger un repositionnement qui n'existait pas : c'est le
@@ -2066,3 +2089,34 @@ kit React s'en tient au modèle Angular, un package classique et un package en m
 CLI jouant le rôle des schematics de `@4sh/ui-kit-schematics` (`init`, `add`, `update`).
 `docs/DECISIONS.md`, cette feuille de route, le `package.json` du CLI et la page Getting Started
 sont alignés.
+
+### 2026-09-24 : l'ouverture et la fermeture des panneaux flottants
+
+Trois défauts de Storybook signalés par le user, puis deux autres sur tous les overlays.
+
+**L'Overview arrivait déroulée** jusqu'à `ui-modal` (9 397 px). Les stories `Opened` de
+`ui-drawer` et `ui-modal` ouvrent un dialogue `contained` au montage, et `show()` y posait le
+focus, que Chrome fait suivre d'un défilement. Un dialogue cantonné ouvert dès le montage fait
+partie de la page : il s'ouvre par l'attribut, qui ne touche pas au focus, et ne perd rien, un
+dialogue cantonné n'ayant ni calque, ni arrière-plan, ni piège. Même règle pour
+`ui-bottom-sheet`. **`ui-label`** rendait un `<input>` brut : retiré, comme côté Angular, axe
+ne signalant pas un libellé orphelin, contrairement à ce qu'affirmait sa doc. **Le popover de
+l'Overview ramenait la page en haut** : focalisé avant d'avoir sa position, il était encore à
+l'origine du document.
+
+**Puis le vrai sujet**, sur `ui-context-menu` et `ui-popover` : le panneau s'ouvrait plus haut
+que le pointeur et glissait jusqu'à lui ; il clignotait en haut à gauche en se fermant. Mesuré
+image par image sous Playwright, dans un Chromium sans tête dont le rendu tourne, là où le
+panneau navigateur masqué gelait les transitions. Le premier défaut était ancien, et c'était
+le « panneau qui se replace » du 2026-09-08 : l'échelle d'entrée s'applique par-dessus le
+`transform` de positionnement. Le second était **de moi**, au même tour que le correctif du
+focus : l'état d'attente (origine du viewport) s'appliquait aussi pendant la sortie. Il n'avait
+pas été commité.
+
+`useUiPosition` tient désormais lui-même son cycle de vie, sur `computePosition` et
+`autoUpdate` : position en `top` / `left`, `transform-origin` calculé sur l'ancre, mesure
+refusée tant que le panneau n'est pas dans son calque, résultat périmé ignoré, dernière
+position gardée à la fermeture, ancre virtuelle stable. L'API publique ne change pas, les
+composants non plus, sauf les sous-menus en cascade qui posent enfin `data-unpositioned`.
+Six tests de contrat, chacun vérifié en échec sur l'ancienne version, sur celle du tour
+précédent, ou les deux : 1 334 tests unitaires et 716 stories auditées passent.

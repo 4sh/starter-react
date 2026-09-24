@@ -212,8 +212,15 @@ export function UiBottomSheet({
   // L'ÉTAT est la source de vérité, le DOM suit. Un `<dialog>` s'ouvre par une
   // méthode et non par un attribut : `open` posé en JSX rendrait le panneau sans
   // calque supérieur, sans arrière-plan et sans piège de focus.
+  //
+  // Sauf un panneau CANTONNÉ ouvert dès le montage : il fait partie de la page,
+  // et `show()` y poserait le focus, donc un défilement jusqu'à lui. Il n'a de
+  // toute façon ni calque, ni arrière-plan, ni piège (voir ui-modal).
+  const mountingRef = useRef(true);
   useEffect(() => {
     const dialog = innerRef.current;
+    const mounting = mountingRef.current;
+    mountingRef.current = false;
     if (!dialog) return;
 
     if (open && !dialog.open) {
@@ -221,6 +228,7 @@ export function UiBottomSheet({
       setDragOffset(0);
       setDragHeight(null);
       if (isModalLayer) dialog.showModal();
+      else if (contained && mounting) dialog.setAttribute('open', '');
       else dialog.show();
       onShow?.();
     } else if (!open && dialog.open) {

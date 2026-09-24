@@ -879,7 +879,10 @@ function MenuFlyoutEntry({
   onChildItemClick,
 }: MenuFlyoutEntryProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
-  const { setAnchor, setPanel, panelStyle } = useUiPosition<HTMLLIElement, HTMLDivElement>({
+  const { setAnchor, setPanel, panelStyle, isPositioned } = useUiPosition<
+    HTMLLIElement,
+    HTMLDivElement
+  >({
     placement: 'right-start',
     // L'axe transverse remonte le panneau de sa propre gouttière, ce qui aligne
     // son premier item sur l'item parent : c'est cet alignement qui fait lire la
@@ -931,7 +934,15 @@ function MenuFlyoutEntry({
 
       {/* Le sous-menu vit dans le CALQUE SUPÉRIEUR, comme le panneau parent :
           sans lui, le `overflow: auto` du panneau le rognerait. */}
-      <div ref={attachPanel} popover="manual" className="ui-menu-flyout" style={panelStyle}>
+      <div
+        ref={attachPanel}
+        popover="manual"
+        // Comme le panneau parent : invisible tant que sa position n'est pas
+        // calculée, reconnu par `utils.overlay-motion-enter`.
+        data-unpositioned={isPositioned ? undefined : ''}
+        className="ui-menu-flyout"
+        style={panelStyle}
+      >
         <UiMenu
           items={node.item.items ?? []}
           level={level}

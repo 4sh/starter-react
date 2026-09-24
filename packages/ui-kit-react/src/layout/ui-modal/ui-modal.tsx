@@ -232,12 +232,23 @@ export function UiModal({
   // fermé à l'écran, et le déclencheur ne rouvrait plus rien, `setOpen(true)`
   // ne changeant rien. Symptôme vu par l'utilisateur : « je ne peux pas la
   // fermer ».
+  //
+  // Exception : un dialogue CANTONNÉ ouvert dès le montage s'ouvre par
+  // l'attribut. Il fait partie de la page comme n'importe quelle section, et
+  // `show()` y poserait le focus, que le navigateur fait suivre d'un
+  // défilement. Mesuré sur l'Overview : la page arrivait déroulée jusqu'au
+  // dernier dialogue ouvert. L'attribut ne lui retire rien, un dialogue
+  // cantonné n'ayant ni calque supérieur, ni arrière-plan, ni piège de focus.
+  const mountingRef = useRef(true);
   useEffect(() => {
     const dialog = innerRef.current;
+    const mounting = mountingRef.current;
+    mountingRef.current = false;
     if (!dialog) return;
 
     if (open && !dialog.open) {
       if (isModalLayer) dialog.showModal();
+      else if (contained && mounting) dialog.setAttribute('open', '');
       else dialog.show();
       onShow?.();
     } else if (!open && dialog.open) {

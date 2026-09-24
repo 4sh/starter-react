@@ -657,6 +657,36 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
   et seul le libellé s'aligne à droite. La SCSS étant reprise du kit Angular à l'octet près,
   le défaut y est présent à l'identique : voir `docs/DUAL-ENGINE.md`.
 
+- `ui-modal`, `ui-drawer` et `ui-bottom-sheet` : un panneau `contained` ouvert **dès le
+  montage** volait le focus, et le navigateur faisait défiler la page jusqu'à lui. La page
+  Overview arrivait ainsi déroulée jusqu'à `ui-modal` (mesuré : 9 397 px). Il fait partie de
+  la page comme n'importe quelle section : il s'ouvre désormais par l'attribut, qui ne touche
+  pas au focus, et n'a de toute façon ni calque supérieur, ni arrière-plan, ni piège de focus.
+  Ouvert plus tard par un déclencheur, il repasse par `show()` et reçoit le focus.
+- **Tous les panneaux flottants** (`ui-context-menu`, `ui-popover`, `ui-menu`, `ui-select`,
+  `ui-tooltip`…) s'ouvraient **décalés vers le haut et la gauche** de la page, puis glissaient
+  jusqu'à leur place. Mesuré image par image : un menu contextuel 127 px au-dessus du pointeur
+  en bas de sa page de doc, le popover de l'Overview 331 px au-dessus de son déclencheur.
+  `useUiPosition` positionnait par `transform: translate()`, et l'échelle d'entrée, une
+  propriété `scale` individuelle, s'applique par-dessus : elle réduisait les coordonnées
+  elles-mêmes. La position passe désormais par `top` / `left`, et le panneau **grandit depuis
+  son ancre** : `transform-origin` vise le pointeur ou le déclencheur, même retourné ou décalé
+  contre un bord.
+- `useUiPosition` : un panneau n'est plus **mesuré avant d'être rendu** dans son calque. En
+  `display: none`, sa taille est nulle et son parent de positionnement faux ; cette position
+  était pourtant retenue, et le panneau apparaissait ailleurs avant de sauter à sa place,
+  selon l'ordre dans lequel les effets React couraient. Fermé, il garde sa dernière position
+  le temps de sa sortie animée. Les sous-menus en cascade de `ui-menu` attendent aussi leur
+  position avant d'apparaître, et un point d'ancrage déplacé (menu contextuel pendant un
+  défilement) ne rebranche plus écouteurs et observateurs à chaque événement.
+- `ui-popover`, modal ou non : ouvrir le panneau **ramenait la page tout en haut**. Le focus
+  se pose avant que la position soit calculée, quand le panneau était encore à l'origine du
+  document. À sa première ouverture, il attend désormais à l'origine du viewport, en `fixed`.
+  Corrigé dans `useUiPosition`, donc pour tout panneau flottant focalisé aussi tôt.
+- `ui-label` : les stories rendaient un `<input>` natif, sans style, à côté du libellé. Il
+  est retiré, comme dans le kit Angular : axe ne signale pas un `<label>` orphelin, et la doc
+  qui l'affirmait est corrigée.
+
 ### Changed
 
 - Les aides de date (`toIsoDate`, `parseIsoDate`, `startOfDay`…) quittent `ui-datepicker`
