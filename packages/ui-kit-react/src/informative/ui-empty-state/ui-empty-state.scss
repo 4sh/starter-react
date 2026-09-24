@@ -3,9 +3,7 @@
 
 // =====================================================================
 // ui-empty-state : co-located styles. All values come from design tokens.
-//
-// Extend:
-//   • Size (density) → add an entry to $sizes (+ the `EmptyStateSize` type).
+// Extend: a new density goes in $sizes and in the `EmptyStateSize` type.
 // =====================================================================
 
 // --- Config (extension points) ---------------------------------------
@@ -59,9 +57,7 @@ $max-width: var(--ui-empty-state-max-width, 40ch);                /// Largeur ma
     align-items: center;
     justify-content: center;
     max-width: 100%; // keeps a projected illustration from blowing out the column
-    // `color` cascades into the icon (ui-icon uses `currentColor`); the icon size
-    // is driven through ui-icon's `--ui-icon-size` hook (a custom property, so it
-    // inherits across the component boundary, so no ::ng-deep is needed).
+    // The icon inherits `color` (`currentColor`) and is sized by ui-icon's `--ui-icon-size` hook.
     color: var(--_media-color);
     --ui-icon-size: var(--_media-size);
   }

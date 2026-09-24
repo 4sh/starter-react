@@ -3,13 +3,9 @@ import { DEFAULT_SWATCH_PALETTE } from '../ui-swatch-picker';
 import { parseInert } from './ui-editor-sanitize';
 
 /**
- * Rich-text command layer: the only place that talks to the legacy editing API.
- *
- * `document.execCommand` is deprecated but remains the sole cross-browser way to
- * apply inline formatting to a `contenteditable` selection without pulling in an
- * editing engine (ProseMirror, Quill…). It is confined to this file so the kit
- * keeps a single third-party-free dependency surface, and so a future Selection/
- * Range implementation only has to replace these functions.
+ * Rich-text command layer, the only place that talks to `document.execCommand`:
+ * deprecated, but the sole cross-browser way to format a `contenteditable` selection
+ * without an editing engine. A Selection/Range rewrite only has to replace this file.
  */
 
 /**
@@ -138,13 +134,10 @@ const FONT_CLASSES = new Set(EDITOR_FONTS.map((f) => f.className));
  * The tools enabled when the consumer does not provide a `tools` list.
  *
  * There is no block-level dropdown (no `blockFormat`, no headings): the editor
- * only ever produces `<p>`. `fontFamily`/`fontSize` are both first-class,
- * always-on tools rather than one gated behind the other.
+ * only ever produces `<p>`.
  *
- * `clearFormat` is deliberately absent for now: `clearFormatMarkers()` does not
- * reliably clear every marker class yet. It stays available for a project that
- * explicitly adds it to `tools`, but shipping it by default would be shipping
- * a broken button.
+ * `clearFormat` is left out until `clearFormatMarkers()` reliably clears every
+ * marker class; a project can still add it to `tools`.
  */
 export const DEFAULT_EDITOR_TOOLS: readonly EditorTool[] = [
   'fontFamily',
@@ -259,12 +252,8 @@ export function isInCodeBlock(): boolean {
 // --- Font family --------------------------------------------------------
 
 /**
- * Marker handed to `fontName`, immediately rewritten into a class.
- *
- * `fontName` is the only command that can apply a family to an arbitrary
- * selection, but it emits `<font face="…">` : an obsolete tag carrying a raw
- * family name. We let it run, then convert its output so the value only ever
- * holds a class bound to a `--fontfamily-*` token.
+ * Marker handed to `fontName`, the only command that can apply a family to any
+ * selection: its `<font face>` output is immediately rewritten into a token class.
  */
 const FONT_MARKER = '__ui-editor-font__';
 
@@ -280,15 +269,8 @@ export function convertFontMarkers(root: ParentNode, className: string): void {
 
 /**
  * @internal Replaces the matched legacy `<font>` elements with a classed span.
- *
- * Two things the Angular version did not do, both measured in a browser:
- *
- * - a class of the same family left INSIDE the new span wins over it, being
- *   closer to the text: recoloring a paragraph that holds a red word left that
- *   word red. Those inner classes are stripped;
- * - replacing the element that held the selection collapses it, so the text
- *   just formatted was no longer selected and a second format needed a new
- *   selection. It is put back on what was just formatted.
+ * Inner classes of the same family are stripped (closer to the text, they would win),
+ * and the selection, collapsed by the replacement, is put back on the formatted text.
  */
 function convertMarkers(
   root: ParentNode,
@@ -362,11 +344,8 @@ function firstFace(stack: string): string {
 // --- Font size ----------------------------------------------------------
 
 /**
- * Marker handed to `fontSize`, immediately rewritten into a class.
- *
- * Same trick as the family: `fontSize` is the only command that can size an
- * arbitrary selection, but it emits `<font size="7">` : a legacy 1-7 scale with
- * no relation to the typography tokens.
+ * Marker handed to `fontSize`, the only command that can size any selection: its
+ * `<font size>` output (a legacy 1-7 scale) is immediately rewritten into a class.
  */
 const SIZE_MARKER = '7';
 
@@ -426,15 +405,9 @@ const COLOR_CLASSES = new Set(EDITOR_COLORS.map((c) => c.className));
 const HIGHLIGHT_CLASSES = new Set(EDITOR_HIGHLIGHTS.map((c) => c.className));
 
 /**
- * Marker handed to `foreColor`, immediately rewritten into a class.
- *
- * `foreColor` is the only command that can color an arbitrary selection, but
- * it emits `<font color="…">` : same trick as the family/size markers. Must
- * be a value the browser accepts as a real color (unlike `fontName`'s marker,
- * which is free text): an unparseable string is silently dropped instead of
- * being written to the `color` attribute. A hex triplet unlikely to collide
- * with a real token value is used, and Chromium/Firefox both echo it back
- * verbatim on the `<font color>` attribute (verified empirically).
+ * Marker handed to `foreColor`, rewritten into a class like the family/size ones. It
+ * must parse as a real color (anything else is silently dropped); browsers echo this
+ * unlikely hex verbatim on `<font color>`.
  */
 const COLOR_MARKER = '#010203';
 
@@ -454,16 +427,8 @@ export function readTextColor(node: Node | null): string | null {
 }
 
 /**
- * Marker handed to `hiliteColor`, immediately rewritten into a class.
- *
- * Unlike `fontName`/`fontSize`/`foreColor`, `hiliteColor` does **not** emit a
- * `<font>` element: verified empirically (Playwright, Chromium + Firefox)
- * that it always produces `<span style="background-color: rgb(r, g, b);">`,
- * converting whatever color is handed to it : including a hex marker : to an
- * `rgb(...)` triplet in the `style` attribute. `HILITE_MARKER` is therefore
- * kept as the hex value passed to the command, and `HILITE_MARKER_RGB` as the
- * exact `rgb(...)` string both browsers echo back for it, used to build the
- * `[style*="…"]` selector `convertHighlightMarkers` matches on.
+ * Marker handed to `hiliteColor`, rewritten into a class. Unlike the others it emits
+ * `<span style="background-color: rgb(r, g, b)">`, hence the match on its rgb form.
  */
 const HILITE_MARKER = '#040506';
 /** @internal `rgb(...)` form both Chromium and Firefox normalize `HILITE_MARKER` to. */
@@ -612,11 +577,8 @@ const ALLOWED_TAGS = new Set([
 ]);
 
 /**
- * Tags dropped WITH their content, instead of being unwrapped.
- *
- * Unwrapping keeps the text of a rejected element, which is what we want for a
- * heading or a table cell : but a script or stylesheet body would then land in
- * the document as visible text.
+ * Tags dropped WITH their content: unwrapped like other rejected elements, a script
+ * or stylesheet body would land in the value as visible text.
  */
 const VOIDED_TAGS = 'script, style, noscript, iframe, object, embed, template, title, meta, link';
 
@@ -626,9 +588,9 @@ const ALLOWED_HREF_PROTOCOLS = ['http:', 'https:', 'mailto:', 'tel:'];
 /**
  * Strips everything outside the whitelist, keeping the text of dropped elements.
  *
- * Runs on paste, before `sanitizeHtml` (the `DomSanitizer` port): the sanitizer removes what is
- * dangerous, this removes what is merely foreign to the editor (Word spans, inline
- * styles, headings, tables) so the value stays a small, predictable HTML subset.
+ * Runs on paste, before `sanitizeHtml`: the sanitizer removes what is dangerous,
+ * this removes what is merely foreign to the editor (Word spans, inline styles,
+ * headings, tables) so the value stays a small, predictable HTML subset.
  */
 export function normalizeHtml(html: string): string {
   if (typeof DOMParser === 'undefined') return '';

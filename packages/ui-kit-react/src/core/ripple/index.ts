@@ -1,8 +1,4 @@
-/*
- * L'onde de pression : le moteur, sans React, et ses liaisons. Les styles de
- * l'onde vivent dans la feuille globale du kit (`styles/base/_ripple.scss`,
- * livrée dans `styles.css`).
- */
+/* Les styles de l'onde vivent dans la feuille globale du kit (`styles/base/_ripple.scss`). */
 
 export {
   UI_RIPPLE_DEFAULT_SELECTOR,

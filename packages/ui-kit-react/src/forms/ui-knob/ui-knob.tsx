@@ -19,8 +19,7 @@ import './ui-knob.scss';
 export type UiKnobSize = 'small' | 'default' | 'large';
 
 // --- Géométrie du cadran (viewBox 0 0 100 100) ------------------------
-// Un arc de 300° ouvert en bas : le minimum à 240°, le maximum à -60°. Tout est
-// exprimé en unités de viewBox, donc le dessin suit le diamètre rendu.
+// Arc de 300° ouvert en bas : minimum à 240°, maximum à -60°.
 const CENTER = 50;
 const MIN_RADIANS = (4 * Math.PI) / 3;
 const MAX_RADIANS = -Math.PI / 3;
@@ -34,11 +33,7 @@ const prevenus = new Set<string>();
 
 const round = (n: number): number => Number(n.toFixed(3));
 
-/**
- * Rayon de la ligne médiane pour une épaisseur donnée : l'arc, bouts compris,
- * tient toujours dans sa boîte, donc un trait épais ne déborde jamais sur
- * l'anneau de focus.
- */
+/** Rayon de la ligne médiane : l'arc, bouts compris, ne déborde jamais sur l'anneau de focus. */
 function dialRadius(strokeWidth: number): number {
   return Math.max(2, CENTER - strokeWidth / 2 - RING_GAP);
 }
@@ -161,7 +156,6 @@ export function UiKnob({
     return decimals > 0 ? +raw.toFixed(decimals) : Math.round(raw);
   };
 
-  /** Aligne sur la grille du pas, borne, puis publie si la valeur a bougé. */
   const commit = (raw: number) => {
     const next = clamp(roundToStep(min + Math.round((raw - min) / stepSize) * stepSize));
     if (next === current) return;
@@ -190,8 +184,7 @@ export function UiKnob({
   const valuePath = `M ${arcFrom.x} ${arcFrom.y} A ${radius} ${radius} 0 ${largeArc} ${sweep} ${arcTo.x} ${arcTo.y}`;
 
   const displayValue = valueTemplate.replace('{value}', String(current));
-  // Annoncé seulement quand le libellé diffère de la valeur brute, sinon il la
-  // répéterait.
+  // Annoncé seulement s'il diffère de la valeur brute, sinon il la répéterait.
   const ariaValueText = displayValue === String(current) ? undefined : displayValue;
 
   /** Position du pointeur vers une valeur, en ignorant l'ouverture du bas. */
@@ -296,7 +289,6 @@ export function UiKnob({
       onPointerCancel={onPointerUp}
       onKeyDown={onKeyDown}
     >
-      {/* La valeur est portée par le `role="slider"` : le dessin est décoratif. */}
       <svg className="ui-knob-dial" viewBox="0 0 100 100" focusable="false" aria-hidden="true">
         <path className="ui-knob-range" d={rangePath} strokeWidth={strokeWidth} />
         <path className="ui-knob-value" d={valuePath} strokeWidth={strokeWidth} />

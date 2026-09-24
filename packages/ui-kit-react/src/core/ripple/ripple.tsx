@@ -28,8 +28,7 @@ export interface UiRippleProviderProps {
 
 /**
  * Active l'onde pour TOUTE l'application : tout ce qui porte `data-ripple="on"`,
- * donc les quatorze composants du kit qui le posent d'eux-mêmes, répond à une
- * pression.
+ * dont les composants du kit, répond à une pression.
  *
  * ```tsx
  * <UiRippleProvider>

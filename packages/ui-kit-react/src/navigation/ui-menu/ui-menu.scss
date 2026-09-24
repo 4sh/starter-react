@@ -81,7 +81,6 @@ $focus-ring-width: var(--ui-menu-focus-ring-width, #{utils.$focus-ring-width}); 
     list-style: none;
   }
 
-  // Un groupe repliable est indenté sous sa bascule.
   &-group._nested {
     padding-left: $group-indent;
   }
@@ -142,7 +141,6 @@ $focus-ring-width: var(--ui-menu-focus-ring-width, #{utils.$focus-ring-width}); 
     min-width: 0;
   }
 
-  // Le chevron de bascule tourne avec l'état.
   // `_open` et non `_expanded` : cette dernière est une classe utilitaire globale.
   &-chevron {
     margin-left: auto;
@@ -172,7 +170,6 @@ $focus-ring-width: var(--ui-menu-focus-ring-width, #{utils.$focus-ring-width}); 
   }
 
   // --- Séparateur -------------------------------------------------------
-  // La sémantique est sur le `<li>` : le filet, lui, est décoratif.
   &-separator {
     border: none;
   }
@@ -184,8 +181,7 @@ $focus-ring-width: var(--ui-menu-focus-ring-width, #{utils.$focus-ring-width}); 
   }
 
   // --- Couleurs (un jeu par niveau navigation) --------------------------
-  // La surface du panneau reste `global` (opaque) quel que soit le niveau :
-  // seules les entrées, en-têtes et séparateurs changent de famille.
+  // La surface du panneau reste `global` (opaque) quel que soit le niveau.
   @each $lvl in $levels {
     &._#{$lvl} {
       .ui-menu-header {
@@ -227,22 +223,15 @@ $focus-ring-width: var(--ui-menu-focus-ring-width, #{utils.$focus-ring-width}); 
 }
 
 // --- Panneaux flottants ------------------------------------------------
-// Le popup et les sous-menus en cascade vivent dans le CALQUE SUPÉRIEUR
-// (`popover="manual"`) : aucun z-index, et aucun rognage par un ancêtre en
-// `overflow: hidden`, ce qui est le défaut le plus pénible d'un menu posé dans
-// une zone défilante.
-//
-// Le style NAVIGATEUR d'un `[popover]` pose `inset: 0`, `margin: auto`,
-// `border`, `padding`, `background` ET `overflow: auto` : chacun doit être
-// neutralisé consciemment, comme pour le `<dialog>` de `ui-modal`.
+// Le style navigateur d'un `[popover]` pose `inset`, `margin`, `border`,
+// `padding`, `background` et `overflow` : chacun est neutralisé.
 @mixin top-layer {
   position: fixed;
   inset: auto;
   margin: 0;
 
-  // Le `display: none` d'un popover fermé vient du style NAVIGATEUR, qu'un
-  // `display` d'auteur bat : il faut le redire, sinon le panneau fermé reste
-  // affiché par-dessus son propre déclencheur.
+  // Le `display: none` d'un popover fermé vient du style navigateur, qu'un
+  // `display` d'auteur bat : il faut le redire.
   &:not(:popover-open) {
     display: none;
   }
@@ -260,7 +249,6 @@ $focus-ring-width: var(--ui-menu-focus-ring-width, #{utils.$focus-ring-width}); 
   @include top-layer;
   display: flex;
 
-  // Entrée et sortie, par le mixin partagé du système de motion.
   @include utils.overlay-motion {
     opacity: 0;
     translate: 0 calc(-1 * var(--ui-motion-distance, #{utils.$motion-distance}));
@@ -276,15 +264,11 @@ $focus-ring-width: var(--ui-menu-focus-ring-width, #{utils.$focus-ring-width}); 
   border: none;
   background: none;
 
-  // Le style navigateur d'un `[popover]` pose `overflow: auto`, et cette
-  // enveloppe fait EXACTEMENT la taille du panneau qu'elle porte : son ombre,
-  // peinte hors de la boîte, se faisait donc rogner sur les quatre côtés. Le
-  // même correctif existe déjà dans `ui-tooltip`.
+  // Enveloppe à la taille du panneau : l'`overflow: auto` navigateur rognerait son ombre.
   overflow: visible;
 
-  // Entrée SEULE, en fondu : pas de glissement latéral, qui ferait passer le
-  // sous-menu par-dessus son parent, et pas de sortie, dont la fenêtre
-  // d'affichage exposait deux défauts. Voir `utils.overlay-motion-enter`.
+  // Entrée seule, en fondu : un glissement latéral ferait passer le sous-menu
+  // sur son parent. Voir `utils.overlay-motion-enter`.
   @include utils.overlay-motion-enter {
     opacity: 0;
     scale: var(--ui-motion-scale, #{utils.$motion-scale});

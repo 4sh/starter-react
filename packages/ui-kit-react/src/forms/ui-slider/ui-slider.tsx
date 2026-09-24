@@ -20,14 +20,12 @@ export type SliderOrientation = 'horizontal' | 'vertical';
 /** Valeur du modèle : un nombre, ou un couple `[début, fin]` en mode `range`. */
 export type SliderValue = number | number[];
 
-/** Une poignée projetée vers le rendu : sa valeur vive et sa position. */
 interface SliderHandle {
   index: number;
   value: number;
   percent: number;
 }
 
-/** Un repère de pas projeté vers le rendu. */
 interface SliderMark {
   value: number;
   percent: number;
@@ -88,10 +86,8 @@ export interface UiSliderProps {
  * ui-slider : choisir une valeur numérique, ou une plage, en glissant une
  * poignée le long d'une piste.
  *
- * Bâti sur le motif slider de WAI-ARIA : chaque poignée est un `role="slider"`
- * qui expose `aria-valuemin`, `aria-valuemax`, `aria-valuenow` et
- * `aria-orientation`, entièrement pilotable au clavier. Les événements de
- * pointeur couvrent souris, tactile et stylet par un seul chemin de code.
+ * Motif slider de WAI-ARIA : chaque poignée est un `role="slider"` pilotable au
+ * clavier. Les événements de pointeur couvrent souris, tactile et stylet.
  */
 export function UiSlider({
   value,
@@ -122,14 +118,8 @@ export function UiSlider({
   const rootId = id ?? generatedId;
   const rootRef = useRef<HTMLDivElement | null>(null);
   const handleRefs = useRef<(HTMLDivElement | null)[]>([]);
-  /**
-   * Index de la poignée en cours de glissement ; `null` au repos.
-   *
-   * Une `ref` et non un état : elle est lue **synchroniquement** par
-   * `pointermove` et `pointerup`, or un état React n'est pas encore à jour dans
-   * un gestionnaire frère du même geste. Elle ne sert par ailleurs jamais au
-   * rendu, donc en faire un état ne coûterait qu'un rendu par glissement.
-   */
+  // Poignée en cours de glissement (`null` au repos). Une ref, pas un état : lue
+  // synchroniquement par `pointermove` et `pointerup`, avant tout nouveau rendu.
   const activeHandle = useRef<number | null>(null);
 
   const [model, setModel] = useControllableState<SliderValue>({
@@ -151,7 +141,6 @@ export function UiSlider({
     return Array.isArray(model) ? (model[0] ?? min) : min;
   }, [model, min]);
 
-  /** Valeur vers position sur la piste, en pourcentage borné. */
   const toPercent = useCallback(
     (v: number) => {
       const span = max - min;
@@ -172,7 +161,6 @@ export function UiSlider({
     return [{ index: 0, value: singleValue, percent: toPercent(singleValue) }];
   }, [range, rangeValues, singleValue, toPercent]);
 
-  /** Portion remplie de la piste : décalage puis longueur, en pourcentage. */
   const fill = useMemo(() => {
     if (range) {
       const a = handles[0]?.percent ?? 0;
@@ -205,7 +193,6 @@ export function UiSlider({
     });
   }, [marks, max, min, stepSize, range, rangeValues, singleValue, round, toPercent]);
 
-  /** Aimante sur la grille du pas, relativement à `min`. */
   const snap = useCallback(
     (v: number) => round(min + Math.round((v - min) / stepSize) * stepSize),
     [round, min, stepSize],
@@ -213,7 +200,6 @@ export function UiSlider({
 
   const clamp = useCallback((v: number) => Math.min(max, Math.max(min, v)), [min, max]);
 
-  /** Aimantation, bornage, écart minimal entre poignées, puis enregistrement. */
   const updateValue = useCallback(
     (index: number, raw: number) => {
       if (disabled || readOnly) return;
@@ -247,7 +233,6 @@ export function UiSlider({
     ],
   );
 
-  /** Coordonnée du pointeur vers valeur brute dans [min, max]. */
   const valueFromPointer = useCallback(
     (event: PointerEvent<HTMLDivElement>) => {
       const el = rootRef.current;
@@ -263,7 +248,6 @@ export function UiSlider({
     [orientation, min, max],
   );
 
-  /** Poignée la plus proche d'une valeur, en `range`. */
   const nearestHandle = useCallback(
     (v: number) => {
       const [a, b] = rangeValues;
@@ -278,17 +262,11 @@ export function UiSlider({
       const v = valueFromPointer(event);
       const index = range ? nearestHandle(v) : 0;
       activeHandle.current = index;
-      // La capture sur la RACINE : le glissement continue même quand le
-      // pointeur sort de la piste, ce qui est le comportement attendu.
+      // Capture sur la racine : le glissement continue hors de la piste.
       rootRef.current?.setPointerCapture(event.pointerId);
       updateValue(index, v);
-      // `preventScroll` : l'utilisateur POINTE deja la poignee, donc la faire
-      // defiler dans la vue est au mieux inutile. Au pire c'est destructeur :
-      // le defilement decale le rectangle de la piste, et `valueFromPointer`
-      // mappe alors le meme `clientX` sur une valeur toute autre. Mesure faite
-      // sur cette piste : `left` passait de 16 a -192 au premier appui, et un
-      // glissement vers 70 arrivait a 100. Meme exposition dans la version
-      // Angular, qui appelle `focus()` sans option.
+      // `preventScroll` : défiler décalerait le rectangle de la piste, et
+      // `valueFromPointer` lirait alors une tout autre valeur.
       handleRefs.current[index]?.focus({ preventScroll: true });
       event.preventDefault();
     },
@@ -349,14 +327,12 @@ export function UiSlider({
     [disabled, readOnly, range, rangeValues, singleValue, stepSize, min, max, updateValue],
   );
 
-  /** Nom accessible d'une poignée, distinct par poignée en `range`. */
   const handleAriaLabel = (index: number) => {
     if (!range) return rest['aria-label'];
     return (index === 0 ? ariaLabelStart : ariaLabelEnd) ?? rest['aria-label'];
   };
 
-  // Garde-fou d'accessibilité : un curseur a besoin d'un nom, et deux poignées
-  // ont besoin de deux noms distincts.
+  // Garde-fou d'accessibilité : un nom par curseur, un nom distinct par poignée.
   const ariaLabel = rest['aria-label'];
   const ariaLabelledBy = rest['aria-labelledby'];
   useEffect(() => {
@@ -387,12 +363,8 @@ export function UiSlider({
   const horizontal = orientation === 'horizontal';
 
   return (
-    /*
-      Relais de pointeur : le `role="slider"`, le focus et le clavier vivent sur
-      les poignees. La racine ecoute pour qu'une pression n'importe ou sur la
-      piste saisisse la poignee la plus proche, et pour garder la capture
-      pendant tout le glissement, meme quand le pointeur sort de la piste.
-    */
+    // Relais de pointeur : une pression n'importe où saisit la poignée la plus
+    // proche. Le `role="slider"`, le focus et le clavier vivent sur les poignées.
     <div
       ref={attacherRacine}
       className={cx(
@@ -409,7 +381,6 @@ export function UiSlider({
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
     >
-      {/* Rail et portion remplie */}
       <div className="ui-slider-track">
         <div
           className="ui-slider-range"
@@ -421,7 +392,6 @@ export function UiSlider({
         />
       </div>
 
-      {/* Repères de pas, décoratifs */}
       {markList.length > 0 && (
         <div className="ui-slider-marks" aria-hidden="true">
           {markList.map((mark) => (
@@ -438,7 +408,6 @@ export function UiSlider({
         </div>
       )}
 
-      {/* Poignées : motif slider de WAI-ARIA */}
       {handles.map((handle) => (
         <div
           key={handle.index}

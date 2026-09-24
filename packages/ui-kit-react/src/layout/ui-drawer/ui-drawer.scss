@@ -1,14 +1,9 @@
 @use 'utils';
 
 // =====================================================================
-// ui-drawer : styles co-localisés. Toutes les valeurs viennent des jetons.
-//
-// La racine est un <dialog> NATIF, comme `ui-modal`. Le scrim et le
-// positionneur de la version Angular disparaissent : `::backdrop` fait le
-// premier, et les insets du dialogue font le second.
-//
-// Étendre :
-//   • Bord → ajouter un bloc `._<bord>` (insets + dimension).
+// ui-drawer : styles co-localisés d'un <dialog> natif : `::backdrop` pour le
+// voile, les insets pour l'ancrage.
+// Étendre : un bord = un bloc `._<bord>` (insets + dimension).
 // =====================================================================
 
 // --- Réglages ---------------------------------------------------------
@@ -37,9 +32,7 @@ $size-edge: var(--ui-drawer-size-edge, #{utils.rem-calc(160)});                 
   font-family: var(--ui-drawer-font-family, var(--fontfamily-base)); /// Famille typographique du composant.
   outline: none;
 
-  // Le `display: none` d'un dialogue fermé vient du style NAVIGATEUR, que le
-  // `display: flex` ci-dessus bat. Il faut donc le redire, sinon un tiroir
-  // fermé reste affiché par-dessus la page.
+  // Le `display: none` d'un dialogue fermé est un style navigateur, que `display: flex` bat.
   &:not([open]) {
     display: none;
   }
@@ -73,19 +66,13 @@ $size-edge: var(--ui-drawer-size-edge, #{utils.rem-calc(160)});                 
     }
   }
 
-  // Tiroir non modal : pas de calque supérieur, donc rien à assombrir.
   &:not(:modal)::backdrop {
     background: none;
   }
 
   // --- Bords ----------------------------------------------------------
-  // Trois insets à zéro et le quatrième à `auto` collent le tiroir au bord.
-  //
-  // La dimension CROISÉE doit être remise à `auto` explicitement : le style
-  // navigateur d'un `<dialog>` la met à `fit-content`, ce qui l'emporte sur
-  // l'étirement demandé par les deux insets opposés. Sans ça, un tiroir de
-  // droite épouse la hauteur de son texte au lieu de prendre toute la hauteur
-  // (mesuré : 109 px au lieu de 200).
+  // La dimension croisée est remise à `auto` : le style navigateur d'un `<dialog>`
+  // impose `fit-content`, qui l'emporte sur l'étirement par deux insets opposés.
   &._left {
     --_motion-slide: -100% 0;
     inset: 0 auto 0 0;

@@ -1,7 +1,4 @@
-/*
- * ui-sidebar livre aussi son menu déclaratif et le crochet de ses
- * déclencheurs : les trois lisent le même état, un seul point d'entrée.
- */
+// Un seul point d'entrée : le menu et le crochet des déclencheurs lisent l'état de la barre.
 
 export {
   UiSidebar,

@@ -33,9 +33,9 @@ export interface UiTagProps extends Omit<ComponentPropsWithRef<'span'>, 'childre
 /**
  * ui-tag : étiquette informative ou pastille de statut.
  *
- * Se colore par `level` × `subLevel`, les mêmes familles que `ui-badge`, plutôt
- * que par une sévérité à plat. Purement présentationnel : pour une étiquette
- * qu'on peut retirer ou activer, c'est `ui-chip`.
+ * Se colore par `level` × `subLevel`, les mêmes familles que `ui-badge`.
+ * Purement présentationnel : pour une étiquette qu'on peut retirer ou activer,
+ * c'est `ui-chip`.
  */
 export function UiTag({
   label,

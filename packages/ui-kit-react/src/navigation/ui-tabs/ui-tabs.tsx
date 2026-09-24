@@ -140,10 +140,8 @@ export function UiTabs({
     },
   });
 
-  // Un `aria-controls` qui ne résout rien est refusé par axe, et certains
-  // usages n'ont aucun panneau : la bande sert alors de menu de navigation et
-  // c'est le routeur qui rend le contenu. Le groupe apprend la présence des
-  // panneaux par la ref de rappel de `UiTabPanels`, qui tire au commit.
+  // Une bande peut servir de navigation sans panneaux : `UiTabPanels` signale
+  // leur présence par sa ref de rappel, au commit.
   const [hasPanels, setHasPanels] = useState(false);
   const registerPanels = useCallback((node: HTMLElement | null) => setHasPanels(node !== null), []);
 
@@ -229,8 +227,7 @@ export function UiTabList({
   ...rest
 }: UiTabListProps) {
   const { orientation, scrollable, showNavigators, motion, value } = useUiTabs('UiTabList');
-  // Sortis de `...rest` : la racine n'a pas de rôle, et un nom accessible sur
-  // un `<div>` nu est refusé par axe. Ils vont sur le `role="tablist"`.
+  // Le nom va sur le `role="tablist"` : axe le refuse sur la racine, `<div>` sans rôle.
   const ariaLabel = rest['aria-label'];
   const ariaLabelledBy = rest['aria-labelledby'];
   delete rest['aria-label'];
@@ -262,9 +259,8 @@ export function UiTabList({
     const viewport = scrollRef.current;
     const strip = stripRef.current;
     if (!viewport || !strip) return;
-    // `ResizeObserver` tire une première fois dès qu'on observe : la mesure
-    // initiale vient donc de son rappel, comme les suivantes, et il n'y a pas
-    // de `setState` synchrone dans l'effet.
+    // `ResizeObserver` rappelle dès l'observation : il fait aussi la mesure
+    // initiale, sans `setState` synchrone dans l'effet.
     const ro = new ResizeObserver(() => {
       setResizeTick((tick) => tick + 1);
       updateNavigators();
@@ -274,12 +270,8 @@ export function UiTabList({
     return () => ro.disconnect();
   }, [updateNavigators]);
 
-  /**
-   * Mesure avant peinture : dans un effet ordinaire, une image montrerait
-   * l'indicateur à son ancienne place. `offsetLeft` / `offsetWidth` et non un
-   * rectangle : les transformations n'y sont pas incluses, donc la mesure reste
-   * juste pendant que l'indicateur glisse.
-   */
+  // Mesure avant peinture, et par `offset*` plutôt qu'un rectangle : les
+  // transformations n'y comptent pas, la mesure reste juste pendant le glissement.
   useLayoutEffect(() => {
     const strip = stripRef.current;
     if (!strip) return;
@@ -298,17 +290,8 @@ export function UiTabList({
     );
   }, [value, horizontal, resizeTick]);
 
-  /**
-   * L'unique arrêt de tabulation du groupe, normalisé sur le DOM.
-   *
-   * `UiTab` rend déjà `tabIndex` selon son état actif, ce qui suffit dans le cas
-   * courant. Reste celui où AUCUN onglet n'est actif : tous seraient à -1 et la
-   * bande deviendrait inatteignable au clavier, là où l'APG veut le premier.
-   * L'ordre des onglets est une propriété du DOM, pas de l'état React : les
-   * relire ici couvre toutes les façons de les composer, là où le crochet
-   * `useRovingTabIndex` les adresse par index et suppose de les connaître au
-   * rendu.
-   */
+  // Sans onglet actif, tous seraient à -1 : le premier activable devient l'arrêt
+  // de tabulation (APG). Lu dans le DOM, qui seul connaît l'ordre composé.
   useLayoutEffect(() => {
     const tabs = enabledTabsIn(stripRef.current);
     if (!tabs.length) return;
@@ -316,11 +299,8 @@ export function UiTabList({
     for (const tab of tabs) tab.tabIndex = tab === stop ? 0 : -1;
   });
 
-  /**
-   * Amène un onglet entièrement dans la fenêtre défilante, du minimum
-   * nécessaire. La douceur vient du `scroll-behavior` CSS, que le système de
-   * motion règle et que le mouvement réduit annule : pas de l'option JS.
-   */
+  // Amène l'onglet entièrement en vue, du minimum nécessaire. La douceur vient du
+  // `scroll-behavior` CSS, que le mouvement réduit annule : pas d'option JS.
   const scrollIntoView = useCallback(
     (element: HTMLElement) => {
       const viewport = scrollRef.current;
@@ -348,9 +328,7 @@ export function UiTabList({
     viewport.scrollBy(horizontal ? { left: step } : { top: step });
   };
 
-  // Le clavier se branche sur les ONGLETS et non sur la bande : un conteneur
-  // porteur d'un `onKeyDown` devrait être focalisable pour satisfaire
-  // `jsx-a11y`, ce qu'un `role="tablist"` n'est justement pas.
+  // Clavier sur les onglets, pas sur la bande : `jsx-a11y` voudrait le `tablist` focalisable.
   const listApi = useMemo<UiTabListApi>(
     () => ({
       onTabFocus: scrollIntoView,
@@ -460,11 +438,10 @@ export interface UiTabProps extends Omit<ComponentPropsWithRef<'button'>, 'value
 }
 
 /**
- * ui-tab : un bouton d'onglet dans la bande.
+ * ui-tab : un bouton d'onglet dans la bande, `<button role="tab">` natif.
  *
- * C'est un `<button role="tab">` natif : il n'y a pas d'élément hôte à
- * traverser, donc `.ui-tab` est le bouton lui-même. Il ne fait que rapporter
- * son état ; le clavier et l'indicateur appartiennent à la bande.
+ * Il ne fait que rapporter son état ; le clavier et l'indicateur appartiennent
+ * à la bande.
  */
 export function UiTab({
   value,
@@ -567,10 +544,8 @@ export function UiTabPanel({ value, lazy, className, children, ref, ...rest }: U
   const active = tabs.isActive(value);
   const isLazy = lazy ?? tabs.lazy;
 
-  // Colle une fois le panneau activé : le rendre paresseux ne veut pas dire le
-  // démonter à chaque fois qu'on en sort. L'ajustement se fait PENDANT le rendu
-  // et non dans un effet : React rejoue le rendu aussitôt, sans peindre l'état
-  // intermédiaire, là où un effet ferait clignoter le panneau vide.
+  // Reste rendu une fois vu. Ajusté pendant le rendu et non dans un effet, qui
+  // ferait clignoter le panneau vide.
   const [seen, setSeen] = useState(active);
   if (active && !seen) setSeen(true);
 
@@ -584,12 +559,8 @@ export function UiTabPanel({ value, lazy, className, children, ref, ...rest }: U
     [ref],
   );
 
-  /**
-   * Un panneau dont le contenu est déjà atteignable au clavier n'a pas à être
-   * un arrêt de plus : l'APG ne le rend focalisable que dans le cas contraire.
-   * Le rendu pose `tabIndex={0}`, qui est le cas le plus fréquent et reste juste
-   * sans JavaScript ; cette passe le rétrograde quand il y a de quoi tabuler.
-   */
+  // Focalisable seulement sans contenu tabulable (APG) : le rendu pose 0, juste
+  // sans JavaScript, et cette passe rétrograde à -1 s'il y a de quoi tabuler.
   useLayoutEffect(() => {
     const panel = panelRef.current;
     if (!panel) return;

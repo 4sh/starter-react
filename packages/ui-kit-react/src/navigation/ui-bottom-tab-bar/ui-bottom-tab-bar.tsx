@@ -48,12 +48,8 @@ interface UiBottomTabBarApi {
 const UiBottomTabBarContext = createContext<UiBottomTabBarApi | null>(null);
 
 /**
- * Les contrôles atteignables de la barre, dans l'ordre du DOM.
- *
- * Lus depuis le contrôle qui a reçu la touche, et non par une ref : React
- * interdit de lire une ref au fil du rendu, et l'ordre est de toute façon une
- * propriété du DOM. La barre mélange deux types d'enfants projetés, onglets et
- * bouton flottant, qu'aucune requête unique ne verrait tous les deux.
+ * Les contrôles atteignables de la barre, dans l'ordre du DOM, lus depuis le
+ * contrôle qui a reçu la touche : onglets et action surélevée confondus.
  */
 function controlsAround(from: HTMLElement): HTMLElement[] {
   const bar = from.closest('.ui-bottom-tab-bar');
@@ -134,12 +130,8 @@ export function UiBottomTabBar({
         setActive(candidate);
         onTabChange?.({ value: candidate, originalEvent: event });
       },
-      /**
-       * Les flèches parcourent les contrôles de la barre. C'est **additif** :
-       * contrairement au focus glissant du motif onglets, chaque contrôle garde
-       * sa place dans l'ordre de tabulation, ce qu'un repère de navigation doit
-       * à ses utilisateurs.
-       */
+      // Les flèches s'ajoutent à la tabulation, sans focus glissant : chaque
+      // contrôle d'un repère de navigation garde sa place dans l'ordre de tabulation.
       onControlKeyDown: (event) => {
         if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
         const controls = controlsAround(event.currentTarget);
@@ -261,7 +253,6 @@ export function UiBottomTab({
     );
 
   const active = bar.isActive(value);
-  // L'onglet ondule si lui ET la barre l'autorisent.
   const rippleAttr = ripple && bar.ripple ? ('on' as const) : ('off' as const);
   const labelVisible = Boolean(label) && bar.showLabels;
   const ariaLabel = rest['aria-label'] ?? (labelVisible ? undefined : label);
@@ -303,8 +294,7 @@ export function UiBottomTab({
             size="default"
           />
         )}
-        {/* Couche d'ornement au-dessus de l'icône, badge ou pastille : jamais
-            atteinte par le pointeur, pour qu'une frappe touche le contrôle. */}
+        {/* Ornement (badge, pastille) : transparent au pointeur, la frappe touche le contrôle. */}
         <span className="ui-bottom-tab-adornment">{children}</span>
       </span>
       {labelVisible && <span className="ui-bottom-tab-label">{label}</span>}
@@ -324,8 +314,8 @@ export function UiBottomTab({
       className: classes,
       href: disabled ? undefined : href,
       target,
-      // Une ancre n'a pas de `disabled` natif : elle sort du parcours clavier.
       rel: rel ?? (target === '_blank' ? 'noopener noreferrer' : undefined),
+      // Une ancre n'a pas de `disabled` natif : elle sort du parcours clavier.
       tabIndex: disabled ? -1 : undefined,
       'aria-label': ariaLabel,
       'aria-current': active ? 'page' : undefined,
@@ -368,7 +358,7 @@ export interface UiBottomTabActionProps extends Omit<ComponentPropsWithRef<'butt
   /** Nom accessible. Obligatoire : le bouton n'a aucun texte visible. */
   'aria-label'?: string;
   disabled?: boolean;
-  /** Onde de pression sur l'action. Indépendante de celle de la barre, comme en Angular. */
+  /** Onde de pression sur l'action. Indépendante de celle de la barre. */
   ripple?: boolean;
 }
 

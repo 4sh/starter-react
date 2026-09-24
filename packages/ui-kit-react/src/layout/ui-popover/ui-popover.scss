@@ -1,13 +1,8 @@
 @use 'utils';
 
 // =====================================================================
-// ui-popover : styles co-localisés du panneau ancré (coquille + flèche).
-//
-// Le panneau vit dans le CALQUE SUPÉRIEUR : `popover` pour un panneau non
-// modal, `<dialog>` pour un panneau modal. Deux conséquences :
-//   • aucun z-index, et aucun rognage par un ancêtre en `overflow: hidden` ;
-//   • il faut neutraliser les styles navigateur du calque (`inset`, `margin`),
-//     sinon ils centrent le panneau au lieu de le laisser à sa position.
+// ui-popover : styles co-localisés du panneau ancré (coquille + flèche), qui vit
+// dans le calque supérieur (`popover` ou `<dialog>`) : aucun z-index.
 // =====================================================================
 
 // --- Réglages ---------------------------------------------------------
@@ -39,8 +34,7 @@ $popover-stroke: var(--ui-popover-stroke, var(--global-border-default));       /
     outline: none;
   }
 
-  // Un panneau fermé n'est pas rendu : c'est le calque supérieur qui décide,
-  // pas une règle d'affichage.
+  // Le `display: none` d'un panneau fermé est un style navigateur, que `display: block` bat.
   &:not(:popover-open):not(:modal) {
     display: none;
   }

@@ -106,9 +106,7 @@ export function UiToggle<T = boolean>({
 
   const onNativeChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (readOnly) {
-      // Même raison que pour `ui-checkbox` : pas de `readOnly` natif, le
-      // navigateur a déjà basculé la propriété, et React ne re-rendra pas
-      // puisque l'état ne change pas.
+      // Pas de `readOnly` natif : le navigateur a déjà basculé, et React ne re-rendra pas.
       event.target.checked = checked;
       return;
     }
@@ -155,11 +153,8 @@ export function UiToggle<T = boolean>({
           aria-describedby={field.describedBy}
           aria-invalid={field.ariaInvalid}
           aria-readonly={readOnly ? true : undefined}
-          // Pas d'`aria-checked` : sur un `<input type="checkbox">`, l'état coché
-          // natif est déjà exposé à l'assistance technique, quel que soit le
-          // `role`. L'ajouter serait un doublon qui peut diverger de l'état réel,
-          // et un `aria-checked` en désaccord avec la case donne un comportement
-          // indéfini. La version Angular le pose ; ici il n'apporte rien.
+          // Pas d'`aria-checked` : l'état coché natif est déjà exposé, quel que soit
+          // le `role`, et un doublon en désaccord donne un comportement indéfini.
           onChange={onNativeChange}
         />
         <span className="ui-toggle-track" aria-hidden="true">

@@ -1,14 +1,6 @@
 /**
- * Aides de date pures, sans dependance au framework, partagees par tout champ
- * qui doit franchir la frontiere `Date` <-> chaine ISO : `ui-datepicker`, qui
- * lit ce que l'utilisateur tape, et `ui-input-date`, qui lit ce que le
- * selecteur natif du navigateur lui rend.
- *
- * Elles vivaient dans `ui-datepicker` tant qu'il etait leur seul appelant. Deux
- * points d'entree ne doivent jamais s'importer l'un l'autre : le second appelant
- * ne laissait qu'un choix, `core/forms`, qui existe pour ca. Serialiser une
- * `Date` depuis ses composantes LOCALES plutot que par `toISOString()` est le
- * point subtil, et il ne doit pas etre redemontre deux fois.
+ * Aides de date pures, sans dependance au framework, partagees par les champs
+ * qui franchissent la frontiere `Date` <-> chaine ISO (`ui-datepicker`, `ui-input-date`).
  */
 
 export function startOfDay(d: Date): Date {
@@ -98,9 +90,8 @@ export function parseIsoDateTime(s: string): Date | null {
 /**
  * Lecteur strict de `"HH:mm"`, ancre sur `reference` (aujourd'hui par defaut).
  *
- * Une heure nue n'est pas un instant : l'appelant doit dire sur quel jour elle
- * tombe. Calque sur ce que fait `ui-datepicker` en mode `timeOnly`, qui porte
- * lui aussi une `Date` complete, pour que les deux rendent la meme forme.
+ * Une heure nue n'est pas un instant : l'appelant dit sur quel jour elle tombe,
+ * pour rendre la meme `Date` complete que `ui-datepicker` en mode `timeOnly`.
  */
 export function parseIsoTime(s: string, reference: Date = new Date()): Date | null {
   const m = ISO_TIME_RE.exec(s);

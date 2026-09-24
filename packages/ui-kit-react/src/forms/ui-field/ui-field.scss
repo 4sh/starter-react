@@ -1,26 +1,8 @@
 @use 'utils';
 
-// =====================================================================
-// ui-field : shared shell for "box" fields. Tokens only.
-//
-// The box carries the border/background/states; the content (input + affixes)
-// is projected and styled by the concrete component (`utils.field-*` mixins).
-// Structural constants: `_ui-config.scss` (`$form-field-*`).
-//
-// The box has NO padding: the horizontal inset is owned by the projected
-// children (`utils.field-inset-edges`), so the control spans the box edge to
-// edge : hit area, caret zone, autofill background and focus outline all line
-// up with the visible field instead of a text-sized rect floating in it.
-// Do not re-add `padding` here: it would shrink every control back inside.
-//
-// Float label (`_float-{over|in|on}`): the label leaves the flow and is placed
-// over `.ui-field-control`, the box's own wrapper, so its offsets are read
-// against the box whatever its height (fixed, multiline, auto-height). Two
-// states, one geometry: at rest it sits where the value will read, scaled up so
-// it stands in for the placeholder; raised it drops to `scale(1)` at the
-// variant's own offset. Only `top`/`transform`/`color` move, never a font size,
-// so the whole travel stays off the layout path.
-// =====================================================================
+// ui-field: shared shell for box fields. The box has NO padding: the inset
+// belongs to the projected children (`utils.field-inset-edges`), so the
+// control spans the box edge to edge. Do not re-add `padding` here.
 
 $gap: var(--ui-field-gap, var(--units-xs));               /// Gouttière verticale entre le libellé, la boîte et le pied.
 $gap-small: var(--ui-field-gap-small, var(--units-xs));   /// Gouttière verticale, variante `small`.
@@ -47,15 +29,11 @@ $float-label-scale-small: var(--ui-field-float-label-scale-small, 1.1667);      
 $float-label-offset-x: var(--ui-field-float-label-offset-x, #{utils.$form-field-padding-x});    /// Décalage horizontal du libellé flottant, aligné sur l'inset du contrôle.
 $float-label-offset-y: var(--ui-field-float-label-offset-y, var(--units-2xs));                  /// Respiration au-dessus du libellé flottant dans la boîte, variante `in`.
 $float-label-padding-x: var(--ui-field-float-label-padding-x, var(--units-2xs));                /// Inset horizontal du libellé flottant, variante `on` : c'est lui qui entaille le trait.
-// Width of the affix the label has to clear. Read from the icon scale, since every
-// prefix the kit projects is an icon sized on the field: a wider custom affix is
-// what the `indent` hooks are for.
+// Read from the icon scale: every prefix the kit projects is a field-sized icon.
 $float-label-indent: var(--ui-field-float-label-indent, calc(var(--ui-icon-size-md, var(--size-typography-icon-md)) + #{$box-gap}));             /// Retrait supplémentaire du libellé flottant quand un affixe le précède (icône gauche).
 $float-label-indent-small: var(--ui-field-float-label-indent-small, calc(var(--ui-icon-size-sm, var(--size-typography-icon-sm)) + #{$box-gap})); /// Retrait supplémentaire du libellé flottant quand un affixe le précède, variante `small`.
 
-// Derived on purpose (no hook of their own): retuning the font size or the
-// interline above moves the label, the room reserved for it and the box height
-// together, instead of letting the three drift apart.
+// Derived on purpose, no hook: the label, its band and the box height move together.
 $float-label-height: calc(#{$float-label-font-size} * #{$float-label-line-height}); /// Hauteur du libellé flottant en position haute.
 $float-label-band-in: calc(#{$float-label-height} + #{$float-label-offset-y});      /// Bande réservée au libellé en haut de la boîte, variante `in` (la boîte grandit d'autant).
 $float-label-band-over: calc(#{$float-label-height} + #{$gap});                     /// Bande réservée au libellé au-dessus de la boîte, variante `over`.
@@ -70,11 +48,9 @@ $float-label-band-over: calc(#{$float-label-height} + #{$gap});                 
   &._small { gap: $gap-small; }
 
   // --- Box -----------------------------------------------------------
-  // The box's own wrapper, rendered in both modes so a field's DOM does not
-  // depend on the option. It is what the floating label is positioned against.
+  // Positioning context of the floating label, rendered in both modes.
   &-control { position: relative; }
 
-  // Border colour routed through local vars, overridden per level below.
   &-box {
     --_stroke: var(--ui-field-stroke, var(--form-high-stroke-default));      /// Couleur de bordure de la boîte.
     --_stroke-hover: var(--ui-field-stroke-hover, var(--form-high-stroke-hover));  /// Couleur de bordure au survol.
@@ -87,8 +63,6 @@ $float-label-band-over: calc(#{$float-label-height} + #{$gap});                 
     height: $height;
     padding: 0;
     border: $stroke-width solid var(--_stroke);
-    // Radius hook: a host can reshape the corners (e.g. fields glued in a
-    // ui-input-group) by setting `--ui-field-radius` on the component host.
     border-radius: var(--ui-field-radius, #{$radius}); /// Rayon exposé pour reformer les coins (utilisé par `ui-input-group`).
     background-color: var(--_surface);
     cursor: var(--ui-field-box-cursor, text);          /// Curseur de la boîte, surchargé par les champs non textuels (`ui-select`…).
@@ -127,9 +101,7 @@ $float-label-band-over: calc(#{$float-label-height} + #{$gap});                 
     height: auto;
     min-height: $height;
     padding-block: $padding-y-auto-height;
-    // Publié pour qu'une ACTION pleine hauteur (`utils.field-action`) puisse
-    // l'annuler et couvrir toute la boîte : sans ça elle s'arrête à la boîte
-    // de contenu et laisse un blanc en haut et en bas.
+    // Publié pour qu'une action pleine hauteur (`utils.field-action`) couvre toute la boîte.
     --_field-inset-block: #{$padding-y-auto-height};
   }
   &._auto-height._small &-box { min-height: $height-small; }
@@ -144,9 +116,7 @@ $float-label-band-over: calc(#{$float-label-height} + #{$gap});                 
 
   // --- Float label ---------------------------------------------------
   &._float {
-    // Vertical centre of the control row, from the box's outer top edge. Stated
-    // as a length rather than 50% so a `_multiline` / `_auto-height` box, which
-    // grows with its content, still resolves it on the FIRST row.
+    // A length, not 50%: a growing box (`_multiline`, `_auto-height`) centres on its first row.
     --_row-center: calc(#{$height} / 2);
     --_float-scale: #{$float-label-scale};
     --_float-rest: var(--_row-center);
@@ -175,16 +145,12 @@ $float-label-band-over: calc(#{$float-label-height} + #{$gap});                 
   }
 
   &-float-label {
-    // The inset is measured from the box's OUTER edge (the positioning context is
-    // its border box), so the border has to be paid back for the label to line up
-    // on the control's own text.
+    // Measured from the box's outer edge: the border is paid back to align on the text.
     --_float-inset: calc(#{$stroke-width} + #{$float-label-offset-x});
-    // Room left inside the box, given back at scale 1 once raised. Divided by the
-    // resting scale because `max-width` is measured before the transform.
+    // Divided by the resting scale below: `max-width` applies before the transform.
     --_float-max-width: calc(100% - 2 * var(--_float-inset));
-    // `inherit` routes ui-label's own colour back to this host, which is what
-    // makes the tint transition instead of snapping (a custom property does not
-    // interpolate). Both size hooks: the host passes `size` straight through.
+    // `inherit` lets the tint transition (a custom property does not interpolate).
+    // Both size hooks: the host passes `size` straight through.
     --ui-label-color: inherit;
     --ui-label-font-size: #{$float-label-font-size};
     --ui-label-font-size-small: #{$float-label-font-size};
@@ -209,12 +175,8 @@ $float-label-band-over: calc(#{$float-label-height} + #{$gap});                 
     }
   }
 
-  // Raised: focus is enough on its own, a value keeps it up once focus leaves,
-  // an open popup counts as focus (a trigger like `ui-datepicker` hands it to
-  // its panel, so `:focus-within` drops while the field is plainly active), and
-  // autofill fills the field without ever firing an input event. Angular's shim
-  // leaves the inside of `:has()` alone, which is how these reach the projected
-  // control; `:is()` keeps the rule valid where `:-webkit-autofill` is unknown.
+  // Raised on focus, value, open popup (focus moves to its panel) or autofill (no
+  // input event). `:is()` keeps the list valid where `:-webkit-autofill` is unknown.
   &._float &-control:focus-within &-float-label,
   &._float._filled &-float-label,
   &._float &-control:has([aria-expanded='true']) &-float-label,
@@ -229,9 +191,7 @@ $float-label-band-over: calc(#{$float-label-height} + #{$gap});                 
   // After the block above: a focused field tints with the focus colour.
   &._float &-control:focus-within &-float-label { color: var(--_float-content-focus); }
 
-  // A projected prefix pushes the control's text to the right, and the label with
-  // it: `_has-prefix` is the host telling us so, since the affix is content this
-  // stylesheet cannot select.
+  // `_has-prefix` comes from the host: this stylesheet cannot select the projected affix.
   &._float._has-prefix &-float-label {
     --_float-inset: calc(#{$stroke-width} + #{$float-label-offset-x} + #{$float-label-indent});
   }
@@ -239,29 +199,22 @@ $float-label-band-over: calc(#{$float-label-height} + #{$gap});                 
     --_float-inset: calc(#{$stroke-width} + #{$float-label-offset-x} + #{$float-label-indent-small});
   }
 
-  // over: rises out of the box, into the band reserved above it, on the same row
-  // as a classic label (kept aligned on the control horizontally).
+  // over: rises out of the box, into the band reserved above it.
   &._float-over {
     --_float-raise: calc(-1 * (#{$gap} + #{$float-label-height}));
 
     padding-block-start: $float-label-band-over;
   }
 
-  // in: rises into a band carved at the top INSIDE the box, which grows by that
-  // much so the control row keeps its own height.
+  // in: rises into a band carved inside the box, which grows by that much.
   &._float-in {
     --_float-raise: calc(#{$stroke-width} + #{$float-label-offset-y});
-    // Centre of the box, band included: an empty `in` field reads as a single tall
-    // box, and a label sitting on the control row alone looks pinned to the bottom.
+    // Rests on the centre of the whole box, band included, not on the control row.
     --_float-rest: calc(var(--_row-center) + #{$float-label-band-in} / 2);
   }
-  // A box that grows with its content has no meaningful centre, and following the
-  // band-shifted first text row would strand the label mid-emptiness: it rests on
-  // the row a single-line field would use, near the top edge.
+  // A growing box has no meaningful centre: rest on the single-line row instead.
   &._float-in._multiline { --_float-rest: var(--_row-center); }
-  // Private contract with `utils.field-float-inset`: the CONTROL carries the band
-  // (see the mixin for why), so the box keeps no vertical padding and everything
-  // else in it goes on centring against the box.
+  // Private contract with `utils.field-float-inset`: the control carries the band, not the box.
   &._float-in &-box { --_field-inset-block-start: #{$float-label-band-in}; }
   &._float-in:not(._multiline):not(._auto-height) &-box { height: calc(#{$height} + #{$float-label-band-in}); }
   &._float-in._small:not(._multiline):not(._auto-height) &-box { height: calc(#{$height-small} + #{$float-label-band-in}); }
@@ -270,18 +223,16 @@ $float-label-band-over: calc(#{$float-label-height} + #{$gap});                 
   &._float-in._auto-height &-box { min-height: calc(#{$height} + #{$float-label-band-in}); }
   &._float-in._auto-height._small &-box { min-height: calc(#{$height-small} + #{$float-label-band-in}); }
 
-  // on: rides the top border and notches it. The fill follows the box surface, so
-  // a field laid on another background needs `--form-high-surface-*` retuned with it.
+  // on: rides the top border and notches it. The fill is the box surface, so a
+  // field on another background needs `--form-high-surface-*` retuned with it.
   &._float-on {
     --_float-raise: calc((#{$stroke-width} - #{$float-label-height}) / 2);
 
-    // The raised label straddles the trait, so half of it hangs above the box:
-    // reserved here rather than left to overlap whatever sits before the field.
+    // Half of the raised label hangs above the box: reserved here.
     padding-block-start: calc((#{$float-label-height} - #{$stroke-width}) / 2);
   }
   &._float-on &-float-label {
-    // Padding shifts the text, so the start edge gives it back: the label stays
-    // aligned on the control whether the fill shows or not.
+    // The start edge gives the padding back: the text stays aligned on the control.
     inset-inline-start: calc(var(--_float-inset) - #{$float-label-padding-x});
     padding-inline: $float-label-padding-x;
     background-color: var(--_surface);
@@ -296,8 +247,4 @@ $float-label-band-over: calc(#{$float-label-height} + #{$gap});                 
   }
 }
 
-// Sélecteur d'ancêtre direct. Côté Angular il fallait `:host-context([dir='rtl'])` :
-// l'encapsulation émulée pose son attribut sur l'ancêtre aussi, si bien qu'un
-// sélecteur d'ancêtre ordinaire n'y matche jamais. Sans encapsulation, la
-// contrainte disparaît.
 [dir='rtl'] .ui-field-float-label { transform-origin: 100% 50%; }

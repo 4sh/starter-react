@@ -91,19 +91,12 @@ export interface UiToggleBlockProps<T = boolean> {
 }
 
 /**
- * ui-toggle-block : bloc sélectionnable enveloppant une case, un bouton radio
- * ou un interrupteur.
+ * ui-toggle-block : bloc sélectionnable enveloppant une **instance** de `ui-checkbox`,
+ * `ui-radio` ou `ui-toggle`, qui garde son allure et son comportement.
  *
- * Le bloc est la surface cliquable ; l'indicateur est une **instance** de
- * `ui-checkbox`, `ui-radio` ou `ui-toggle`, donc il garde exactement l'allure
- * et le comportement qu'il a seul. Un `<label for>` étiré couvre le bloc, ce
- * qui fait que toute la surface active l'input natif **sans un seul
- * gestionnaire de clic** ; le corps du bloc est le nom accessible du contrôle
- * (`aria-labelledby`), donc n'importe quel balisage peut y être projeté sans
- * être enveloppé dans un `<label>`.
- *
- * `label` et `description` couvrent le cas courant ; les enfants se composent
- * avec eux pour un corps entièrement libre.
+ * Un `<label for>` étiré rend toute la surface activante sans gestionnaire de clic ;
+ * le corps nomme le contrôle (`aria-labelledby`), donc tout balisage peut y être
+ * projeté. `label` et `description` couvrent le cas courant, les enfants s'y ajoutent.
  */
 export function UiToggleBlock<T = boolean>({
   ripple = true,
@@ -149,22 +142,16 @@ export function UiToggleBlock<T = boolean>({
     onChange: (next) => next !== undefined && onValueChange?.(next),
   });
 
-  /** Valeur que ce bloc sélectionne : le radio porte la sienne, les autres `trueValue`. */
   const selectedValue = indicator === 'radio' ? (blockValue as T) : trueValue;
   const checked = model === selectedValue;
 
-  /**
-   * Le corps du bloc nomme le contrôle, sauf si un nom explicite est donné.
-   * `aria-labelledby` prime sur `aria-label`, donc les deux sont exclusifs.
-   */
+  // Le corps nomme le contrôle sauf nom explicite : `aria-labelledby` écraserait `aria-label`.
   const ariaLabel = rest['aria-label'];
   const ariaLabelledBy = rest['aria-labelledby'];
   const controlLabelledBy = ariaLabelledBy ?? (ariaLabel ? undefined : bodyId);
 
   const onControlChange = useCallback(
     (next: T) => {
-      // La lecture seule est déjà coupée au pointeur par la CSS ; ceci couvre
-      // ce qui passerait quand même.
       if (readOnly) return;
       setModel(next);
     },
@@ -181,10 +168,7 @@ export function UiToggleBlock<T = boolean>({
     onBlur?.(event);
   };
 
-  /**
-   * Un bloc en lecture seule reste focalisable mais ne doit pas changer de
-   * valeur. Le pointeur est déjà coupé en CSS ; ceci couvre le clavier.
-   */
+  // Lecture seule : la CSS coupe le pointeur, ceci coupe le clavier (Espace, flèches).
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (!readOnly) return;
     if (event.key === ' ' || event.key.startsWith('Arrow')) event.preventDefault();
@@ -210,7 +194,6 @@ export function UiToggleBlock<T = boolean>({
     }
   }, [inputId, indicator, blockValue, ariaLabel, ariaLabelledBy, label]);
 
-  /** Ce que les trois indicateurs reçoivent en commun. */
   const partage = {
     id: inputId,
     name,
@@ -226,8 +209,7 @@ export function UiToggleBlock<T = boolean>({
   };
 
   return (
-    // Le clavier est écouté ici et non sur l'indicateur : la touche remonte, et
-    // le garde de lecture seule doit la voir avant qu'elle n'agisse.
+    // Clavier écouté ici : le garde de lecture seule doit voir la touche avant qu'elle agisse.
     // eslint-disable-next-line jsx-a11y/no-static-element-interactions
     <div
       data-ripple={ripple && !disabled && !readOnly ? 'on' : 'off'}
@@ -249,11 +231,8 @@ export function UiToggleBlock<T = boolean>({
     >
       {/*
         eslint-disable-next-line jsx-a11y/label-has-associated-control --
-        Zone de clic étirée. Ce `<label for>` est VIDE à dessein : il n'a rien à
-        nommer, c'est le corps du bloc qui nomme le contrôle par
-        `aria-labelledby`. Son seul rôle est de rendre toute la surface
-        activante, sans un gestionnaire de clic. En lecture seule il perd son
-        `for`, donc il n'active plus rien.
+        Zone de clic étirée, vide à dessein : le corps nomme le contrôle par
+        `aria-labelledby`. Sans `for` en lecture seule.
       */}
       <label className="ui-toggle-block-hit" htmlFor={readOnly ? undefined : inputId} />
 
@@ -269,8 +248,7 @@ export function UiToggleBlock<T = boolean>({
         ) : indicator === 'toggle' ? (
           <UiToggle<T>
             {...partage}
-            // L'interrupteur suit la densité du bloc ; les contrôles en boîte
-            // gardent la taille commune aux formulaires.
+            // Seul l'interrupteur suit la densité ; case et radio gardent la taille commune.
             size={size === 'small' ? 'small' : 'default'}
             value={model}
             trueValue={trueValue}

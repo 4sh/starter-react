@@ -103,23 +103,19 @@ export function UiTextarea({
     id,
   });
 
-  // Le compteur décrit le champ au même titre que le message : il se CHAÎNE à
-  // ce que le hook a déjà assemblé, il ne le remplace pas.
+  // Le compteur se chaîne aux descriptions du hook, il ne les remplace pas.
   const countId = `${field.inputId}-count`;
   const describedBy = joinIds(field.describedBy, showCount && countId);
 
   const resizeToContent = useCallback(() => {
     const el = innerRef.current;
     if (!el) return;
-    // Remettre à `auto` d'abord : `scrollHeight` d'un élément déjà agrandi ne
-    // redescend jamais, donc sans cette remise à zéro la boîte ne rétrécit pas
-    // quand on efface du texte.
+    // `auto` d'abord : sinon `scrollHeight` ne redescend pas et la boîte ne rétrécit jamais.
     el.style.height = 'auto';
     el.style.height = `${el.scrollHeight}px`;
   }, []);
 
-  // En layout effect, avant la peinture : un `useEffect` laisserait voir une
-  // image intermédiaire à la mauvaise hauteur.
+  // Avant peinture : un `useEffect` montrerait une image à la mauvaise hauteur.
   useLayoutEffect(() => {
     if (autoResize) resizeToContent();
   }, [autoResize, text, resizeToContent]);

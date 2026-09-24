@@ -76,16 +76,9 @@ export interface UiContextMenuProps extends NativeProps {
 /**
  * ui-context-menu : menu ouvert au clic droit, posé sur le pointeur.
  *
- * Le panneau est un {@link UiMenu} dans le **calque supérieur**, ancré non pas
- * sur un élément mais sur un **point** : une ancre invisible de taille nulle,
- * posée aux coordonnées du clic. Elle est gardée en coordonnées de PAGE et
- * reprojetée à chaque défilement, ce qui fait suivre le menu comme s'il
- * appartenait au contenu.
- *
- * Là où la version Angular s'appelle par des méthodes (`show`, `hide`,
- * `toggle`), celle-ci se gouverne seule : un menu contextuel n'a pas d'état
- * utile sans les coordonnées qui vont avec. Pour un panneau ouvert par
- * programme, c'est `ui-menu` en mode `popup` qu'il faut.
+ * Un {@link UiMenu} dans le **calque supérieur**, ancré sur le point cliqué, gardé
+ * en coordonnées de page pour suivre le défilement. Il se gouverne seul : pour un
+ * panneau ouvert par programme, c'est `ui-menu` en mode `popup` qu'il faut.
  */
 export function UiContextMenu({
   items = [],
@@ -109,12 +102,8 @@ export function UiContextMenu({
   ...rest
 }: UiContextMenuProps) {
   const panelRef = useRef<HTMLDivElement | null>(null);
-  /**
-   * La zone est gardée en ÉTAT et non dans une ref : c'est son nœud qui décide
-   * où brancher l'écouteur, donc l'effet doit se rejouer quand il change. Une
-   * ref ne réveille aucun effet, et dépendre de la prop `trigger` rebrancherait
-   * à chaque rendu, celle-ci étant presque toujours une lambda.
-   */
+  // En état et non en ref : l'effet qui branche l'écouteur doit se rejouer quand
+  // le nœud change, et `trigger` est presque toujours une lambda neuve.
   const [zone, setZone] = useState<HTMLElement | null>(null);
   /** Coordonnées de PAGE de l'ancre : le menu appartient au contenu, pas à l'écran. */
   const pageRef = useRef({ x: 0, y: 0 });
@@ -124,9 +113,6 @@ export function UiContextMenu({
   /** Coordonnées de l'ancre dans le VIEWPORT, reprojetées depuis la page. */
   const [point, setPoint] = useState({ x: 0, y: 0 });
 
-  // Ancré sur un POINT et non sur un élément : c'est ce qui distingue un menu
-  // contextuel d'un panneau ancré. Sous et à droite du pointeur, retourné sur
-  // les bords du viewport, et sans écart, l'ancre étant le point cliqué.
   const { setPanel, panelStyle, isPositioned } = useUiPosition<HTMLElement, HTMLDivElement>({
     placement: 'bottom-start',
     offset: 0,
@@ -174,13 +160,11 @@ export function UiContextMenu({
 
     host.addEventListener(triggerEvent, onTrigger);
     return () => host.removeEventListener(triggerEvent, onTrigger);
-    // `onOpen` hors dépendances : recréé à chaque rendu, il rebrancherait
-    // l'écouteur en boucle.
+    // `onOpen` hors dépendances : recréé à chaque rendu, il rebrancherait l'écouteur.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attachToDocument, triggerEvent, zone]);
 
-  // Le point est gardé en coordonnées de page : on le reprojette à chaque
-  // défilement, capture comprise, pour couvrir les zones défilantes.
+  // Reprojeté à chaque défilement, en capture pour couvrir les zones défilantes.
   useEffect(() => {
     if (!open) return;
     const reproject = () =>
@@ -197,9 +181,7 @@ export function UiContextMenu({
 
     if (open && !shown) {
       panel.showPopover();
-      // Le focus entre dans le menu, sur sa première entrée atteignable. Une
-      // macrotâche, et non `requestAnimationFrame`, qui ne tire pas dans un
-      // onglet en arrière-plan.
+      // `setTimeout` : un `requestAnimationFrame` ne tire pas dans un onglet en arrière-plan.
       window.setTimeout(() =>
         panel.querySelector<HTMLElement>('[data-key]:not([disabled])')?.focus(),
       );
@@ -207,9 +189,7 @@ export function UiContextMenu({
     }
     if (open || !shown) return;
 
-    // Un `popover="manual"` ne mémorise pas l'élément focalisé avant son
-    // ouverture : la restitution est à notre charge. La zone n'est pas toujours
-    // focalisable, et c'est très bien : l'appel ne fait alors rien.
+    // Un popover `manual` ne rend pas le focus : on le restitue, s'il était dans le panneau.
     const hadFocus = panel.contains(document.activeElement);
     panel.hidePopover();
     if (hadFocus) zone?.focus?.();
@@ -219,8 +199,7 @@ export function UiContextMenu({
     open,
     onDismiss: close,
     panelRef,
-    // Pas d'exception sur la zone : un second clic droit dedans doit refermer
-    // puis rouvrir au nouveau point, ce qui est le comportement natif.
+    // Sans `anchorRef` : un second clic droit dans la zone referme puis rouvre au nouveau point.
   });
 
   useCloseOnNavigation(open, close);
@@ -236,9 +215,7 @@ export function UiContextMenu({
         ref={attachPanel}
         id={panelId}
         popover="manual"
-        // Tant que la position n'est pas calculée, le panneau reste invisible :
-        // sinon la première image le pose là où était le clic précédent, et le
-        // menu paraît sauter en place.
+        // Invisible tant que la position, asynchrone, n'est pas calculée.
         data-unpositioned={isPositioned ? undefined : ''}
         className={cx('ui-context-menu', className)}
         style={

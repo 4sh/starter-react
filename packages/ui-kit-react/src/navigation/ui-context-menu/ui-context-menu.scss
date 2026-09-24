@@ -6,11 +6,8 @@
 // =====================================================================
 
 .ui-context-menu {
-  // Styles NAVIGATEUR du calque supérieur : `inset: 0` et `margin: auto`
-  // centreraient le panneau, le `border`, le `padding` et le fond dessineraient
-  // une seconde boîte autour du menu, et `overflow: auto` rognerait l'ombre du
-  // panneau, cette enveloppe faisant exactement sa taille. Chacun est
-  // neutralisé consciemment.
+  // Neutralise le style navigateur d'un `[popover]` : centrage, seconde boîte, et
+  // `overflow: auto` qui rognerait l'ombre du menu, l'enveloppe ayant sa taille.
   position: fixed;
   inset: auto;
   margin: 0;
@@ -26,7 +23,6 @@
     display: none;
   }
 
-  // Apparition et disparition, par le mixin partagé du système de motion.
   @include utils.overlay-motion((opacity, scale)) {
     opacity: 0;
     scale: var(--ui-motion-scale, #{utils.$motion-scale});

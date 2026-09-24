@@ -2,10 +2,8 @@
 @use 'sass:map';
 
 // =====================================================================
-// ui-swatch-picker : co-located styles.
-//
-// No host element here, so `.ui-swatch-picker` IS the panel, en ligne ou
-// dans le calque supérieur.
+// ui-swatch-picker : co-located styles. `.ui-swatch-picker` IS the panel, inline
+// or in the top layer.
 // =====================================================================
 
 // --- Config (extension points) ----------------------------------------
@@ -60,13 +58,11 @@ $stroke-width: var(--ui-swatch-picker-stroke-width, #{utils.$control-stroke-widt
     overflow: auto;
 
     // Le `display: none` d'un popover fermé vient du style NAVIGATEUR, qu'un
-    // `display` d'auteur bat : il faut le redire, sinon le panneau fermé reste
-    // affiché par-dessus son propre déclencheur.
+    // `display` d'auteur bat : il faut le redire.
     &:not(:popover-open) {
       display: none;
     }
 
-    // Entrée et sortie, par le mixin partagé du système de motion.
     @include utils.overlay-motion {
       opacity: 0;
       translate: 0 calc(-1 * var(--ui-motion-distance, #{utils.$motion-distance}));

@@ -3,14 +3,10 @@
 
 // =====================================================================
 // ui-skeleton : co-located styles. All values come from design tokens.
-//
-// Extend:
-//   • Shape → add an entry to $shapes (base dimensions + radius).
-//   • Size  → add per-shape overrides to $small (or a new size map).
+// Extend: a shape goes in $shapes, a size in its own per-shape map like $small.
 // =====================================================================
 
 // --- Config (extension points) ---------------------------------------
-// Base dimensions per shape (the `default` size).
 /// Dimensions et rayon de base, par forme.
 $shapes: (
   'text': (
@@ -30,7 +26,6 @@ $shapes: (
   ),
 );
 
-// `small` size: per-shape overrides (only the keys that change).
 /// Surcharges de la variante `small`, par forme.
 $small: (
   'text': (
@@ -112,9 +107,6 @@ $shine: var(--ui-skeleton-shine, var(--_shine, rgba(255, 255, 255, 0.6))); /// T
   }
 }
 
-// Sans encapsulation, un sélecteur d'ancêtre ordinaire suffit : côté Angular
-// il fallait `:host-context()`, l'attribut de scoping se posant aussi sur
-// l'ancêtre.
 [data-theme='dark'] .ui-skeleton,
 .dark .ui-skeleton {
   --_shine: rgba(255, 255, 255, 0.09);

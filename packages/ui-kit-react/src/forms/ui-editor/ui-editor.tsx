@@ -136,19 +136,11 @@ function readFontLabels(): string {
 const serverFontLabels = () => EDITOR_FONTS.map((f) => f.label).join('|');
 
 /**
- * ui-editor : champ de texte riche, bâti sur la coquille `ui-field` en mode
- * multiligne, une zone `contenteditable` et sa barre d'outils.
- *
- * Aucun moteur tiers : les commandes de mise en forme vivent dans
- * `ui-editor-commands`, le seul endroit qui touche l'API d'édition historique.
- * La valeur est une chaîne HTML, nettoyée à l'entrée par `sanitizeHtml` (le
- * portage du `DomSanitizer` d'Angular) et ramenée à une petite liste de balises
- * au collage.
- *
- * La zone possède son propre DOM pendant la frappe : la valeur n'y est donc
- * jamais rendue par React, ce qui effondrerait le curseur à chaque touche. Le DOM
- * n'est réécrit que quand la valeur change de l'extérieur, et par des nœuds, pas
- * par `innerHTML`.
+ * ui-editor : champ de texte riche sur la coquille `ui-field` (multiligne), une zone
+ * `contenteditable` et sa barre d'outils. Sans moteur tiers : les commandes vivent
+ * dans `ui-editor-commands`. La valeur est une chaîne HTML nettoyée par `sanitizeHtml`.
+ * React ne la rend jamais dans la zone, ce qui effondrerait le curseur : le DOM n'est
+ * réécrit, par des nœuds, que quand la valeur change de l'extérieur.
  */
 export function UiEditor({
   value,
@@ -215,16 +207,14 @@ export function UiEditor({
   const [highlightOpen, setHighlightOpen] = useState(false);
 
   /**
-   * Dernier HTML écrit par l'éditeur lui-même. Une valeur qui revient égale
-   * n'est que l'écho de notre propre saisie : réécrire le DOM effondrerait le
-   * curseur en pleine frappe.
+   * Dernier HTML émis par l'éditeur : une valeur qui revient égale n'est que
+   * l'écho de la saisie, et réécrire le DOM effondrerait le curseur.
    */
   const lastEmitted = useRef<string | null>(null);
 
   /**
-   * Dernière sélection vue dans la zone. Les boutons annulent leur `mousedown`
-   * et ne prennent jamais le focus, mais une liste déroulante et un nuancier le
-   * prennent, et un `contenteditable` perd sa sélection avec lui.
+   * Dernière sélection vue dans la zone : une liste déroulante ou un nuancier
+   * prend le focus, et un `contenteditable` perd sa sélection avec lui.
    */
   const savedRange = useRef<Range | null>(null);
 
@@ -293,10 +283,8 @@ export function UiEditor({
     refreshState();
   };
 
-  // `maxLength` porte sur le texte, pas sur le balisage. Suppressions et mise en
-  // forme restent possibles une fois la limite atteinte : seules les intentions
-  // d'insertion sont annulées. Écouteur natif : le `onBeforeInput` de React est
-  // une émulation sans `inputType`.
+  // `maxLength` porte sur le texte : seules les insertions sont bloquées. Écouteur
+  // natif, car le `onBeforeInput` de React est une émulation sans `inputType`.
   useEffect(() => {
     const el = contentRef.current;
     if (!el || maxLength == null) return;
@@ -328,7 +316,6 @@ export function UiEditor({
     onInput();
   };
 
-  /** Ctrl/Cmd+B/I/U : le navigateur applique, on relit l'état. */
   const onContentKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (!(event.metaKey || event.ctrlKey)) return;
     if (!SHORTCUTS[event.key.toLowerCase()]) return;
@@ -362,7 +349,7 @@ export function UiEditor({
     clearFormatMarkers(el, range);
   };
 
-  /** Premier jet du lien : l'invite native, comme la version Angular. */
+  /** Premier jet du lien : l'invite native. */
   const promptForLink = () => {
     const href = window.prompt('Adresse du lien (laisser vide pour retirer le lien)');
     if (href === null) return;
@@ -414,10 +401,7 @@ export function UiEditor({
       ? fonts.map((font) => ({ value: font.key, label: font.label }))
       : EDITOR_SIZES.map((s) => ({ value: s.key, label: s.label }));
 
-  /**
-   * Valeur affichée d'une liste. Sans classe posée, le texte est bel et bien
-   * rendu dans la famille de base à la taille normale : le dire est un fait.
-   */
+  /** Sans classe posée, le texte est rendu en famille de base, taille normale. */
   const selectValue = (tool: EditorSelectTool) =>
     tool === 'fontFamily' ? (currentFont ?? 'base') : (currentSize ?? 'default');
 
@@ -444,9 +428,8 @@ export function UiEditor({
   };
 
   /**
-   * Le focus va sur le contrôle qui porte l'arrêt de tabulation. Cherché dans la
-   * barre vivante, dans l'ordre du DOM qui est l'ordre visuel : une liste
-   * déroulante y est une enveloppe, son déclencheur un `<button>`.
+   * Focalise un outil par sa position dans le DOM, qui est l'ordre visuel. Une
+   * liste déroulante y est une enveloppe : c'est son `<button>` qui prend le focus.
    */
   const focusTool = (index: number) => {
     const position = actionable.findIndex((entry) => entry.index === index);
@@ -590,7 +573,7 @@ export function UiEditor({
 
   const toolbarNode = hasToolbar ? (
     // Motif toolbar de l'ARIA : le clavier est délégué au conteneur, le focus vit
-    // sur les outils (tabindex glissant), comme dans `ui-menu`.
+    // sur les outils (tabindex glissant).
     <div
       ref={toolbarRef}
       className={cx('ui-editor-toolbar', toolbarPosition === 'bottom' && '_bottom')}

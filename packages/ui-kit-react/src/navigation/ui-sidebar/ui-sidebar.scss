@@ -1,19 +1,8 @@
 @use 'utils';
 
 // =====================================================================
-// ui-sidebar : co-located styles. All values come from design tokens.
-//
-// Structure:
-//   .ui-sidebar-rail        → in-flow footprint (static presentation)
-//   .ui-sidebar             → the surface (rail ↔ expanded width). In the
-//                             overlay presentation it IS the native <dialog>.
-//
-// No host element here. The Angular backdrop and positioner fold into the
-// <dialog>, as in `ui-drawer`: `::backdrop` makes the first, the dialog's
-// own insets make the second.
-//
-// Extend:
-//   • Widths → override `--ui-sidebar-width` / `--ui-sidebar-rail-width`.
+// ui-sidebar : co-located styles. `.ui-sidebar-rail` is the in-flow footprint
+// (static); `.ui-sidebar` is the surface, the native <dialog> when overlaid.
 // =====================================================================
 
 // --- Config (local) ---------------------------------------------------
@@ -26,10 +15,8 @@ $backdrop-background: var(--ui-sidebar-backdrop-background, var(--primitives-bla
 $width-default: utils.rem-calc(280);                                                     /// Largeur livrée du panneau déployé (défaut du hook `--ui-sidebar-width`).
 $rail-width-default: utils.rem-calc(72);                                                 /// Largeur livrée du rail replié (défaut du hook `--ui-sidebar-rail-width`).
 
-// The two widths are read by the panel AND its rail, so they must live on a
-// variable. Declaring the public name here would shadow a consumer override,
-// hence the private mirror: the hook stays the winning value. Without a host
-// element, both boxes declare it (the overlay panel has no rail around it).
+// Private mirrors, declared on both boxes (the overlay panel has no rail):
+// declaring the public name here would shadow a consumer override.
 .ui-sidebar-rail,
 .ui-sidebar {
   --_width: var(--ui-sidebar-width, #{$width-default});                          /// Largeur du panneau déployé.
@@ -110,8 +97,8 @@ $rail-width-default: utils.rem-calc(72);                                        
     position: fixed;
     z-index: $z-index;
     inset-block: 0;
-    // The browser style of a <dialog> sets both to `fit-content`, which beats
-    // the stretch asked by the two opposite insets (see `ui-drawer`).
+    // The <dialog> browser style sets both to `fit-content`, which beats the
+    // stretch asked by the two opposite insets.
     block-size: auto;
     max-block-size: none;
     max-inline-size: calc(100vw - var(--units-3xl));
@@ -132,7 +119,6 @@ $rail-width-default: utils.rem-calc(72);                                        
       inset-inline: auto 0;
     }
 
-    // Slides from ITS edge, in and out, with no JavaScript.
     @include utils.overlay-motion {
       opacity: 0;
       translate: var(--_motion-slide);
@@ -160,7 +146,6 @@ $rail-width-default: utils.rem-calc(72);                                        
       background: none;
     }
 
-    // Contained: scoped to the nearest positioned ancestor, not the viewport.
     &._contained {
       position: absolute;
     }

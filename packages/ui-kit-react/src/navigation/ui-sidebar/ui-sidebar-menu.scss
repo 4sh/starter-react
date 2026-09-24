@@ -2,11 +2,7 @@
 @use 'sass:map';
 
 // =====================================================================
-// ui-sidebar-menu : co-located styles. All values come from design tokens.
-//
-// Colors switch on the navigation family (`_high` / `_low`). The active entry
-// pairs `surface-active` + `content-active` (the active content token is only
-// legible ON the active surface).
+// ui-sidebar-menu : co-located styles.
 // =====================================================================
 
 // --- Config (extension points) ---------------------------------------
@@ -75,7 +71,6 @@ $icon-slot: var(--ui-sidebar-icon-slot-size, #{utils.rem-calc(20)});            
     list-style: none;
   }
 
-  // Nested (collapsible) groups indent under their toggle.
   &-sub._nested {
     padding-inline-start: $group-indent;
   }
@@ -158,7 +153,6 @@ $icon-slot: var(--ui-sidebar-icon-slot-size, #{utils.rem-calc(20)});            
     line-height: 0;
   }
 
-  // Trailing "opens elsewhere" icon (external links).
   &-external {
     flex: 0 0 auto;
     margin-inline-start: auto;
@@ -214,7 +208,6 @@ $icon-slot: var(--ui-sidebar-icon-slot-size, #{utils.rem-calc(20)});            
   }
 
   // --- Collapsed (icon rail) --------------------------------------------
-  // Hide labels / badges / chevrons and section headers; center the icons.
   &._collapsed {
     .ui-sidebar-menu-label,
     .ui-sidebar-menu-badge,
@@ -231,7 +224,6 @@ $icon-slot: var(--ui-sidebar-icon-slot-size, #{utils.rem-calc(20)});            
       padding-inline-start: 0;
     }
 
-    // Perfect square icon buttons, centered in the rail.
     .ui-sidebar-menu-action {
       justify-content: center;
       inline-size: var(--ui-sidebar-menu-item-size);

@@ -1,13 +1,7 @@
 @use 'utils';
 
-// =====================================================================
-// ui-knob : co-located styles. All values come from design tokens.
-//
-// The dial is drawn in a 100×100 viewBox: lengths inside the SVG are in
-// viewBox units and follow the rendered diameter on their own.
-//
-// No host element here, so `.ui-knob` IS the `role="slider"` stop.
-// =====================================================================
+// ui-knob: co-located styles, tokens only. The dial is drawn in a 100×100 viewBox:
+// SVG lengths are in viewBox units and follow the rendered diameter on their own.
 
 // --- Config -----------------------------------------------------------
 $size: var(--ui-knob-size, #{utils.rem-calc(100)}); /// Diamètre du cadran.
@@ -51,8 +45,7 @@ $text-color: var(--ui-knob-text-color, var(--global-text-default)); /// Couleur 
     height: 100%;
   }
 
-  // L'épaisseur vient de la prop `strokeWidth` : elle pilote aussi le rayon de
-  // l'arc, donc le trait tient toujours dans la boîte quelle que soit sa valeur.
+  // Pas de `stroke-width` ici : la prop `strokeWidth` pilote aussi le rayon de l'arc.
   &-range,
   &-value {
     fill: none;
@@ -74,8 +67,7 @@ $text-color: var(--ui-knob-text-color, var(--global-text-default)); /// Couleur 
     font-size: $font-size;
     font-weight: var(--ui-knob-weight, var(--weight-bold)); /// Graisse du texte.
     color: $text-color;
-    // Les chiffres gardent la même chasse : le libellé ne tremble plus pendant
-    // le glissement.
+    // Chiffres à chasse fixe : le libellé ne tremble pas pendant le glissement.
     font-variant-numeric: tabular-nums;
     pointer-events: none;
   }
@@ -133,8 +125,7 @@ $text-color: var(--ui-knob-text-color, var(--global-text-default)); /// Couleur 
   }
 
   // --- Invalid --------------------------------------------------------
-  // La couleur d'erreur saturée vit dans les jetons `content` : le jeton
-  // `surface` est le fond pâle des champs, comme sur `ui-rating` et `ui-slider`.
+  // Jeton `content` : la couleur d'erreur saturée y vit, `surface` est le fond pâle.
   &._invalid {
     .ui-knob-value {
       stroke: var(--ui-knob-value-color-invalid, var(--form-error-content-default)); /// Couleur de l'arc rempli en erreur.

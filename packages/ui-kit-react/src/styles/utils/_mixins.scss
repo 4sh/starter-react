@@ -40,8 +40,7 @@
 
   &:has(#{$control}:focus-visible) {
     --_stroke: var(--ui-form-control-stroke-focus, var(--form-#{$palette}-stroke-focused));
-    // Derived from the focus border, like `ui-field`'s ring: retuning the stroke
-    // carries the halo with it instead of letting the two drift apart.
+    // Derived from the focus border: retuning the stroke carries the halo with it.
     --_focus-ring: rgb(from var(--ui-form-control-stroke-focus, var(--form-#{$palette}-stroke-focused)) r g b / 50%);
   }
 
@@ -53,14 +52,9 @@
 }
 
 // ---------------------------------------------------------------------
-// Field parts : shared by ui-input / ui-input-number / ui-input-mask.
-// The field shell (`ui-field`) owns the box; these style the projected
-// input + affixes (which live in the concrete component's view).
-//
-// Inset contract: the box has NO padding, each direct child owns the field
-// inset on the side where it touches the border. The interactive control
-// therefore spans the box edge to edge, so its hit area, caret zone, autofill
-// background and focus outline all match the visible field.
+// Field parts inside a `ui-field` box. Inset contract: the box has NO padding,
+// each direct child owns the inset on the side where it touches the border, so
+// the control spans the box edge to edge.
 // ---------------------------------------------------------------------
 
 /// Field inset carried by a direct child of the box on the edges it touches.
@@ -84,8 +78,7 @@
 /// stretched to its height. `$extra` adds the control's own vertical inset.
 /// e.g. @include utils.field-float-inset($padding-block);
 @mixin field-float-inset($extra: 0px) {
-  // `--_field-inset-block-start` is set by `ui-field` on `.ui-field-box` in
-  // `_float-in` mode, and inherits down to the projected control.
+  // Set by `ui-field` on `.ui-field-box` in `_float-in` mode, inherited by the control.
   padding-block-start: calc(#{$extra} + var(--_field-inset-block-start, 0px));
 }
 
@@ -107,7 +100,6 @@
   font-size: var(--size-typography-text-default);
   color: ui-config.$form-field-color;
 
-  // `$inset: false` = nested in a wrapper that already carries both insets.
   @if $inset {
     @include field-inset-edges('padding', $inset);
     @include field-float-inset;
@@ -131,12 +123,8 @@
 }
 
 /// Square, full-height, flush-right action button (password reveal, clear…).
-/// `$width` plutôt qu'un `aspect-ratio` : la hauteur vient de l'étirement, donc
-/// aucun axe n'est `auto` et le ratio ne s'applique pas. La largeur tombait à
-/// celle de l'icône dans un champ `_auto-height` (mesuré : 20 px, sous le
-/// minimum de cible de WCAG 2.5.8). Une largeur fixe donne en plus le bon visuel
-/// quand la boîte grandit : un bouton qui s'élargirait avec les puces qui
-/// s'enroulent serait énorme.
+/// `$width` plutôt qu'un `aspect-ratio` : étiré en hauteur, le bouton n'a aucun
+/// axe `auto`, et le ratio ne s'appliquerait pas (cible sous WCAG 2.5.8).
 @mixin field-action($width: ui-config.$form-field-height) {
   display: flex;
   align-items: center;
@@ -153,11 +141,8 @@
   cursor: pointer;
   @include control-transition(color, background-color);
 
-  // Collée par construction : la boîte n'a pas d'inset horizontal à annuler.
-  // Verticalement, elle en a un en mode `_auto-height` (un champ qui s'enroule
-  // autour de ses puces), qu'elle publie dans `--_field-inset-block` pour qu'on
-  // l'annule ici. Sans ça, l'élément s'arrête à la boîte de CONTENU et laisse un
-  // blanc en haut et en bas (mesuré : 32 px de haut pour une boîte de 40).
+  // Annule l'inset vertical que la boîte publie en `_auto-height` dans
+  // `--_field-inset-block` : sinon l'élément s'arrête à sa boîte de contenu.
   margin-block: calc(-1 * var(--_field-inset-block, 0px));
 
   &:hover:not(:disabled) {
@@ -165,8 +150,7 @@
     background-color: ui-config.$form-field-action-surface-hover;
   }
   // Focus is a surface, never a border: the box already draws the field ring on
-  // `:focus-within`, so an inset stroke here would nest a second outline inside
-  // the field. The fill + `content-focused` say which control holds the focus.
+  // `:focus-within`, and a stroke here would nest a second outline inside it.
   &:focus-visible {
     outline: none;
     color: ui-config.$form-field-action-color-focus;
@@ -175,18 +159,15 @@
   &:disabled { cursor: not-allowed; color: ui-config.$form-field-action-color-disabled; }
 }
 
-/// Vertical up/down spinner (number stepper), flush right + full height, split
+/// Vertical up/down spinner (number stepper), flush right + full height.
 @mixin field-spinner($btn: 'button', $width: 2rem) {
   display: flex;
   flex-direction: column;
   align-self: stretch;
   flex-shrink: 0;
   width: $width;
-  // Collée par construction : la boîte n'a pas d'inset horizontal à annuler.
-  // Verticalement, elle en a un en mode `_auto-height` (un champ qui s'enroule
-  // autour de ses puces), qu'elle publie dans `--_field-inset-block` pour qu'on
-  // l'annule ici. Sans ça, l'élément s'arrête à la boîte de CONTENU et laisse un
-  // blanc en haut et en bas (mesuré : 32 px de haut pour une boîte de 40).
+  // Annule l'inset vertical que la boîte publie en `_auto-height` dans
+  // `--_field-inset-block` : sinon l'élément s'arrête à sa boîte de contenu.
   margin-block: calc(-1 * var(--_field-inset-block, 0px));
   border-left: ui-config.$form-field-stroke-width solid ui-config.$form-field-spinner-stroke;
   border-radius: 0 ui-config.$form-field-radius ui-config.$form-field-radius 0;

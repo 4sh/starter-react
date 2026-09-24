@@ -45,12 +45,9 @@ export interface UiSpinnerProps extends Omit<ComponentPropsWithRef<'div'>, 'chil
 /**
  * ui-spinner : indicateur de chargement indéterminé.
  *
- * Rend un cercle animé coloré par les jetons. Le marqueur se remplace, par
- * ordre de priorité : `renderMark`, `image`, `icon`, puis le cercle intégré.
- *
- * La racine est une région vivante `role="status"` nommée ; le marqueur, lui,
- * est décoratif. L'animation respecte la préférence système de mouvement réduit
- * et l'interrupteur `data-motion="off"` du kit.
+ * Le marqueur se remplace, par ordre de priorité : `renderMark`, `image`, `icon`,
+ * puis le cercle intégré. La racine est une région vivante `role="status"`
+ * nommée ; le marqueur, lui, est décoratif.
  */
 export function UiSpinner({
   size = 'default',
@@ -68,10 +65,8 @@ export function UiSpinner({
   style,
   ...rest
 }: UiSpinnerProps) {
-  // On mémorise le délai ÉCOULÉ, pas un booléen : `visible` s'en déduit, donc
-  // l'effet n'a qu'à programmer le minuteur. Un `setVisible` synchrone dedans
-  // déclencherait un rendu en cascade, et allonger le délai ne re-masquerait
-  // pas le spinner.
+  // On mémorise le délai ÉCOULÉ, pas un booléen : `visible` s'en déduit sans
+  // `setState` synchrone dans l'effet, et un `delay` allongé re-masque le spinner.
   const [elapsed, setElapsed] = useState<number | null>(null);
   const visible = delay <= 0 || elapsed === delay;
 

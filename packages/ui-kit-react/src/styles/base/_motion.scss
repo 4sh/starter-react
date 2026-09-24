@@ -1,26 +1,12 @@
 // =====================================================================
-// Motion presets : global enter/leave animation classes.
-//
-// Posées par le crochet `useUiMotion` (`core/motion`), ou à la main. Une classe
-// applique une animation depuis ou vers un état masqué ; c'est le crochet qui
-// GARDE le nœud sortant dans le DOM le temps de l'animation, là où la version
-// Angular s'en remet à `animate.leave`.
-//
-// Timing/easing/offset resolve from the `--ui-motion-*` custom properties
-// (per-instance override) with the motion tokens as defaults, so a single
-// element can be re-timed without new CSS. Globally opt out with
-// `data-motion="off"` on <html> (or the user's reduced-motion preference).
-//
-// Class contract :
-//   .ui-motion-<preset>-enter   → appear
-//   .ui-motion-<preset>-leave   → dismiss
-// Presets: fade · slide-up · slide-down · slide-left · slide-right · zoom · collapse
+// Motion presets: global `.ui-motion-<preset>-enter` / `-leave` classes, set by
+// `useUiMotion` (which keeps the leaving node mounted) or by hand. Timing reads
+// `--ui-motion-*`; `data-motion="off"` on <html> opts out globally.
 // =====================================================================
 
 @use 'sass:list';
 @use 'utils';
 
-// Resolved runtime values (override via the custom property, else token/config).
 $_duration: var(--ui-motion-duration, #{utils.$motion-duration-base});
 $_delay: var(--ui-motion-delay, 0ms);
 $_ease-enter: var(--ui-motion-easing-enter, #{utils.$motion-easing-enter});
@@ -122,16 +108,14 @@ $_presets: fade, slide-up, slide-down, slide-left, slide-right, zoom, collapse;
 }
 
 // --- Global opt-out --------------------------------------------------
-// Honour the OS reduced-motion setting: collapse every preset to a flash so
-// state still changes without movement.
+// Reduced motion: every preset collapses to a flash, so state still changes.
 @media (prefers-reduced-motion: reduce) {
   [class*='ui-motion-'] {
     animation-duration: 0.01ms !important;
   }
 }
 
-// Explicit kit-wide kill-switch (`<html data-motion="off">`): neutralise all
-// animations AND transitions : the same reset used for reduced motion.
+// Kit-wide kill-switch (`<html data-motion="off">`): neutralises animations AND transitions.
 :root[data-motion='off'] {
   &,
   *,

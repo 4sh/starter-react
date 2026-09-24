@@ -42,12 +42,8 @@ export interface UiImageConfig {
    */
   assets?: UiImageAssetsMap;
   /**
-   * Comment aller chercher une image `secured`.
-   *
-   * Là où le kit Angular s'appuie sur `HttpClient`, donc sur les intercepteurs
-   * de l'application, React n'a pas de client HTTP injecté : c'est l'application
-   * qui passe sa fonction, celle qui sait poser son jeton. Par défaut, un
-   * `fetch` nu.
+   * Comment aller chercher une image `secured` : la fonction de l'application,
+   * celle qui sait poser son jeton. Par défaut, un `fetch` nu.
    */
   fetchSecured?: (url: string, init: RequestInit) => Promise<Blob>;
 }
@@ -77,13 +73,8 @@ export function UiImageProvider({ assets, fetchSecured, children }: UiImageProvi
 }
 
 /**
- * Le mode et la marque, lus sur `<html>` plutôt que par le fournisseur de thème.
- *
- * C'est là que `UiThemeProvider` les pose, et c'est aussi ce que lisent les
- * jetons : lire l'attribut marche donc partout, y compris quand un script
- * d'amorçage ou la barre d'outils de Storybook l'a posé sans passer par le
- * fournisseur. Une image ne doit pas exiger un fournisseur pour afficher une URL
- * distante.
+ * Le mode et la marque se lisent sur `<html>`, comme les jetons, et non par le
+ * fournisseur de thème : un script d'amorçage ou Storybook les y pose sans lui.
  */
 function subscribeToRoot(onChange: () => void): () => void {
   const observer = new MutationObserver(onChange);
@@ -206,14 +197,9 @@ export interface UiImageProps extends NativeProps {
 /**
  * ui-image : image consciente du thème et de la marque.
  *
- * Trois sources : `name`, une image locale résolue par la table du projet avec
- * ses variantes de mode et de marque ; `src`, une URL distante, qui gagne ; et
- * `src` plus `secured`, qui passe par la fonction de l'application pour porter
- * son autorisation.
- *
- * Un SVG **local** est inliné, ce qui lui fait hériter du CSS et de
- * `currentColor` ; un SVG distant passe toujours par un `<img>`. En cas
- * d'échec, l'image `fallback` prend le relais, puis une vignette.
+ * Sources : `name` (image locale, résolue par la table de `UiImageProvider`), `src`
+ * (distante, qui gagne), `src` + `secured` (fetch de l'application). Un SVG local est
+ * inliné pour hériter du CSS ; en cas d'échec, `fallback` puis une vignette.
  */
 export function UiImage({
   name,
@@ -258,9 +244,8 @@ export function UiImage({
   const fallbackSrc = resolveLocal(assets, fallback, mode, brand);
 
   // --- Source protégée : fetch, puis Blob, puis URL d'objet ------------------
-  // Le résultat porte la CLÉ dont il vient, ce qui évite de le remettre à zéro
-  // dans un effet : un résultat d'une autre source est simplement ignoré, et
-  // « en cours » se déduit de son absence.
+  // Le résultat porte la clé dont il vient : pas de remise à zéro dans un effet,
+  // un résultat périmé est ignoré et « en cours » se déduit de son absence.
   const securedKey = isSecured && src ? src : '';
   const [securedResult, setSecuredResult] = useState<{
     key: string;
@@ -292,9 +277,7 @@ export function UiImage({
         setSecuredResult({ key: securedKey, url: null, failed: true });
       });
 
-    // Toute la vie de l'URL d'objet tient ici : créée à l'arrivée du Blob,
-    // révoquée avant la source suivante ET au démontage. C'est ce qui empêche
-    // une liste d'images protégées de fuir une URL par rendu.
+    // Révoquée avant la source suivante et au démontage : sinon une URL fuit par rendu.
     return () => {
       cancelled = true;
       if (url) URL.revokeObjectURL(url);
@@ -307,8 +290,7 @@ export function UiImage({
   const securedLoading = securedKey !== '' && !securedSettled;
 
   // --- SVG inliné -----------------------------------------------------------
-  // Même forme que ci-dessus : le résultat porte son URL, et la charge déjà
-  // faite se lit au RENDU plutôt que d'être recopiée dans un état.
+  // Même forme : le résultat porte son URL, et le cache se lit au rendu, pas dans un état.
   const svgKey = isInlineSvg ? localSrc : '';
   const [svgResult, setSvgResult] = useState<{ key: string; text: string | null }>({
     key: '',
@@ -348,8 +330,7 @@ export function UiImage({
   // --- Échecs ---------------------------------------------------------------
   const primarySrc = isSecured ? (blobUrl ?? '') : src || localSrc;
 
-  // Les drapeaux d'échec se remettent à zéro quand leur URL change : un
-  // changement de thème, de marque ou de `src` rejoue donc le chargement.
+  // Un échec vaut pour son URL : changer de thème, de marque ou de `src` rejoue le chargement.
   const [failedPrimary, setFailedPrimary] = useState('');
   const [failedFallback, setFailedFallback] = useState('');
   const primaryImgFailed = failedPrimary !== '' && failedPrimary === primarySrc;
@@ -372,8 +353,7 @@ export function UiImage({
     onPreviewVisibleChange?.(next);
   };
 
-  // Une image protégée qui échoue n'atteint aucun `<img>` : son `onError` ne
-  // peut donc pas la signaler.
+  // Une image protégée qui échoue n'atteint aucun `<img>`, donc aucun `onError`.
   useEffect(() => {
     if (securedFailed && src) onLoadFailed?.(src);
     // `onLoadFailed` hors dépendances : recréé à chaque rendu du parent.
@@ -423,8 +403,7 @@ export function UiImage({
       <UiIcon name="image" />
     </div>
   ) : isInlineSvg && !primaryFailed ? (
-    // Le SVG local est converti en éléments React, jamais collé en HTML : c'est
-    // ce qui lui fait hériter du CSS sans ouvrir la porte à une injection.
+    // Converti en éléments React, jamais collé en HTML : aucune injection possible.
     <div className="ui-image-svg" style={boxStyle}>
       {svgContent}
     </div>
@@ -452,8 +431,6 @@ export function UiImage({
         >
           {media}
 
-          {/* Décoratif : l'affordance est déjà portée par le rôle du bouton et
-              par son nom accessible. */}
           <span className="ui-image-indicator" aria-hidden="true">
             {previewIndicator ?? <UiIcon name="magnifying-glass-plus" />}
           </span>

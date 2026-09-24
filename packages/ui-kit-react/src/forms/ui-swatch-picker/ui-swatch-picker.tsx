@@ -130,14 +130,11 @@ export interface UiSwatchPickerProps extends Omit<
 }
 
 /**
- * ui-swatch-picker : grille de couleurs, posée dans la page ou en popup.
- *
- * Chaque pastille est un `<button role="option">` dans un `role="listbox"`, et
- * la navigation au clavier est celle d'une **grille** : les flèches se déplacent
- * sur deux axes, un seul arrêt de tabulation pour tout le lot.
- *
- * Comme `ui-menu`, le composant ne rend pas son propre déclencheur : `trigger`
- * reçoit les props à reverser sur celui de l'appelant.
+ * ui-swatch-picker : grille de couleurs, posée dans la page ou en popup. Chaque
+ * pastille est un `<button role="option">` d'un `listbox` navigable comme une
+ * **grille** : flèches sur deux axes, un seul arrêt de tabulation. Le composant ne
+ * rend pas son déclencheur : `trigger` reçoit les props à reverser sur celui de
+ * l'appelant.
  */
 export function UiSwatchPicker({
   palette = DEFAULT_SWATCH_PALETTE,
@@ -214,7 +211,6 @@ export function UiSwatchPicker({
     setFocusedKey(null);
   }, [setOpen]);
 
-  // Les pastilles à rendre, la synthétique « aucune couleur » en tête.
   const flat: FlatSwatch[] = [];
   if (allowClear) flat.push({ key: null, cssVar: null, label: clearLabel });
   for (const group of palette) for (const swatch of group.swatches) flat.push(swatch);
@@ -237,9 +233,8 @@ export function UiSwatchPicker({
     panelRef.current?.querySelector<HTMLElement>(`[data-key="${CSS.escape(key)}"]`)?.focus();
   }, []);
 
-  // L'état pilote le calque, jamais l'inverse : un popover s'ouvre par une
-  // MÉTHODE, et faire dépendre l'état de son événement `toggle` désaligne les
-  // deux dès que l'événement se fait attendre.
+  // L'état pilote le calque, jamais l'inverse : un popover s'ouvre par une MÉTHODE,
+  // et son événement `toggle` peut se faire attendre.
   useEffect(() => {
     const panel = panelRef.current;
     if (!panel || !popup) return;
@@ -252,15 +247,13 @@ export function UiSwatchPicker({
 
     const hadFocus = panel.contains(document.activeElement);
     panel.hidePopover();
-    // Un `popover="manual"` ne rend pas le focus tout seul, contrairement à
-    // `auto` : la restitution est à notre charge, et seulement si le focus
+    // Un `popover="manual"` ne rend pas le focus : à nous de le faire, seulement s'il
     // était DANS le panneau.
     if (hadFocus) triggerRef.current?.focus();
   }, [isOpen, popup]);
 
-  // À l'ouverture, le focus va sur l'arrêt de tabulation. Il est déjà posé dans
-  // le DOM : le relire là évite de recopier la règle qui l'a choisi, et de
-  // garder la valeur dans une ref que React interdit d'écrire au rendu.
+  // À l'ouverture, le focus va sur l'arrêt de tabulation, relu dans le DOM : ni règle
+  // recopiée, ni ref écrite au rendu (ce que React interdit).
   useEffect(() => {
     if (!popup || !isOpen) return;
     panelRef.current?.querySelector<HTMLElement>('[data-key][tabindex="0"]')?.focus();
@@ -351,18 +344,14 @@ export function UiSwatchPicker({
       {...(popup
         ? {
             popover: 'manual' as const,
-            // Le panneau reste dans son état fermé tant que sa position n'est
-            // pas calculée : `computePosition` est asynchrone, et peindre
-            // l'image d'avant donne le panneau qui apparaît ailleurs puis se
-            // replace.
+            // Fermé tant que la position n'est pas calculée, `computePosition` étant
+            // asynchrone.
             'data-unpositioned': isPositioned ? undefined : '',
           }
         : null)}
     >
-      {/* Motif listbox à arrêt de tabulation glissant. Le clavier est branché
-          sur les OPTIONS et non sur la liste : le focus y vit déjà, et une
-          liste porteuse de gestionnaires devrait être focalisable pour
-          satisfaire `jsx-a11y`, ce qu'un `role="listbox"` n'est justement pas. */}
+      {/* Clavier branché sur les OPTIONS : une liste porteuse de gestionnaires devrait
+          être focalisable pour `jsx-a11y`, ce qu'un `listbox` n'est pas. */}
       <div className="ui-swatch-picker-grid" role="listbox" aria-label={ariaLabel || undefined}>
         {flat.map((swatch) => {
           const key = keyOf(swatch);
@@ -415,11 +404,7 @@ export function UiSwatchPicker({
 
   return (
     <>
-      {/*
-        Faux positif de `react-hooks/refs` : la règle voit un objet contenant
-        une clé `ref` lu au rendu et suppose une lecture de `.current`. Ici on
-        TRANSMET une ref de rappel à une prop de rendu.
-      */}
+      {/* Faux positif de `react-hooks/refs` : une ref de rappel TRANSMISE à une prop de rendu. */}
       {/* eslint-disable-next-line react-hooks/refs */}
       {trigger?.(triggerProps)}
       {panel}

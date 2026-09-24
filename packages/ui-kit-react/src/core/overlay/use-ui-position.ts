@@ -48,9 +48,8 @@ export interface UiPositionOptions {
 }
 
 export interface UiPositionResult<A extends HTMLElement, P extends HTMLElement> {
-  // Nommés `set*` et non `*Ref` : ce sont des refs de RAPPEL, des fonctions. Les
-  // appeler `*Ref` les ferait passer pour des objets `RefObject`, ce que le
-  // linter des hooks relève à juste titre en refusant de les lire au rendu.
+  // Nommés `set*`, pas `*Ref` : le linter des hooks prendrait ces refs de rappel
+  // pour des `RefObject` et refuserait de les lire au rendu.
   setAnchor: (node: A | null) => void;
   setPanel: (node: P | null) => void;
   /** Styles à poser sur le panneau. */
@@ -77,22 +76,13 @@ interface Layout {
   origin: string;
 }
 
-/** Un panneau du calque supérieur : `[popover]` ou `<dialog>`. */
 function isTopLayerPanel(element: HTMLElement): boolean {
   return element.hasAttribute('popover') || element instanceof HTMLDialogElement;
 }
 
 /**
- * Le panneau est-il rendu, donc mesurable ?
- *
- * Un panneau du calque supérieur ne l'est qu'une fois DANS le calque. Avant,
- * il est en `display: none` : sa taille vaut zéro, et Floating UI lui cherche
- * un parent de positionnement dans le DOM au lieu du viewport. La position
- * obtenue est fausse, et l'ancienne version la retenait quand même : le
- * panneau apparaissait ailleurs, puis sautait à sa place dès que son
- * redimensionnement relançait une mesure. Cela arrive dès que l'effet qui
- * appelle `showPopover()` court après la mesure, ce qui dépend de la priorité
- * de la mise à jour React (un survol, une minuterie), pas du composant.
+ * Le panneau est-il rendu, donc mesurable ? Un panneau du calque supérieur ne
+ * l'est qu'une fois dans le calque : avant, en `display: none`, sa mesure est fausse.
  */
 function isMeasurable(element: HTMLElement): boolean {
   if (element.hasAttribute('popover')) return element.matches(':popover-open');
@@ -102,12 +92,7 @@ function isMeasurable(element: HTMLElement): boolean {
 
 /**
  * Point de croissance du panneau : le centre de son ancre, ramené sur le bord
- * du panneau qui la touche.
- *
- * L'échelle d'entrée part de là, donc le panneau grandit depuis ce qui l'a
- * ouvert : le pointeur d'un menu contextuel, le déclencheur d'un popover, et
- * ce même retourné ou décalé contre un bord du viewport. Calculé en dernier,
- * sur la position finale.
+ * du panneau qui la touche. Dernier middleware : il lit la position finale.
  */
 const growFromAnchor: Middleware = {
   name: 'growFromAnchor',
@@ -149,34 +134,12 @@ function sameLayout(a: Layout, b: Layout): boolean {
 }
 
 /**
- * Positionnement ancré : le seul fichier du kit qui connaisse Floating UI.
+ * Positionnement ancré : le seul fichier du kit qui connaisse Floating UI (décision D6).
  *
- * Aucun composant n'importe la librairie. Le jour où elle change, où le
- * positionnement d'ancrage CSS (`anchor-name`, `position-try`) devient utilisable
- * partout, ou où l'on décide de s'en passer, c'est ce fichier qui change, et lui
- * seul. C'est la décision D6, et `pnpm deps:check` la fait respecter.
- *
- * Ce qui justifie la librairie ici : la détection de collision dans un conteneur
- * défilant, le retournement, et le maintien de la position pendant le
- * défilement. Écrit à la main, c'est le genre de code qui a l'air fini et se
- * remet à bouger à chaque cas limite.
- *
- * Le cycle de vie, lui, est tenu ici plutôt que confié à `useFloating`, parce
- * que trois règles en dépendent, toutes mesurées sur un panneau réel :
- *
- * 1. **La position passe par `top` / `left`, jamais par `transform`.** Le
- *    mouvement d'entrée anime `scale`, et une propriété de transformation
- *    individuelle s'applique PAR-DESSUS `transform` : elle réduisait donc les
- *    coordonnées elles-mêmes, vers l'origine du document. Le panneau partait à
- *    96 % de sa position et glissait jusqu'à elle. Mesuré : 127 px au-dessus du
- *    pointeur pour un menu contextuel en bas de sa page de doc, 331 px pour le
- *    popover de l'Overview.
- * 2. **On ne mesure qu'un panneau rendu** (voir `isMeasurable`), et le résultat
- *    n'est retenu que s'il est toujours d'actualité.
- * 3. **Fermé, le panneau garde sa dernière position.** Sa sortie s'anime
- *    `allow-discrete`, donc il reste peint le temps du fondu : le déplacer à ce
- *    moment le montre ailleurs. Mesuré sur une version qui le posait à
- *    l'origine : un flash en haut à gauche de l'écran à chaque fermeture.
+ * Le cycle de vie est tenu ici plutôt que par `useFloating` : la position passe
+ * par `top`/`left` (une échelle d'entrée s'appliquerait par-dessus un
+ * `transform`), un panneau n'est mesuré qu'une fois rendu, et il garde sa
+ * dernière position pendant sa sortie.
  */
 export function useUiPosition<A extends HTMLElement, P extends HTMLElement>({
   placement = 'bottom-start',
@@ -193,18 +156,16 @@ export function useUiPosition<A extends HTMLElement, P extends HTMLElement>({
   const [positioned, setPositioned] = useState(false);
 
   const setAnchor = useCallback((node: A | null) => setAnchorElement(node), []);
-  // Deux états séparés, et non un objet : une ref de rappel recréée détache
-  // puis rattache le MÊME nœud dans un seul rendu, et un objet neuf ferait
-  // relancer toute la mesure à chaque rendu du composant.
+  // Deux états, pas un objet : une ref de rappel recréée rattache le même nœud,
+  // et un objet neuf relancerait la mesure à chaque rendu.
   const setPanel = useCallback((node: P | null) => {
     setPanelElement(node);
     if (node) setTopLayer(isTopLayerPanel(node));
   }, []);
 
   // --- Ancre virtuelle -------------------------------------------------
-  // STABLE : son rectangle se relit à chaque mesure. Recréée à chaque
-  // déplacement du point, elle faisait rebrancher écouteurs et observateurs à
-  // chaque défilement d'un menu contextuel, qui reprojette son point.
+  // Stable : son rectangle se relit à chaque mesure, donc déplacer le point ne
+  // rebranche ni écouteurs ni observateurs.
   const { x: anchorX, y: anchorY } = anchorPoint ?? {};
   const hasPoint = anchorX !== undefined && anchorY !== undefined;
   const pointRef = useRef({ x: 0, y: 0 });
@@ -252,10 +213,8 @@ export function useUiPosition<A extends HTMLElement, P extends HTMLElement>({
     ];
 
     const measure = async (current: number) => {
-      // Une micro-tâche d'abord : l'effet qui ouvre le panneau vit dans le
-      // composant, déclaré après ce crochet, et court donc après lui dans le
-      // même passage. Quand il court plus tard encore, `isMeasurable` refuse la
-      // mesure, et le redimensionnement du panneau à son ouverture la relance.
+      // Micro-tâche d'abord : l'effet du composant qui ouvre le panneau court après
+      // ce crochet. Plus tard encore, `isMeasurable` refuse et le redimensionnement relance.
       await Promise.resolve();
       if (!active || current !== ticket || !isMeasurable(panel)) return;
 
@@ -264,13 +223,11 @@ export function useUiPosition<A extends HTMLElement, P extends HTMLElement>({
         strategy: 'absolute',
         middleware,
       });
-      // Une mesure dépassée par une plus récente, ou arrivée après la
-      // fermeture, n'a plus rien à dire.
+      // Dépassée par une mesure plus récente, ou arrivée après la fermeture : ignorée.
       if (!active || current !== ticket) return;
 
       const next = toLayout(data, panel);
-      // Défiler la page ne change pas des coordonnées de document : aucun
-      // rendu tant que rien n'a bougé.
+      // Défiler ne change pas des coordonnées de document : aucun rendu si rien n'a bougé.
       if (last && sameLayout(last, next)) return;
       const first = last === null;
       last = next;
@@ -279,9 +236,8 @@ export function useUiPosition<A extends HTMLElement, P extends HTMLElement>({
         setLayout(next);
         setPositioned(true);
       });
-      // Le premier placement peut changer la position CSS du panneau (attente
-      // en `fixed`, puis `absolute`), donc le parent qui a servi à le mesurer :
-      // une mesure de plus le confirme, et ne rend rien si rien n'a bougé.
+      // Le premier placement fait passer le panneau de `fixed` à `absolute`, donc
+      // change son parent de positionnement : une mesure de plus le confirme.
       if (first) update();
     };
 
@@ -300,9 +256,8 @@ export function useUiPosition<A extends HTMLElement, P extends HTMLElement>({
     };
   }, [open, anchor, panel, placement, mainGap, crossGap, allowFlip, matchWidth]);
 
-  // La prochaine ouverture attend de nouveau sa position. Posé au démontage de
-  // la session, pas à chaque changement d'ancre : un menu contextuel déplacé
-  // pendant qu'il est ouvert se replace, il ne repart pas de l'état fermé.
+  // Remis à faux à la fermeture, pas à chaque changement d'ancre : un menu
+  // contextuel déplacé ouvert se replace sans repasser par l'état fermé.
   useEffect(() => {
     if (!open) return;
     return () => setPositioned(false);
@@ -310,8 +265,7 @@ export function useUiPosition<A extends HTMLElement, P extends HTMLElement>({
 
   let panelStyle: CSSProperties;
   if (layout) {
-    // Aussi pendant l'attente d'une réouverture : le panneau reste où il était
-    // jusqu'à sa nouvelle position, sans passer par un coin de l'écran.
+    // Fermé ou en attente d'une réouverture, le panneau reste à sa dernière position.
     panelStyle = {
       position: 'absolute',
       top: layout.y,
@@ -319,12 +273,8 @@ export function useUiPosition<A extends HTMLElement, P extends HTMLElement>({
       transformOrigin: layout.origin,
     };
   } else if (open && topLayer) {
-    // Première ouverture : pas encore de place, et le panneau est déjà ouvert,
-    // parfois déjà focalisé (`showModal()` le fait tout seul). À l'origine du
-    // DOCUMENT, ce focus faisait défiler la page tout en haut (mesuré sur
-    // l'Overview) ; à celle du VIEWPORT, il est déjà visible. Invisible pendant
-    // cette attente, il n'est jamais peint là. Réservé au calque supérieur :
-    // ailleurs, `fixed` fausserait le parent de positionnement mesuré.
+    // Calque supérieur, première ouverture : en `fixed`, le focus déjà posé par
+    // `showModal()` ne fait pas défiler la page. Ailleurs, `fixed` fausserait la mesure.
     panelStyle = { position: 'fixed', top: 0, left: 0 };
   } else {
     panelStyle = { position: 'absolute', top: 0, left: 0 };

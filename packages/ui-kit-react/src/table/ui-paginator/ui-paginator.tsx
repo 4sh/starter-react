@@ -163,9 +163,6 @@ function buildPageItems(
  * Se branche sur n'importe quelle collection : `totalRecords` pour la taille,
  * `rows` pour la page, et `first` pour la position. Les deux dernières suivent
  * le contrat contrôlé du kit, ce qui permet de paginer par programme.
- *
- * En mode `ellipsis`, une longue liste de pages se replie sur ses bords et le
- * voisinage de la page courante.
  */
 export function UiPaginator({
   totalRecords = 0,
@@ -201,8 +198,6 @@ export function UiPaginator({
   lastPageAriaLabel = 'Dernière page',
   rowsPerPageAriaLabel = 'Lignes par page',
   className,
-  // Sorti de `...rest` : le nom accessible appartient au `<nav>`, et il a une
-  // valeur par défaut, ce qu'une prop laissée dans `rest` ne peut pas avoir.
   'aria-label': ariaLabel = 'Pagination',
   ...rest
 }: UiPaginatorProps) {

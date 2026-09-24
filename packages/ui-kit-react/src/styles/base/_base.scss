@@ -12,7 +12,7 @@ body {
 
 }
 
-// Default focus indicator : safety net for focusable elements that do not ship
+// Default focus indicator: safety net for elements that ship none of their own.
 :where(:focus-visible) {
   outline: var(--global-border-focus) dashed utils.rem-calc(1px);
   outline-offset: utils.rem-calc(2px);

@@ -1,12 +1,5 @@
 /**
- * Helpers class (v.0.1)
- *
- * Table of Contents:
- * 1. Alignment
- * 2. Margin
- * 3. Padding
- * 4. Typography
- * 5. Visibility
+ * Global utility classes: alignment, margin, padding, typography, visibility.
  */
 
 /**
@@ -105,9 +98,8 @@
   overflow-x: auto;
 }
 
-/* Visible to assistive tech only: keeps a name on a control whose column/button shows
-   nothing (an empty `<th>`, an icon-only affordance). `display: none` would hide it from
-   screen readers too, which is the opposite of the intent. */
+/* Visible to assistive tech only: names a control that shows nothing (an empty `<th>`,
+   an icon-only button), where `display: none` would hide it from screen readers too. */
 .sr-only {
   position: absolute;
   width: 1px;

@@ -1,16 +1,9 @@
 @use 'utils';
 
 // =====================================================================
-// ui-editor : projected parts only. The box/label/helper/states live in
-// `ui-field`; this file owns the toolbar, the editing area and the markup
-// the editor produces inside it.
-//
-// The rich content is created by the editing commands (`<p>`, `<ul>`,
-// `<b>`…), not by React, so it cannot carry classes: those rules use element
-// selectors, ALWAYS under `.ui-editor-content`. That keeps decision D5's
-// promise (nothing leaks outside the component) where a bare selector would
-// break it. The Angular `::ng-deep` has no equivalent to replace: without
-// encapsulation, a descendant selector already reaches the content.
+// ui-editor : the toolbar, the editing area and the markup produced inside it (the
+// box lives in `ui-field`). That markup comes from the editing commands, so its rules
+// use element selectors, ALWAYS under `.ui-editor-content` (decision D5).
 // =====================================================================
 
 // --- Frame ------------------------------------------------------------
@@ -20,13 +13,11 @@ $radius: var(--ui-editor-radius, inherit); /// Rayon des coins de l'éditeur, al
 $toolbar-gap: var(--ui-editor-toolbar-gap, var(--units-2xs));                             /// Espace entre deux outils.
 $toolbar-padding-x: var(--ui-editor-toolbar-padding-x, var(--units-xs));                  /// Inset horizontal de la barre d'outils.
 $toolbar-padding-y: var(--ui-editor-toolbar-padding-y, var(--units-2xs));                 /// Inset vertical de la barre d'outils.
-// `form.low.surface` is transparent in both modes : it cannot set the toolbar
-// apart from the field it sits in, which is the whole point of the bar.
+// Not `form.low.surface`: transparent in both modes, it would not set the bar apart.
 $toolbar-surface: var(--ui-editor-toolbar-surface, var(--global-background-muted));        /// Fond de la barre d'outils.
 $toolbar-stroke: var(--ui-editor-toolbar-stroke, var(--form-low-stroke-default));         /// Couleur du trait séparant la barre d'outils de la zone de saisie.
 $toolbar-stroke-width: var(--ui-editor-toolbar-stroke-width, #{utils.$control-stroke-width}); /// Épaisseur de ce trait.
 
-// `fontFamily`/`fontSize` render as `ui-select` (see `&-select`).
 $select-width: var(--ui-editor-select-width, 13ch); /// Largeur d'un sélecteur police/taille dans la barre.
 
 $separator-width: var(--ui-editor-separator-width, var(--stroke-sm));                      /// Épaisseur d'un séparateur d'outils.
@@ -41,8 +32,7 @@ $line-height: var(--ui-editor-line-height, 1.5);                             ///
 $font-size: var(--ui-editor-font-size, var(--size-typography-text-default));  /// Taille de police du texte saisi.
 $font-size-small: var(--ui-editor-font-size-small, var(--size-typography-text-md)); /// Taille de police du texte saisi, variante `small`.
 
-// `--_rows` is set inline from the `minRows` input; the hook wins over it so a
-// theme can pin an absolute height regardless of the requested line count.
+// `--_rows` comes inline from `minRows`; the hook wins so a theme can pin a height.
 $min-height: var(--ui-editor-min-height, calc(var(--_rows, 4) * #{$line-height} * 1em)); /// Hauteur minimale de la zone de saisie (par défaut `minRows` lignes).
 $max-height: var(--ui-editor-max-height, none);                                          /// Hauteur au-delà de laquelle la zone défile plutôt que de grandir.
 
@@ -83,9 +73,8 @@ $swatch-indicator-height: var(--ui-editor-swatch-indicator-height, var(--stroke-
 $swatch-indicator-offset-x: var(--ui-editor-swatch-indicator-offset-x, var(--units-2xs)); /// Décalage horizontal du liseré, de part et d'autre de l'icône.
 
 // --- Text color / highlight color palette --------------------------------
-// Mirrors `DEFAULT_SWATCH_PALETTE` (ui-swatch-picker) and `EDITOR_COLORS`/
-// `EDITOR_HIGHLIGHTS` (ui-editor-commands): same hues × shades grid, so the
-// class names generated here exactly match the ones written into the value.
+// Mirrors `DEFAULT_SWATCH_PALETTE` (ui-swatch-picker), so the generated class names
+// match the ones `EDITOR_COLORS`/`EDITOR_HIGHLIGHTS` write into the value.
 $editor-color-hues: 'primary', 'secondary', 'green', 'orange', 'red', 'slate', 'grey';
 $editor-color-steps: 900, 700, 500, 300, 100;
 
@@ -122,32 +111,24 @@ $editor-color-steps: 900, 700, 500, 300, 100;
     }
   }
 
-  // `fontFamily`/`fontSize` render as `ui-select`. No host element here:
-  // `.ui-editor-select` IS the `.ui-select` root, hence the toolbar prefix,
-  // which makes these rules win over `ui-select`'s own whatever the order in
-  // which the two stylesheets load.
+  // `.ui-editor-select` IS the `.ui-select` root: the toolbar prefix makes these rules
+  // win over `ui-select`'s own, whatever order the two stylesheets load in.
   &-toolbar &-select {
     display: inline-flex;
     flex-shrink: 0;
-    // Fixed, and the same for every dropdown: sized on the widest label it
-    // has to fit, so the toolbar keeps its layout when a longer value is
-    // picked instead of shifting every tool that follows.
+    // Fixed, sized on the widest label: a longer value must not shift the next tools.
     min-inline-size: $select-width;
-    // Public hook: removes the field box's border so the dropdown blends
-    // into the toolbar surface instead of looking like its own form field.
+    // Public hook: no box border, the dropdown blends into the toolbar.
     --ui-field-stroke-width: 0;
 
-    // The Angular `.ui-select { inline-size: 100% }` stretched the select in
-    // its host; here the select IS the host, so it is its field that must
-    // stretch. Without it the box hugs the label and the chevron sticks to it.
+    // The field must stretch, or the box hugs the label and the chevron sticks to it.
     > .ui-field {
       flex: 1 1 auto;
       min-inline-size: 0;
     }
 
-    // No public hook for the box's fill (it is not meant to be dropped
-    // independently of `level`/state on an ordinary field): scoped here to
-    // this toolbar usage only, every other `ui-select` in the kit is untouched.
+    // No public hook for the box fill: overridden for this toolbar only, every other
+    // `ui-select` keeps its own.
     .ui-field-box {
       background: transparent;
       @include utils.control-transition(background-color);
@@ -155,10 +136,8 @@ $editor-color-steps: 900, 700, 500, 300, 100;
     .ui-field-box:hover { background-color: var(--ui-editor-toolbar-select-surface-hover, var(--form-low-surface-hover)); } /// Fond d'un sélecteur de la barre d'outils au survol.
   }
 
-  // `textColor`/`highlightColor` triggers: a liseré under the icon shows the
-  // color active at the caret. `--ui-editor-swatch-indicator-color` is set
-  // inline from the component (`null` -> unset custom property -> transparent
-  // bar, same footprint whether a color is active or not).
+  // Color tool triggers: a bar under the icon shows the color at the caret, always
+  // drawn (transparent when unset) so the footprint never changes.
   &-tool._colorTool {
     position: relative;
 
@@ -169,9 +148,9 @@ $editor-color-steps: 900, 700, 500, 300, 100;
       inset-block-end: 0;
       block-size: $swatch-indicator-height;
       border-radius: $swatch-indicator-height;
-      // No `///`: purely internal plumbing set by the component itself
-      // (`[style.--ui-editor-swatch-indicator-color]`), not a public hook a
-      // theme is meant to override directly.
+      // No `///`: plumbing set by the component itself, not a public hook. The
+      // `[style.--ui-editor-swatch-indicator-color]` form is what
+      // `component-vars.build.mjs` detects as such.
       background-color: var(--ui-editor-swatch-indicator-color, transparent);
     }
   }
@@ -281,10 +260,8 @@ $editor-color-steps: 900, 700, 500, 300, 100;
     h2 { font-size: $heading-2-font-size; }
     h3 { font-size: $heading-3-font-size; }
 
-    // Type families the font picker applies, bound to the typography tokens.
-    // Pas de hook sur ces trois-là : la classe EST le choix de police fait par
-    // l'utilisateur dans la barre d'outils. Les rendre surchargeables rendrait
-    // le sélecteur de police menteur.
+    // Type families the font picker applies. No hook: the class IS the user's choice,
+    // and an overridable one would make the picker lie.
     .ui-editor-font-base { font-family: var(--fontfamily-base); }
     .ui-editor-font-title { font-family: var(--fontfamily-title); }
     .ui-editor-font-monospace { font-family: var(--fontfamily-monospace); }

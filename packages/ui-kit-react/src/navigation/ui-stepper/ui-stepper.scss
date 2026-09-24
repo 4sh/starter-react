@@ -2,11 +2,7 @@
 
 // =====================================================================
 // ui-stepper : co-located styles for the whole family (container, list,
-// step, panels, panel and the vertical item). All values come from the
-// `navigation` and `informative` tokens.
-//
-// No host element here, so `.ui-step` IS the step's own root and the five
-// `:host` blocks of the Angular kit fold into their class.
+// step, panels, panel and the vertical item).
 // =====================================================================
 
 // --- Config -----------------------------------------------------------
@@ -91,10 +87,8 @@ $focus-ring-width: var(--ui-stepper-focus-ring-width, #{utils.$action-focus-ring
 }
 
 // --- Title -------------------------------------------------------------
-// Dans la bande horizontale, le titre a une largeur NULLE et son texte déborde,
-// centré, sous le marqueur : l'en-tête se cale donc sur le marqueur, le
-// connecteur relie bien un marqueur au suivant, et passer le titre courant en
-// gras ne décale jamais la mise en page. Redéfini en vertical.
+// Largeur nulle en horizontal : le texte déborde, centré, sous le marqueur, et
+// le gras du titre courant ne décale rien. Redéfini en vertical.
 .ui-step-title {
   display: flex;
   justify-content: center;
@@ -118,7 +112,6 @@ $focus-ring-width: var(--ui-stepper-focus-ring-width, #{utils.$action-focus-ring
   flex: 1 1 auto;
   min-width: var(--units-lg);
   height: 0;
-  // Dégagement symétrique de part et d'autre du trait.
   margin: calc(#{$marker-size} / 2 - #{$separator-stroke} / 2) var(--units-sm) 0;
   border-top: $separator-stroke solid
     var(--ui-stepper-separator-stroke, var(--global-border-default)); /// Couleur du connecteur entre deux étapes.

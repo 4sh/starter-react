@@ -35,16 +35,7 @@ export interface UiVirtualListResult<C extends HTMLElement> {
 }
 
 /**
- * Défilement virtuel : le seul fichier du kit qui connaisse TanStack Virtual.
- *
- * Aucun composant n'importe la librairie. Le jour où elle change, ou où
- * `content-visibility` suffit, c'est ce fichier qui change, et lui seul. C'est
- * la décision D6, et `pnpm deps:check` la fait respecter.
- *
- * Ce qui justifie la librairie ici : la fenêtre de rendu, la mesure dynamique
- * des hauteurs et l'ancrage du défilement quand la liste change sous le
- * curseur. Écrit à la main, c'est le genre de code qui marche jusqu'au premier
- * élément de hauteur variable.
+ * Défilement virtuel : le seul fichier du kit qui connaisse TanStack Virtual (décision D6).
  */
 export function useUiVirtualList<C extends HTMLElement>({
   count,
@@ -54,10 +45,8 @@ export function useUiVirtualList<C extends HTMLElement>({
 }: UiVirtualListOptions): UiVirtualListResult<C> {
   const scrollRef = useRef<C | null>(null);
 
-  // Le compilateur React signale « Compilation Skipped: Use of incompatible
-  // library » sur cet appel, et c'est exactement le résultat voulu : la
-  // librairie n'est pas compatible, donc UN SEUL fichier du kit sort de
-  // l'optimisation. C'est la contrepartie visible de la mise en quarantaine.
+  // « Compilation Skipped: Use of incompatible library » est attendu : la
+  // quarantaine fait de ce fichier le seul que le compilateur React n'optimise pas.
   const virtualizer = useVirtualizer({
     count,
     getScrollElement: () => scrollRef.current,
@@ -75,8 +64,7 @@ export function useUiVirtualList<C extends HTMLElement>({
   const items: UiVirtualItem[] = virtualizer.getVirtualItems().map((item) => ({
     index: item.index,
     key: item.key,
-    // Positionnement absolu et non un flux : c'est ce qui permet de ne rendre
-    // qu'une fenêtre sans que les entrées absentes décalent les autres.
+    // Absolu, pas en flux : les entrées non rendues ne décalent pas les autres.
     style: {
       position: 'absolute',
       top: 0,
@@ -85,8 +73,7 @@ export function useUiVirtualList<C extends HTMLElement>({
       height: measure ? undefined : `${item.size}px`,
       transform: `translateY(${item.start}px)`,
     },
-    // `measureElement` est typé pour `Element` : on le resserre ici, une fois,
-    // plutôt que chez chaque consommateur.
+    // `measureElement` est typé pour `Element` : resserré ici, une fois pour tous.
     ref: measure ? (virtualizer.measureElement as (node: HTMLElement | null) => void) : undefined,
   }));
 

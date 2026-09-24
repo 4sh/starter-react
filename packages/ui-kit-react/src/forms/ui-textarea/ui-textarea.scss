@@ -1,8 +1,6 @@
 @use 'utils';
 
-// =====================================================================
-// ui-textarea : projected parts only. The box/label/helper/states live in
-// =====================================================================
+// ui-textarea: projected parts only; the box, label, helper and states live in ui-field.
 
 $pad-x: var(--ui-textarea-padding-x, #{utils.$form-field-padding-x}); /// Inset horizontal du contrôle multiligne.
 

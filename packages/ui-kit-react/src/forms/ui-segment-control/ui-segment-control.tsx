@@ -65,7 +65,6 @@ export interface SegmentControlItemContext<T = unknown> {
   index: number;
 }
 
-/** Vue interne, normalisée, d'une option. */
 interface NormalizedSegment {
   key: string;
   index: number;
@@ -78,7 +77,6 @@ interface NormalizedSegment {
   original: unknown;
 }
 
-/** Géométrie mesurée de l'indicateur glissant. */
 interface ThumbMetrics {
   x: number;
   y: number;
@@ -150,13 +148,9 @@ export interface UiSegmentControlProps<T = unknown> {
  * ui-segment-control : contrôle segmenté pour choisir une valeur, ou plusieurs
  * avec `multiple`, dans une courte liste de boutons en ligne.
  *
- * Chaque segment est un vrai `<button>` natif ; c'est le **groupe** qui porte la
- * sémantique WAI-ARIA : `radiogroup` et `radio` en mode simple, avec navigation
- * aux flèches et sélection au passage, `group` et `aria-pressed` en `multiple`.
- * Le clavier et les lecteurs d'écran viennent donc gratuitement.
- *
- * En mode simple, un indicateur glisse sous le segment choisi, cadencé par le
- * système de motion partagé.
+ * Chaque segment est un `<button>` natif ; le **groupe** porte la sémantique :
+ * `radiogroup` et `radio` (les flèches sélectionnent) en mode simple, `group` et
+ * `aria-pressed` en `multiple`. En mode simple, un indicateur glisse sous le choix.
  */
 export function UiSegmentControl<T = unknown>({
   ripple = true,
@@ -196,9 +190,7 @@ export function UiSegmentControl<T = unknown>({
     onChange: onValueChange,
   });
 
-  // La variante « forme riche » : elle honore la clé `value` et rend `null`
-  // pour un objet sans libellé, deux écarts que la forme `{ value, label,
-  // icon }` documentée ici exige. Voir `core/forms/option-resolver.ts`.
+  // Forme riche : la clé `value` gagne, un objet sans `label` reste en icône seule.
   const resolver = useMemo(
     () => createRichOptionResolver({ optionValue, optionLabel, optionDisabled, dataKey }),
     [optionValue, optionLabel, optionDisabled, dataKey],
@@ -246,14 +238,14 @@ export function UiSegmentControl<T = unknown>({
         const current = Array.isArray(model) ? [...(model as T[])] : [];
         const at = current.findIndex((m) => resolver.equals(m, v));
         if (at !== -1) {
-          if (!allowEmpty && current.length === 1) return; // on garde au moins un
+          if (!allowEmpty && current.length === 1) return;
           current.splice(at, 1);
         } else {
           current.push(v);
         }
         next = current;
       } else if (segment.selected) {
-        if (!allowEmpty) return; // la sélection ne peut pas être vidée
+        if (!allowEmpty) return;
         next = null;
       } else {
         next = v;
@@ -271,7 +263,6 @@ export function UiSegmentControl<T = unknown>({
   );
 
   // --- Focus glissant ------------------------------------------------------
-  /** Index où le focus glissant s'est posé la dernière fois. */
   const [focusedIndex, setFocusedIndex] = useState(0);
   /** L'événement clavier en cours, pour le transmettre à `onOptionClick`. */
   const keyEvent = useRef<ReactKeyboardEvent | null>(null);
@@ -283,8 +274,7 @@ export function UiSegmentControl<T = unknown>({
     onActiveIndexChange: (index) => {
       setFocusedIndex(index);
       optionRefs.current[index]?.focus();
-      // Le mode simple suit le motif radio : les flèches déplacent ET
-      // sélectionnent.
+      // Mode simple, motif radio : les flèches déplacent ET sélectionnent.
       const target = segments[index];
       if (!multiple && target && keyEvent.current) select(target, keyEvent.current);
     },
@@ -292,19 +282,12 @@ export function UiSegmentControl<T = unknown>({
   });
 
   const onKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
-    // L'événement est déposé dans une ref le temps de l'appel : le rappel du
-    // crochet ne le reçoit pas, or `onOptionClick` doit rapporter l'événement
-    // d'origine même quand la sélection vient d'une flèche.
     keyEvent.current = event;
     roving.onKeyDown(event);
     keyEvent.current = null;
   };
 
-  /**
-   * Le segment qui possède l'unique arrêt de tabulation du groupe. Le choisi
-   * gagne en mode simple, faute de quoi un Tab entrant tomberait sur le premier
-   * segment et non sur celui qui est actif.
-   */
+  // Seul arrêt de tabulation du groupe : en mode simple, un Tab entrant vise le choisi.
   const rovingIndex = useMemo(() => {
     if (!segments.length) return -1;
     if (!multiple) {
@@ -317,7 +300,6 @@ export function UiSegmentControl<T = unknown>({
 
   // --- Indicateur glissant -------------------------------------------------
   const [thumb, setThumb] = useState<ThumbMetrics | null>(null);
-  /** Incrémenté par le ResizeObserver pour re-mesurer. */
   const [resizeTick, setResizeTick] = useState(0);
 
   useEffect(() => {
@@ -328,14 +310,8 @@ export function UiSegmentControl<T = unknown>({
     return () => ro.disconnect();
   }, []);
 
-  /**
-   * Mesure avant peinture (`useLayoutEffect`) : dans un effet ordinaire, une
-   * image montrerait l'indicateur à son ancienne place.
-   *
-   * `offsetLeft` moins `clientLeft` : la piste porte sa bordure en ombre
-   * intérieure et non en `border`, justement pour que ce calcul reste exact,
-   * mais on retire quand même la bordure au cas où un thème en pose une.
-   */
+  // Mesuré avant peinture, sinon une image montre l'indicateur à son ancienne place.
+  // `clientLeft` retiré au cas où un thème pose un vrai `border` sur la piste.
   useLayoutEffect(() => {
     if (multiple || selectedIndex === -1) return;
     const el = optionRefs.current[selectedIndex];
@@ -453,9 +429,7 @@ export function UiSegmentControl<T = unknown>({
                 <UiIcon className="ui-segment-control-icon" name={segment.icon} size={iconSize} />
               )}
               {segment.label && (
-                // `data-label` : un fantôme en gras réserve la largeur du
-                // libellé sélectionné, pour que passer en gras ne provoque
-                // aucun décalage de la piste.
+                // `data-label` alimente le fantôme en gras qui réserve la largeur.
                 <span className="ui-segment-control-label" data-label={segment.label}>
                   {segment.label}
                 </span>

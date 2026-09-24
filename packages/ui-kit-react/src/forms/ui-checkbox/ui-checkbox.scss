@@ -1,11 +1,7 @@
 @use 'utils';
 
-// =====================================================================
-// ui-checkbox : co-located styles. All values come from design tokens.
-//
-// Headless: an invisible native <input> covers the styled box (native
-// states). Colors routed via --_surface/--_stroke/--_content (form-control-palette).
-// =====================================================================
+// ui-checkbox: an invisible native <input> covers the styled box (native states).
+// Colors routed via --_surface/--_stroke/--_content (`utils.form-control-palette`).
 
 // Shared defaults (ui-config) : replace a value here to detune ONLY this component.
 $box-size: var(--ui-checkbox-box-size, #{utils.$form-control-size});                     /// Taille de la boîte à cocher

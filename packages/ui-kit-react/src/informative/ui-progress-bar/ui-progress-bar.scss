@@ -3,9 +3,7 @@
 
 // =====================================================================
 // ui-progress-bar : co-located styles. All values come from design tokens.
-//
-// Extend:
-//   • Size → add an entry to $sizes (+ the `UiProgressBarSize` type).
+// Extend: a new size goes in $sizes and in the `UiProgressBarSize` type.
 // =====================================================================
 
 // --- Config (extension points) ---------------------------------------
@@ -25,7 +23,6 @@ $size-default: map.get($sizes, 'default'); /// Raccourci vers l'entrée `default
 
 $fill-color: var(--ui-progress-bar-color, var(--informative-highlighthigh-surface-default)); /// Couleur de la barre de progression.
 
-// Component-specific (local): one indeterminate cycle duration.
 $indeterminate-duration: var(--ui-progress-bar-indeterminate-duration, 1.6s); /// Durée d'un cycle en mode indéterminé.
 
 .ui-progress-bar {
@@ -77,9 +74,8 @@ $indeterminate-duration: var(--ui-progress-bar-indeterminate-duration, 1.6s); //
   }
 
   // --- Value position: label below the bar ---------------------------
-  // En colonne, `align-items` gouverne l'axe HORIZONTAL : un `flex-end` y
-  // ramenait la piste à sa largeur de contenu, c'est-à-dire zéro, et la barre
-  // disparaissait. La piste s'étire donc, et seul le libellé s'aligne à droite.
+  // En colonne, `align-items` règle la largeur : la piste, sans contenu, doit rester
+  // en `stretch` sous peine de tomber à zéro.
   &._bottom {
     flex-direction: column;
     align-items: stretch;
@@ -89,8 +85,6 @@ $indeterminate-duration: var(--ui-progress-bar-indeterminate-duration, 1.6s); //
   }
 
   // --- Value position: label inside the filled portion ---------------
-  // The bar grows tall enough to hold text; the label is centered inside
-  // the fill and clipped when the fill is too narrow (overflow: hidden).
   &._inside &-track {
     height: var(--size-components-xs);
     border-radius: var(--radius-sm);

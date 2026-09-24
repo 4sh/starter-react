@@ -16,10 +16,7 @@ export interface UiControllableStateOptions<T> {
  *
  * `value` renseignée : contrôlé, l'état interne n'est jamais lu. Absente : non
  * contrôlé, `defaultValue` amorce. `onChange` est appelé dans les deux modes.
- *
- * Vit ici et non dans chaque composant : une vingtaine de champs doivent se
- * comporter exactement pareil. Détail et interop react-hook-form dans la page
- * de doc de `ui-input`.
+ * Interop react-hook-form : page de doc de `ui-input`.
  */
 export function useControllableState<T>({
   value,
@@ -32,9 +29,7 @@ export function useControllableState<T>({
 
   const setValue = useCallback(
     (next: T) => {
-      // En mode contrôlé l'état interne n'est même pas écrit : le garder à jour
-      // « au cas où » créerait deux sources de vérité, et c'est exactement le
-      // bug qu'on voit quand un champ contrôlé se met à diverger de son parent.
+      // Contrôlé, l'état interne n'est pas écrit : ce serait une seconde source de vérité.
       if (!isControlled) setInternal(next);
       onChange?.(next);
     },

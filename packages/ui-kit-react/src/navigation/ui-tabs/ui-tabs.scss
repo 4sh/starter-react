@@ -2,15 +2,7 @@
 
 // =====================================================================
 // ui-tabs : co-located styles for the whole family (container, list, tab,
-// panels, panel). All values come from the `navigation` tokens.
-//
-// The list is a flex strip (row / column) with an optional scroll viewport
-// and prev/next navigators. The active indicator is an absolutely placed
-// bar gliding under (horizontal) or beside (vertical) the active tab, timed
-// by the motion system.
-//
-// No host element here, so `.ui-tab` IS the native <button role="tab">:
-// the `.ui-tab-button` of the Angular kit has nowhere left to live.
+// panels, panel). `.ui-tab` is the native <button role="tab"> itself.
 // =====================================================================
 
 // --- Config -----------------------------------------------------------
@@ -19,8 +11,6 @@ $nav-size: var(--ui-tabs-nav-size, #{utils.rem-calc(40)});                      
 $min-height: var(--ui-tabs-min-height, #{utils.rem-calc(44)});                        /// Hauteur minimale d'un onglet (cible tactile).
 $focus-ring-width: var(--ui-tabs-focus-ring-width, #{utils.$action-focus-ring-width}); /// Épaisseur de l'anneau de focus.
 
-// Le kit Angular honore encore `--ui-tabs-active-bar-*`, les noms d'avant son
-// renommage. Rien à replier ici : ce dépôt n'a jamais publié les anciens.
 $indicator-color: var(--ui-tabs-indicator-color, var(--navigation-highoutlined-stroke-active)); /// Couleur de la barre d'onglet actif.
 $indicator-thickness: var(--ui-tabs-indicator-thickness, var(--stroke-default));                /// Épaisseur de la barre d'onglet actif.
 
@@ -135,10 +125,8 @@ $indicator-thickness: var(--ui-tabs-indicator-thickness, var(--stroke-default));
     flex-direction: column;
     align-items: stretch;
     box-shadow: inset calc(-1 * #{$track-thickness}) 0 0 0 var(--ui-tabs-track-stroke, var(--global-border-default));
-    // Sur cet axe la bande est un frère du contenu, dont la largeur naturelle
-    // est celle d'un paragraphe : la laisser rétrécir l'écrase à la largeur de
-    // ses icônes (mesuré : 50 px pour 131 de contenu). Elle garde donc sa
-    // largeur de contenu, et c'est le contenu qui absorbe le reste.
+    // Ne rétrécit pas : face au contenu, la bande serait écrasée à la largeur de
+    // ses icônes. C'est le contenu qui absorbe le reste.
     flex: 0 0 auto;
 
     .ui-tab-list-tabs {
@@ -222,7 +210,6 @@ $indicator-thickness: var(--ui-tabs-indicator-thickness, var(--stroke-default));
     flex-direction: row-reverse;
   }
 
-  // Vertical axis: tabs stack and fill the list width, left aligned.
   &._vertical {
     width: 100%;
     justify-content: flex-start;

@@ -1,12 +1,7 @@
 // =====================================================================
-// Moteur de l'onde de pression, sans React.
-//
-// Un écouteur `pointerdown` passif par liaison, une couche de découpe par
-// hôte créée à la première pression, une `<span>` par onde retirée à
-// `animationend`. Rien n'est mesuré tant qu'aucune pression n'arrive.
-//
-// L'apparence n'est pas son affaire : la couche et l'encre lisent les
-// propriétés `--ui-ripple-*` héritées (`styles/base/_ripple.scss`).
+// Moteur de l'onde de pression, sans React : un écouteur `pointerdown` passif
+// par liaison, une couche de découpe par hôte, une `<span>` par onde. Les
+// styles lisent les `--ui-ripple-*` héritées (`styles/base/_ripple.scss`).
 // =====================================================================
 
 /**
@@ -77,8 +72,7 @@ function layerFor(host: HTMLElement): HTMLElement {
     return existing;
   }
 
-  // La couche s'ancre sur l'hôte, qui doit donc établir le bloc conteneur. Un
-  // hôte déjà positionné n'est pas touché.
+  // La couche s'ancre sur l'hôte, qui doit établir le bloc conteneur.
   if (host.ownerDocument.defaultView?.getComputedStyle(host).position === 'static') {
     host.style.position = 'relative';
   }

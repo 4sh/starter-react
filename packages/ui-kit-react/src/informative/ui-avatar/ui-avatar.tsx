@@ -49,8 +49,7 @@ export interface UiAvatarProps extends Omit<ComponentPropsWithRef<'span'>, 'chil
 /**
  * ui-avatar : représente une personne ou une entité.
  *
- * Le mode se déduit des props, dans l'ordre image, libellé, icône : c'est la
- * variante `Type` de Figma, sans prop redondante pour la redire. Une image qui
+ * Le mode se déduit des props, dans l'ordre image, libellé, icône. Une image qui
  * échoue à charger fait retomber l'avatar sur le mode suivant.
  */
 export function UiAvatar({

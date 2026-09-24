@@ -20,24 +20,18 @@ $native-overhang: 2.5rem;
 
     &._small { font-size: $font-size-small; }
 
-    // Safari/iOS donne à ces champs un fond arrondi et une largeur intrinsèque
-    // qui les empêche de remplir la boîte de `ui-field`.
+    // Safari/iOS : fond arrondi et largeur intrinsèque qui empêchent de remplir la boîte.
     -webkit-appearance: none;
     appearance: none;
 
-    // Et il CENTRE la valeur, là où tous les autres champs du kit l'alignent à
-    // gauche : sans ça, un formulaire mêlant date et texte n'a plus de ligne de
-    // saisie commune.
+    // Safari centre aussi la valeur, là où les autres champs du kit l'alignent à gauche.
     &::-webkit-date-and-time-value {
       text-align: left;
       margin: 0;
     }
 
-    // L'indicateur du navigateur est remplacé par le bouton d'action du kit :
-    // sa métrique et sa couleur lui appartiennent, donc deux champs côte à côte
-    // ne s'alignaient pas. Chrome et Safari le cachent par ce pseudo-élément ;
-    // Firefox n'expose rien vers le sien (ni pseudo-élément, ni `appearance`,
-    // ni `::part()`), son contrôle est donc élargi puis rogné d'autant.
+    // L'indicateur natif cède la place au bouton du kit : Chrome et Safari le cachent par
+    // ce pseudo-élément ; Firefox n'expose rien, son contrôle est élargi puis rogné d'autant.
     &::-webkit-calendar-picker-indicator {
       display: none;
     }
@@ -53,9 +47,7 @@ $native-overhang: 2.5rem;
   clip-path: inset(0 0 0 $native-overhang);
 }
 
-// L'indicateur et le panneau déroulant sont peints par le navigateur, qui les
-// choisit sur `color-scheme` et non sur nos jetons. Sans cette déclaration, le
-// thème sombre ouvre un calendrier clair.
+// Indicateur et panneau sont peints par le navigateur selon `color-scheme`, pas nos jetons.
 :where([data-theme='dark']) .ui-input-date-native {
   color-scheme: dark;
 }

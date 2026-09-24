@@ -40,11 +40,7 @@ export interface UiBreadcrumbItemRootProps {
   'aria-label'?: string;
   'aria-current'?: 'page';
   onClick: MouseEventHandler<HTMLElement>;
-  /**
-   * Typé pour une ancre : `render` existe pour rendre un **lien**, et les
-   * composants de lien des routeurs reversent tous leur ref à un
-   * `HTMLAnchorElement`.
-   */
+  /** Typée pour une ancre : les liens des routeurs transmettent leur ref à un `HTMLAnchorElement`. */
   ref?: Ref<HTMLAnchorElement>;
 }
 
@@ -144,8 +140,7 @@ export function UiBreadcrumb({
   const ariaLabel = rest['aria-label'] ?? "Fil d'Ariane";
   delete rest['aria-label'];
 
-  // Le dépliage se referme dès que le modèle change : les maillons masqués ne
-  // sont plus les mêmes, donc l'état d'avant ne veut plus rien dire.
+  // Le dépliage se referme quand le modèle change : les maillons masqués ne sont plus les mêmes.
   const [expanded, setExpanded] = useState(false);
   const [lastItems, setLastItems] = useState(items);
   if (lastItems !== items) {
@@ -155,7 +150,6 @@ export function UiBreadcrumb({
 
   const listRef = useRef<HTMLOListElement | null>(null);
 
-  // Garde-fou d'accessibilité : un maillon réduit à son icône n'annonce rien.
   useEffect(() => {
     if (process.env.NODE_ENV === 'production') return;
     if (prevenus.has(items)) return;
@@ -170,11 +164,8 @@ export function UiBreadcrumb({
     );
   }, [items]);
 
-  /**
-   * Le dépliage amène le focus sur le premier maillon révélé, celui qui suit le
-   * maillon de tête : sans ça le focus retombe sur le corps, le bouton qui le
-   * portait venant de disparaître.
-   */
+  // Au dépliage, le focus passe au premier maillon révélé : le bouton qui le
+  // portait disparaît, et il retomberait sur le corps.
   useEffect(() => {
     if (!expanded) return;
     const crumbs = [
@@ -223,7 +214,6 @@ export function UiBreadcrumb({
     onItemClick?.({ originalEvent: event, item });
   };
 
-  /** Le contenu d'un maillon : son icône, son libellé, ou les deux. */
   const content = (item: UiBreadcrumbItem): ReactNode => (
     <>
       {item.icon && <UiIcon className="ui-breadcrumb-icon" name={item.icon} size={iconSize} />}
@@ -237,7 +227,6 @@ export function UiBreadcrumb({
 
     const inner = content(item);
     const current = last ? ('page' as const) : undefined;
-    // `rel` explicite, ou un défaut sûr quand l'ancre ouvre un autre contexte.
     const rel = item.rel ?? (item.target === '_blank' ? 'noopener noreferrer' : undefined);
 
     if (!item.disabled && item.render) {
@@ -285,11 +274,8 @@ export function UiBreadcrumb({
       );
     }
 
-    // Un maillon désactivé finit toujours ici, et seule une classe le disait :
-    // les technologies d'assistance n'avaient aucun moyen de le savoir.
-    // `role="link"` plus `aria-disabled` l'énoncent, ce qui est le motif d'un
-    // lien qui existerait s'il était actif. Le rôle est nécessaire pour que
-    // l'attribut soit seulement légal, `aria-disabled` n'étant pas global.
+    // Un maillon désactivé s'énonce `role="link"` + `aria-disabled` : le rôle
+    // est requis, `aria-disabled` n'étant pas un attribut global.
     return (
       <span
         className={cx('ui-breadcrumb-text', last && '_current', item.disabled && '_disabled')}

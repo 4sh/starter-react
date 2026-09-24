@@ -144,10 +144,8 @@ export interface UiSidebarProps extends Omit<ComponentPropsWithRef<'aside'>, 'ch
 const SidebarContext = createContext<UiSidebarApi | null>(null);
 
 /**
- * Le magasin d'un `UiSidebarProvider` : la barre y publie son état, les
- * déclencheurs placés ailleurs sous le fournisseur le lisent. Un magasin et non
- * un état React : c'est l'ENFANT qui publie vers le parent, et un `setState`
- * du parent appelé depuis l'effet d'un enfant rendrait tout l'arbre deux fois.
+ * Magasin d'un `UiSidebarProvider`, et non un état React : c'est l'enfant qui
+ * publie vers le parent, et un `setState` du parent rendrait l'arbre deux fois.
  */
 interface SidebarStore {
   get: () => UiSidebarApi | null;
@@ -270,21 +268,11 @@ function useBelowBreakpoint(enabled: boolean, breakpoint: string): boolean {
 const warned = new Set<string>();
 
 /**
- * ui-sidebar : barre latérale applicative.
+ * ui-sidebar : barre latérale applicative, ancrée à gauche ou à droite.
  *
- * Une surface verticale ancrée à gauche ou à droite, qui accueille la navigation
- * de l'application. Deux présentations partagent exactement le même intérieur :
- *
- * - **Statique** : dans le flux, elle pousse le contenu. `collapsible`, elle se
- *   replie en rail d'icônes ; avec `openOnHover`, un rail replié se déploie
- *   par-dessus le contenu au survol et au focus, sans le décaler.
- * - **Superposée** : un `<dialog>` natif ancré au bord. Le piège de focus, sa
- *   restitution, l'inertie de l'arrière-plan et l'empilement viennent du
- *   navigateur, comme pour `ui-drawer`.
- *
- * Les descendants lisent l'état replié résolu par contexte : un `UiSidebarMenu`
- * posé dedans se replie avec elle. Un déclencheur placé ailleurs passe par
- * `UiSidebarProvider` et `useUiSidebarTrigger()`.
+ * Statique, dans le flux, elle se replie en rail d'icônes ; superposée, c'est un
+ * `<dialog>` natif ancré au bord. Ses descendants lisent son état par contexte ;
+ * un déclencheur placé ailleurs passe par `UiSidebarProvider` et `useUiSidebarTrigger()`.
  */
 export function UiSidebar({
   side = 'left',
@@ -384,9 +372,8 @@ export function UiSidebar({
 
   useUiScrollLock(isOpen && isModal);
 
-  // `visible` n'a de sens qu'en présentation superposée. Sortie de celle-ci (un
-  // point de rupture franchi vers le haut), la barre le remet à faux : sinon
-  // elle se rouvrirait d'elle-même au prochain passage sous le point de rupture.
+  // Hors présentation superposée, `visible` retombe à faux : sinon la barre se
+  // rouvrirait d'elle-même au prochain passage sous le point de rupture.
   useEffect(() => {
     if (!isOverlay && visible) setVisible(false);
   }, [isOverlay, visible, setVisible]);
@@ -404,9 +391,8 @@ export function UiSidebar({
     }
   }, [isOpen, isModal]);
 
-  // `onShow` et `onHide` suivent l'ouverture, et non le `<dialog>` : quand la
-  // barre repasse en statique panneau ouvert, le dialogue disparaît sans se
-  // fermer, et la fermeture doit quand même être annoncée.
+  // `onShow` et `onHide` suivent l'état et non le `<dialog>`, qui disparaît sans
+  // se fermer quand la barre repasse en statique.
   const wasOpen = useRef(false);
   useEffect(() => {
     if (isOpen && !wasOpen.current) {
@@ -422,16 +408,14 @@ export function UiSidebar({
     const dialog = dialogRef.current;
     if (!dialog) return;
 
-    // Échap par `keydown` et non par `cancel` : un dialogue NON modal (voile
-    // coupé, ou barre cantonnée) ne reçoit pas `cancel`.
+    // Échap par `keydown` : un dialogue non modal ne reçoit pas `cancel`.
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
       event.preventDefault();
       event.stopPropagation();
       if (dismissable && closeOnEscape) setVisible(false);
     };
-    // Les autres demandes de fermeture du système (geste retour) arrivent par
-    // `cancel` : même règle, une seule voie de fermeture, l'état.
+    // `cancel` couvre les autres demandes de fermeture (geste retour) : l'état décide.
     const onCancel = (event: Event) => {
       event.preventDefault();
       if (dismissable && closeOnEscape) setVisible(false);

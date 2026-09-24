@@ -20,16 +20,9 @@ export interface UiDismissOptions {
 /**
  * Fermeture d'un panneau flottant : clic à l'extérieur et touche Échap.
  *
- * Deux points qui ne s'improvisent pas.
- *
- * Le clic se juge sur **`pointerdown`**, pas sur `click` : un `click` ne se
- * produit que si la pression ET le relâchement ont lieu sur le même élément.
- * Une sélection de texte commencée dans le panneau et relâchée dehors ne
- * produirait donc aucun `click`, et le panneau resterait ouvert.
- *
- * Échap n'est consommée **que si elle ferme quelque chose** : sinon la même
- * touche fermerait aussi le `ui-modal` qui contient le panneau, et l'utilisateur
- * en perdrait deux d'un coup.
+ * Le clic se juge sur `pointerdown` : une sélection commencée dans le panneau et
+ * relâchée dehors ne produit aucun `click`. Échap n'est consommée que si elle
+ * ferme quelque chose, pour épargner le `ui-modal` qui contient le panneau.
  */
 export function useUiDismiss({
   open,
@@ -57,8 +50,7 @@ export function useUiDismiss({
       onDismiss('escape');
     };
 
-    // En phase de capture : un panneau qui arrête la propagation dans son
-    // propre contenu ne doit pas empêcher sa fermeture.
+    // Capture : un contenu qui arrête la propagation n'empêche pas la fermeture.
     document.addEventListener('pointerdown', onPointerDown, true);
     document.addEventListener('keydown', onKeyDown);
     return () => {

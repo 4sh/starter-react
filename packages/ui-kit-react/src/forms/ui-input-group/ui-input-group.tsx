@@ -19,13 +19,9 @@ export interface UiInputGroupProps extends ComponentPropsWithRef<'div'> {
 /**
  * ui-input-group : colle un contrôle et ses cellules en un seul champ visuel.
  *
- * Purement présentationnel : chaque enfant garde son API et ses états, le
- * groupe ne fait que les aligner sur une rangée, carrer les coins intérieurs et
- * fondre les bordures voisines en une seule.
- *
- * Les cellules non interactives (texte, icône, case à cocher) passent par
- * `UiInputGroupAddon` ; les contrôles (`UiInput`, `UiSelect`, `UiButton`) se
- * posent directement dans le groupe.
+ * Purement présentationnel : chaque enfant garde son API et ses états, le groupe
+ * aligne, carre les coins intérieurs et fond les bordures voisines. Les cellules
+ * non interactives passent par `UiInputGroupAddon`, les contrôles se posent directement.
  */
 export function UiInputGroup({
   size = 'default',

@@ -65,8 +65,7 @@ $focus-ring-width: var(--ui-autocomplete-focus-ring-width, #{utils.$form-focus-r
   }
 
   // --- Selected value chip (role=option, roving focus, `multiple`) ----
-  // The chip IS the focusable option; fill/padding/remove come from
-  // `ui-chip` : cette règle ne fait que la mise en page et l'anneau de focus.
+  // Fill, padding and remove come from `ui-chip`: only layout and focus ring here.
   // The `role="listbox"` wrapper is ARIA-only: the tags stay direct children of the box.
   &-tags { display: contents; }
 
@@ -122,10 +121,7 @@ $focus-ring-width: var(--ui-autocomplete-focus-ring-width, #{utils.$form-focus-r
   }
 
   // Bouton de liste déroulante : `field-action` lui donne la pleine hauteur, le
-  // collage au bord et le rayon du coin. La version Angular part de
-  // `field-affix`, écrit pour une icône, puis annule à la main la bordure, le
-  // fond et jusqu'à l'inset que le mixin venait d'ajouter : le bouton n'y prend
-  // ni la hauteur du champ ni son coin.
+  // collage au bord et le rayon du coin.
   &-dropdown {
     @include utils.field-action;
 
@@ -143,9 +139,7 @@ $focus-ring-width: var(--ui-autocomplete-focus-ring-width, #{utils.$form-focus-r
 }
 
 // --- Panel -------------------------------------------------------------
-// Le panneau de suggestions vit dans le CALQUE SUPÉRIEUR (`popover="manual"`),
-// comme celui de `ui-select` : aucun z-index, et aucun rognage par un ancêtre
-// en `overflow: hidden`.
+// Dans le CALQUE SUPÉRIEUR (`popover="manual"`) : ni z-index, ni rognage par un ancêtre.
 .ui-autocomplete-panel {
   @include utils.overlay-panel($panel-surface, $panel-stroke);
 
@@ -282,9 +276,8 @@ $focus-ring-width: var(--ui-autocomplete-focus-ring-width, #{utils.$form-focus-r
   }
 }
 
-// Croix de retrait d'une puce. Ce n'est PAS un bouton : elle vit dans une
-// `option` interactive, où un contrôle imbriqué serait invalide. Elle est donc
-// `aria-hidden`, et le retrait au clavier passe par Suppr sur l'option.
+// Croix de retrait d'une puce : PAS un bouton, un contrôle imbriqué dans une `option`
+// serait invalide. Elle est `aria-hidden`, et Suppr sur l'option retire au clavier.
 .ui-autocomplete-remove {
   display: inline-flex;
   align-items: center;

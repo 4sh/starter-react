@@ -2,12 +2,7 @@
 
 // =====================================================================
 // ui-helper : co-located styles. All values come from design tokens.
-//
-// Extend:
-//   • Level (color/icon) → add a key to $levels (a matching semantic token
-//                          must exist + add it to the `UiFeedbackLevel` type
-//                          and the LEVEL_ICONS map).
-//   • Size               → add an entry to $sizes (+ the `HelperSize` type).
+// Extend: a level also goes in `UiFeedbackLevel` and LEVEL_ICONS, a size in `HelperSize`.
 // =====================================================================
 
 // --- Config ---------------------------------------

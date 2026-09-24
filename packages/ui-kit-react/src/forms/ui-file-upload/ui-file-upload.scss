@@ -2,16 +2,9 @@
 @use 'sass:map';
 
 // =====================================================================
-// ui-file-upload : co-located styles. All values come from design tokens.
-//
-// No host element here, so `.ui-file-upload` IS the component's box. Each
-// file row sits in a `.ui-file-upload-item`, not a bare `li`: without style
-// encapsulation, an element selector would also reach the markup an app
-// renders through `renderContent` or `renderFile` (decision D5).
-//
-// Extend:
-//   • Size → add entries to $field-height / $zone-min and the matching
-//     `-small` config values (+ the size type).
+// ui-file-upload : co-located styles. Rows sit in `.ui-file-upload-item`, never a bare
+// `li`, which would also reach the markup of `renderContent`/`renderFile` (D5).
+// New size: add entries to $field-height / $zone-min, `-small` values, the size type.
 // =====================================================================
 
 // --- Config ----------------------------------------------------------
@@ -160,7 +153,6 @@ $message-font-size: var(--ui-file-upload-message-font-size, var(--size-typograph
   }
   &._small &-zone { gap: $zone-gap-small; min-height: map.get($zone-min, 'small'); }
 
-  // Active drag-over highlight (solid border + focused surface).
   &._dragging &-zone {
     background-color: var(--ui-file-upload-surface-dragging, var(--form-high-surface-focused)); /// Fond de la zone pendant un survol de dépôt.
     border-style: solid;
@@ -235,10 +227,8 @@ $message-font-size: var(--ui-file-upload-message-font-size, var(--size-typograph
   &-messages { display: flex; flex-direction: column; gap: $messages-gap; }
   &-message {
     margin: 0;
-    // Pas `informative-errorhigh-content` : c'est le contenu posé SUR la surface
-    // d'erreur forte, donc blanc, et le message est sur un fond neutre (mesuré à
-    // 1:1). Ni `informative-errorlow-content`, identique dans les deux modes, et
-    // donc à 2.74:1 en sombre. Le jeton d'erreur de la famille formulaire suit le mode.
+    // Ni `informative-errorhigh-content` (blanc, fait pour la surface d'erreur), ni
+    // `-errorlow-content` (figé dans les deux modes) : ce jeton-ci suit le mode.
     color: var(--ui-file-upload-message-color, var(--form-error-content-default)); /// Couleur d'un message d'erreur.
     font-size: $message-font-size;
   }

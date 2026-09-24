@@ -214,6 +214,12 @@ Une dette écrite n'est pas une dette : c'est un choix. Ce qui suit est assumé,
   que là.** Un composant qui ajouterait un panneau devra penser à l'attribut : rien ne le lui
   rappelle, `docs.config` ne voyant que les hooks `--ui-*`. Les sous-menus en cascade de
   `ui-menu` l'avaient oublié jusqu'au 2026-09-24.
+- **`component-vars.build.mjs` ne lit pas les `.tsx`.** Il repère une variable posée par le
+  composant lui-même par la syntaxe Angular (`[style.--ui-x]`, `setProperty`) dans les `.scss`,
+  `.ts` et `.html`. Un style en ligne React (`style={{ '--ui-x': … }}`) lui échappe : six hooks
+  sont concernés, et `--ui-editor-swatch-indicator-color` ne reste classé que grâce à un
+  commentaire de `ui-editor.scss` qui cite la forme Angular. Le corriger change la doc de
+  theming publiée de cinq autres hooks : à trancher à part.
 - **`docs:config` affiche une ligne d'avertissement attendue** : « 1 variable sans commentaire
   `///` ». C'est `$months-stack-below` de `ui-datepicker`, un breakpoint SCSS interne qui n'a
   ni hook `--ui-*` ni raison d'être publié. Ne pas partir à sa recherche.
@@ -654,9 +660,11 @@ Jira en tête, et un `git add` par fichier nommé, jamais `git add .`.
 tâche**, et ajouter une ligne au journal. Deux minutes, et c'est ce qui évite de rouvrir des
 décisions déjà prises à la session suivante.
 
-Un piège nouvellement payé va dans **Pièges déjà payés** _et_ en commentaire à l'endroit
-concerné. Le commentaire est ce qui le rend visible au bon moment ; cette liste est ce qui le
-rend trouvable quand on ne sait pas encore qu'on le cherche.
+Un piège nouvellement payé va dans **Pièges déjà payés**, avec son histoire et ses mesures.
+Dans le code, il ne laisse qu'**une ligne au présent**, et seulement si la contrainte ne se
+lit pas dans le code : la règle et sa raison, jamais le récit (voir « Écrire les
+commentaires » dans `AGENTS.md`). La ligne est ce qui le rend visible au bon moment ; cette
+liste est ce qui le rend trouvable quand on ne sait pas encore qu'on le cherche.
 
 ---
 
@@ -2120,3 +2128,20 @@ position gardée à la fermeture, ancre virtuelle stable. L'API publique ne chan
 composants non plus, sauf les sous-menus en cascade qui posent enfin `data-unpositioned`.
 Six tests de contrat, chacun vérifié en échec sur l'ancienne version, sur celle du tour
 précédent, ou les deux : 1 334 tests unitaires et 716 stories auditées passent.
+
+### 2026-09-24 : une passe sur les commentaires du kit
+
+À la demande du user, qui trouvait le code alourdi par le récit des correctifs. Les 166
+fichiers source concernés perdent 30 % de leurs lignes de commentaire (7 671 → 5 357) :
+historique, mesures, symptômes, comparaisons avec le kit Angular et paraphrases sont partis ;
+une contrainte non évidente reste en une ligne au présent. Les JSDoc d'API sont gardées
+(tableaux de Storybook), les `///` de theming intacts, les directives aussi. La règle est
+écrite dans `AGENTS.md` (« Pas d'historique dans le code ») et « Tenir ce fichier à jour » ne
+demande plus le récit d'un piège en commentaire.
+
+Vérifié par un garde-fou jetable qui réimprime chaque fichier sans ses commentaires (printer
+de TypeScript, décapage du SCSS) et le compare à l'instantané d'avant : aucun octet de code
+n'a bougé. Les fichiers générés par `docs:config` sont identiques, après une surprise : un
+commentaire citant la syntaxe Angular portait la classification d'un hook (voir la dette).
+Les agents de la passe ont relevé en chemin une quinzaine de défauts de code, non corrigés
+et listés pour une passe dédiée.

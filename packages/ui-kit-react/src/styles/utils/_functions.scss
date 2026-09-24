@@ -30,7 +30,7 @@ $rem-base: 16px;
   $value: math.div(strip-unit($value), strip-unit($base-value)) * 1rem;
   @if ($value == 0rem) {
     $value: 0;
-  } // Turn 0rem into 0
+  }
   @return $value;
 }
 

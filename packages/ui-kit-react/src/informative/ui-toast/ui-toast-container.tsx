@@ -42,9 +42,8 @@ interface ToastEntry {
 }
 
 /**
- * Réconcilie la liste rendue avec celle du magasin. Un message disparu du
- * magasin reste rendu, fermé, le temps de sa sortie, et **à sa place** : le
- * retirer de la liste ferait sauter la pile pendant l'animation.
+ * Réconcilie la liste rendue avec le magasin. Un message retiré reste rendu, fermé,
+ * le temps de sa sortie, et à sa place : sinon la pile sauterait pendant l'animation.
  */
 function merge(previous: ToastEntry[], visible: readonly UiToastMessage[]): ToastEntry[] {
   const live = new Set(visible.map((message) => message.id));
@@ -57,10 +56,7 @@ function merge(previous: ToastEntry[], visible: readonly UiToastMessage[]): Toas
 }
 
 export interface UiToastContainerProps extends Omit<ComponentPropsWithRef<'div'>, 'children'> {
-  /**
-   * N'affiche que les messages de ce canal. Omis, la pile prend ceux qui n'en
-   * ont pas. Ce que le kit Angular appelle `key`, un nom que React réserve.
-   */
+  /** N'affiche que les messages de ce canal. Omis, la pile prend ceux qui n'en ont pas. */
   channel?: string;
   /** Bord auquel la pile est épinglée. */
   position?: UiToastPosition;
@@ -133,9 +129,7 @@ export function UiToastContainer({
   const [entries, setEntries] = useState<ToastEntry[]>(() =>
     visible.map((message) => ({ message, open: true })),
   );
-  // Le repère de comparaison est un ÉTAT et non une ref : React interdit de
-  // lire ou d'écrire une ref au fil du rendu, et c'est bien au rendu que la
-  // liste doit se réconcilier.
+  // Le repère est un état et non une ref : React interdit de lire une ref au fil du rendu.
   const [lastVisible, setLastVisible] = useState(visible);
   if (lastVisible !== visible) {
     setLastVisible(visible);
@@ -156,14 +150,8 @@ export function UiToastContainer({
     [ref],
   );
 
-  /**
-   * Le calque supérieur, et non un z-index : `ui-modal` est un `<dialog>` natif,
-   * qui couvrirait n'importe quel z-index. La pile s'y remontre à chaque
-   * NOUVEAU message, parce que le calque empile dans l'ordre d'affichage : une
-   * notification déclenchée depuis un dialogue ouvert entre-temps passe ainsi
-   * devant lui. En mode `contained`, la pile appartient à un ancêtre positionné
-   * et le calque supérieur, qui ignore les ancêtres, n'a pas d'objet.
-   */
+  // Calque supérieur, seul à passer devant un `<dialog>` : la pile s'y remontre à
+  // chaque nouveau message, le calque empilant dans l'ordre d'affichage.
   const shown = useRef(new Set<UiToastId>());
   useLayoutEffect(() => {
     const region = regionRef.current;
@@ -189,8 +177,6 @@ export function UiToastContainer({
         `_${position}`,
         contained && '_contained',
         expanded && '_expanded',
-        // Ancrée en bas, la pile pousse vers le haut : le dernier message reste
-        // près du bord.
         position.startsWith('bottom') && '_reverse',
         className,
       )}
@@ -225,12 +211,8 @@ interface ToastItemProps {
 }
 
 /**
- * Une carte de la pile : son mouvement, et son compte à rebours.
- *
- * Le crochet de mouvement se règle par élément, donc il ne peut pas vivre dans
- * la pile, dont le nombre de cartes varie. Le compte à rebours le suit : il
- * démarre quand la carte paraît, ce qui fait qu'un message en file d'attente
- * attend vraiment son tour.
+ * Une carte de la pile. Composant à part : le crochet de mouvement se règle par
+ * élément, et le compte à rebours ne démarre qu'à l'apparition de la carte.
  */
 function ToastItem({
   message,
@@ -253,13 +235,10 @@ function ToastItem({
   const delay = message.life ?? life;
   const remaining = useRef(delay);
 
-  // Motif « dernière valeur » : `uiToast.remove` est stable, mais l'identifiant
-  // ne l'est pas, et relancer l'effet sur lui remettrait le compte à zéro.
   const dismiss = useCallback(() => uiToast.remove(id), [id]);
 
-  // Le nettoyage met en banque le temps déjà écoulé : mettre en pause rejoue
-  // donc l'effet, et reprendre repart du reste. `setTimeout` et non une image
-  // d'animation, pour que le compte continue dans un onglet en arrière-plan.
+  // Le nettoyage met en banque le temps écoulé : la pause rejoue l'effet, la reprise
+  // repart du reste. `setTimeout` et non rAF, qui s'arrête dans un onglet en arrière-plan.
   useEffect(() => {
     if (!open || message.sticky || delay <= 0 || paused) return;
     const startedAt = Date.now();
@@ -275,10 +254,8 @@ function ToastItem({
   return (
     <div ref={ref} className={cx('ui-toast-region-item', className)} style={style}>
       <UiToast
-        // La pause est branchée sur la CARTE et non sur la bande qui la porte :
-        // cette bande fait toute la largeur de la région, donc le pointeur y
-        // entre bien avant d'atteindre une carte qui, elle, fait sa largeur de
-        // contenu.
+        // Pause branchée sur la carte, pas sur la bande qui la porte : la bande fait
+        // toute la largeur de la région, la carte seulement celle de son contenu.
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
         onFocus={() => setPaused(true)}

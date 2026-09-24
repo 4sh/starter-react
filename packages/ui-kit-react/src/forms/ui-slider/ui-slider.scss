@@ -1,8 +1,6 @@
 @use 'utils';
 
-// =====================================================================
 // ui-slider : styles co-localisés. Toutes les valeurs viennent des jetons.
-// =====================================================================
 
 $track-thickness: var(--ui-slider-thickness, #{utils.rem-calc(8)}); /// Épaisseur de la piste.
 $handle-size: var(--ui-slider-handle-size, #{utils.rem-calc(22)}); /// Diamètre des poignées.
@@ -19,10 +17,6 @@ $mark-radius: var(--ui-slider-mark-radius, var(--radius-full)); /// Rayon des re
   position: relative;
   display: flex;
   align-items: center;
-  // Un curseur n'a pas de largeur propre : il remplit son conteneur en
-  // horizontal, et gère sa propre hauteur en vertical. Ici la racine EST
-  // l'élément stylé, donc aucune liaison d'hôte n'est nécessaire, contrairement
-  // à la version Angular où le composant hôte devait être élargi à la main.
   width: 100%;
   min-height: $handle-size;
   touch-action: none;
@@ -154,8 +148,7 @@ $mark-radius: var(--ui-slider-mark-radius, var(--radius-full)); /// Rayon des re
   }
 
   // --- Invalide -------------------------------------------------------
-  // La couleur d'erreur saturée vit dans les jetons `content` : le jeton
-  // `surface` est le fond pâle d'un champ.
+  // Fond en jeton `content` : la couleur d'erreur saturée y vit, `surface` est le fond pâle.
   &._invalid {
     .ui-slider-range {
       background-color: var(--ui-slider-range-surface-invalid, var(--form-error-content-default)); /// Fond de la portion remplie en erreur.

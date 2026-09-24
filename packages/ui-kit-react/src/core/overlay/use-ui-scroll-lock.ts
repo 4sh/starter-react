@@ -8,18 +8,10 @@ let restore: (() => void) | null = null;
 
 /**
  * Bloque le défilement de l'arrière-plan pendant qu'une couche modale est
- * ouverte.
+ * ouverte : `showModal()` rend l'arrière-plan inerte, mais pas immobile.
  *
- * C'est le seul manque **mesuré** de `<dialog>.showModal()` : le navigateur rend
- * bien l'arrière-plan inerte, mais ne fige pas son défilement (`overflow` reste
- * `visible`). D'où cette brique, plutôt qu'une dépendance : le besoin tient en
- * quelques lignes une fois qu'il est délimité.
- *
- * La largeur de la barre de défilement est compensée : sans elle, la page saute
- * latéralement à l'ouverture, ce qui se voit plus que le verrou lui-même.
- *
- * Les verrous sont **comptés** : un tiroir ouvert depuis une fenêtre modale ne
- * doit pas rendre le défilement en se fermant.
+ * La largeur de la barre de défilement est compensée, et les verrous sont
+ * comptés : un tiroir fermé par-dessus une modale ne rend pas le défilement.
  */
 export function useUiScrollLock(active: boolean): void {
   useEffect(() => {

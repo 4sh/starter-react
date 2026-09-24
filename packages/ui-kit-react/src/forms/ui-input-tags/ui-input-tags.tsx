@@ -173,17 +173,11 @@ export interface UiInputTagsProps<T = string> extends UiFieldSharedProps {
 }
 
 /**
- * ui-input-tags : saisie de plusieurs valeurs sous forme de tags, posée sur la
- * coquille `ui-field`.
- *
- * Un tag se pose en tapant puis `Entrée`, ou par un `delimiter`, et se retire
- * par `Retour arrière` ou la croix. Le mode `typeahead` ajoute un panneau de
- * suggestions, alimenté par l'appelant : le composant **ne filtre rien**.
- *
- * La liste des tags est un `role="listbox"` horizontal à focus glissant, et
- * chaque tag une `option`. Le `listbox` n'enveloppe **que** les tags : une liste
- * ne peut pas contenir de champ texte, et c'est `display: contents` qui garde
- * tags et saisie sur les mêmes lignes.
+ * ui-input-tags : saisie de plusieurs valeurs sous forme de tags, sur la coquille
+ * `ui-field`. Un tag se pose par `Entrée` ou un `delimiter`, et se retire par
+ * `Retour arrière` ou la croix. `typeahead` ajoute un panneau de suggestions alimenté
+ * par l'appelant : le composant **ne filtre rien**. Les tags forment un `listbox`
+ * horizontal à focus glissant, qui n'enveloppe qu'eux.
  */
 export function UiInputTags<T = string>({
   value,
@@ -422,7 +416,7 @@ export function UiInputTags<T = string>({
   useEffect(() => () => window.clearTimeout(searchTimer.current), []);
 
   // --- Mutations de tags ---------------------------------------------------
-  /** Ajoute une valeur. Respecte `max` et `allowDuplicate`. Renvoie `true` si ajoutée. */
+  /** La liste avec `v` ajoutée, ou `null` si `max` ou `allowDuplicate` l'interdit. */
   const addValue = useCallback(
     (v: T, courant: T[]): T[] | null => {
       if (!allowDuplicate && courant.some((t) => resolver.equals(t, v))) return null;
@@ -438,9 +432,8 @@ export function UiInputTags<T = string>({
   );
 
   /**
-   * Ajoute plusieurs valeurs d'un coup. Une seule écriture du modèle : en
-   * enchaîner autant que de parties ferait travailler chaque ajout sur un
-   * `tags` périmé, et seule la dernière survivrait.
+   * Ajoute plusieurs valeurs en une seule écriture du modèle : chaque écriture
+   * partirait sinon d'un `tags` périmé, et seule la dernière survivrait.
    */
   const addMany = useCallback(
     (valeurs: T[]) => {
@@ -491,9 +484,8 @@ export function UiInputTags<T = string>({
   const focusTag = useCallback(
     (index: number) => {
       roving.setActiveIndex(index);
-      // Le nœud existe déjà, mais son `tabIndex` change au rendu suivant :
-      // `setTimeout` et non `requestAnimationFrame`, qui ne tire pas dans un
-      // onglet en arrière-plan.
+      // Focus après le rendu qui pose le `tabIndex`, par `setTimeout` :
+      // `requestAnimationFrame` ne tire pas dans un onglet en arrière-plan.
       window.setTimeout(() => tagRefs.current[index]?.focus());
     },
     [roving],
@@ -742,9 +734,8 @@ export function UiInputTags<T = string>({
     return (
       /*
         eslint-disable-next-line jsx-a11y/click-events-have-key-events --
-        Motif combobox : le clavier et le focus vivent sur le champ, et l'option
-        courante est designee par `aria-activedescendant`. L'option n'a donc ni
-        `tabindex` ni gestionnaire de touches, et c'est correct.
+        Motif combobox : clavier et focus sur le champ, option courante par
+        `aria-activedescendant`.
       */
       <li
         key={row.key}
@@ -801,15 +792,10 @@ export function UiInputTags<T = string>({
       >
         {/*
           eslint-disable-next-line jsx-a11y/no-static-element-interactions --
-          Relais de pointeur : un clic dans la boite, hors d'un tag ou d'un
-          bouton, doit tomber sur la saisie. Le clavier vit sur le champ natif.
+          Relais de pointeur vers la saisie ; le clavier vit sur le champ natif.
         */}
         <div className="ui-input-tags-control" onMouseDown={onBoxMouseDown}>
-          {/*
-            La liste n'enveloppe QUE les tags : une `listbox` ne peut pas
-            contenir de champ texte. `display: contents` garde tags et saisie
-            sur les memes lignes, en s'enroulant ensemble.
-          */}
+          {/* Le `listbox` n'enveloppe QUE les tags : il ne peut pas contenir de champ texte. */}
           <div
             className="ui-input-tags-list"
             role="listbox"
@@ -861,25 +847,13 @@ export function UiInputTags<T = string>({
                   size="small"
                   rounded={chipRounded}
                   disabled={disabled}
-                  // PAS `removable` : la puce y rendrait un `<button>`, donc un
-                  // controle interactif IMBRIQUE dans une `option` elle-meme
-                  // interactive, ce qu'axe refuse a juste titre
-                  // (`nested-interactive`). Un `tabindex="-1"` n'y change rien,
-                  // les technologies d'assistance atteignant quand meme
-                  // l'element. La croix est donc une DECORATION cliquable, et
-                  // le retrait au clavier passe par Suppr ou Retour arriere sur
-                  // l'option : c'est le motif « liste de jetons » de l'APG.
+                  // Pas `removable` : son `<button>` serait imbriqué dans une `option`
+                  // (`nested-interactive`). La croix est décorative, Suppr retire au clavier.
                   tabIndex={disabled ? -1 : roving.tabIndexFor(tag.index)}
                   onKeyDown={(event) => onTagKeyDown(event, tag.index)}
                   onFocus={() => roving.setActiveIndex(tag.index)}
                 >
                   {canRemove && (
-                    /*
-                      Decoration cliquable, hors de l'arbre d'accessibilite : le
-                      chemin clavier est Suppr sur l'option qui l'englobe. Les
-                      regles jsx-a11y ne s'y appliquent pas, `aria-hidden` la
-                      retirant deja de cet arbre.
-                    */
                     <span
                       className="ui-input-tags-remove"
                       aria-hidden="true"
@@ -902,11 +876,8 @@ export function UiInputTags<T = string>({
 
           {/*
             eslint-disable-next-line jsx-a11y/aria-activedescendant-has-tabindex --
-            La regle exige un tabindex qu'elle puisse EVALUER. C'est un `<input>`
-            natif, donc focalisable par nature, et il en porte un ; mais
-            `tabIndex ?? 0` et le `role` conditionnel sont des expressions que
-            l'analyse statique ne peut pas resoudre. `ui-autocomplete` y echappe
-            seulement parce que son `role` est litteral.
+            `<input>` natif, focalisable : la règle ne sait pas évaluer `tabIndex ?? 0`
+            ni le `role` conditionnel.
           */}
           <input
             ref={attacherInput}
@@ -946,10 +917,8 @@ export function UiInputTags<T = string>({
       {typeahead && (
         <div
           ref={setPanel}
-          // Tant que la position n'est pas calculée, le panneau reste dans son
-          // état fermé : `computePosition` est asynchrone, et peindre l'image
-          // d'avant est ce qui fait apparaître un panneau au mauvais endroit
-          // avant qu'il se replace. Reconnu par `utils.overlay-motion`.
+          // Fermé tant que la position n'est pas calculée, `computePosition` étant
+          // asynchrone. Lu par `utils.overlay-motion`.
           data-unpositioned={position.isPositioned ? undefined : ''}
           popover="manual"
           className={cx('ui-input-tags-panel', panelClassName)}

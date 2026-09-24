@@ -1,8 +1,6 @@
 @use 'utils';
 
-// =====================================================================
 // ui-rating : styles co-localisés. Toutes les valeurs viennent des jetons.
-// =====================================================================
 
 $focus-ring-width: var(--ui-rating-focus-ring-width, #{utils.$form-focus-ring-width}); /// Épaisseur de l'anneau de focus.
 $focus-ring-radius: var(--ui-rating-focus-ring-radius, var(--radius-sm)); /// Rayon de l'anneau de focus autour des étoiles.
@@ -44,11 +42,8 @@ $focus-ring-color: var(--ui-rating-focus-ring-color, var(--form-high-stroke-focu
     @include utils.control-transition(box-shadow);
   }
 
-  // Le champ natif porte le focus mais il est en `opacity: 0`, donc son propre
-  // anneau est invisible : c'est le rang d'étoiles qui le rend. Sans cette
-  // règle, le composant est opérable au clavier SANS indicateur de focus, ce
-  // qui échoue WCAG 2.4.7. Écart assumé avec la version Angular, où le hook
-  // `--ui-rating-focus-ring-width` est déclaré mais n'est branché sur rien.
+  // Le champ natif, en `opacity: 0`, porte le focus : c'est le rang d'étoiles qui
+  // rend l'anneau (WCAG 2.4.7).
   &-input:focus-visible ~ &-stars {
     box-shadow: 0 0 0 $focus-ring-width rgb(from #{$focus-ring-color} r g b / 50%);
   }
@@ -97,9 +92,7 @@ $focus-ring-color: var(--ui-rating-focus-ring-color, var(--form-high-stroke-focu
       justify-content: center;
     }
 
-    // Calque découpé à la portion remplie : 1 = étoile entière, 0,5 = moitié
-    // du début. `--_rating-fill` est de la plomberie interne, écrite par le
-    // composant sur CHAQUE étoile : préfixe `--_`, donc pas un hook de thème.
+    // `--_rating-fill` (0 à 1) est écrit par le composant par étoile : pas un hook de thème.
     &-fill {
       position: absolute;
       inset: 0;
@@ -130,9 +123,7 @@ $focus-ring-color: var(--ui-rating-focus-ring-color, var(--form-high-stroke-focu
   }
 }
 
-// `clip-path: inset()` est physique : on le miroite pour que la portion
-// remplie reste du côté du début. Pas de `:host-context` ici, React n'ayant
-// aucune encapsulation à contourner : un sélecteur d'ancêtre suffit.
+// `clip-path: inset()` est physique : miroité pour que la portion remplie reste au début.
 [dir='rtl'] .ui-rating-icon-fill {
   clip-path: inset(0 0 0 calc((1 - var(--_rating-fill, 1)) * 100%));
 }

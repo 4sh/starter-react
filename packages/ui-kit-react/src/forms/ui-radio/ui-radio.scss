@@ -1,11 +1,6 @@
 @use 'utils';
 
-// =====================================================================
-// ui-radio : co-located styles. All values come from design tokens.
-//
-// Same headless recipe as ui-checkbox (native input over the styled box,
-// palette via form-control-palette).
-// =====================================================================
+// ui-radio: native input over the styled box, palette via `utils.form-control-palette`.
 
 // Shared defaults (ui-config) : replace a value here to detune ONLY this component.
 $box-size: var(--ui-radio-box-size, #{utils.$form-control-size});                     /// Diamètre du cercle radio
@@ -81,13 +76,8 @@ $label-gap: var(--ui-radio-label-gap, var(--units-2xs));                    /// 
     @include utils.control-transition(transform);
   }
 
-  // Deux sélecteurs pour un seul état, et c'est nécessaire.
-  //
-  // La classe `._checked` n'existe qu'en mode CONTRÔLÉ : en mode non contrôlé,
-  // c'est le navigateur qui tient l'exclusivité du groupe, et un bouton radio ne
-  // peut pas observer la désélection de ses voisins : React n'a donc aucun moyen
-  // de savoir qu'il vient d'être décoché. Le sélecteur natif, lui, le sait
-  // toujours. Sans lui, un groupe non contrôlé fonctionne mais ne se VOIT pas.
+  // Deux sélecteurs, tous deux nécessaires : `._checked` n'existe qu'en mode contrôlé,
+  // et seul `:checked` voit un radio non contrôlé décoché par ses voisins.
   &._checked &-dot,
   &-input:checked + &-box &-dot {
     transform: scale(1);
@@ -118,8 +108,7 @@ $label-gap: var(--ui-radio-label-gap, var(--units-2xs));                    /// 
     }
   }
 
-  // Consultable, donc ni grisé ni bloqué au clavier : seul le curseur dit que
-  // rien ne changera. Même traitement que `ui-checkbox`.
+  // Consultable : ni grisé ni bloqué au clavier, seul le curseur dit que rien ne changera.
   &._readonly {
     cursor: default;
   }

@@ -88,18 +88,14 @@ export function UiAlert({
     onClose?.();
   };
 
-  // Motif « dernière valeur » : le compte à rebours ne doit dépendre ni de
-  // `onClose` ni de `onOpenChange`, qu'un appelant écrit presque toujours en
-  // ligne. Dans les dépendances, chaque rendu du parent relancerait le délai,
-  // et une alerte survolée ne disparaîtrait jamais.
+  // Motif « dernière valeur » : en dépendances, des rappels écrits en ligne
+  // relanceraient le compte à rebours à chaque rendu du parent.
   const closeRef = useRef(close);
   useEffect(() => {
     closeRef.current = close;
   });
 
-  // `setTimeout` et non `requestAnimationFrame` : le compte à rebours doit
-  // continuer dans un onglet en arrière-plan, où les images ne sont plus
-  // peintes. Le nettoyage rend l'effet idempotent sous `<StrictMode>`.
+  // `setTimeout` et non `requestAnimationFrame`, qui ne tire pas dans un onglet en arrière-plan.
   useEffect(() => {
     if (!isOpen || life <= 0) return;
     const id = setTimeout(() => closeRef.current(), life);

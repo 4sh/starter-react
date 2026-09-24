@@ -15,13 +15,7 @@ export type FieldFloatLabel = 'over' | 'in' | 'on';
 
 /**
  * Props partagées par tous les champs « en boîte » (`ui-input`, `ui-textarea`,
- * `ui-input-number`…).
- *
- * Côté Angular, ce contrat était une **classe de base** (`BaseFormField`) dont
- * chaque composant héritait. React n'a pas d'héritage de composants : le contrat
- * devient une interface de props, et le comportement un hook (`useUiField`).
- * Le résultat est le même, en plus explicite : un champ déclare ce qu'il accepte
- * au lieu de l'hériter en silence.
+ * `ui-input-number`…), dont `useUiField` tire le câblage.
  */
 export interface UiFieldSharedProps {
   /** Libellé, rendu par `ui-label`. */

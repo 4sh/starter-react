@@ -26,12 +26,7 @@ export interface ModalGestures {
   reset: () => void;
 }
 
-/**
- * Glissement par l'en-tête et redimensionnement par le coin.
- *
- * Sorti du composant parce que c'est de la mécanique de pointeur, pas du
- * dialogue : `ui-modal` n'a qu'à poser deux gestionnaires et lire deux valeurs.
- */
+/** Glissement par l'en-tête et redimensionnement par le coin. */
 export function useModalGestures({
   dialogRef,
   draggable,
@@ -64,7 +59,6 @@ export function useModalGestures({
   const onHeaderPointerDown = useCallback(
     (event: PointerEvent<HTMLElement>) => {
       if (!draggable || event.button !== 0) return;
-      // Jamais depuis les boutons d'action de l'en-tête.
       if ((event.target as HTMLElement).closest('button')) return;
       drag.current = { x: event.clientX, y: event.clientY };
       document.body.style.userSelect = 'none';
@@ -106,9 +100,7 @@ export function useModalGestures({
             // `||` et non `??` : un 0 dégénéré écraserait le dialogue.
             const viewWidth = window.innerWidth || rect.right;
             const viewHeight = window.innerHeight || rect.bottom;
-            // Un delta qui pousserait le dialogue hors de l'écran est refusé,
-            // axe par axe : glisser en diagonale le long d'un bord doit rester
-            // possible.
+            // Refusé axe par axe : glisser en diagonale le long d'un bord reste possible.
             if (rect.left + dx < minX || rect.right + dx > viewWidth) nextX = base.x;
             if (rect.top + dy < minY || rect.bottom + dy > viewHeight) nextY = base.y;
           }

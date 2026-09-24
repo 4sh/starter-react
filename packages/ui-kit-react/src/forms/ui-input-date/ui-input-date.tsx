@@ -33,7 +33,6 @@ export type InputDateValueType = 'date' | 'iso';
 /** Valeur portée par le champ, quelle que soit la forme engagée par `valueType`. */
 export type InputDateValue = Date | string | null;
 
-/** `mode` -> le `type` natif qui accroche le sélecteur de l'OS. */
 const NATIVE_TYPE: Record<InputDateMode, string> = {
   date: 'date',
   time: 'time',
@@ -94,13 +93,9 @@ export interface UiInputDateProps extends UiFieldSharedProps, NativeInputProps {
 /**
  * ui-input-date : champ date/heure **natif** posé sur la coquille `ui-field`.
  *
- * Le sélecteur appartient au système : la roue de l'OS sur mobile, qu'aucun overlay
- * n'égale au pouce. C'est toute la raison d'être de ce composant à côté
- * d'`ui-datepicker`, qui tient l'arbitrage inverse : un calendrier porté par les
- * jetons, avec plages, multi-mois et inline.
- *
- * Frère d'`ui-input` et non variante de lui : il émet une date et non une chaîne,
- * il n'émet que sur `change`, et son libellé reste levé. Voir la page MDX.
+ * Le sélecteur appartient au système (la roue de l'OS sur mobile) ; `ui-datepicker`
+ * tient l'arbitrage inverse, un calendrier porté par les jetons.
+ * Il émet une date, seulement sur `change`, et son libellé reste levé. Voir la page MDX.
  */
 export function UiInputDate({
   mode = 'date',
@@ -151,7 +146,6 @@ export function UiInputDate({
 
   const hasTime = mode !== 'date';
 
-  /** `Date` -> la chaîne exacte que le contrôle natif de ce `mode` accepte. */
   const toNative = useCallback(
     (date: Date) => {
       if (mode === 'time') return toIsoTime(date);
@@ -160,7 +154,6 @@ export function UiInputDate({
     [mode, hasTime],
   );
 
-  /** L'inverse. `null` sur tout ce qui est malformé : le navigateur l'a produit, on dégrade. */
   const fromNative = useCallback(
     (raw: string) => {
       if (mode === 'time') return parseIsoTime(raw);
@@ -169,7 +162,6 @@ export function UiInputDate({
     [mode, hasTime],
   );
 
-  /** Valeur reçue, `Date` ou chaîne ISO, détectée d'elle-même. Clonée quand c'est déjà une `Date`. */
   const parseValue = useCallback(
     (raw: InputDateValue): Date | null => {
       if (raw === null || raw === '') return null;
@@ -184,10 +176,8 @@ export function UiInputDate({
   }, [model, parseValue, toNative]);
 
   /**
-   * Écho local de ce que le navigateur affiche, tant que la saisie n'est pas
-   * validée. Sans lui, un rendu du parent pendant la frappe réécrirait la valeur
-   * du modèle dans un contrôle qui vient de vider la sienne, et effacerait les
-   * segments déjà tapés. `null` = le champ suit le modèle.
+   * Écho local du contrôle tant que la saisie n'est pas validée (`null` : il suit le
+   * modèle). Sans lui, un rendu du parent effacerait les segments déjà tapés.
    */
   const [draft, setDraft] = useState<string | null>(null);
 
@@ -196,12 +186,8 @@ export function UiInputDate({
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  /**
-   * Le `change` NATIF, et non le `onChange` de React, qui est le `input` du DOM.
-   * Un contrôle temporel vide sa propre valeur tant que la saisie est incomplète :
-   * un champ branché sur `input` émettrait une rafale de valeurs nulles,
-   * indistinguables d'un effacement.
-   */
+  // Le `change` NATIF, pas le `onChange` de React (le `input` du DOM) : saisie incomplète,
+  // un contrôle temporel vide sa valeur, et `input` émettrait des `null` en rafale.
   useEffect(() => {
     const node = inputRef.current;
     if (!node) return;
@@ -222,21 +208,14 @@ export function UiInputDate({
     return () => node.removeEventListener('change', commit);
   }, [fromNative, toNative, valueType, hasTime, setModel]);
 
-  /**
-   * Le contrôle natif suit le modèle, explicitement.
-   *
-   * La réconciliation de React ne suffit pas ici : un parent qui **refuse** la
-   * valeur validée ne change rien, donc React n'a rien à réécrire, et le champ
-   * garderait à l'écran une valeur que le modèle n'a pas. `syncToken` fait que
-   * cette synchro repasse après chaque validation, refus compris.
-   */
+  // Le contrôle natif suit le modèle, explicitement : si le parent refuse la valeur
+  // validée, React n'a rien à réécrire. `syncToken` relance cette synchro, refus compris.
   useEffect(() => {
     const node = inputRef.current;
     if (!node || draft !== null) return;
     if (node.value !== nativeValue) node.value = nativeValue;
   }, [nativeValue, draft, syncToken]);
 
-  /** Une borne est facultative, et une borne en chaîne est déjà native. */
   const toNativeBound = (bound: Date | string | undefined) => {
     if (!bound) return undefined;
     return bound instanceof Date ? toNative(bound) : bound;
@@ -268,9 +247,7 @@ export function UiInputDate({
       size={size}
       level={field.level}
       floatLabel={floatLabel}
-      // Codé en dur, et ce n'est pas un raccourci : le navigateur dessine son
-      // propre gabarit (« jj/mm/aaaa ») dans la boîte, donc le champ n'est
-      // jamais visuellement vide. Un libellé flottant au repos viendrait dessus.
+      // Jamais vide à l'écran : le navigateur y dessine son gabarit (« jj/mm/aaaa »).
       filled
       disabled={disabled}
       readOnly={readOnly}
@@ -282,8 +259,7 @@ export function UiInputDate({
         showIcon ? (
           <button
             type="button"
-            // Pas un arrêt de tabulation : le contrôle natif ouvre déjà son
-            // sélecteur au clavier, un second arrêt ne ferait que le répéter.
+            // Hors tabulation : le contrôle natif ouvre déjà son sélecteur au clavier.
             tabIndex={-1}
             className="ui-input-date-action"
             aria-label={resolvedIconAriaLabel}
@@ -319,9 +295,8 @@ export function UiInputDate({
         aria-label={field.ariaLabel}
         aria-describedby={field.describedBy}
         aria-invalid={field.ariaInvalid}
-        // `onChange` de React est appelé sur le `input` du DOM, et remonte aussi
-        // le `change` : sur celui-ci l'écho doit se taire, sinon il réécrirait
-        // par-dessus la valeur que la validation vient de rendre au modèle.
+        // Le `onChange` de React reçoit aussi le `change` natif : l'écho s'y tait, pour ne
+        // pas écraser la valeur que la validation vient de rendre au modèle.
         onChange={(event) => {
           if (event.nativeEvent.type === 'change') return;
           setDraft(event.target.value);
