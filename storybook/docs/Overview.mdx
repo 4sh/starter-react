@@ -6,7 +6,6 @@ import * as ButtonStories from "../../packages/ui-kit-react/src/actions/ui-butto
 import * as ButtonSplitStories from "../../packages/ui-kit-react/src/actions/ui-button-split/ui-button-split.stories";
 import * as SpeedDialStories from "../../packages/ui-kit-react/src/actions/ui-speed-dial/ui-speed-dial.stories";
 import * as CheckboxStories from "../../packages/ui-kit-react/src/forms/ui-checkbox/ui-checkbox.stories";
-import * as FieldStories from "../../packages/ui-kit-react/src/forms/ui-field/ui-field.stories";
 import * as InputStories from "../../packages/ui-kit-react/src/forms/ui-input/ui-input.stories";
 import * as InputDateStories from "../../packages/ui-kit-react/src/forms/ui-input-date/ui-input-date.stories";
 import * as InputMaskStories from "../../packages/ui-kit-react/src/forms/ui-input-mask/ui-input-mask.stories";
@@ -101,7 +100,6 @@ export const CATEGORIES = [
     title: 'Forms',
     anchor: 'forms',
     components: [
-      { name: 'ui-field', description: "Coquille partagée des champs en boîte : libellé, boîte bordée, message. Purement visuelle, le contrôle est projeté.", link: '?path=/docs/components-ui-forms-ui-field--docs', story: FieldStories.WithMessage },
       { name: 'ui-input', description: 'Champ texte composé (contrôlé ou non, icônes, zone d\'action, unité, libellé flottant, validation).', link: '?path=/docs/components-ui-forms-ui-input--docs', story: InputStories.WithHelper },
       { name: 'ui-label', description: 'Libellé de champ (marqueur requis, tailles, couleur pilotable par le parent).', link: '?path=/docs/components-ui-forms-ui-label--docs', story: LabelStories.Required },
       { name: 'ui-input-number', description: "Champ numérique (saisie permissive, formatage riche à la sortie, min/max/step, pavé d'incrément, role spinbutton).", link: '?path=/docs/components-ui-forms-ui-input-number--docs', story: InputNumberStories.MinMax },
@@ -114,7 +112,7 @@ export const CATEGORIES = [
       { name: 'ui-slider', description: "Curseur simple ou de plage. Le pointeur est capturé, donc le glissement continue hors de la piste.", link: '?path=/docs/components-ui-forms-ui-slider--docs', story: SliderStories.Default },
       { name: 'ui-knob', description: "Cadran circulaire. Un arc SVG de 300° en viewBox, donc le trait suit le diamètre rendu.", link: '?path=/docs/components-ui-forms-ui-knob--docs', story: KnobStories.Basic },
       { name: 'ui-swatch-picker', description: "Grille de couleurs, en ligne ou en popup. Chaque pastille pointe un jeton, donc la marque la repeint.", link: '?path=/docs/components-ui-forms-ui-swatch-picker--docs', story: SwatchStories.Small },
-      { name: 'ui-editor', description: "Texte riche sur un contenteditable, sans moteur tiers. Police, taille et couleurs en classes adossées aux jetons.", link: '?path=/docs/components-ui-forms-ui-editor--docs', story: EditorStories.WithValue },
+      { name: 'ui-editor', description: "Texte riche sur un contenteditable, sans moteur tiers. Police, taille et couleurs en classes adossées aux jetons.", link: '?path=/docs/components-ui-forms-ui-editor--docs', story: EditorStories.WithValue, previewHeight: 300, previewScale: 0.5 },
       { name: 'ui-file-upload', description: "Téléversement en champ compact ou en zone de dépôt, sur un input natif. Validation, progression, envoi intégré ou délégué.", link: '?path=/docs/components-ui-forms-ui-file-upload--docs', story: FileUploadStories.Basic },
       { name: 'ui-input-otp', description: "Code à usage unique, une case par caractère. Un seul arrêt de tabulation, et le collage se répartit.", link: '?path=/docs/components-ui-forms-ui-input-otp--docs', story: InputOtpStories.Basic },
       { name: 'ui-toggle-block', description: "Bloc sélectionnable. Un label étiré rend toute la surface activante, sans gestionnaire de clic.", link: '?path=/docs/components-ui-forms-ui-toggle-block--docs', story: ToggleBlockStories.Checked },
@@ -143,7 +141,7 @@ export const CATEGORIES = [
       { name: 'ui-tooltip', description: "Bulle d'aide au survol et au focus. Rejetable par Échap, survolable, persistante : WCAG 1.4.13.", link: '?path=/docs/components-ui-informative-ui-tooltip--docs', story: TooltipStories.Default },
       { name: 'ui-separator', description: "Filet role=separator entre deux contenus, titrable, horizontal ou vertical.", link: '?path=/docs/components-ui-informative-ui-separator--docs', story: SeparatorStories.Labelled },
       { name: 'ui-progress-bar', description: "Avancement d'un traitement : valeur suivie, boucle indéterminée, ou étapes discrètes.", link: '?path=/docs/components-ui-informative-ui-progress-bar--docs', story: ProgressBarStories.Default },
-      { name: 'ui-skeleton', description: "Bloc affiché à la place d'un contenu en cours de chargement (3 formes, reflet ou clignotement).", link: '?path=/docs/components-ui-informative-ui-skeleton--docs', story: SkeletonStories.Default },
+      { name: 'ui-skeleton', description: "Bloc affiché à la place d'un contenu en cours de chargement (3 formes, reflet ou clignotement).", link: '?path=/docs/components-ui-informative-ui-skeleton--docs', story: SkeletonStories.CardPlaceholder },
       { name: 'ui-spinner', description: "Chargement indéterminé. Marqueur remplaçable et délai de grâce contre le clignotement.", link: '?path=/docs/components-ui-informative-ui-spinner--docs', story: SpinnerStories.Default },
       { name: 'ui-tag', description: "Étiquette informative colorée par level × subLevel, pilule ou rectangle, icône de chaque côté.", link: '?path=/docs/components-ui-informative-ui-tag--docs', story: TagStories.Default },
       { name: 'ui-alert', description: "Message en ligne annoncé dès son apparition. Sévérité, icône déduite, fermeture et disparition automatique.", link: '?path=/docs/components-ui-informative-ui-alert--docs', story: AlertStories.Default },
