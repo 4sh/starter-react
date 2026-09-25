@@ -1,3 +1,4 @@
+import { useDarkMode } from '@storybook-community/storybook-dark-mode';
 import type { Preview } from '@storybook/react-vite';
 import { addons } from 'storybook/preview-api';
 
@@ -62,8 +63,10 @@ const preview: Preview = {
   decorators: [
     withBrand,
     withRipple,
-    (Story, context) => {
-      syncTheme(Boolean(context.globals['darkMode']));
+    // L'addon ne pose aucun global : son état vit dans son propre stockage, que
+    // seul `useDarkMode()` lit. Chaque rendu de story réaligne donc sur lui.
+    (Story) => {
+      syncTheme(useDarkMode());
       return Story();
     },
   ],
