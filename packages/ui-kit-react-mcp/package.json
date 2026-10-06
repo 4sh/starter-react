@@ -19,15 +19,28 @@
     "react",
     "ai-agent"
   ],
+  "engines": {
+    "node": ">=22"
+  },
   "bin": {
     "ui-kit-react-mcp": "./dist/index.js"
   },
   "files": [
     "dist",
     "data",
-    "README.md"
+    "README.md",
+    "README.fr.md"
   ],
   "scripts": {
-    "build": "echo 'phase 5 — voir docs/ROADMAP.md' && exit 1"
+    "build": "vite build",
+    "smoke": "node scripts/smoke.mjs"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "1.32.0",
+    "@types/node": "26.6.1",
+    "minisearch": "7.2.0",
+    "typescript": "6.0.3",
+    "vite": "8.3.0",
+    "zod": "4.6.5"
   }
 }

@@ -16,6 +16,7 @@ doit être vérifié à la main, et le cahier des charges du contrôle qui l'aut
 | **`node-id` Figma**         | Un seul composant Figma par composant du DS, référencé par les deux stories.                                |
 | **Sémantique des props**    | Les noms peuvent différer (`ngModel` → `value`), le sens jamais.                                            |
 | **Titre dans Storybook**    | `Components/ui/<catégorie>/ui-<nom>` : la doc des deux stacks se lit au même endroit.                       |
+| **Noms des tools MCP**      | `list_components`, `get_component_doc`, `search_docs`, `get_shared_config` : un agent garde sa démarche.    |
 
 ## Ce qui a le droit de diverger
 

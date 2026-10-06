@@ -52,3 +52,9 @@ aucun échange OIDC.
    réelle. Points à vérifier en particulier : la présence de `dist/`, de `src/styles/`, du
    `NOTICE` et des README, l'absence des stories, des tests et des `.mdx`, et la
    cohérence de la table `exports` avec ce que `dist/` contient réellement.
+6. Pour `@4sh/ui-kit-react-mcp`, les jobs `verify` et `publish` enchaînent eux-mêmes
+   `pnpm mcp:build` puis `pnpm mcp:smoke`, **après** l'estampillage de la version : son
+   `dist/` et son `data/` ne sont pas committés, et le smoke test lance le binaire
+   construit. Un tarball sans `dist/index.js` ou sans `data/` doit faire échouer le job,
+   pas atteindre le registre : côté Angular, une release est déjà partie sans son serveur
+   MCP parce que l'étape qui l'assemblait n'était pas dans le workflow.

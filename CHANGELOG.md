@@ -10,6 +10,18 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
 
 ### Added
 
+- `@4sh/ui-kit-react-mcp` : le serveur MCP du kit (FSHSP-221). Un agent de codage y trouve le
+  catalogue (`list_components`), tout ce qu'il faut pour utiliser un composant
+  (`get_component_doc` : sous-chemin d'import, props avec leur type, valeurs admises et défaut,
+  élément natif qui reçoit les attributs restants, hooks `--ui-*` et leur repli, sections de la
+  page de doc), une recherche plein texte dans toute la doc (`search_docs`) et les réglages
+  partagés (`get_shared_config`) : les quatre tools du starter Angular, sous les mêmes noms.
+  L'API est lue par le compilateur TypeScript dans les types du kit, pas dans les `argTypes`
+  des stories, qui ne décrivent que des contrôles. Un seul fichier ESM autonome, sans
+  dépendance à l'exécution, plus un instantané de la doc pris au build (`pnpm mcp:build`) ; la
+  version annoncée au client est celle du kit documenté. `pnpm mcp:smoke` lance le binaire
+  construit et déroule le parcours d'un agent, en CI à chaque PR.
+
 - `core/motion` : `useUiMotion`, l'entrée et la sortie d'un élément **hors calque supérieur**
   (liste, section dépliable, toast). Un panneau du calque supérieur n'en a pas besoin, `display`
   et `overlay` y étant animables en CSS pur ; un élément ordinaire, lui, quitte le DOM à

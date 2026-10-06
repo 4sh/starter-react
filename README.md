@@ -41,7 +41,7 @@ design-tokens/     DTCG tokens (JSON): the local copy of this starter
 packages/
   ui-kit-react/    the published package: components + SCSS foundation
   ui-kit-react-cli/  source copy mode (phase 4)
-  ui-kit-react-mcp/  MCP server for agents (phase 5)
+  ui-kit-react-mcp/  MCP server for coding agents
 apps/demo/         demo application + business components
 storybook/         config, local addons, global doc
 scripts/           tokens pipeline, doc pipeline, guardrails
@@ -51,4 +51,4 @@ scripts/           tokens pipeline, doc pipeline, guardrails
 
 Bootstrapping. The complete pipeline is in place and verified end-to-end: tokens, SCSS foundation, multi-entry build with generated `exports` table, Storybook, doc generated from SCSS, tests in a real browser: on **one** reference component, `ui-icon`.
 
-What remains is written in `docs/components-index.md` (the components) and `docs/DECISIONS.md` (phases 4 to 6: copy mode, MCP server, parity check).
+What remains is written in `docs/components-index.md` (the components) and `docs/DECISIONS.md` (phases 4 to 6: copy mode, publication, parity check).
