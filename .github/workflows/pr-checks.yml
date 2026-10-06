@@ -93,6 +93,11 @@ jobs:
       - name: Check the docs, the lists and the conventions
         run: pnpm docs:config:check
 
+      # The `mcp` Vitest project runs on a fixture manifest: only this step
+      # exercises the real manifest and the bundled binary.
+      - name: MCP server (build + smoke test)
+        run: pnpm mcp:build && pnpm mcp:smoke
+
       # Le cas inverse, que les étapes ci-dessus ne PEUVENT pas attraper : trois
       # fichiers sont générés ET committés. `postinstall` et le build les ont déjà
       # réécrits sur le disque, donc comparer le disque au disque passe toujours.

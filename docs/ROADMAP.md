@@ -24,7 +24,7 @@ Puis, avant de coder :
 ```bash
 pnpm install          # génère les jetons et la table exports
 pnpm docs:config:check # les sept garde-fous, en une commande
-pnpm test             # 2 projets : tests écrits + chaque story passée à axe
+pnpm test             # 3 projets : tests écrits, chaque story passée à axe, serveur MCP
 ```
 
 Et quand quelque chose se comporte bizarrement : chercher d'abord dans **Pièges déjà payés**.
@@ -41,7 +41,7 @@ La liste est longue parce que chaque entrée a coûté du temps une fois.
 | 2     | Fondation transverse            | ✅ terminée (`core/ripple` en dernier)    |
 | 3     | La vague des composants         | ✅ 62 sur 62                              |
 | 4     | Mode copie (CLI)                | ⬜ pas commencée                          |
-| 5     | MCP, doc publique, publication  | ⬜ pas commencée                          |
+| 5     | MCP, doc publique, publication  | 🟡 serveur MCP fait, publication à faire  |
 | 6     | Contrôle de parité entre stacks | ⬜ pas commencée                          |
 
 **Chiffres du jour** : 62 composants, 72 points d'entrée publics, 7 garde-fous en CI,
@@ -93,6 +93,10 @@ donc la majorité des écrans d'un projet réel.
 `core/ripple`, la dernière brique, a donné la prop `ripple` aux quatorze composants équipés.
 La suite du plan est la phase 4, le mode copie par CLI (décision D7) ; sortir un
 `0.1.0` avant, ou non, est une décision à prendre.
+
+**Le serveur MCP est en place le 6 octobre** (FSHSP-221), avant la phase 4 : il ne dépend que
+du kit et de sa doc, pas du CLI ni de la publication. Ce qui reste de la phase 5 est la
+publication des trois paquets (`docs/PUBLISHING.md`).
 
 Restent ouverts, hors du plan : `format:check` absent de la CI (quatre fichiers ont dérivé),
 la page `specifications/responsive.mdx` qui documente Gridaflex, absent de ce dépôt, et les
@@ -2145,3 +2149,28 @@ n'a bougé. Les fichiers générés par `docs:config` sont identiques, après un
 commentaire citant la syntaxe Angular portait la classification d'un hook (voir la dette).
 Les agents de la passe ont relevé en chemin une quinzaine de défauts de code, non corrigés
 et listés pour une passe dédiée.
+
+### 2026-10-06 : le serveur MCP, `@4sh/ui-kit-react-mcp`
+
+FSHSP-221. Mêmes quatre tools que le starter Angular, sous les mêmes noms (inscrits comme
+invariant dans `docs/DUAL-ENGINE.md`), même principe : un instantané de la doc pris au build,
+qui voyage avec le serveur. Ce qui change, c'est la source de l'API : Angular la tient des
+`argTypes` indexés dans le texte des pages, qui décrivent des contrôles Storybook et non l'API.
+Ici, `scripts/lib/component-api.mjs` interroge le compilateur TypeScript : 1 482 props sur 62
+points d'entrée, avec type déclaré, valeurs d'union, défaut lu dans la déstructuration, JSDoc,
+et l'élément natif qui reçoit le reste (77 composants exportés, 5 où il reste indéterminé),
+en moins d'une seconde et sans dépendance nouvelle. Les hooks `--ui-*` suivent la règle de
+`<ConfigTable>` : 1 200 hooks, la même chose que la section Theming des pages.
+
+Livré en un seul fichier ESM (Vite en SSR, `noExternal`), sans dépendance à l'exécution :
+821 Ko, contre un `pnpm add` qui aurait tiré express, hono et ajv chez le consommateur. Le
+manifeste n'est pas committé : `pnpm mcp:build` le régénère, donc il ne peut pas dériver. Les
+62 `docUrl` ont été vérifiés contre l'`index.json` du Storybook en ligne.
+
+Vérifié par 36 tests Vitest (projet `mcp`, en Node, la seule exception à D8), dont un parcours
+d'agent complet à travers un vrai client MCP, et par `pnpm mcp:smoke`, qui lance le binaire
+construit sur stdio contre le manifeste réel (13 contrôles), ajouté à la CI.
+
+**À reprendre en phase 4** : `init` devra déclarer le serveur dans le `.mcp.json` du projet,
+comme `ng add` côté Angular. Et en mode copie, le manifeste décrit le kit, pas la copie locale
+que le projet a pu modifier.

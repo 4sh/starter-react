@@ -120,14 +120,32 @@ disponible. L'état d'avancement se lit dans `docs/ROADMAP.md`.
 
 ## MCP : `@4sh/ui-kit-react-mcp`
 
-Un serveur MCP compagnon, pour qu'un agent de codage interroge le catalogue et la doc du kit
-sans lire les sources.
+Un serveur MCP compagnon, pour qu'un agent de codage (Claude Code, Claude Desktop, Cursor…)
+interroge le kit au lieu de deviner : le catalogue, l'API exacte de chaque composant (props,
+valeurs admises, défauts), ses hooks `--ui-*` et la doc de ce Storybook. Quatre tools :
+`list_components`, `get_component_doc`, `search_docs` et `get_shared_config`, les mêmes que
+côté Angular.
+
+Installé à côté du kit, à la même version, il se déclare une fois dans le `.mcp.json` du
+projet :
+
+```json
+{
+  "mcpServers": {
+    "ui-kit-react": {
+      "command": "npx",
+      "args": ["--no-install", "ui-kit-react-mcp"]
+    }
+  }
+}
+```
 
 <div className="sb-callout">
 
-**En construction (phase 5).** Le paquet `@4sh/ui-kit-react-mcp` est lui aussi réservé et
-vide. En attendant, un agent travaille très bien avec `AGENTS.md` à la racine du dépôt, qui
-décrit les conventions du kit, et avec les pages de ce Storybook.
+**Pas encore publié**, comme le kit. Le serveur fonctionne déjà depuis le dépôt :
+`pnpm mcp:build` le construit, et un client local se branche sur
+`node packages/ui-kit-react-mcp/dist/index.js`. Le mode d'emploi complet est dans le README
+du paquet.
 
 </div>
 

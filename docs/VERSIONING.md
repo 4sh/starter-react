@@ -55,11 +55,13 @@ sur `main`, indépendamment du workflow de publication, qui ne se déclenche qu'
 4. Au moment de publier, sur `main` :
    - déplacer le contenu de `[Unreleased]` dans une nouvelle section `[X.Y.Z] - AAAA-MM-JJ` ;
    - incrémenter la version dans **`packages/ui-kit-react/package.json`** ;
-   - **si un composant a changé**, rafraîchir le manifeste embarqué du serveur MCP : c'est
-     un instantané de build, pas une lecture directe du dépôt. À faire **après**
-     l'incrément, jamais avant : le manifeste porte aussi la version annoncée aux clients
-     MCP ;
    - committer et pousser.
+
+   Rien à faire pour le serveur MCP : son manifeste (doc, API, version annoncée aux
+   clients) n'est pas committé, `pnpm mcp:build` le régénère depuis le dépôt. Le workflow
+   de publication doit donc l'exécuter **après** l'incrément, juste avant d'empaqueter
+   `@4sh/ui-kit-react-mcp`.
+
 5. Lancer le workflow de publication (`docs/PUBLISHING.md`).
 
 ## Tag et release GitHub : produits par la CI

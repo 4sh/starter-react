@@ -136,7 +136,13 @@ export default tseslint.config(
 
   // --- Scripts Node ---
   {
-    files: ['scripts/**/*.mjs', '*.mjs', '*.config.ts', '**/*.config.ts'],
+    files: [
+      'scripts/**/*.mjs',
+      '*.mjs',
+      '*.config.ts',
+      '**/*.config.ts',
+      'packages/ui-kit-react-mcp/**/*.{ts,mjs}',
+    ],
     languageOptions: {
       globals: { ...globals.node },
     },

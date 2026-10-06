@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import storybookTest from '@storybook/addon-vitest/vitest-plugin';
 import react from '@vitejs/plugin-react';
 import { playwright } from '@vitest/browser-playwright';
-import { defineConfig } from 'vitest/config';
+import { configDefaults, defineConfig } from 'vitest/config';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const KIT_SRC = resolve(HERE, 'packages/ui-kit-react/src');
@@ -62,8 +62,17 @@ export default defineConfig({
         test: {
           name: 'unit',
           include: ['packages/*/src/**/*.test.{ts,tsx}'],
+          exclude: [...configDefaults.exclude, 'packages/ui-kit-react-mcp/**'],
           setupFiles: ['./vitest.setup.ts'],
           browser: browser('unit'),
+        },
+      },
+      {
+        // The MCP server is a Node process: the one exception to D8.
+        test: {
+          name: 'mcp',
+          include: ['packages/ui-kit-react-mcp/src/**/*.test.ts'],
+          environment: 'node',
         },
       },
       {
