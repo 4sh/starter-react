@@ -64,7 +64,7 @@ packages/
           ui-<nom>.stories.tsx · ui-<nom>.mdx · ui-<nom>.test.tsx
       styles/             #   fondation SCSS : LIVRÉE avec le paquet
   ui-kit-react-cli/       # @4sh/ui-kit-react-cli : mode copie (phase 4)
-  ui-kit-react-mcp/       # @4sh/ui-kit-react-mcp : serveur MCP (phase 5)
+  ui-kit-react-mcp/       # @4sh/ui-kit-react-mcp : serveur MCP (pnpm mcp:build)
 apps/demo/                # application de démo + composants métier
 storybook/                # config, addons locaux, blocs de doc, doc globale
 ```
@@ -315,7 +315,7 @@ interne, invisible dans la doc.
   `undefined` plutôt que `''`, pour que l'attribut soit omis.
 - **Aucun catalogue i18n dans le kit.** Les props `*Label` ne portent qu'un défaut
   français ; la traduction est la responsabilité de l'application.
-- **Le contrôle axe est bloquant.** `pnpm test` exécute deux projets Vitest : `unit` (les
+- **Le contrôle axe est bloquant.** `pnpm test` exécute, côté kit, deux projets Vitest : `unit` (les
   tests écrits à la main) et `storybook`, qui rend **chaque story** et la passe à axe. Une
   violation fait échouer la CI. Il n'y a donc aucun test d'accessibilité à écrire : la
   couverture suit mécaniquement les stories, déjà obligatoires.
