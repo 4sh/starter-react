@@ -74,7 +74,8 @@ Vue d'ensemble par catégorie.
 {/*
   Cette page est l'une des six qui énumèrent le kit, et `pnpm components:check`
   échoue si un composant présent dans `packages/ui-kit-react/src/` n'y figure
-  pas. Elle se remplit donc au fil des composants livrés : les catégories
+  pas, hors exceptions motivées (`OVERVIEW_EXEMPT` dans
+  `scripts/components.check.mjs`, ui-field par exemple). Elle se remplit donc au fil des composants livrés : les catégories
   vides sont là pour que l'ordre des sections reste stable, il est aligné sur
   celui du Storybook Angular (invariant du Dual-Engine).
 */}
