@@ -13,7 +13,8 @@
  *
  * Règles vérifiées :
  *   A. table des familles des README (EN + FR) == entry points du disque
- *   B. tout entry point porteur d'une story est présenté dans `Overview.mdx`
+ *   B. tout entry point porteur d'une story est présenté dans `Overview.mdx`,
+ *      hors exceptions motivées (`OVERVIEW_EXEMPT`)
  *   C. tout entry point est coché ✅ dans `components-index.md`
  *   D. le DÉCOMPTE annoncé (« N composants sur 60 ») == le disque, dans les deux
  *      README et dans le tableau d'état de `ROADMAP.md`. Il a dérivé deux fois,
@@ -96,6 +97,17 @@ function componentsInReadme(file, heading) {
 }
 
 /**
+ * Entry points porteurs d'une story mais volontairement absents de la page
+ * « Composants » (règle B). Chaque entrée dit pourquoi : la liste doit rester
+ * l'exception, sinon la règle ne protège plus rien.
+ */
+const OVERVIEW_EXEMPT = new Set([
+  // Coquille purement visuelle : sans contrôle projeté, son aperçu n'est qu'un
+  // `<input>` nu. Elle est montrée à travers ui-input et les autres champs en boîte.
+  'ui-field',
+]);
+
+/**
  * Composants importés par la page « Composants » : le nom est lu sur le
  * fichier de story lui-même (`.../ui-<name>/ui-<name>.stories`), pas sur le
  * chemin du dossier : insensible à la profondeur de catégorie (FSHSP-107).
@@ -132,13 +144,21 @@ for (const { file, heading } of READMES) {
 }
 
 const overview = componentsInOverview();
-const withStories = disk.filter((name) =>
-  readdirSync(entryPointDirs.get(name)).some((f) => f.endsWith('.stories.tsx')),
+const withStories = disk.filter(
+  (name) =>
+    !OVERVIEW_EXEMPT.has(name) &&
+    readdirSync(entryPointDirs.get(name)).some((f) => f.endsWith('.stories.tsx')),
 );
 const missingFromOverview = diff(withStories, overview);
 if (missingFromOverview.length) {
   errors.push(
     `storybook/docs/Overview.mdx : composants avec story mais absents de la page, ${missingFromOverview.join(', ')}`,
+  );
+}
+const staleExempt = [...OVERVIEW_EXEMPT].filter((n) => !disk.includes(n) || overview.includes(n));
+if (staleExempt.length) {
+  errors.push(
+    `scripts/components.check.mjs : OVERVIEW_EXEMPT cite un entry point inexistant ou présent sur la page, ${staleExempt.join(', ')}`,
   );
 }
 const staleOverview = diff(overview, disk);
