@@ -60,12 +60,14 @@ alors que `--ui-form-control-size` ne touche que la case à cocher et le radio.
 ## Pipeline
 
 ```
-design-tokens/*.json        (source DTCG, export Token Flow Manager)
-        │  pnpm tokens:build  (scripts/tokens.build.mjs)
+design-tokens/*.json        (source DTCG, variables Figma)
+        │  pnpm tokens:build  (scripts/tokens.build.mjs, réglé par tokens.config.json)
         ▼
 packages/ui-kit-react/src/styles/generated/_tokens-*.scss   (variables CSS)
+        │  pnpm kit:build
         ▼
-composants (.scss co-localisés) + classes utilitaires (typo…)
+@4sh/ui-kit-react/styles.css   (jetons + couche de base + classes utilitaires)
+        +  le .scss de chaque composant, compilé dans son propre chunk
 ```
 
 ## Collections & nommage
@@ -80,13 +82,18 @@ composants (.scss co-localisés) + classes utilitaires (typo…)
   </thead>
   <tbody>
     <tr><td>primitives</td><td><code>{'--primitives-*'}</code></td><td><code>--primitives-primary-500</code></td></tr>
-    <tr><td>metrics</td><td><code>{'--metrics-*'}</code></td><td><code>--metrics-units-sm</code>, <code>--metrics-radius-sm</code></td></tr>
+    <tr><td>metrics</td><td><em>(aucun)</em></td><td><code>--units-sm</code>, <code>--radius-sm</code>, <code>--stroke-default</code></td></tr>
     <tr><td>semantics</td><td><em>(aucun)</em></td><td><code>--actions-high-surface-default</code>, <code>--global-text-default</code></td></tr>
     <tr><td>typography</td><td><em>(aucun)</em></td><td><code>--fontfamily-base</code>, <code>--weight-bold</code></td></tr>
-    <tr><td>responsive</td><td><em>(aucun)</em></td><td><code>--size-typography-title-lg</code></td></tr>
+    <tr><td>responsive</td><td><em>(aucun)</em></td><td><code>--size-typography-title-lg</code>, <code>--spacing-md</code></td></tr>
     <tr><td>transitions</td><td><em>(aucun)</em></td><td><code>--transition-fast</code></td></tr>
+    <tr><td>styles</td><td><em>(aucun)</em></td><td><code>--shadow-default-md</code> (composite, voir <strong>Foundations → Shadows</strong>)</td></tr>
+    <tr><td>breakpoint</td><td><code>{'$breakpoint-*'}</code> (SCSS)</td><td><code>$breakpoint-desktop</code> (voir <strong>Spécifications → Responsive Design</strong>)</td></tr>
   </tbody>
 </table>
+
+Les préfixes et les sorties de chaque collection se règlent dans `tokens.config.json`, jamais
+dans le script.
 
 Les **semantics référencent les primitives** (`var(--primitives-*)`), ce qui permet le switch
 de marque/mode sans duplication.
@@ -102,55 +109,94 @@ de marque/mode sans duplication.
     </tr>
   </thead>
   <tbody>
-    <tr><td>Marque</td><td>primitives (modeBrand1/2/3)</td><td><code>[data-brand='brand2'|'brand3']</code> : <code>BrandService</code></td></tr>
-    <tr><td>Clair / Sombre</td><td>semantics (modeLight/modeDark)</td><td><code>[data-theme='dark']</code> : <code>ThemeService</code></td></tr>
-    <tr><td>Viewport</td><td>responsive</td><td><code>@media (min-width: …)</code></td></tr>
+    <tr><td>Marque</td><td>primitives (modeBrand1/2/3)</td><td><code>[data-brand='brand2'|'brand3']</code> sur <code>&lt;html&gt;</code>, posé par <code>UiThemeProvider</code></td></tr>
+    <tr><td>Clair / Sombre</td><td>semantics (modeLight/modeDark)</td><td><code>[data-theme='dark']</code> sur <code>&lt;html&gt;</code>, posé par <code>UiThemeProvider</code></td></tr>
+    <tr><td>Viewport</td><td>responsive</td><td><code>@media (min-width: …)</code>, voir <strong>Spécifications → Responsive Design</strong></td></tr>
   </tbody>
 </table>
 
 > Voir **Foundations → Colors** pour explorer les valeurs résolues et basculer marque/mode en direct.
 
-## Services runtime
+## `UiThemeProvider`
 
-Deux services Angular (`providedIn: 'root'`, signals + `effect`) pilotent ces attributs sur
-`<html>`. Ils sont **headless et sans dépendance UI** : ils ne font que positionner un attribut,
-tout le rendu découle des tokens CSS. Ils sont instanciés dans `AppComponent` (leur `effect`
-applique l'attribut au démarrage puis à chaque changement de signal).
+Un fournisseur unique, exporté par `@4sh/ui-kit-react/theming`, pilote ces deux attributs sur
+`<html>`. Il est **headless** : il ne fait que poser un attribut, tout le rendu découle des
+tokens CSS. On l'enveloppe une fois autour de la racine de l'application :
 
-### ThemeService : light / dark
+```tsx
+import '@4sh/ui-kit-react/styles.css';
+import { UiThemeProvider } from '@4sh/ui-kit-react/theming';
 
-`src/app/core/service/theme.service.ts`
-
-- **État** : `currentMode` (signal `'light' | 'dark'`), initialisé depuis `localStorage` (clé `theme-mode`), défaut `'light'`.
-- **Effet** : `dark` → `document.documentElement` reçoit `[data-theme='dark']` ; `light` → l'attribut est retiré (les sémantiques `:root` s'appliquent). Le choix est persisté dans `localStorage`.
-- **API** : `toggle()` (bascule light/dark), `isDark` (getter booléen), `currentMode.set(...)`.
-
-```ts
-private theme = inject(ThemeService);
-
-this.theme.toggle();          // light ⇄ dark, persisté
-this.theme.currentMode.set('dark');
-const dark = this.theme.isDark;
+createRoot(container).render(
+  <UiThemeProvider>
+    <App />
+  </UiThemeProvider>,
+);
 ```
 
-### BrandService : marque (thème de couleurs)
+- **État** : le mode (`'light' | 'dark'`, défaut `'light'`) et la marque
+  (`'brand1' | 'brand2' | 'brand3'`, défaut `'brand1'`).
+- **Effet** : `dark` pose `[data-theme='dark']`, `light` retire l'attribut (les sémantiques de
+  `:root` s'appliquent). `brand1` retire `data-brand`, `brand2` / `brand3` le posent, ce qui
+  redéfinit les `--primitives-*` et se propage aux sémantiques qui les référencent.
+- **Persistance** : les deux choix sont mémorisés dans `localStorage` (clés `ui-kit-theme` et
+  `ui-kit-brand`) et suivis d'un onglet à l'autre. `persist={false}` coupe la mémorisation,
+  pour un projet qui porte déjà la sienne (profil utilisateur, cookie).
 
-`src/app/core/service/brand.service.ts`
+### Lire et changer le mode : `useUiTheme`
 
-- **État** : `currentBrand` (signal `'brand1' | 'brand2' | 'brand3'`), initialisé depuis le **sous-domaine** (`themeone → brand1`, `themetwo → brand2`, `themethree → brand3`), défaut `'brand1'`.
-- **Effet** : `brand1` (défaut) → aucun attribut (primitives `:root` = brand 1) ; `brand2`/`brand3` → `[data-brand='brand2'|'brand3']`, ce qui redéfinit les `--primitives-*` et se propage aux sémantiques qui les référencent.
-- **API** : `set(brand)`, `currentBrand()` (lecture).
+```tsx
+import { useUiTheme } from '@4sh/ui-kit-react/theming';
 
-```ts
-private brand = inject(BrandService);
+const { theme, setTheme, toggleTheme } = useUiTheme();
 
-this.brand.set('brand2');           // active la palette de la marque 2
-const current = this.brand.currentBrand();
+toggleTheme();       // light ⇄ dark, mémorisé
+setTheme('dark');
+const dark = theme === 'dark';
 ```
 
-> Contrairement au thème, la marque n'est **pas persistée** : elle dérive du sous-domaine
-> (multi-tenant). L'explorateur **Foundations → Colors** permet de forcer marque + mode pour
-> prévisualiser les tokens, sans altérer le reste de l'UI Storybook.
+### Lire et changer la marque : `useUiBrand`
+
+```tsx
+import { useUiBrand } from '@4sh/ui-kit-react/theming';
+
+const { brand, setBrand } = useUiBrand();
+
+setBrand('brand2');  // active la palette de la marque 2
+```
+
+Les deux crochets lèvent une erreur explicite hors de `<UiThemeProvider>`.
+
+### Une valeur imposée par le projet
+
+Le fournisseur suit la convention contrôlé / non contrôlé du kit. `defaultTheme` et
+`defaultBrand` fixent la valeur de départ ; `theme` et `brand` la **contrôlent**, et
+`onThemeChange` / `onBrandChange` annoncent les demandes de changement. C'est la voie d'une
+marque qui dérive du sous-domaine (multi-tenant) ou d'un mode stocké côté serveur :
+
+```tsx
+const brand = brandFromHostname(window.location.hostname); // votre règle
+
+<UiThemeProvider brand={brand}>
+  <App />
+</UiThemeProvider>
+```
+
+### Rendu serveur
+
+Le fournisseur ne s'exécute qu'après l'hydratation : une page rendue côté serveur
+s'afficherait en clair avant de basculer. `uiThemeBootstrapScript()` renvoie un script à
+injecter dans le `<head>`, qui pose le mode et la marque mémorisés **avant la première
+peinture**.
+
+### Un sous-arbre dans un autre mode
+
+Les jetons répondent aussi aux classes `.light` / `.dark` et `.brand2` / `.brand3`, et
+`[data-theme='light']` rétablit le clair sous un ancêtre sombre. Pour forcer un mode ou une
+marque sur une zone (un aperçu, un bandeau), posez-y `data-theme` **même en clair**, avec
+`data-brand` au besoin : c'est lui qui redéclare les jetons sémantiques sur la zone, et leur
+fait donc relire les primitives de la marque posée. Une marque seule n'atteindrait que les
+`--primitives-*`. C'est ce que fait l'explorateur **Foundations → Colors**.
 
 ## Hooks de composant (`--ui-*`)
 
@@ -168,13 +214,14 @@ Le composant ne **déclare** jamais ce nom : il ne fait que le lire. Le poser n'
 au-dessus suffit donc, et la portée se choisit par le sélecteur :
 
 ```scss
-:root              { --ui-button-height-small: 24px; }  /* tous les boutons small */
-.toolbar ui-button { --ui-button-height-small: 24px; }  /* cette zone seulement */
+:root               { --ui-button-height-small: 24px; }  /* tous les boutons small */
+.toolbar .ui-button { --ui-button-height-small: 24px; }  /* cette zone seulement */
 ```
 
-C'est le **seul levier disponible en mode package**, où le SCSS du kit est déjà compilé.
-En mode schematics le code des composants est dans le projet : leurs variables SCSS sont
-rebindables directement (voir **Components → configuration**).
+C'est le **seul levier disponible en mode paquet**, où le SCSS du kit est déjà compilé.
+Le mode copie (`@4sh/ui-kit-react-cli`, en construction) mettra le code des composants dans
+le projet : leurs variables SCSS y seront rebindables directement (voir
+**Components → configuration**).
 
 ### Deux réflexes
 
@@ -207,18 +254,19 @@ rebindables directement (voir **Components → configuration**).
   </a>
 </p>
 
-**581 hooks** y sont déclarés à leur valeur livrée, groupés par catégorie → composant →
-type de propriété (dimensions, espacements, bordures, typographie, couleurs), valeurs
-alignées.
+**Tous les hooks réglables** y sont déclarés à leur valeur livrée, groupés par catégorie →
+composant → type de propriété (dimensions, espacements, bordures, typographie, couleurs),
+valeurs alignées. Leur nombre est donné en tête du fichier.
 
-On le copie dans un dossier **`presets/`** du projet et on l'importe depuis `main.scss` :
+On le copie dans un dossier **`presets/`** du projet et on l'importe depuis la feuille globale,
+elle-même importée par le point d'entrée après `@4sh/ui-kit-react/styles.css` :
 
 ```
 src/styles/
 ├── main.scss
 └── presets/
     ├── component-vars.scss   ← le fichier livré, valeurs retouchées
-    └── shadcn.scss           ← ou un préréglage nommé, à côté
+    └── compact.scss          ← ou un préréglage nommé, à côté
 ```
 
 ```scss
@@ -232,16 +280,13 @@ les lire. (Une surcharge de **token**, elle, doit venir après `styles.css`, pui
 kit y déclare déjà les tokens.)
 
 > Un préréglage n'a pas besoin d'être exhaustif : seules les lignes présentes s'appliquent,
-> le reste garde le défaut du kit. Un exemple complet vit dans ce dépôt :
-> `src/styles/presets/shadcn.scss` reproduit la métrique de shadcn/ui (contrôles 36/32,
-> rayons 6/8/12, bordures 1px, texte 14px) en 166 lignes : 16 tokens pour l'échelle
-> globale, 150 variables de composant pour le reste. Les couleurs n'y sont pas touchées.
+> le reste garde le défaut du kit.
 
 Il est aussi livré dans le package (`@4sh/ui-kit-react/styles/component-vars.scss`) et **généré**
 depuis les `.scss` du kit, valeurs lues dans le CSS compilé : il ne peut pas dériver du
 code.
 
 > Le hook de chaque valeur est indiqué dans la colonne **« Hook exposé »** de la section
-> « Theming » de chaque composant. Les quelques hooks absents du fichier : valeur dépendante
-> de la variante rendue, ou propriété que le composant se pose lui-même : y figurent aussi,
-> avec leur rôle.
+> « Theming » de chaque composant. Les hooks absents du fichier (valeur dépendante de la
+> variante rendue, ou propriété que le composant se pose lui-même) y figurent aussi, avec
+> leur rôle.

@@ -11,9 +11,9 @@ projet. La première est disponible, la seconde est en construction.
 
 **Rien n'est publié à ce jour.** Les trois paquets portent `private: true` en attendant leur
 première release, et le nom `@4sh/ui-kit-react` n'est pas encore réservé sur npm : il peut
-donc changer d'ici là. En attendant, le kit se consomme depuis le dépôt, par un lien
-d'espace de travail (`workspace:*`), ce que fait déjà l'application de démonstration. Les
-détails de la publication visée sont dans `docs/PUBLISHING.md`.
+donc changer d'ici là. En attendant, le kit se consomme depuis le dépôt : par un lien
+d'espace de travail (`workspace:*`) pour un projet du même monorepo, ou par le tarball que
+produit `pnpm kit:pack`. Les détails de la publication visée sont dans `docs/PUBLISHING.md`.
 
 </div>
 
@@ -67,6 +67,7 @@ export function App({ children }) {
 Ensuite, la CSS d'un composant voyage avec lui : l'importer suffit.
 
 ```tsx
+import { useState } from 'react';
 import { UiDatepicker } from '@4sh/ui-kit-react/ui-datepicker';
 
 export function Booking() {

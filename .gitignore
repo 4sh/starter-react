@@ -4,7 +4,6 @@ node_modules
 # Sorties de build
 dist
 storybook-static
-apps/demo/dist
 
 # Environnement / secrets
 .env

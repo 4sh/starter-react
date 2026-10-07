@@ -68,6 +68,9 @@ importers:
       globals:
         specifier: 17.13.0
         version: 17.13.0
+      gridaflex:
+        specifier: 1.0.0
+        version: 1.0.0
       minisearch:
         specifier: 7.2.0
         version: 7.2.0
@@ -119,31 +122,6 @@ importers:
       vitest-browser-react:
         specifier: 2.3.0
         version: 2.3.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(vitest@5.0.3)
-
-  apps/demo:
-    dependencies:
-      '@4sh/ui-kit-react':
-        specifier: workspace:*
-        version: link:../../packages/ui-kit-react
-      react:
-        specifier: 19.3.0
-        version: 19.3.0
-      react-dom:
-        specifier: 19.3.0
-        version: 19.3.0(react@19.3.0)
-    devDependencies:
-      '@fortawesome/fontawesome-free':
-        specifier: 7.3.1
-        version: 7.3.1
-      '@vitejs/plugin-react':
-        specifier: 6.1.1
-        version: 6.1.1(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(sass@1.105.1))
-      typescript:
-        specifier: 6.0.3
-        version: 6.0.3
-      vite:
-        specifier: 8.3.2
-        version: 8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(sass@1.105.1)
 
   packages/ui-kit-react:
     dependencies:
@@ -2234,6 +2212,9 @@ packages:
   gopd@1.2.0:
     resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
     engines: {node: '>= 0.4'}
+
+  gridaflex@1.0.0:
+    resolution: {integrity: sha512-DaHntdM4Hyt4tzYPgT3ArkMz/ttdrK2cL2NMuC0xKfsrqLxfK9FK+wphuPhJjpot9zjydl48AveqKcaJhi8Fyg==}
 
   has-bigints@1.1.0:
     resolution: {integrity: sha512-R3pbpkcIqv2Pm3dUwgjclDRVmWpTJW2DcMzcIhEXEx1oh/CEMObMm3KLmRJOdvhM7o4uQBnwr8pzRK2sJWIqfg==}
@@ -5672,6 +5653,8 @@ snapshots:
       gopd: 1.2.0
 
   gopd@1.2.0: {}
+
+  gridaflex@1.0.0: {}
 
   has-bigints@1.1.0: {}
 

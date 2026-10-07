@@ -17,6 +17,10 @@ import '../packages/ui-kit-react/src/styles/index.scss';
 // kit : `ui-icon` ne fait que produire les classes `fa-*`.
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
+// Gridaflex, l'option de grille côté application, avec le fichier de réglages
+// de référence que la doc demande de copier. Le kit n'en dépend pas.
+import './styles/vendors/_gridaflex-settings.scss';
+
 const syncTheme = (isDark: boolean) => {
   if (typeof document === 'undefined') return;
   const root = document.documentElement;

@@ -79,8 +79,6 @@ const COMPONENTS_DIRS = IS_KIT_MONOREPO
       // pas par emplacement : la catégorie n'a donc aucune importance ici, et
       // déplacer un composant d'une famille à l'autre ne casse pas la doc.
       join(ROOT, 'packages/ui-kit-react/src'),
-      // Les composants métier de l'application de démonstration.
-      join(ROOT, 'apps/demo/src'),
     ]
   : // Chez le consommateur, les composants copiés et les siens cohabitent.
     [join(ROOT, 'src/components')];

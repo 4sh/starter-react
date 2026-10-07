@@ -30,7 +30,8 @@ par instance via les custom properties `--ui-overlay-radius` / `--ui-overlay-sha
 ## Motion (`$motion-*`)
 
 Timing partagé du **système de motion** (presets d'entrée/sortie + transitions d'état).
-Consommé par `utils.motion-transition()`, `base/_motion.scss` et la directive `[uiMotion]`.
+Consommé par `utils.motion-transition()` et les préréglages `.ui-motion-*` de `base/_motion.scss`,
+que pose le crochet `useUiMotion`.
 Surchargeable par élément via les custom properties `--ui-motion-*`. Voir **Foundations → Motion**.
 
 <SharedConfigTable group="global-ui" prefix="motion-" />

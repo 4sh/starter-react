@@ -38,7 +38,6 @@ import { ROOT } from './lib/entries.mjs';
 
 /** Dossiers de premier niveau : un chemin cité doit commencer par l'un d'eux. */
 const TOP_LEVEL = [
-  'apps',
   'design-tokens',
   'docs',
   'figma',
