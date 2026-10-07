@@ -32,6 +32,7 @@ const meta: Meta<typeof UiSelect> = {
     multiple: false,
     filter: false,
     showClear: false,
+    showIcon: true,
     checkmark: false,
     checkbox: false,
     editable: false,
@@ -52,6 +53,7 @@ const meta: Meta<typeof UiSelect> = {
     multiple: { control: 'boolean' },
     filter: { control: 'boolean' },
     showClear: { control: 'boolean' },
+    showIcon: { control: 'boolean' },
     checkmark: { control: 'boolean' },
     checkbox: { control: 'boolean' },
     editable: { control: 'boolean' },
@@ -65,7 +67,7 @@ const meta: Meta<typeof UiSelect> = {
   parameters: {
     design: {
       type: 'figma',
-      url: 'https://www.figma.com/design/GZww5hdUA49LB8XWeWP6tl/-Projet----UI-Kit?node-id=125-2969',
+      url: 'https://www.figma.com/design/GZww5hdUA49LB8XWeWP6tl/-Projet----UI-Kit?node-id=125-3021',
     },
   },
   decorators: [

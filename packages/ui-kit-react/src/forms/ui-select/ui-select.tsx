@@ -112,6 +112,8 @@ export interface UiSelectProps extends UiFieldSharedProps, NativeProps {
   clearAriaLabel?: string;
   /** Nom d'icône du chevron. */
   icon?: string;
+  /** Affiche le chevron. Sans lui, le déclencheur reste annoncé comme une liste déroulante. */
+  showIcon?: boolean;
 
   /** Champ de recherche en tête du panneau. */
   filter?: boolean;
@@ -201,6 +203,7 @@ export function UiSelect({
   ripple = true,
   clearAriaLabel = 'Effacer la sélection',
   icon = 'angle-down',
+  showIcon = true,
   filter = false,
   filterPlaceholder,
   filterAriaLabel = 'Filtrer les options',
@@ -243,6 +246,7 @@ export function UiSelect({
   invalid = false,
   id,
   className,
+  style,
   tabIndex,
   ref,
   ...rest
@@ -847,7 +851,7 @@ export function UiSelect({
 
   return (
     // Pas de clic sur l'enveloppe : le déclencheur bouton remplit déjà la boîte du champ.
-    <div className={cx('ui-select', isEditable && '_editable', className)}>
+    <div className={cx('ui-select', isEditable && '_editable', className)} style={style}>
       <UiField
         onBoxRef={position.setAnchor}
         label={label}
@@ -897,11 +901,13 @@ export function UiSelect({
                 <UiIcon name={icon} size={iconSize} />
               </button>
             ) : (
-              <UiIcon
-                className={cx('ui-select-chevron', open && '_open', disabled && '_disabled')}
-                name={icon}
-                size={iconSize}
-              />
+              showIcon && (
+                <UiIcon
+                  className={cx('ui-select-chevron', open && '_open', disabled && '_disabled')}
+                  name={icon}
+                  size={iconSize}
+                />
+              )
             )}
           </>
         }

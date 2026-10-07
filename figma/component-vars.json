@@ -10,10 +10,10 @@
         "Mode 1"
       ],
       "counts": {
-        "tokens": 1427,
-        "alias": 1264,
+        "tokens": 1431,
+        "alias": 1268,
         "literal": 163,
-        "skipped": 60,
+        "skipped": 63,
         "derivedDescriptions": 223
       },
       "aliasTargets": [
@@ -183,6 +183,21 @@
           "cssVar": "--ui-image-preview-media-shadow",
           "component": "ui-image",
           "reason": "`--shadow-default-lg` n'est pas un token du pipeline : rien à aliaser."
+        },
+        {
+          "cssVar": "--ui-input-group-focus-ring-opacity",
+          "component": "ui-input-group",
+          "reason": "unité relative `%` : sa valeur dépend du contexte de rendu, une variable Figma ne peut pas la porter."
+        },
+        {
+          "cssVar": "--ui-input-group-item-flex",
+          "component": "ui-input-group",
+          "reason": "2 défauts selon la variante rendue : en déclarer un seul écraserait les autres."
+        },
+        {
+          "cssVar": "--ui-input-group-item-padding-x",
+          "component": "ui-input-group",
+          "reason": "expression calc() : une variable Figma ne porte pas de calcul."
         },
         {
           "cssVar": "--ui-input-group-item-radius",
@@ -16571,6 +16586,28 @@
         }
       }
     },
+    "focus-ring-width": {
+      "$value": "{metrics.units.2xs}",
+      "$type": "dimension",
+      "$description": "Épaisseur de l'anneau de focus commun, mode `merged`.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "STROKE_FLOAT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-input-group-focus-ring-width)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-input-group-focus-ring-width",
+          "component": "ui-input-group",
+          "entryPoint": "@4sh/ui-kit-react/ui-input-group",
+          "descriptionSource": "scss"
+        }
+      }
+    },
     "font-family": {
       "$value": "{typography.fontFamily.base}",
       "$type": "string",
@@ -16587,6 +16624,50 @@
         },
         "com.4sh.ui-kit": {
           "cssVar": "--ui-input-group-font-family",
+          "component": "ui-input-group",
+          "entryPoint": "@4sh/ui-kit-react/ui-input-group",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "gap": {
+      "$value": "{metrics.units.xs}",
+      "$type": "dimension",
+      "$description": "Gouttière verticale entre le libellé, la rangée et le message.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "GAP"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-input-group-gap)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-input-group-gap",
+          "component": "ui-input-group",
+          "entryPoint": "@4sh/ui-kit-react/ui-input-group",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "gap-small": {
+      "$value": "{metrics.units.xs}",
+      "$type": "dimension",
+      "$description": "Gouttière verticale, variante `small`.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "GAP"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-input-group-gap-small)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-input-group-gap-small",
           "component": "ui-input-group",
           "entryPoint": "@4sh/ui-kit-react/ui-input-group",
           "descriptionSource": "scss"
@@ -16631,6 +16712,28 @@
         },
         "com.4sh.ui-kit": {
           "cssVar": "--ui-input-group-radius",
+          "component": "ui-input-group",
+          "entryPoint": "@4sh/ui-kit-react/ui-input-group",
+          "descriptionSource": "scss"
+        }
+      }
+    },
+    "stroke-width": {
+      "$value": "{metrics.stroke.default}",
+      "$type": "dimension",
+      "$description": "Épaisseur de la bordure commune, mode `merged`.",
+      "$extensions": {
+        "com.figma": {
+          "resolvedType": "FLOAT",
+          "scopes": [
+            "STROKE_FLOAT"
+          ],
+          "codeSyntax": {
+            "WEB": "var(--ui-input-group-stroke-width)"
+          }
+        },
+        "com.4sh.ui-kit": {
+          "cssVar": "--ui-input-group-stroke-width",
           "component": "ui-input-group",
           "entryPoint": "@4sh/ui-kit-react/ui-input-group",
           "descriptionSource": "scss"

@@ -10,6 +10,38 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
 
 ### Added
 
+- **`ui-input-group` : libellé, message et statut sur le groupe** (FSHSP-232). Un champ composé
+  (indicatif et numéro, préfixe d'URL, montant et devise) affiche son libellé au-dessus de la
+  rangée et son message d'aide ou d'erreur en dessous, avec le même rendu que `ui-field` :
+  nouvelles props `label`, `required`, `message`, `level`, `showMessageIcon` et `messageIcon`.
+  - Le `level` teinte le message et les bordures de tous les champs et cellules du groupe, et
+    prime sur le `level` propre des contrôles.
+  - Dès qu'un libellé ou un message est posé, le groupe devient un `role="group"` nommé par le
+    libellé et décrit par le message. Sans eux, il reste sans rôle, comme avant.
+  - `required` n'affiche que l'astérisque : les contrôles obligatoires portent toujours leur
+    propre `required`, et le contrôle fautif son `invalid`.
+  - Nouveaux hooks `--ui-input-group-gap` et `--ui-input-group-gap-small` (espace entre le
+    libellé, la rangée et le message).
+  - La racine `.ui-input-group` devient la colonne (libellé, rangée, message) et reçoit
+    toujours `className`, `style`, `ref` et les attributs restants ; la rangée est
+    `.ui-input-group-row`. Une feuille qui visait `.ui-input-group > *` vise désormais
+    `.ui-input-group-row > *`.
+- **`ui-input-group` : mode `merged`, une seule boîte autour du groupe** (FSHSP-232). Les items
+  perdent leur bordure et leur anneau de focus, la rangée dessine une boîte commune (survol,
+  focus, `level`) sans changer la hauteur du champ. Entre deux contrôles, l'inset du côté
+  partagé se resserre, pour que le chevron d'un indicatif ne flotte pas loin du numéro. Hooks
+  `--ui-input-group-stroke-width`, `--ui-input-group-focus-ring-width`,
+  `--ui-input-group-focus-ring-opacity` et `--ui-input-group-item-padding-x`.
+- **`ui-input-group` : `--ui-input-group-item-flex` libère la largeur d'un item** (FSHSP-232).
+  Posé sur un contrôle, il remplace le `flex` que le groupe lui donne : `none` garde un
+  indicatif ou une devise à sa largeur naturelle au lieu de partager la place restante.
+- **`ui-select` : `showIcon` masque le chevron** (FSHSP-232). Pour un déclencheur compact dont
+  la valeur signale déjà la liste (drapeau et indicatif). Le déclencheur garde son rôle de
+  liste déroulante et son inset de fin.
+- Storybook : story `Phone Number` de `ui-input-group` (FSHSP-232), indicatif à drapeau collé
+  au numéro, avec libellé, erreur réactive et recherche dans la liste. Les dix drapeaux SVG
+  viennent du starter Angular (`assets/img/common/svg/flags/`).
+
 - Gridaflex en option, côté application, comme dans le starter Angular : le kit n'en dépend
   pas. Storybook l'installe et charge `storybook/styles/vendors/_gridaflex-settings.scss`, le
   fichier de réglages à copier, qui règle la grille sur les points de rupture des jetons. `Spécifications / Responsive Design` est réécrite : points de rupture
@@ -594,6 +626,12 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
   partent avec elle. GitHub Pages ne sert plus que Storybook.
 
 ### Fixed
+
+- `ui-select` : le `style` passé au composant était ignoré, alors que son type l'acceptait
+  (FSHSP-232). Il atterrit désormais sur la racine `.ui-select`, comme `className` : c'est là
+  que se pose `--ui-input-group-item-flex`.
+- Storybook : le lien Figma de `ui-select` et `ui-autocomplete` pointait vers un autre nœud
+  (FSHSP-232), aligné sur le starter Angular.
 
 - Storybook : les pages de doc globales décrivent le kit React (FSHSP-220). `ThemeService` et
   `BrandService` laissent la place à `UiThemeProvider`, `useUiTheme` et `useUiBrand`, `ng add`
