@@ -14,12 +14,6 @@ const config: StorybookConfig = {
     // points d'entrée et `vite-plugin-dts` de la génération de déclarations.
     '../packages/ui-kit-react/src/**/*.mdx',
     '../packages/ui-kit-react/src/**/*.stories.@(ts|tsx)',
-    // Les composants métier de l'application de démonstration.
-    // ⚠️ Aucun n'existe encore, d'où le « No story files found » au lancement des
-    // tests. C'est un avertissement, pas une panne : ne pas retirer ces motifs,
-    // sinon la première story métier n'apparaîtra nulle part sans qu'on sache pourquoi.
-    '../apps/demo/src/**/*.mdx',
-    '../apps/demo/src/**/*.stories.@(ts|tsx)',
   ],
 
   staticDirs: ['./public'],

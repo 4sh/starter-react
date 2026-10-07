@@ -10,6 +10,14 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
 
 ### Added
 
+- Gridaflex en option, côté application, comme dans le starter Angular : le kit n'en dépend
+  pas. Storybook l'installe et charge `storybook/styles/vendors/_gridaflex-settings.scss`, le
+  fichier de réglages à copier, qui règle la grille sur les points de rupture des jetons. `Spécifications / Responsive Design` est réécrite : points de rupture
+  `$breakpoint-*`, jetons responsives, installation de l'option en trois gestes, grille
+  rendue en direct, pièges propres à React, et la grille CSS native sur `--grid-columns` pour
+  qui n'en veut pas. Le fichier ajoute `.cell { box-sizing: border-box; }`, que Gridaflex
+  suppose sans le poser : sans lui, `flex-padding-x` fait passer les cellules à la ligne.
+
 - `@4sh/ui-kit-react-mcp` : le serveur MCP du kit (FSHSP-221). Un agent de codage y trouve le
   catalogue (`list_components`), tout ce qu'il faut pour utiliser un composant
   (`get_component_doc` : sous-chemin d'import, props avec leur type, valeurs admises et défaut,
@@ -578,7 +586,24 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
   - Le glyphe et le panneau déroulant suivent `color-scheme`, basculé avec le thème sombre :
     sans ça, glyphe noir sur champ sombre et calendrier clair.
 
+### Removed
+
+- L'application de démonstration (`apps/demo`), qui n'était pas représentative d'une
+  application réelle : `pnpm serve` et `pnpm build`, son déploiement sous
+  `/starter-react/demo/` et la section « Application de démonstration » de l'Introduction
+  partent avec elle. GitHub Pages ne sert plus que Storybook.
+
 ### Fixed
+
+- Storybook : les pages de doc globales décrivent le kit React (FSHSP-220). `ThemeService` et
+  `BrandService` laissent la place à `UiThemeProvider`, `useUiTheme` et `useUiBrand`, `ng add`
+  au mode copie en construction, `[uiMotion]` à `useUiMotion`. Corrigés au passage : des jetons
+  inexistants (`--global-high-surface-default`, `--metrics-*`), les valeurs de
+  `--radius-default` et `--stroke-default`, le nom de `_tokens-breakpoint.scss`, un décompte de
+  hooks périmé, un préréglage cité mais absent, le gabarit de `@font-face`, dont l'URL
+  interpolée n'était pas réécrite par Vite, et douze liens entre pages qui chargeaient la
+  coquille de preview au lieu de la page visée. La carte Token Flow Manager quitte
+  l'Introduction.
 
 - `ui-tooltip` : la bulle **s'interposait entre le pointeur et la page**. Elle avalait donc
   les clics de ce qu'elle surplombe, et avec `autoHide` elle pouvait clignoter, le pointeur

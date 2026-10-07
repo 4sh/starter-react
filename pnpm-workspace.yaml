@@ -1,15 +1,14 @@
 # Réglages pnpm — sécurisation de la chaîne de dépendances.
 #
 # Repris du starter Angular, à une différence près : ce dépôt EST un monorepo
-# pnpm. Les trois paquets et l'application de démo sont de vrais workspaces,
-# chacun avec son `package.json` et ses dépendances propres — là où le starter
-# Angular assemblait ses paquets avec ng-packagr depuis un `angular.json`
-# unique et n'avait donc pas de clé `packages:`.
+# pnpm. Les trois paquets sont de vrais workspaces, chacun avec son
+# `package.json` et ses dépendances propres — là où le starter Angular
+# assemblait ses paquets avec ng-packagr depuis un `angular.json` unique et
+# n'avait donc pas de clé `packages:`.
 #
 # Doc : https://pnpm.io/supply-chain-security
 packages:
   - 'packages/*'
-  - 'apps/*'
 
 # ─── Quarantaine des versions fraîchement publiées ──────────────────────────
 #

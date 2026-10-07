@@ -5,7 +5,7 @@
  *
  *   manifest.json          per component: import subpath, API from the types,
  *                          `--ui-*` hooks, doc page; plus shared config and kit version.
- *   text-search-docs.json  Storybook's search index, minus the demo app's pages.
+ *   text-search-docs.json  Storybook's search index.
  *
  * Hooks follow the rule of `<ConfigTable>` (`storybook/blocks/config-table.js`),
  * so the server says exactly what a page's Theming section says.
@@ -24,8 +24,6 @@ import { collectComponents, KIT_ROOT, ROOT } from './lib/entries.mjs';
 const UI_CONFIG = join(ROOT, 'storybook/generated/ui-config.json');
 const SEARCH_INDEX = join(ROOT, 'storybook/public/text-search-docs.json');
 const DEST = join(ROOT, 'packages/ui-kit-react-mcp/data');
-
-const EXCLUDED_DOC_ROOTS = ['apps/'];
 
 function readJson(path, hint) {
   if (!existsSync(path)) {
@@ -97,9 +95,7 @@ function build() {
   const storybookUrl = `${homepage.origin}${homepage.pathname}`;
   const docUrl = (docId) => `${storybookUrl}?path=/docs/${docId}`;
 
-  const docs = searchIndex.docs.filter(
-    (doc) => !EXCLUDED_DOC_ROOTS.some((root) => doc.source.startsWith(root)),
-  );
+  const { docs } = searchIndex;
 
   const entries = collectComponents();
   const api = extractComponentApi(entries);
@@ -137,7 +133,7 @@ function build() {
       components,
       sharedConfig: sharedConfig(uiConfig),
     },
-    searchIndex: { ...searchIndex, docs },
+    searchIndex,
   };
 }
 

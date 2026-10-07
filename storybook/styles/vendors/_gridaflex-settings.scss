@@ -1,0 +1,46 @@
+// =====================================================================
+// Gridaflex, en option : réglages de la grille et émission de ses classes.
+//
+// Le kit n'en dépend pas : c'est l'application qui installe `gridaflex` et
+// pose ce fichier. Pour le reprendre dans un projet : `pnpm add gridaflex`,
+// copier ce fichier, puis le charger en tête de la feuille globale
+// (`@use 'vendors/gridaflex-settings';`).
+//
+// Le `with (…)` doit rester dans CE fichier, avant l'`@use` des classes : un
+// module Sass se configure au premier chargement, et pas après.
+// =====================================================================
+
+// Points de rupture du Design System, générés depuis `design-tokens/breakpoint.json`.
+@use '@4sh/ui-kit-react/styles/generated/tokens-breakpoint' as brk;
+
+@use 'gridaflex/src/settings' with (
+  $breakpoints: (
+    'phone': brk.$breakpoint-phone,
+    'tablet-portrait': brk.$breakpoint-tabletPortrait,
+    'tablet-landscape': brk.$breakpoint-tabletLandscape,
+    'desktop': brk.$breakpoint-desktop,
+    'medium-desktop': brk.$breakpoint-mediumDesktop,
+    'big-desktop': brk.$breakpoint-bigDesktop,
+  ),
+  $breakpoint-classes: (phone tablet-portrait tablet-landscape desktop medium-desktop big-desktop),
+  $flex-columns: 24,
+  $flex-margin-gutters: ('phone': 16px, 'tablet-portrait': 24px),
+
+  // Gouttière par défaut de `flex-gap-{axe}`.
+  $gutters: (
+    'default': 16px,
+  ),
+
+  // Padding par défaut de `flex-padding-{axe}`.
+  $padding-gutters: (
+    'default': 16px,
+  ),
+);
+@use 'gridaflex/src/classes';
+
+// Gridaflex calcule ses largeurs en border-box, sans le poser : en content-box,
+// le padding d'une cellule (`flex-padding-*` compris) s'ajoute à sa largeur et
+// la rangée passe à la ligne.
+.cell {
+  box-sizing: border-box;
+}

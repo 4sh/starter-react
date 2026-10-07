@@ -32,10 +32,14 @@ Il est essentiel de comprendre le flux de nos variables pour maintenir la cohér
 
 Les tokens sont divisés en plusieurs fichiers dans `packages/ui-kit-react/src/styles/generated/` :
 
+- **`_tokens-primitives.scss`** : Palettes brutes, une par marque. Jamais consommées directement par un composant.
 - **`_tokens-semantics.scss`** : Couleurs liées à une fonction d'interface (ex: action, feedback, navigation).
 - **`_tokens-metrics.scss`** : Unités de mesure structurelles (espacement, arrondi, bordure).
-- **`_tokens-typography.scss`** : Styles de texte (familles, graisses, tailles).
-- **`_tokens-breakpoints.scss`** : Définition des points de rupture responsive.
+- **`_tokens-responsive.scss`** : Valeurs qui changent avec la largeur de l'écran (espacements, tailles de composants et de texte, colonnes).
+- **`_tokens-typography.scss`** : Styles de texte (familles, graisses).
+- **`_tokens-transitions.scss`** : Durées et courbes des transitions.
+- **`_tokens-styles.scss`** : Styles composites, les ombres (voir §5).
+- **`_tokens-breakpoint.scss`** : Points de rupture, en variables **SCSS** (`$breakpoint-*`) et non CSS : une media query ne lit pas `var()`. Voir **Spécifications → Responsive Design**.
 
 ## 3. Tokens Sémantiques (Couleurs)
 
@@ -140,7 +144,7 @@ la casse disparaissant à la génération (voir ci-dessus), le nom final peut su
         N'utilisez ces jeux <strong>que</strong> par-dessus une surface de couleur
         maîtrisée. Sur le fond de page, ce sont les jeux normaux qui s'appliquent, eux bien
         réactifs au thème. Choix de la polarité et domaine de validité :
-        <a href="?path=/docs/components-ui-actions-ui-button--docs"><code>ui-button</code> → onColor</a>.
+        [`ui-button` → onColor](?path=/docs/components-ui-actions-ui-button--docs).
     </p>
 </div>
 
@@ -220,7 +224,7 @@ Utilisez ce tableau pour déterminer quelle `[famille]` utiliser en se basant st
             <strong>Règle :</strong> Couleurs de fondation de l'application.<br/>
             <em>Exemples : Fonds d'écran, surfaces générales, textes par défaut, séparateurs structurels.</em>
         </td>
-        <td><code>--global-high-surface-default</code></td>
+        <td><code>--global-background-default</code></td>
     </tr>
     <tr>
         <td><strong><code>actions</code></strong></td>
@@ -287,13 +291,13 @@ Utilisez ce tableau pour déterminer quelle `[famille]` utiliser en se basant st
         <td><strong><code>--radius-</code></strong></td>
         <td>Arrondis (border-radius)</td>
         <td><code>--radius-default</code></td>
-        <td style={{ textAlign: 'center' }}><code>12px</code></td>
+        <td style={{ textAlign: 'center' }}><code>16px</code></td>
     </tr>
     <tr>
         <td><strong><code>--stroke-</code></strong></td>
         <td>Épaisseur de bordure (border-width)</td>
         <td><code>--stroke-default</code></td>
-        <td style={{ textAlign: 'center' }}><code>1px</code></td>
+        <td style={{ textAlign: 'center' }}><code>2px</code></td>
     </tr>
     </tbody>
 </table>
@@ -315,7 +319,7 @@ utilitaire : pour un usage aussi bien en SCSS qu'en HTML.
 ```scss
 // ✅ BON USAGE
 .mon-composant {
-  background-color: var(--global-high-surface-default);
+  background-color: var(--global-background-default);
   padding: var(--units-md);
   border-radius: var(--radius-default);
 }
@@ -335,4 +339,4 @@ le *choix* du token pour un rôle donné, mutualisé et surchargeable à 3 nivea
 (global UI → catégorie → composant).
 
 > Référentiel complet des variables, valeurs par défaut et mécanismes de surcharge :
-> **Spécifications → Configuration (ui-config)**.
+> [Components → configuration](?path=/docs/components-configuration--docs).

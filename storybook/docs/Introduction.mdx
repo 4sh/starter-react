@@ -67,21 +67,11 @@ export const LinkIcon = () => (
 
             <div className="feature-card">
                 <div className="feature-card-media">
-                    <img src="./doc-tfm.png" alt="Interface de gestion Token Flow Manager" />
-                </div>
-                <div className="feature-card-body">
-                    <h3><a href="https://www.npmjs.com/package/token-flow-manager" target="_blank">Token Flow Manager</a></h3>
-                    <p>Visualisez et éditez vos tokens de style directement côté code via un <strong>dashboard local visuel</strong>, sans altérer votre formatage JSON.</p>
-                </div>
-            </div>
-
-            <div className="feature-card">
-                <div className="feature-card-media">
                     <img src="./doc-gridaflex.png" alt="Système de grille Gridaflex" />
                 </div>
                 <div className="feature-card-body">
-                    <h3><a href="https://www.npmjs.com/package/gridaflex" target="_blank">Gridaflex</a></h3>
-                    <p>Système de grille flexbox et gestion des <strong>breakpoints / media queries</strong>, alimenté par les tokens responsive.</p>
+                    <h3><a href="https://www.npmjs.com/package/gridaflex" target="_blank">Gridaflex</a>, en option</h3>
+                    <p>Grille flexbox 24 colonnes et <strong>media queries</strong>, réglée par les points de rupture des tokens. <strong>Optionnelle</strong> : le kit n'en dépend pas, l'application l'installe si elle la veut. Ce Storybook la charge, voir [Responsive Design](?path=/docs/spécifications-responsive-design--docs).</p>
                 </div>
             </div>
 
@@ -95,20 +85,6 @@ export const LinkIcon = () => (
                 </div>
             </div>
         </div>
-    </div>
-
-    <div className="sb-section">
-        ## Application de démonstration
-
-        Le kit intégré dans une vraie application React : layout, navigation, formulaires,
-        tableau, thèmes et marques. Elle consomme le paquet **construit**, et non les sources :
-        c'est la seule chose qui vérifie que la table `exports` est juste. Déployée avec ce
-        Storybook, à chaque push sur `main`.
-
-        <a className="link-item" href="https://4sh.github.io/starter-react/demo/" target="_blank">
-            <LinkIcon />
-            <span>Ouvrir la démo</span>
-        </a>
     </div>
 
     <div className="sb-section">

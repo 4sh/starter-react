@@ -99,9 +99,11 @@ du kit et de sa doc, pas du CLI ni de la publication. Ce qui reste de la phase 5
 publication des trois paquets (`docs/PUBLISHING.md`).
 
 Restent ouverts, hors du plan : `format:check` absent de la CI (quatre fichiers ont dérivé),
-la page `specifications/responsive.mdx` qui documente Gridaflex, absent de ce dépôt, et les
-trois constats signalés le 23 septembre (contraste des jetons `informative-*low-content` en
-sombre, garde axe aveugle au contraste 1:1, test intermittent de `ui-tooltip`).
+et les trois constats signalés le 23 septembre (contraste des jetons
+`informative-*low-content` en sombre, garde axe aveugle au contraste 1:1, test intermittent de
+`ui-tooltip`). Les pages de doc globales décrivent le kit React depuis le 7 octobre
+(FSHSP-220), Gridaflex est proposé en option, côté application, et l'application de démo
+est retirée.
 
 Ce qui suit est l'historique de la vague, gardé pour ses mesures.
 
@@ -208,11 +210,18 @@ Une dette écrite n'est pas une dette : c'est un choix. Ce qui suit est assumé,
   des **jetons partagés**, donc présent à l'identique côté Angular : à corriger dans
   `semantics.json`, pas dans un composant. Conséquence directe du point précédent : sans
   contrôle en sombre, personne ne l'avait vu.
-- **Les 15 pages de doc globales décrivent encore Angular.** Les chemins ont été corrigés,
-  pas le contenu : on y lit encore `ThemeService`, `ng add`, Gridaflex. Elles construisent et
-  s'affichent, mais elles trompent le lecteur.
-- **Gridaflex n'est pas tranché** pour React. `storybook/docs/specifications/responsive.mdx`
-  en parle comme s'il était là.
+- **Aucun contrôle ne consomme le paquet construit.** L'application de démo le faisait, pour
+  trois sous-chemins seulement (`ui-icon`, `theming`, `styles.css`) ; elle est retirée.
+  `exports:check` vérifie que la table décrit les points d'entrée, pas qu'un import par le
+  nom du paquet aboutisse. Un contrôle digne de ce nom construirait un consommateur jetable
+  qui importe les 72 sous-chemins depuis le tarball de `pnpm kit:pack`, en CI.
+- **`UiThemeProvider` avec `target` sur un sous-arbre ne fait pas ce qu'il annonce.** En
+  clair, il retire `data-theme` au lieu de le poser : sous une page sombre, la zone reste
+  sombre. Et une marque seule n'y atteint que les `--primitives-*` : les jetons sémantiques,
+  calculés sur `:root`, ne se redéclarent que sous un `data-theme`, donc les composants de la
+  zone gardent la marque de la page. L'explorateur `Foundations / Colors` y échappe parce
+  qu'il pose toujours `data-theme`. Correctif probable : sur une cible autre que `<html>`,
+  poser `data-theme` dans les deux modes.
 - **Les trois paquets sont `private: true`** en attendant la phase 5.
 - **`data-unpositioned` est posé par tous les panneaux flottants, mais le mixin ne s'en sert
   que là.** Un composant qui ajouterait un panneau devra penser à l'attribut : rien ne le lui
@@ -266,8 +275,9 @@ Ne pas les repayer. Chacun est documenté sur place, dans le fichier concerné.
 - **TypeScript doit rester en 6.x** : la 7 est une bêta sans API JavaScript du compilateur,
   et `vite-plugin-dts` s'y casse. À épingler dans le paquet concerné, pas seulement à la
   racine.
-- **Storybook lit `src/`, la démo lit `dist/`.** C'est délibéré : la démo est la seule chose
-  qui vérifie la table `exports`. Ne pas « harmoniser ».
+- **Rien ne lit `dist/`.** Storybook et les tests lisent `src/` ; l'application de démo, qui
+  consommait le paquet construit, est retirée depuis le 7 octobre. Un sous-chemin d'`exports`
+  qui pointerait à côté ne se verrait donc que chez un consommateur (voir la dette).
 - **Un composant importe `core/` en RELATIF**, contrairement au starter Angular où
   `ng-packagr` exige le nom du paquet.
 - **UN SEUL `render()` par test.** Deux rendus dans le même test empilent leurs conteneurs au
@@ -633,6 +643,22 @@ Ne pas les repayer. Chacun est documenté sur place, dans le fichier concerné.
   choisir à nouveau le même fichier retire la sélection du formulaire natif, qui reçoit un
   fichier vide. Un champ ne peut pas servir aux deux : `ui-file-upload` en rend un second,
   caché, pour la soumission.
+- **Dans un `.mdx`, un lien vers une autre page s'écrit en Markdown, jamais en `<a>` JSX.**
+  `[texte](?path=/docs/…)` passe par le composant de lien de Storybook, qui navigue dans le
+  manager. Un `<a href="?path=…">` écrit à la main est un lien ordinaire : il se résout contre
+  `/iframe.html` et la fenêtre du haut charge la coquille de preview, sans menu. Mesuré le
+  7 octobre sur douze liens des pages globales. Hors MDX, voir `managerHref` dans `Overview.mdx`.
+- **Vite ne réécrit pas une URL interpolée dans un partiel Sass.** `url("../fonts/x.woff2")`
+  est rebasée pour la feuille qui importe le partiel ; `url("#{$dossier}/x.woff2")` ne l'est
+  pas, et pointe à côté une fois compilée depuis un autre dossier. Écrire les URL en clair.
+- **Une configuration Sass ne vaut que pour SA compilation.** Chaque feuille importée par un
+  composant est compilée à part : un `@use 'gridaflex'` y repart des réglages par défaut
+  (12 colonnes, et non 24). Seules les feuilles chargées par la feuille globale, après les
+  réglages, les partagent.
+- **Gridaflex calcule ses largeurs en `border-box` sans le poser.** En `content-box`, le
+  padding d'une cellule s'ajoute à sa largeur : deux `tablet-portrait-12` d'un groupe
+  `flex-padding-x` passent l'une sous l'autre. Le fichier de réglages de référence pose
+  `.cell { box-sizing: border-box; }`.
 
 ---
 
@@ -2174,3 +2200,47 @@ construit sur stdio contre le manifeste réel (13 contrôles), ajouté à la CI.
 **À reprendre en phase 4** : `init` devra déclarer le serveur dans le `.mcp.json` du projet,
 comme `ng add` côté Angular. Et en mode copie, le manifeste décrit le kit, pas la copie locale
 que le projet a pu modifier.
+
+### 2026-10-07 : les pages de doc globales, et Gridaflex en option
+
+FSHSP-220. L'audit des 15 pages globales en a trouvé dix à reprendre, et pas seulement pour
+Angular : des jetons qui n'existent pas (`--global-high-surface-default`, `--metrics-*`), des
+valeurs fausses (`--radius-default` à 12 px, il vaut 16), un fichier mal nommé
+(`_tokens-breakpoints.scss`), un décompte de hooks périmé (581, il y en a 1 365), un
+préréglage `shadcn.scss` cité comme présent dans le dépôt, et un lien vers une page de
+configuration qui n'existe pas. `ThemeService` et `BrandService` laissent la place à
+`UiThemeProvider`, `useUiTheme` et `useUiBrand`, `ng add` et les schematics au mode copie en
+construction, `[uiMotion]` à `useUiMotion`, `angular.json` à l'import dans le point d'entrée.
+Douze liens `<a href="?path=…">` chargeaient la coquille de preview dans la fenêtre du haut :
+ils passent en Markdown (voir les pièges).
+
+**Gridaflex est proposé en option, comme côté Angular.** Le kit ne le déclare pas : l'allocation
+D6 et `deps:check` sont intacts. C'est Storybook qui l'installe (dépendance de développement
+racine) et charge `storybook/styles/vendors/_gridaflex-settings.scss`, le fichier de réglages
+d'Angular dont les points de rupture viennent de
+`@4sh/ui-kit-react/styles/generated/tokens-breakpoint` ; c'est lui que la doc demande de
+copier, et `Spécifications / Responsive Design` montre la grille en direct. Le chemin du
+paquet a été vérifié depuis un consommateur Vite avant le retrait de la démo. La carte de
+l'Introduction revient, pour expliquer l'option ; celle de Token Flow Manager reste retirée.
+Seule manque la question posée à l'installation : elle viendra avec `init` (D7 mise à jour).
+
+**L'application de démo est retirée**, à la demande du user : 38 lignes, un bouton de thème et
+trois de marque, rien de représentatif d'une application. Avec elle partent `pnpm serve` et
+`pnpm build`, son entrée dans le workspace pnpm et dans `typecheck`, son déploiement sous
+`/starter-react/demo/`, ses globs de stories et ses racines dans les scripts de doc, et la
+section de l'Introduction qui la présentait. Elle était le seul consommateur du paquet
+construit, pour trois sous-chemins sur 72 : ce manque est listé dans la dette, avec le
+contrôle qui le comblerait vraiment.
+
+Deux écarts au fichier d'Angular, mesurés en écrivant la page : la règle
+`.cell { box-sizing: border-box; }`, sans laquelle `flex-padding-x` fait passer les cellules
+à la ligne, et la mention qu'un mixin Gridaflex utilisé dans la feuille d'un composant repart
+des réglages par défaut. Les deux valent aussi pour le starter Angular, et la règle
+`border-box` serait mieux dans Gridaflex lui-même : à reporter.
+
+Un piège mesuré en chemin, documenté dans `Foundations / Typography` : Vite réécrit l'`url()`
+d'un partiel Sass pour la feuille qui l'importe, **sauf** si l'URL est interpolée. Le gabarit
+de `@font-face` repris d'Angular pointait donc à côté ; il écrit désormais ses URL en clair.
+
+En vérifiant le sous-arbre de thème pour la page, un défaut de `UiThemeProvider` quand
+`target` vise autre chose que `<html>` : listé dans la dette.

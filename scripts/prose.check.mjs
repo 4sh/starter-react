@@ -33,7 +33,7 @@ import { join, relative } from 'node:path';
 
 import { ROOT } from './lib/entries.mjs';
 
-const ROOTS = ['packages', 'scripts', 'docs', 'storybook', 'apps'];
+const ROOTS = ['packages', 'scripts', 'docs', 'storybook'];
 const FILES = ['AGENTS.md', 'CLAUDE.md', 'README.md', 'CHANGELOG.md', 'SECURITY.md'];
 
 const CODE = /\.(ts|tsx|mts|mjs|js|cjs|scss)$/;

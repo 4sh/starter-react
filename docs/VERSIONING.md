@@ -18,7 +18,7 @@ dans l'en-tête de traçabilité de chaque copie et dans le `ui-kit.json` du pro
 `update` relit pour calculer ses diffs. Deux numéros qui divergent rendraient cette
 provenance sans valeur.
 
-Le `package.json` racine (démo + outillage) n'est **pas** versionné : il est `private`,
+Le `package.json` racine (outillage) n'est **pas** versionné : il est `private`,
 jamais publié, et son numéro ne signifie rien pour personne à l'extérieur du dépôt.
 
 ## Quand incrémenter
@@ -41,9 +41,9 @@ Angular, où c'en est une.
 
 **Si aucun des trois paquets n'a changé, il n'y a pas de release** : pas d'incrément, pas
 de tag, pas d'entrée de CHANGELOG, pas de publication. Un changement limité au Storybook
-(stories, MDX, config), à l'application de démo, à la CI ou à la documentation part sur
-`main` comme n'importe quel changement : Storybook et la démo se redéploient à chaque push
-sur `main`, indépendamment du workflow de publication, qui ne se déclenche qu'à la main.
+(stories, MDX, config), à la CI ou à la documentation part sur `main` comme n'importe quel
+changement : Storybook se redéploie à chaque push sur `main`, indépendamment du workflow de
+publication, qui ne se déclenche qu'à la main.
 
 ## Déroulé d'une release
 

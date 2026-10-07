@@ -258,7 +258,10 @@ les composants en sources, dans le dépôt du consommateur, libres d'être modif
 Angular copie ses composants par les schematics de `@4sh/ui-kit-schematics`. React n'a pas de
 schematics, d'où un CLI Node aux trois mêmes commandes :
 
-- `init`, le pendant de `ng-add` : dépendances runtime, fondation de styles, chaîne des jetons ;
+- `init`, le pendant de `ng-add` : dépendances runtime, fondation de styles, chaîne des jetons,
+  et la question Gridaflex (`--gridaflex` / `--no-gridaflex`), qui pose la dépendance et le
+  fichier de réglages de référence (`storybook/styles/vendors/_gridaflex-settings.scss`) dans
+  le projet ;
 - `add` : copie un composant et ses dépendances internes (`core/`, autres `ui-*`), imports
   réécrits ;
 - `update` : rejoue un diff fichier par fichier contre la version installée. Cette logique est

@@ -51,8 +51,8 @@ jobs:
       - name: Lint
         run: pnpm lint:check
 
-      # Le paquet doit se construire AVANT les tests et le typecheck : 
-      # la démo dépend du paquet construit.
+      # Prouve que chaque point d'entrée se construit en bundle, avec ses
+      # déclarations de types : ni les tests ni Storybook ne lisent `dist/`.
       - name: Build the package
         run: pnpm kit:build
 

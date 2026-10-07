@@ -21,7 +21,7 @@
 | React 19                           | Framework. Composants fonctionnels, props typées, aucun composant classe |
 | _(aucune librairie de composants)_ | Le comportement est interne. Deux dépendances ciblées, voir ci-dessous   |
 | Design Tokens JSON                 | `design-tokens/*.json` (DTCG) → Style Dictionary → variables CSS         |
-| Vite 8                             | Build de la librairie (multi-entrées) et de l'application de démo        |
+| Vite 8                             | Build de la librairie (multi-entrées) et de Storybook                    |
 | Storybook 10                       | **Source de vérité** : composants, jetons, fondations                    |
 | Vitest 5 + Playwright              | Tests de composants dans un vrai navigateur                              |
 | FontAwesome Free                   | Icônes, via le composant `ui-icon`                                       |
@@ -65,7 +65,6 @@ packages/
       styles/             #   fondation SCSS : LIVRÉE avec le paquet
   ui-kit-react-cli/       # @4sh/ui-kit-react-cli : mode copie (phase 4)
   ui-kit-react-mcp/       # @4sh/ui-kit-react-mcp : serveur MCP (pnpm mcp:build)
-apps/demo/                # application de démo + composants métier
 storybook/                # config, addons locaux, blocs de doc, doc globale
 ```
 
@@ -84,14 +83,15 @@ Il suffit de créer `src/<catégorie>/ui-<nom>/index.ts`. `pnpm exports:build` l
 écrit la table `exports` du `package.json`, qui est **générée mais committée** : c'est ce
 qui rend une omission visible en revue, et `--check` la refuse en CI.
 
-### Où le kit lit ses sources, et pourquoi c'est différent selon la surface
+### Où le kit lit ses sources
 
-- **Storybook** consomme `packages/ui-kit-react/src` par un alias → rechargement à chaud,
-  aucun build préalable.
-- **L'application de démo** consomme le **paquet construit** (`workspace:*`) → c'est la
-  seule chose qui vérifie que la table `exports` est juste.
+**Storybook** consomme `packages/ui-kit-react/src` par un alias → rechargement à chaud,
+aucun build préalable.
 
-Ne pas « harmoniser » les deux : c'est délibéré.
+Rien dans le dépôt ne consomme le **paquet construit**. `exports:check` garantit que la
+table `exports` décrit les points d'entrée, et `kit:build` que chacun se construit, mais
+aucun import réel ne passe par `dist/` : un sous-chemin qui pointerait à côté ne se verrait
+que chez un consommateur.
 
 ---
 
@@ -380,7 +380,6 @@ reportée à la main dans l'autre dépôt : voir `docs/DUAL-ENGINE.md`.
 
 ```bash
 pnpm storybook           # Storybook (source de vérité) : alias de pnpm start
-pnpm serve               # Application de démo (construit le paquet d'abord)
 pnpm kit:build           # Construit @4sh/ui-kit-react (exports + bundles + styles.css)
 pnpm tokens:build        # Régénère les variables CSS depuis les JSON
 pnpm test                # Tests de composants (Chromium via Playwright)

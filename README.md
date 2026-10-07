@@ -7,32 +7,31 @@ pnpm install     # installs dependencies, generates tokens and the `exports` tab
 pnpm storybook   # the source of truth, at http://localhost:6006
 ```
 
-| Command                  | What it does                                                 |
-| ------------------------ | ------------------------------------------------------------ |
-| `pnpm storybook`         | Storybook (reads the kit's **sources**, hot reload)          |
-| `pnpm serve`             | Demo application (consumes the **built package**)            |
-| `pnpm kit:build`         | Builds `@4sh/ui-kit-react`                                   |
-| `pnpm test`              | Component tests in Chromium (Playwright)                     |
-| `pnpm lint:check`        | ESLint, without `--fix`                                      |
-| `pnpm typecheck`         | `tsc` across all three projects                              |
-| `pnpm tokens:build`      | Regenerates CSS variables from `design-tokens/*.json`        |
-| `pnpm docs:config:check` | Guardrail: matches handwritten doc against the code          |
+| Command                  | What it does                                          |
+| ------------------------ | ----------------------------------------------------- |
+| `pnpm storybook`         | Storybook (reads the kit's **sources**, hot reload)   |
+| `pnpm kit:build`         | Builds `@4sh/ui-kit-react`                            |
+| `pnpm test`              | Component tests in Chromium (Playwright)              |
+| `pnpm lint:check`        | ESLint, without `--fix`                               |
+| `pnpm typecheck`         | `tsc` across all three projects                       |
+| `pnpm tokens:build`      | Regenerates CSS variables from `design-tokens/*.json` |
+| `pnpm docs:config:check` | Guardrail: matches handwritten doc against the code   |
 
 Node: see `.nvmrc`. Package manager: pnpm (version pinned in `package.json`).
 
 ## Where to read what
 
-| Topic                                          | File                         |
-| ---------------------------------------------- | ---------------------------- |
-| **Resumption: status, next task, journal**     | `docs/ROADMAP.md`            |
-| **Code conventions**                           | `AGENTS.md`                  |
-| Architectural decisions and their rationale    | `docs/DECISIONS.md`          |
-| What must remain identical across stacks       | `docs/DUAL-ENGINE.md`        |
-| Components done / to do                        | `docs/components-index.md`   |
-| Versions, branches, CHANGELOG                  | `docs/VERSIONING.md`         |
-| npm publishing                                 | `docs/PUBLISHING.md`         |
-| Security and exceptions registry               | `docs/SECURITY-PRACTICES.md` |
-| Figma part                                     | `CLAUDE.md`                  |
+| Topic                                       | File                         |
+| ------------------------------------------- | ---------------------------- |
+| **Resumption: status, next task, journal**  | `docs/ROADMAP.md`            |
+| **Code conventions**                        | `AGENTS.md`                  |
+| Architectural decisions and their rationale | `docs/DECISIONS.md`          |
+| What must remain identical across stacks    | `docs/DUAL-ENGINE.md`        |
+| Components done / to do                     | `docs/components-index.md`   |
+| Versions, branches, CHANGELOG               | `docs/VERSIONING.md`         |
+| npm publishing                              | `docs/PUBLISHING.md`         |
+| Security and exceptions registry            | `docs/SECURITY-PRACTICES.md` |
+| Figma part                                  | `CLAUDE.md`                  |
 
 ## Where things are
 
@@ -42,7 +41,6 @@ packages/
   ui-kit-react/    the published package: components + SCSS foundation
   ui-kit-react-cli/  source copy mode (phase 4)
   ui-kit-react-mcp/  MCP server for coding agents
-apps/demo/         demo application + business components
 storybook/         config, local addons, global doc
 scripts/           tokens pipeline, doc pipeline, guardrails
 ```
