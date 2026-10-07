@@ -65,14 +65,14 @@
     "react-dom": "19.3.0",
     "remark-mdx": "3.1.1",
     "remark-parse": "11.0.0",
-    "sass": "1.104.1",
+    "sass": "1.105.1",
     "storybook": "10.6.0",
     "style-dictionary": "5.5.4",
     "typescript": "6.0.3",
     "typescript-eslint": "8.70.0",
     "unified": "11.0.5",
     "unist-util-visit": "5.1.0",
-    "vite": "8.3.0",
+    "vite": "8.3.2",
     "vitest": "5.0.3",
     "vitest-browser-react": "2.3.0"
   }
