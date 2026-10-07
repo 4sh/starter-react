@@ -96,8 +96,8 @@ importers:
         specifier: 10.6.0
         version: 10.6.0(@types/react@19.3.0)(prettier@3.9.8)(react@19.3.0)
       style-dictionary:
-        specifier: 5.5.4
-        version: 5.5.4
+        specifier: 5.6.0
+        version: 5.6.0
       typescript:
         specifier: 6.0.3
         version: 6.0.3
@@ -3234,8 +3234,8 @@ packages:
     resolution: {integrity: sha512-SlyRoSkdh1dYP0PzclLE7r0M9sgbFKKMFXpFRUMNuKhQSbC6VQIGzq3E0qsfvGJaUFJPGv6Ws1NZ/haTAjfbMA==}
     engines: {node: '>=12'}
 
-  style-dictionary@5.5.4:
-    resolution: {integrity: sha512-7wxrDIwaoAL4UF3OHqDaqJNDUkfUkqMLGRl+S+zDoWaPc8onlhitEUhseIETrD0IzC7E6n9by4sMADap/S2Qhw==}
+  style-dictionary@5.6.0:
+    resolution: {integrity: sha512-OxJXLa0aGza7AnudQpI83VNSu33goo1mlr7o12Js5xCPwCI0VkFYqs8o2KGFwpfl9AMxQ3RH/F0sgtpJLSM7Qw==}
     engines: {node: '>=22.0.0'}
     hasBin: true
 
@@ -3582,10 +3582,6 @@ packages:
 
   which-collection@1.0.2:
     resolution: {integrity: sha512-K4jVyjnBdgvc86Y6BkaLZEN933SwYOuBFkdmBu9ZfkcAbdVbpITnDmjvZ/aQjRXQrv5EPkTnD1s39GiiqbngCw==}
-    engines: {node: '>= 0.4'}
-
-  which-typed-array@1.1.23:
-    resolution: {integrity: sha512-JMh8aK+1B/0bk/YNupICmH5MgCq6yNLKYQUfsZtSDLLCCmxUkHjUY+oOlIa90lO7lHN1woAfpenLdlKpXy9o+A==}
     engines: {node: '>= 0.4'}
 
   which-typed-array@1.1.24:
@@ -5881,7 +5877,7 @@ snapshots:
 
   is-typed-array@1.1.15:
     dependencies:
-      which-typed-array: 1.1.23
+      which-typed-array: 1.1.24
 
   is-weakmap@2.0.2: {}
 
@@ -6958,7 +6954,7 @@ snapshots:
 
   strip-indent@4.1.1: {}
 
-  style-dictionary@5.5.4:
+  style-dictionary@5.6.0:
     dependencies:
       '@bundled-es-modules/deepmerge': 4.3.2
       '@bundled-es-modules/glob': 13.0.6
@@ -7179,7 +7175,7 @@ snapshots:
       is-arguments: 1.2.0
       is-generator-function: 1.1.2
       is-typed-array: 1.1.15
-      which-typed-array: 1.1.23
+      which-typed-array: 1.1.24
 
   vary@1.1.2: {}
 
@@ -7285,7 +7281,7 @@ snapshots:
       isarray: 2.0.5
       which-boxed-primitive: 1.1.1
       which-collection: 1.0.2
-      which-typed-array: 1.1.23
+      which-typed-array: 1.1.24
 
   which-collection@1.0.2:
     dependencies:
@@ -7293,16 +7289,6 @@ snapshots:
       is-set: 2.0.3
       is-weakmap: 2.0.2
       is-weakset: 2.0.4
-
-  which-typed-array@1.1.23:
-    dependencies:
-      available-typed-arrays: 1.0.7
-      call-bind: 1.0.9
-      call-bound: 1.0.4
-      for-each: 0.3.5
-      get-proto: 1.0.1
-      gopd: 1.2.0
-      has-tostringtag: 1.0.2
 
   which-typed-array@1.1.24:
     dependencies:
