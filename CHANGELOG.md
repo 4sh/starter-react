@@ -627,6 +627,13 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
 
 ### Fixed
 
+- Champs : le spinner et les boutons d'action gardaient leurs coins arrondis dans une boîte
+  équerrée (FSHSP-234, parité de FSHSP-233). Un `ui-input-number` suivi d'un add-on dans un
+  `ui-input-group` montrait l'arrondi du champ seul à droite de ses flèches ; idem pour les
+  actions pleine hauteur (`ui-input`, `ui-input-date`, `ui-datepicker`, chevron de `ui-select`
+  éditable, `ui-autocomplete`) et pour un thème qui retouche `--ui-field-radius`. La boîte de
+  `ui-field` découpe désormais son contenu sur ses propres coins : ces parties ne déclarent
+  plus de rayon et suivent celui de la boîte, quelle que soit sa valeur.
 - `ui-select` : le `style` passé au composant était ignoré, alors que son type l'acceptait
   (FSHSP-232). Il atterrit désormais sur la racine `.ui-select`, comme `className` : c'est là
   que se pose `--ui-input-group-item-flex`.
