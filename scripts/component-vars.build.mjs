@@ -152,6 +152,13 @@ const PROPERTIES = {
     scopes: ['ALL_SCOPES'],
     bindable: false,
   },
+  flex: {
+    fr: 'Répartition de la largeur',
+    group: 'dimensions',
+    type: 'STRING',
+    scopes: ['ALL_SCOPES'],
+    bindable: false,
+  },
 
   // Spacing
   padding: { fr: 'Inset', group: 'spacing', type: 'FLOAT', scopes: ['GAP'] },

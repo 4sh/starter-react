@@ -11,6 +11,10 @@
 /// falling back to the shared `$overlay-panel-*` constants.
 /// e.g. @include utils.overlay-panel(var(--navigation-high-surface-default), var(--navigation-high-stroke-default));
 @mixin overlay-panel($surface, $stroke) {
+  // The panel is a DOM descendant of its field: the merged-group inset stops here.
+  --_field-inset-inline-start: initial;
+  --_field-inset-inline-end: initial;
+
   box-sizing: border-box;
   border: ui-config.$overlay-panel-stroke-width solid var(--ui-overlay-stroke, #{$stroke});
   border-radius: var(--ui-overlay-radius, #{ui-config.$overlay-panel-radius});

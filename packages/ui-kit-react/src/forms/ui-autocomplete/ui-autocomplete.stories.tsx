@@ -65,7 +65,7 @@ const meta: Meta<typeof UiAutocomplete> = {
   parameters: {
     design: {
       type: 'figma',
-      url: 'https://www.figma.com/design/GZww5hdUA49LB8XWeWP6tl/-Projet----UI-Kit?node-id=125-2969',
+      url: 'https://www.figma.com/design/GZww5hdUA49LB8XWeWP6tl/-Projet----UI-Kit?node-id=125-3021',
     },
   },
   decorators: [

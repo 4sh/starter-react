@@ -53,7 +53,11 @@
   `role="spinbutton"`, `formatValue` en remplacement de la méthode protégée d'Angular)
 - ✅ `ui-input-group` : Colle un contrôle et ses cellules en un seul champ visuel. Le
   reformage des coins et le recouvrement des bordures sont en CSS pur, par les crochets
-  `--ui-field-radius` / `--ui-button-radius` que les composants exposent déjà
+  `--ui-field-radius` / `--ui-button-radius` que les composants exposent déjà.
+  `label`/`required`/`message`/`level` optionnels rendus comme `ui-field`, le `level`
+  teintant aussi les bordures des items ; `role="group"` nommé par le libellé et décrit par
+  le message dès que l'un des deux est posé ; `merged` pour une seule boîte autour de la
+  rangée ; `--ui-input-group-item-flex` pour la largeur d'un item
 - ✅ `ui-input-otp` : Code à usage unique, une case `<input maxlength="1">` par caractère.
   Arrêt de tabulation unique et flèches entre les cases, avance automatique à la frappe,
   collage réparti, `renderCell` pour remplacer le contrôle

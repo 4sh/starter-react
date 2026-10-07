@@ -572,3 +572,24 @@ test('tabIndex va au déclencheur, pour une barre d’outils à arrêt unique', 
     .element(screen.getByRole('combobox', { name: 'Police' }))
     .toHaveAttribute('tabindex', '-1');
 });
+
+test('showIcon à false retire le chevron, pas le rôle de liste déroulante', async () => {
+  const screen = await render(<Demo />);
+  expect(screen.container.querySelector('.ui-select-chevron')).not.toBeNull();
+
+  await screen.rerender(<Demo showIcon={false} />);
+
+  expect(screen.container.querySelector('.ui-select-chevron')).toBeNull();
+  expect(declencheur(screen)).toHaveAttribute('role', 'combobox');
+  // Devenu dernier enfant de la boîte, le déclencheur porte l'inset de fin.
+  expect(declencheur(screen).parentElement!.lastElementChild).toBe(declencheur(screen));
+  expect(parseFloat(getComputedStyle(declencheur(screen)).paddingInlineEnd)).toBeGreaterThan(0);
+});
+
+test('style atterrit sur la racine, comme className', async () => {
+  const screen = await render(<Demo className="maison" style={{ marginTop: 3 }} />);
+  const racine = screen.container.querySelector<HTMLElement>('.ui-select')!;
+
+  expect(racine).toHaveClass('maison');
+  expect(racine.style.marginTop).toBe('3px');
+});

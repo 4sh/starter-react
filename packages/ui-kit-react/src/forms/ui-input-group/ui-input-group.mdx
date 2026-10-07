@@ -6,9 +6,10 @@ import * as InputGroupStories from './ui-input-group.stories';
 
 # ui-input-group
 
-Colle un contrôle et ses cellules en un seul champ visuel. Purement présentationnel : chaque
-enfant garde son API et ses états, le groupe ne fait que les aligner sur une rangée, carrer
-les coins intérieurs et fondre les bordures voisines en une seule.
+Colle un contrôle et ses cellules en un seul champ visuel. Chaque enfant garde son API et ses
+états : le groupe les aligne sur une rangée, carre les coins intérieurs et fond les bordures
+voisines en une seule. Au besoin, il prend aussi l'habillage d'un champ : libellé au-dessus,
+message en dessous.
 
 <Canvas of={InputGroupStories.Default} />
 
@@ -50,35 +51,149 @@ dans le groupe : il n'a rien à savoir du groupe, et le groupe rien à savoir de
 <Canvas of={InputGroupStories.WithSelection} />
 <Canvas of={InputGroupStories.WithSelect} />
 
-## Comment le reformage marche
+## Libellé et message
 
-Le groupe ne touche à aucun enfant : il pose des **custom properties** que les composants
-exposent déjà, `--ui-field-radius` pour les champs et `--ui-button-radius` pour les boutons.
-Elles héritent, donc un enfant les reçoit sans que le groupe ait à le reconnaître, et un
-composant maison entre dans le rang en exposant le même crochet.
+Un champ composé se présente comme un champ simple : `label` au-dessus de la rangée,
+`message` en dessous, avec le même rendu que `ui-field` (`UiLabel`, puis `UiHelper`). Le
+libellé nomme le groupe, pas ses contrôles : chacun garde son `aria-label`.
 
-Trois règles suffisent, toutes en CSS : seuls les items de bord gardent un coin arrondi,
-chaque voisin remonte d'exactement une largeur de bordure pour que le trait partagé ne double
-pas, et l'item focalisé passe au-dessus des autres pour que son anneau de focus ne soit pas
-rogné.
+<Canvas of={InputGroupStories.Field} />
+
+Le `level` teinte le message **et** les bordures de tous les champs et cellules du groupe : la
+validité d'une valeur composée (indicatif et numéro, montant et devise) appartient au groupe,
+pas à l'une de ses cases. Il prime sur le `level` propre des contrôles. Un contrôle désactivé
+garde sa couleur, un `UiButton` aussi.
+
+<Canvas of={InputGroupStories.Levels} />
+
+## Boîte unique
+
+Par défaut, chaque item garde sa bordure et un trait sépare deux voisins. Avec `merged`, le
+groupe se lit comme un seul champ : les items perdent leur bordure et leur anneau de focus,
+et la rangée dessine une boîte autour d'eux, qui prend la couleur du survol, du focus et du
+`level`. La hauteur reste celle d'un champ simple. Entre deux contrôles, l'inset du côté
+qu'ils partagent se resserre (`--ui-input-group-item-padding-x`) : le chevron d'un indicatif
+est alors aussi près du numéro que de sa propre valeur.
+
+<Canvas of={InputGroupStories.Merged} />
+
+Une cellule garde son fond (`--ui-input-group-addon-surface`, à passer à `transparent` pour
+la fondre dans la boîte). Un `UiButton` garde sa bordure et son focus. Un contrôle qui trace
+son propre séparateur, comme les boutons de `UiInputNumber`, paraît serré contre son voisin :
+le montant de l'exemple les retire (`showButtons={false}`).
+
+## Largeur des items
+
+Les cellules et les boutons gardent leur largeur naturelle, les contrôles se partagent le
+reste. Pour qu'un contrôle garde lui aussi sa largeur naturelle (indicatif, devise), posez
+`--ui-input-group-item-flex: none` sur lui. Le hook prend n'importe quelle valeur de `flex`
+(`0 0 120px`, `2 1 0`…). L'espace entre sa valeur et son chevron suit alors
+`--ui-field-box-gap`.
+
+Le hook se pose sur la racine de l'item, celle qui reçoit `className`. Le `style` de
+`UiSelect` y arrive aussi ; celui de `UiInput` et de `UiInputNumber` va au contrôle natif,
+donc pour eux, passez par une classe.
+
+## Numéro de téléphone
+
+Indicatif international sélectionnable (drapeau et code) accolé au champ du numéro.
+`renderSelectedItem` et `renderOption` de `UiSelect` portent le rendu ; les drapeaux sont des
+SVG servis par les fichiers statiques de Storybook (`assets/img/common/svg/flags/`),
+décoratifs (`alt=""`).
+
+L'indicatif garde sa largeur naturelle (`--ui-input-group-item-flex: none`) et le groupe est
+fusionné (`merged`) : rien ne sépare l'indicatif du numéro. La liste, elle, doit afficher les
+noms de pays : c'est le rôle de `panelWidth="auto"` sur le `UiSelect`, qui fait de la largeur
+du champ un plancher pour le panneau (voir la doc de `ui-select`). La liste se filtre par nom
+de pays, indicatif ou code (`filter`, `filterBy="name,dial,code"`), et taper « +39 » sur
+l'indicatif fermé ouvre la liste et y cherche « 39 » : seule l'Italie reste, et
+<kbd>Entrée</kbd> la sélectionne. Le chevron peut être retiré (`showIcon={false}` sur le
+`UiSelect`) quand le drapeau suffit à signaler la liste. Le message d'erreur disparaît dès
+que le numéro compte 9 chiffres, une règle de démonstration : la validation par pays reste
+au projet.
+
+Côté valeur, enregistrez le code pays (`fr`) avec le numéro, et pas seulement l'indicatif :
+le +1 est partagé par plusieurs pays, dont les États-Unis et le Canada de la liste ci-dessous.
+Ne retirez pas non plus le 0 initial par principe : la France le perd derrière l'indicatif
+(+33 6…), l'Italie le garde (+39 06…).
+
+<Canvas of={InputGroupStories.PhoneNumber} />
 
 ## Tailles
 
-Le groupe transmet sa taille à ses cellules seulement. Les contrôles gardent la leur : ils
-ont déjà une prop `size`, et la leur écraser depuis le groupe ferait deux sources de vérité
-pour la même valeur.
+Le groupe transmet sa taille à son libellé et à ses cellules seulement. Les contrôles gardent
+la leur : ils ont déjà une prop `size`, et la leur écraser depuis le groupe ferait deux
+sources de vérité pour la même valeur.
 
 <Canvas of={InputGroupStories.Small} />
 
 ## Accessibilité
 
-Le groupe n'ajoute **aucun rôle** : il est décoratif, et ce sont les contrôles qu'il contient
-qui portent la sémantique. Chaque champ a donc besoin de son propre nom accessible, par
-`label` ou par `aria-label` quand le libellé visible est justement remplacé par une cellule.
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Point</th>
+      <th>Implémentation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Rôles</strong></td>
+      <td>Sans <code>label</code> ni <code>message</code>, le groupe n'expose ni rôle ni attribut ARIA : c'est une enveloppe de mise en page. Avec l'un ou l'autre, il devient un <code>role="group"</code> nommé par le libellé (<code>aria-labelledby</code>) et décrit par le message (<code>aria-describedby</code>). <code>UiInputGroupAddon</code> reste sans rôle.</td>
+    </tr>
+    <tr>
+      <td><strong>Clavier</strong></td>
+      <td>Le groupe n'ajoute aucune interaction : l'ordre de tabulation et les raccourcis sont ceux des enfants (champ, bouton, liste déroulante…).</td>
+    </tr>
+    <tr>
+      <td><strong>Nom accessible</strong></td>
+      <td>Le libellé nomme le groupe, annoncé à l'entrée dans le groupe (« Téléphone, groupe »). Il ne nomme pas les contrôles : chacun porte son <code>aria-label</code> (ou <code>aria-labelledby</code>), avec ou sans libellé de groupe. Une cellule décorative (icône, symbole) ne nomme pas le champ.</td>
+    </tr>
+    <tr>
+      <td><strong>Obligatoire</strong></td>
+      <td><code>required</code> sur le groupe n'affiche que l'astérisque, masqué aux lecteurs d'écran : <code>aria-required</code> n'existe pas sur un groupe. Chaque contrôle obligatoire porte son propre <code>required</code>, qui pose l'attribut natif.</td>
+    </tr>
+    <tr>
+      <td><strong>Erreur</strong></td>
+      <td>Le message est relié au groupe, mais le rôle <code>group</code> ne prend pas en charge <code>aria-invalid</code> : le contrôle fautif porte <code>invalid</code>, qui annonce lui-même son état.</td>
+    </tr>
+    <tr>
+      <td><strong>Focus</strong></td>
+      <td>L'item qui reçoit le focus passe au-dessus de ses voisins : sa bordure et son anneau de focus restent entièrement visibles malgré le recouvrement des bordures. Avec <code>merged</code>, l'anneau entoure tout le groupe, y compris quand le focus est passé au panneau d'une liste déroulante ouverte.</td>
+    </tr>
+  </tbody>
+</table>
 
-Une cellule reste non interactive : ce qu'on y met (une case à cocher) garde son propre nom
-accessible, la cellule n'étant qu'une boîte.
+```tsx
+// Champ composé : libellé et message d'erreur sur le groupe
+<UiInputGroup label="Téléphone" required merged level="error" message="Numéro invalide">
+  <UiSelect
+    aria-label="Indicatif du pays"
+    options={indicatifs}
+    optionLabel="dial"
+    panelWidth="auto"
+    style={{ '--ui-input-group-item-flex': 'none' } as CSSProperties}
+  />
+  <UiInput type="tel" aria-label="Numéro de téléphone" required invalid />
+</UiInputGroup>
+```
 
 ## Theming
+
+Le groupe ne touche à aucun enfant : il pose des **custom properties** que les composants
+exposent déjà, et qui héritent. `--ui-field-radius`, `--ui-button-radius` et
+`--ui-input-group-item-radius` carrent les coins intérieurs ; un composant maison entre dans
+le rang en lisant le même crochet pour son `border-radius`. Chaque voisin remonte d'une
+largeur de bordure pour que le trait partagé ne double pas, et l'item focalisé passe
+au-dessus des autres pour que son anneau ne soit pas rogné.
+
+La largeur suit le même principe : le `flex` de chaque item passe par
+`--ui-input-group-item-flex`, à poser sur l'item à libérer.
+
+Le `level` passe par le même chemin : en `success` ou `error`, le groupe fixe
+`--ui-field-stroke`, `--ui-field-stroke-hover` et `--ui-field-stroke-focus` sur les jetons
+`form.*` du statut, et teinte ses cellules par-dessus `--ui-input-group-addon-stroke`. En
+`merged`, il passe ces bordures à `transparent` et coupe l'anneau des champs par
+`--ui-field-focus-ring-width`, avant de dessiner la boîte commune sur la rangée.
 
 <ConfigTable of="ui-input-group" />

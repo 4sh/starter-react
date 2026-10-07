@@ -659,6 +659,21 @@ Ne pas les repayer. Chacun est documenté sur place, dans le fichier concerné.
   padding d'une cellule s'ajoute à sa largeur : deux `tablet-portrait-12` d'un groupe
   `flex-padding-x` passent l'une sous l'autre. Le fichier de réglages de référence pose
   `.cell { box-sizing: border-box; }`.
+- **Un panneau flottant est un descendant DOM de son champ.** Le calque supérieur l'affiche
+  hors de tout, mais il hérite des custom properties de l'item qui le rend, contrairement à
+  l'overlay CDK d'Angular, attaché au `body`. Le resserrement d'un `ui-input-group` fusionné
+  descendait ainsi jusqu'au champ de recherche d'un `UiSelect` (8 px d'inset mesurés à 3 px).
+  `utils.overlay-panel` remet `--_field-inset-inline-*` à `initial` : une variable privée
+  posée sur un item doit se demander si elle doit franchir le panneau.
+- **Le `style` d'un champ va au contrôle natif, pas à la racine.** `UiInput` et
+  `UiInputNumber` l'envoient avec les attributs restants sur l'`<input>` ; seul `className`
+  atteint la racine. Un hook à poser sur l'item d'un groupe
+  (`--ui-input-group-item-flex`) passe donc par une classe. `UiSelect` ignorait purement son
+  `style` jusqu'au 7 octobre, alors que son type l'acceptait.
+- **L'action `type` du navigateur intégré n'émet pas de `keydown`.** Elle insère du texte : la
+  frappe directe d'un déclencheur `<button>` n'en voit rien, et `shift+Equal` y produit une
+  touche vide au lieu de « + ». Pour vérifier un raccourci, envoyer un vrai `KeyboardEvent`, ou
+  passer par `userEvent` dans un test.
 
 ---
 
@@ -2244,3 +2259,31 @@ de `@font-face` repris d'Angular pointait donc à côté ; il écrit désormais 
 
 En vérifiant le sous-arbre de thème pour la page, un défaut de `UiThemeProvider` quand
 `target` vise autre chose que `<html>` : listé dans la dette.
+
+### 2026-10-07 : `ui-input-group` devient un champ, parité de FSHSP-231
+
+FSHSP-232, porté depuis le commit Angular `5f99bd9`. Le groupe prend `label`, `required`,
+`message`, `level`, `showMessageIcon` et `messageIcon`, rendus comme `ui-field`, et devient un
+`role="group"` nommé et décrit dès que l'un des deux textes est posé. Le `level` teinte les
+bordures de tous les items et prime sur celui des contrôles. Au-delà du ticket, trois ajouts
+de la relecture Angular sont portés sous les mêmes noms : `merged` (une boîte commune dessinée
+par `.ui-input-group-row::after`), `--ui-input-group-item-flex` et les hooks de largeur et
+d'inset, et `showIcon` sur `UiSelect`. Story `Phone Number` avec les dix drapeaux d'Angular.
+
+La racine devient la colonne (libellé, rangée, message) ; tous les sélecteurs d'item passent
+sur `.ui-input-group-row`. Le resserrement des côtés partagés par deux contrôles s'écrit en CSS
+(`:has(+ …)`), sans l'astuce de variable indéfinie d'Angular, à travers
+`--_field-inset-inline-*`, que `field-inset-edges` lit désormais. Deux écarts propres à React,
+listés dans `docs/DUAL-ENGINE.md` et dans les pièges : la remise à zéro de ces insets dans les
+panneaux flottants, et l'endroit où poser `--ui-input-group-item-flex`, qui a fait corriger
+`UiSelect` (son `style` était ignoré).
+
+Mesuré à 1440 px contre le Storybook Angular ouvert à côté : rangée fusionnée à 36 px des deux
+côtés, égale à un champ seul (le « 44 px » du brief vaut pour un viewport plus étroit), 8 px
+entre la valeur et le chevron et entre le chevron et le numéro, inset resserré à 3 px. Les six
+stories sans `merged` sont identiques à `main` sur 37 éléments mesurés (position, taille,
+rayon, bordure, inset). Frappe directe : le « + » ouvre la liste et passe le focus à la
+recherche, où « 39 » ne laisse que l'Italie, qu'Entrée sélectionne ; même résultat qu'Angular,
+par la recherche plutôt que par la liste. axe passe en clair ; en sombre, seuls les messages
+`success` et `error` de `UiHelper` restent sous AA, défaut des jetons partagés déjà présent sur
+`UiInput` seul (2,74), non corrigé ici.

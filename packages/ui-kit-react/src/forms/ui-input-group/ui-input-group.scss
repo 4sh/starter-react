@@ -3,8 +3,17 @@
 // ui-input-group: co-located styles, tokens only. Corners and shared borders are pure CSS.
 
 // --- Config -----------------------------------------------------------
+$gap: var(--ui-input-group-gap, var(--units-xs));             /// Gouttière verticale entre le libellé, la rangée et le message.
+$gap-small: var(--ui-input-group-gap-small, var(--units-xs)); /// Gouttière verticale, variante `small`.
+
 $radius: var(--ui-input-group-radius, #{utils.$form-field-radius});         /// Rayon des coins extérieurs du groupe.
 $overlap: var(--ui-input-group-overlap, #{utils.$form-field-stroke-width}); /// Recouvrement de deux items voisins, égal à la largeur de bordure pour que le trait partagé ne double pas.
+
+$stroke-width: var(--ui-input-group-stroke-width, #{utils.$form-field-stroke-width});             /// Épaisseur de la bordure commune, mode `merged`.
+$focus-ring-width: var(--ui-input-group-focus-ring-width, #{utils.$form-field-focus-ring-width}); /// Épaisseur de l'anneau de focus commun, mode `merged`.
+$focus-ring-opacity: var(--ui-input-group-focus-ring-opacity, 50%);                               /// Opacité de l'anneau de focus commun, mode `merged`.
+// 2 × inset + the shared stroke = a field's own value-to-affix gap.
+$item-padding-x: var(--ui-input-group-item-padding-x, calc((#{utils.$form-field-gap} - #{utils.$form-field-stroke-width}) / 2)); /// Inset d'un contrôle du côté où il touche un autre contrôle, mode `merged`.
 
 $addon-height: var(--ui-input-group-addon-height, #{utils.$form-field-height});                      /// Hauteur d'une cellule, alignée sur la boîte de champ.
 $addon-height-small: var(--ui-input-group-addon-height-small, #{utils.$form-field-height-small});    /// Hauteur d'une cellule, variante `small`.
@@ -18,64 +27,143 @@ $addon-font-size-small: var(--ui-input-group-addon-font-size-small, var(--size-t
   // Miroir privé : le nom public reste surchargeable depuis l'extérieur.
   --_radius: #{$radius};
   --_overlap: calc(-1 * #{$overlap});
+  --_group-stroke: var(--form-high-stroke-default);
+  --_group-stroke-hover: var(--form-high-stroke-hover);
+  --_group-stroke-focus: var(--form-high-stroke-focused);
 
   display: flex;
-  align-items: stretch;
-  width: 100%;
+  flex-direction: column;
+  gap: $gap;
 
-  // --- Items ---------------------------------------------------------
-  // `> *` est borné par la racine : il ne fuit pas.
-  > * {
-    // Coins carrés par défaut : seuls les bords du groupe se rearrondissent.
-    --ui-field-radius: 0;
-    --ui-button-radius: 0;
-    --ui-input-group-item-radius: 0;
+  &._small { gap: $gap-small; }
 
-    position: relative; // laisse l'item focalisé peindre par-dessus ses voisins
-    flex: 1 1 0;
-    min-width: 0;
+  &-row {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+
+    // --- Items -------------------------------------------------------
+    // `> *` est borné par la rangée : il ne fuit pas.
+    > * {
+      // Coins carrés par défaut : seuls les bords du groupe se rearrondissent.
+      --ui-field-radius: 0;
+      --ui-button-radius: 0;
+      --ui-input-group-item-radius: 0;
+
+      position: relative; // laisse l'item focalisé peindre par-dessus ses voisins
+      flex: var(--ui-input-group-item-flex, 1 1 0); /// Répartition de la largeur, à poser sur un item pour remplacer celle que le groupe lui donne.
+      min-width: 0;
+    }
+
+    // Le trait partagé se recouvre au lieu de doubler.
+    > * + * {
+      margin-inline-start: var(--_overlap);
+    }
+
+    // L'anneau de focus ne doit pas passer sous le voisin qui le recouvre.
+    > *:focus-within {
+      z-index: 1;
+    }
+
+    // Cellules et boutons gardent leur largeur naturelle, le contrôle prend le reste.
+    > .ui-input-group-addon,
+    > .ui-button {
+      flex: var(--ui-input-group-item-flex, 0 0 auto);
+      min-width: auto;
+    }
+
+    // --- Corner shaping ----------------------------------------------
+    > :first-child {
+      --ui-field-radius: var(--_radius) 0 0 var(--_radius);
+      --ui-button-radius: var(--_radius) 0 0 var(--_radius);
+      --ui-input-group-item-radius: var(--_radius) 0 0 var(--_radius);
+    }
+
+    > :last-child {
+      --ui-field-radius: 0 var(--_radius) var(--_radius) 0;
+      --ui-button-radius: 0 var(--_radius) var(--_radius) 0;
+      --ui-input-group-item-radius: 0 var(--_radius) var(--_radius) 0;
+    }
+
+    // Seul dans le groupe, un item garde ses quatre coins.
+    > :only-child {
+      --ui-field-radius: var(--_radius);
+      --ui-button-radius: var(--_radius);
+      --ui-input-group-item-radius: var(--_radius);
+    }
   }
 
-  // Le trait partagé se recouvre au lieu de doubler.
-  > * + * {
-    margin-inline-start: var(--_overlap);
+  // --- Levels ----------------------------------------------------------
+  // The cell tint goes through a private name: declaring its public hook here
+  // would drop it from the consumer theme.
+  &._success {
+    --ui-field-stroke: var(--form-success-stroke-default);
+    --ui-field-stroke-hover: var(--form-success-stroke-hover);
+    --ui-field-stroke-focus: var(--form-success-stroke-focused);
+    --_input-group-stroke: var(--form-success-stroke-default);
+    --_group-stroke: var(--form-success-stroke-default);
+    --_group-stroke-hover: var(--form-success-stroke-hover);
+    --_group-stroke-focus: var(--form-success-stroke-focused);
+  }
+  &._error {
+    --ui-field-stroke: var(--form-error-stroke-default);
+    --ui-field-stroke-hover: var(--form-error-stroke-hover);
+    --ui-field-stroke-focus: var(--form-error-stroke-focused);
+    --_input-group-stroke: var(--form-error-stroke-default);
+    --_group-stroke: var(--form-error-stroke-default);
+    --_group-stroke-hover: var(--form-error-stroke-hover);
+    --_group-stroke-focus: var(--form-error-stroke-focused);
   }
 
-  // L'anneau de focus ne doit pas passer sous le voisin qui le recouvre.
-  > *:focus-within {
-    z-index: 1;
+  // --- Merged ----------------------------------------------------------
+  // After the levels, so transparent wins. The field ring is cut by its width:
+  // `rgb(from transparent … / 50%)` would paint half-opaque black.
+  &._merged {
+    --ui-field-stroke: transparent;
+    --ui-field-stroke-hover: transparent;
+    --ui-field-stroke-focus: transparent;
+    --ui-field-stroke-disabled: transparent;
+    --ui-field-focus-ring-width: 0px;
+    --_input-group-stroke: transparent;
   }
 
-  // Cellules et boutons gardent leur largeur naturelle, le contrôle prend le reste.
-  > .ui-input-group-addon,
-  > .ui-button {
-    flex: 0 0 auto;
-    min-width: auto;
-  }
+  &._merged &-row {
+    position: relative;
+    isolation: isolate; // keeps the z-indexes below local
 
-  // --- Corner shaping ------------------------------------------------
-  > :first-child {
-    --ui-field-radius: var(--_radius) 0 0 var(--_radius);
-    --ui-button-radius: var(--_radius) 0 0 var(--_radius);
-    --ui-input-group-item-radius: var(--_radius) 0 0 var(--_radius);
-  }
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 2; // above the focused item, raised to 1
+      border: $stroke-width solid var(--_group-stroke);
+      border-radius: var(--_radius);
+      pointer-events: none;
+      @include utils.control-transition(border-color, box-shadow);
+    }
 
-  > :last-child {
-    --ui-field-radius: 0 var(--_radius) var(--_radius) 0;
-    --ui-button-radius: 0 var(--_radius) var(--_radius) 0;
-    --ui-input-group-item-radius: 0 var(--_radius) var(--_radius) 0;
-  }
+    &:hover:not(:focus-within)::after { border-color: var(--_group-stroke-hover); }
 
-  // Seul dans le groupe, un item garde ses quatre coins.
-  > :only-child {
-    --ui-field-radius: var(--_radius);
-    --ui-button-radius: var(--_radius);
-    --ui-input-group-item-radius: var(--_radius);
+    // An open list may move the focus into its panel.
+    &:focus-within::after,
+    &:has([aria-expanded='true'])::after {
+      border-color: var(--_group-stroke-focus);
+      box-shadow: 0 0 0 $focus-ring-width rgb(from var(--_group-stroke-focus) r g b / #{$focus-ring-opacity});
+    }
+
+    // Only the sides two controls share tighten: a cell or a button keeps its
+    // inset, its own background marks the boundary.
+    $control: ':not(.ui-input-group-addon, .ui-button)';
+
+    > #{$control} + #{$control} { --_field-inset-inline-start: #{$item-padding-x}; }
+    > #{$control}:has(+ #{$control}) { --_field-inset-inline-end: #{$item-padding-x}; }
   }
 }
 
 // --- Addon --------------------------------------------------------------
 .ui-input-group-addon {
+  --_stroke: var(--ui-input-group-addon-stroke, var(--form-high-stroke-default)); /// Couleur de bordure d'une cellule.
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -84,8 +172,8 @@ $addon-font-size-small: var(--ui-input-group-addon-font-size-small, var(--size-t
   min-width: $addon-height;
   min-height: $addon-height;
   padding: 0 $addon-padding-x;
-  border: $addon-stroke-width solid
-    var(--ui-input-group-addon-stroke, var(--form-high-stroke-default)); /// Couleur de bordure d'une cellule.
+  // `--_input-group-stroke`: the group's level, or transparent when merged.
+  border: $addon-stroke-width solid var(--_input-group-stroke, var(--_stroke));
   // Piloté par le groupe : hors d'un groupe, la cellule garde le rayon de champ.
   border-radius: var(--ui-input-group-item-radius, #{utils.$form-field-radius});
   background-color: var(--ui-input-group-addon-surface, var(--global-background-muted)); /// Fond d'une cellule.
