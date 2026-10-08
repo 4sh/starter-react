@@ -64,6 +64,7 @@ $float-label-band-over: calc(#{$float-label-height} + #{$gap});                 
     padding: 0;
     border: $stroke-width solid var(--_stroke);
     border-radius: var(--ui-field-radius, #{$radius}); /// Rayon exposé pour reformer les coins (utilisé par `ui-input-group`).
+    overflow: clip;
     background-color: var(--_surface);
     cursor: var(--ui-field-box-cursor, text);          /// Curseur de la boîte, surchargé par les champs non textuels (`ui-select`…).
     @include utils.control-transition(background-color, box-shadow);

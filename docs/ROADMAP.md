@@ -283,6 +283,11 @@ Ne pas les repayer. Chacun est documenté sur place, dans le fichier concerné.
 - **UN SEUL `render()` par test.** Deux rendus dans le même test empilent leurs conteneurs au
   même endroit de la page, et un clic réel : Playwright vise le centre de l'élément :
   atterrit sur celui du dessus. L'échec se déplace alors d'une exécution à l'autre.
+- **Le pointeur survit d'un test à l'autre.** Un clic laisse la souris où il a eu lieu, et la
+  boîte que le test suivant rend au même endroit passe au survol : une couleur « au repos » s'y
+  lit à la teinte de survol. En local, la lecture arrive souvent avant que Chrome recalcule le
+  survol, donc le test passe ; sur la CI, plus lente, il échoue (FSHSP-232, `ui-input-group`).
+  Avant de lire une couleur au repos, poser le pointeur dans un coin vide (`parkPointer`).
 - **Une assertion sur un état re-rendu doit utiliser `expect.element()`**, qui réessaie. Une
   lecture synchrone du DOM juste après un clic ne voit pas encore le nouveau rendu. Une
   assertion sur un espion, elle, peut rester synchrone : c'est ce qui rend l'écart facile à
@@ -2287,3 +2292,20 @@ recherche, où « 39 » ne laisse que l'Italie, qu'Entrée sélectionne ; même 
 par la recherche plutôt que par la liste. axe passe en clair ; en sombre, seuls les messages
 `success` et `error` de `UiHelper` restent sous AA, défaut des jetons partagés déjà présent sur
 `UiInput` seul (2,74), non corrigé ici.
+
+### 2026-10-07 : les coins du spinner et des actions de champ, parité de FSHSP-233
+
+FSHSP-234. Dans un `ui-input-group`, un `ui-input-number` suivi d'un add-on gardait l'arrondi
+du champ seul à droite de ses flèches : `field-spinner` et `field-action` recopiaient
+`$form-field-radius` au lieu de suivre `--ui-field-radius`, que le groupe et le thème posent
+sur la boîte. Même correctif que côté Angular : `.ui-field-box` découpe son contenu
+(`overflow: clip`), et les deux mixins ne déclarent plus de rayon. L'annulation de l'inset
+vertical en `_auto-height` tient toujours : la marge négative s'étend dans la zone de
+remplissage, que le découpage n'atteint pas.
+
+Mesuré avant et après sur la story `Multiple` : spinner à `0 8px 8px 0` dans une boîte à 0,
+puis à 0. Un rayon de thème de 20 px est suivi, là où le spinner restait à 8 px. Balayage des
+211 stories des champs (246 boîtes dans les 202 qui en ont une ; les neuf autres sont des
+calendriers inline) : rien ne déborde de la boîte au repos, anneaux de focus des puces et des
+boutons d'effacement compris. Seules les icônes du spinner touchent le bord, et le spinner les
+découpait déjà. Les panneaux sont dans le calque supérieur, hors découpage.
