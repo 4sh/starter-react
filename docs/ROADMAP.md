@@ -283,6 +283,11 @@ Ne pas les repayer. Chacun est documenté sur place, dans le fichier concerné.
 - **UN SEUL `render()` par test.** Deux rendus dans le même test empilent leurs conteneurs au
   même endroit de la page, et un clic réel : Playwright vise le centre de l'élément :
   atterrit sur celui du dessus. L'échec se déplace alors d'une exécution à l'autre.
+- **Le pointeur survit d'un test à l'autre.** Un clic laisse la souris où il a eu lieu, et la
+  boîte que le test suivant rend au même endroit passe au survol : une couleur « au repos » s'y
+  lit à la teinte de survol. En local, la lecture arrive souvent avant que Chrome recalcule le
+  survol, donc le test passe ; sur la CI, plus lente, il échoue (FSHSP-232, `ui-input-group`).
+  Avant de lire une couleur au repos, poser le pointeur dans un coin vide (`parkPointer`).
 - **Une assertion sur un état re-rendu doit utiliser `expect.element()`**, qui réessaie. Une
   lecture synchrone du DOM juste après un clic ne voit pas encore le nouveau rendu. Une
   assertion sur un espion, elle, peut rester synchrone : c'est ce qui rend l'écart facile à

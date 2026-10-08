@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import { expect, test } from 'vitest';
+import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 
 import { UiButton } from '../../actions/ui-button';
@@ -21,6 +22,18 @@ function tokenColor(token: string): string {
   const color = getComputedStyle(probe).color;
   probe.remove();
   return color;
+}
+
+/**
+ * Pose le pointeur dans un coin vide : un clic d'un test précédent le laisse là où
+ * la boîte suivante se rend, et une couleur au repos se lirait alors au survol.
+ */
+async function parkPointer() {
+  const spot = document.createElement('div');
+  spot.style.cssText = 'position: fixed; right: 0; bottom: 0; width: 4px; height: 4px;';
+  document.body.append(spot);
+  await userEvent.hover(spot);
+  spot.remove();
 }
 
 test('la cellule rend son contenu dans une boîte à la hauteur du champ', async () => {
@@ -257,6 +270,7 @@ test('le libellé et le message restent hors de la rangée', async () => {
 
 // Le statut du groupe porte sur la valeur composée : il prime sur celui des contrôles.
 test('le level teinte les bordures des champs et des cellules', async () => {
+  await parkPointer();
   const screen = await render(
     <UiInputGroup level="error" message="Numéro invalide">
       <UiInputGroupAddon>+33</UiInputGroupAddon>
@@ -274,6 +288,7 @@ test('le level teinte les bordures des champs et des cellules', async () => {
 // --- Boîte unique ------------------------------------------------------------
 
 test('merged pose la classe _merged et dessine une seule boîte', async () => {
+  await parkPointer();
   const screen = await render(
     <>
       <UiInputGroup>
