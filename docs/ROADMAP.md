@@ -2309,3 +2309,26 @@ puis à 0. Un rayon de thème de 20 px est suivi, là où le spinner restait à 
 calendriers inline) : rien ne déborde de la boîte au repos, anneaux de focus des puces et des
 boutons d'effacement compris. Seules les icônes du spinner touchent le bord, et le spinner les
 découpait déjà. Les panneaux sont dans le calque supérieur, hors découpage.
+
+### 2026-10-12 : `ui-stepper` défile, parité de FSHSP-236
+
+FSHSP-237. `scrollable` sur `UiStepper` : en horizontal, les étapes gardent une largeur
+minimale (`--ui-stepper-step-min-width`, même nom et même `///` qu'Angular) et `.ui-step-list`
+devient la zone qui défile, barre masquée comme `ui-tabs`. Une marge en ligne de
+`(largeur minimale - marqueur) / 2` garde atteignables le premier et le dernier titre, qui
+débordent de leur marqueur et seraient coupés au début d'une zone qui défile ; l'anneau de focus
+est réservé par un `padding-block` sur l'étape. Le titre est enveloppé dans
+`span.ui-step-title-text`, mesuré avec la boîte de l'étape (marqueur et connecteur).
+
+Défilement minimal, tranché sur FSHSP-236 : rien si l'étape est entière, sinon alignement sur
+le bord qui la coupe. Calculé sur la bande (`scrollTo`), jamais `scrollIntoView()`, qui ferait
+aussi défiler la page. Le premier placement et un redimensionnement sautent
+(`behavior: 'instant'`), seul un changement d'étape anime. L'étape montrée vit dans une ref : elle
+ne sert pas au rendu. Seul écart avec Angular, sans effet visible : l'étape est lue dans le DOM de
+la bande plutôt que par une méthode du composant (`docs/DUAL-ENGINE.md`).
+
+Mesuré à 375 px sur la story `Scrollable`, contre le Storybook Angular : mêmes positions de
+titres au pixel, même suite de `scrollLeft` sur sept « Suivant » puis trois « Précédent »
+(0, 0, 55, 175, 295, 415, 535, 609, puis 609, 609, 494), page immobile. `Basic` est inchangé.
+Six tests ajoutés ; deux mutations (défilement supprimé, premier placement animé) les font
+échouer.

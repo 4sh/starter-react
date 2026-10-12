@@ -24,12 +24,14 @@ const meta: Meta<typeof UiStepper> = {
     orientation: 'horizontal',
     linear: false,
     lazy: false,
+    scrollable: false,
     motion: true,
   },
   argTypes: {
     orientation: { control: 'inline-radio', options: ['horizontal', 'vertical'] },
     linear: { control: 'boolean' },
     lazy: { control: 'boolean' },
+    scrollable: { control: 'boolean' },
     motion: { control: 'boolean' },
     completedIcon: { control: 'text' },
     value: { control: false },
@@ -144,6 +146,28 @@ export const StepsOnly: Story = {
         <UiStep value={4}>Livraison</UiStep>
       </UiStepList>
     </UiStepper>
+  ),
+};
+
+/** Parcours long dans une boîte étroite : la bande défile et suit l'étape courante. */
+export const Scrollable: Story = {
+  args: { scrollable: true, completedIcon: 'check' },
+  render: (args) => (
+    <div style={{ maxWidth: 360 }}>
+      <UiStepper {...args} defaultValue={1}>
+        <UiStepList aria-label="Ouverture de compte">
+          <UiStep value={1}>Compte</UiStep>
+          <UiStep value={2}>Identité</UiStep>
+          <UiStep value={3}>Adresse</UiStep>
+          <UiStep value={4}>Situation</UiStep>
+          <UiStep value={5}>Justificatifs</UiStep>
+          <UiStep value={6}>Paiement</UiStep>
+          <UiStep value={7}>Signature</UiStep>
+          <UiStep value={8}>Confirmation</UiStep>
+        </UiStepList>
+        <Suivant />
+      </UiStepper>
+    </div>
   ),
 };
 

@@ -140,6 +140,25 @@ pointe sur un identifiant absent est pire qu'un attribut manquant.
 
 <Canvas of={StepperStories.StepsOnly} />
 
+## Bande défilante
+
+Sur un écran étroit ou un parcours long, les étapes ne tiennent plus en largeur : par défaut la
+bande se tasse, et les titres finissent par se chevaucher. Avec `scrollable`, chaque étape garde
+une largeur minimale (hook `--ui-stepper-step-min-width`) et la bande défile horizontalement.
+
+À chaque changement d'étape (clic, `useUiStepper`, `value` contrôlée), la bande défile **juste
+assez** pour montrer l'étape courante entière, avec son titre et son connecteur. Elle ne bouge
+pas si l'étape est déjà visible, et seule la bande défile, jamais la page. Au premier affichage,
+elle se place directement sur l'étape courante, sans animation. Comme pour `ui-tabs`, la barre
+de défilement est masquée : on fait glisser au doigt ou au pavé tactile, ou on atteint les
+étapes au clavier.
+
+Les titres sont centrés sous leur marqueur : un titre plus large que la largeur minimale
+empiète sur ses voisins, augmentez alors le hook. Sans effet en vertical, où c'est la page qui
+défile.
+
+<Canvas of={StepperStories.Scrollable} />
+
 ## Marqueurs
 
 `completedIcon` remplace le numéro des étapes franchies ; l'`icon` d'une étape gagne sur les
@@ -188,6 +207,14 @@ La valeur suit le contrat contrôlé du kit : `value` la fixe, `defaultValue` l'
       </td>
     </tr>
     <tr>
+      <td>Bande défilante</td>
+      <td>
+        Avec <code>scrollable</code>, <code>Tab</code> amène l'en-tête qui reçoit le focus dans la
+        bande (défilement natif du navigateur), et l'étape courante est ramenée à l'écran à chaque
+        changement, sans faire défiler la page.
+      </td>
+    </tr>
+    <tr>
       <td>Marqueur</td>
       <td>
         <code>aria-hidden</code> : le numéro et l'icône sont décoratifs, l'avancement passant par
@@ -197,8 +224,9 @@ La valeur suit le contrat contrôlé du kit : `value` la fixe, `defaultValue` l'
     <tr>
       <td>Mouvement</td>
       <td>
-        Transition neutralisée sous <code>prefers-reduced-motion</code> et{' '}
-        <code>data-motion="off"</code>. Voir <strong>Foundations → Motion</strong>.
+        Transition du panneau et défilement animé de la bande neutralisés sous{' '}
+        <code>prefers-reduced-motion</code>, <code>data-motion="off"</code> et{' '}
+        <code>{'motion={false}'}</code>. Voir <strong>Foundations → Motion</strong>.
       </td>
     </tr>
   </tbody>
