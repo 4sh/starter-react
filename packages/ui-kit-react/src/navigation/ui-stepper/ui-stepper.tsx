@@ -4,8 +4,12 @@ import {
   Children,
   createContext,
   isValidElement,
+  useCallback,
   useContext,
+  useEffect,
   useId,
+  useLayoutEffect,
+  useRef,
   useState,
   type ComponentPropsWithRef,
   type MouseEvent,
@@ -38,6 +42,8 @@ interface UiStepperApi {
   orientation: UiStepperOrientation;
   linear: boolean;
   lazy: boolean;
+  /** `scrollable`, retenu seulement en horizontal. */
+  scrollable: boolean;
   motion: boolean;
   completedIcon: string | undefined;
   tabIndex: number;
@@ -147,6 +153,11 @@ export interface UiStepperProps extends Omit<
   linear?: boolean;
   /** Défaut du groupe : ne rendre le contenu d'un panneau qu'à sa première activation. */
   lazy?: boolean;
+  /**
+   * Horizontal seulement : les étapes gardent une largeur minimale et la bande défile au
+   * lieu de les tasser, en suivant l'étape courante.
+   */
+  scrollable?: boolean;
   /** Animer l'apparition du panneau. Le mouvement réduit gagne toujours. */
   motion?: boolean;
   /** Icône du marqueur des étapes franchies. À défaut, leur numéro. */
@@ -173,6 +184,7 @@ export function UiStepper({
   orientation = 'horizontal',
   linear = false,
   lazy = false,
+  scrollable = false,
   motion = true,
   completedIcon,
   tabIndex = 0,
@@ -201,6 +213,7 @@ export function UiStepper({
     orientation,
     linear,
     lazy,
+    scrollable: scrollable && orientation === 'horizontal',
     motion,
     completedIcon,
     tabIndex,
@@ -248,12 +261,81 @@ export interface UiStepListProps extends ComponentPropsWithRef<'div'> {
   children?: ReactNode;
 }
 
-/** ui-step-list : la bande horizontale des en-têtes d'étape. */
-export function UiStepList({ className, children, ...rest }: UiStepListProps) {
+/**
+ * Fait défiler la bande du minimum qui montre l'étape courante entière, titre et
+ * connecteur compris. Mesuré sur la bande : `scrollIntoView()` ferait aussi défiler
+ * la page. Rend l'étape montrée, ou `null` tant que la bande n'est pas disposée.
+ */
+function revealActiveStep(list: HTMLElement, shown: HTMLElement | null): HTMLElement | null {
+  const width = list.clientWidth;
+  const step = list.querySelector<HTMLElement>('.ui-step._active');
+  if (width === 0 || !step) return null;
+
+  const own = step.getBoundingClientRect();
+  const title = step.querySelector('.ui-step-title-text')?.getBoundingClientRect() ?? own;
+  const origin = list.getBoundingClientRect().left + list.clientLeft;
+  const start = Math.min(own.left, title.left) - origin;
+  const end = Math.max(own.right, title.right) - origin;
+
+  let delta = 0;
+  if (start < -1) delta = start;
+  else if (end > width + 1) delta = Math.min(end - width, start);
+  if (delta !== 0) {
+    // Seul un changement d'étape anime, par le `scroll-behavior` CSS (`auto`).
+    const animate = shown !== null && shown !== step;
+    list.scrollTo({ left: list.scrollLeft + delta, behavior: animate ? 'auto' : 'instant' });
+  }
+  return step;
+}
+
+/**
+ * ui-step-list : la bande horizontale des en-têtes d'étape. Avec `scrollable` sur le
+ * conteneur, elle défile et garde l'étape courante en vue.
+ */
+export function UiStepList({ className, children, ref, ...rest }: UiStepListProps) {
+  const { scrollable, motion, value } = useStepper('UiStepList');
+  const listRef = useRef<HTMLDivElement | null>(null);
+  const shown = useRef<HTMLElement | null>(null);
+
+  const attach = useCallback(
+    (node: HTMLDivElement | null) => {
+      listRef.current = node;
+      if (typeof ref === 'function') ref(node);
+      else if (ref) ref.current = node;
+    },
+    [ref],
+  );
+
+  useLayoutEffect(() => {
+    const list = listRef.current;
+    if (!scrollable || !list) {
+      shown.current = null;
+      return;
+    }
+    shown.current = revealActiveStep(list, shown.current) ?? shown.current;
+  }, [scrollable, value]);
+
+  // Une bande redimensionnée, ou disposée après le montage, peut couper l'étape courante.
+  useEffect(() => {
+    const list = listRef.current;
+    if (!scrollable || !list || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => {
+      shown.current = revealActiveStep(list, shown.current) ?? shown.current;
+    });
+    ro.observe(list);
+    return () => ro.disconnect();
+  }, [scrollable]);
+
   return (
     <div
       {...rest}
-      className={cx('ui-step-list', className)}
+      ref={attach}
+      className={cx(
+        'ui-step-list',
+        scrollable && '_scrollable',
+        !motion && '_no-motion',
+        className,
+      )}
       role="tablist"
       aria-orientation="horizontal"
     >
@@ -365,6 +447,7 @@ export function UiStep({
         state === 'completed' && '_completed',
         vertical && '_vertical',
         isDisabled && '_disabled',
+        api.scrollable && '_scrollable',
         api.isLast(value) && '_last',
         className,
       )}
@@ -391,7 +474,9 @@ export function UiStep({
         <span className="ui-step-marker" aria-hidden="true">
           {markerIcon ? <UiIcon name={markerIcon} size="default" /> : api.stepNumber(value)}
         </span>
-        <span className="ui-step-title">{children}</span>
+        <span className="ui-step-title">
+          <span className="ui-step-title-text">{children}</span>
+        </span>
       </button>
 
       {showSeparator && (

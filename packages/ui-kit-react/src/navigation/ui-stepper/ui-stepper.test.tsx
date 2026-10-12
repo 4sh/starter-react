@@ -449,3 +449,139 @@ test('le connecteur ne suit que les étapes franchies', async () => {
 test('hors d’un stepper, l’étape le dit', async () => {
   await expect(render(<UiStep value={1}>Seule</UiStep>)).rejects.toThrow(/UiStepper/);
 });
+
+// --- Bande défilante -------------------------------------------------------
+// Huit étapes dans 360 px : sans `scrollable`, la bande les tasse jusqu'à faire
+// chevaucher les titres.
+const LONG = [
+  'Compte',
+  'Identité',
+  'Adresse',
+  'Situation',
+  'Justificatifs',
+  'Paiement',
+  'Signature',
+  'Confirmation',
+];
+
+function Long(props: Partial<UiStepperProps>) {
+  return (
+    <div style={{ width: 360 }}>
+      <UiStepper scrollable motion={false} defaultValue={1} {...props}>
+        <UiStepList aria-label="Étapes">
+          {LONG.map((title, index) => (
+            <UiStep key={title} value={index + 1}>
+              {title}
+            </UiStep>
+          ))}
+        </UiStepList>
+        <Navigation />
+      </UiStepper>
+    </div>
+  );
+}
+
+const strip = (container: HTMLElement) => container.querySelector<HTMLElement>('.ui-step-list')!;
+
+/** L'étape courante, titre compris, dans le repère de la bande : [début, fin]. */
+function activeExtent(container: HTMLElement): [number, number] {
+  const list = strip(container);
+  const step = list.querySelector('.ui-step._active')!;
+  const own = step.getBoundingClientRect();
+  const title = step.querySelector('.ui-step-title-text')!.getBoundingClientRect();
+  const origin = list.getBoundingClientRect().left;
+  return [Math.min(own.left, title.left) - origin, Math.max(own.right, title.right) - origin];
+}
+
+// Clic DOM : celui de Playwright fait d'abord défiler sa cible dans la vue.
+async function press(container: HTMLElement, name: 'Suivant' | 'Précédent', expected: string) {
+  [...container.querySelectorAll('button')].find((b) => b.textContent === name)!.click();
+  await expect.poll(() => container.querySelector('[data-courant]')?.textContent).toBe(expected);
+}
+
+test('scrollable : la bande défile au lieu de tasser les étapes', async () => {
+  const screen = await render(<Long />);
+  const list = strip(screen.container);
+  const titles = [...list.querySelectorAll('.ui-step-title-text')].map((t) =>
+    t.getBoundingClientRect(),
+  );
+
+  expect(list).toHaveClass('_scrollable');
+  expect(list.scrollWidth).toBeGreaterThan(list.clientWidth);
+  titles.slice(1).forEach((title, index) => {
+    expect(title.left).toBeGreaterThanOrEqual(titles[index]!.right);
+  });
+  // Le premier et le dernier titre débordent de leur marqueur : la marge les garde atteignables.
+  expect(titles[0]!.left).toBeGreaterThanOrEqual(list.getBoundingClientRect().left);
+  list.scrollLeft = list.scrollWidth;
+  const last = [...list.querySelectorAll('.ui-step-title-text')].at(-1)!.getBoundingClientRect();
+  expect(last.right).toBeLessThanOrEqual(list.getBoundingClientRect().right);
+});
+
+test('scrollable : la bande défile du minimum pour montrer l’étape courante', async () => {
+  const screen = await render(<Long />);
+  const list = strip(screen.container);
+
+  await press(screen.container, 'Suivant', '2');
+  expect(list.scrollLeft).toBe(0); // déjà entièrement visible
+
+  await press(screen.container, 'Suivant', '3');
+  const [, end] = activeExtent(screen.container);
+  expect(list.scrollLeft).toBeGreaterThan(0);
+  expect(end).toBeCloseTo(list.clientWidth, 0); // alignée sur le bord droit, pas centrée
+
+  for (const expected of ['4', '5', '6', '7', '8'])
+    await press(screen.container, 'Suivant', expected);
+  for (const expected of ['7', '6', '5', '4']) await press(screen.container, 'Précédent', expected);
+  const [start] = activeExtent(screen.container);
+  expect(start).toBeCloseTo(0, 0); // coupée à gauche : alignée sur le bord gauche
+});
+
+test('scrollable : au premier affichage, la bande est déjà sur l’étape courante', async () => {
+  // Défilement doux actif : seul un saut immédiat place l’étape dès le rendu.
+  const screen = await render(<Long motion defaultValue={6} />);
+  const [start, end] = activeExtent(screen.container);
+
+  expect(strip(screen.container).scrollLeft).toBeGreaterThan(0);
+  expect(start).toBeGreaterThanOrEqual(-1);
+  expect(end).toBeLessThanOrEqual(strip(screen.container).clientWidth + 1);
+});
+
+test('scrollable : seule la bande défile, jamais la page', async () => {
+  const screen = await render(
+    <>
+      <div style={{ height: 3000 }} />
+      <Long />
+    </>,
+  );
+  window.scrollTo(0, 0);
+
+  await press(screen.container, 'Suivant', '2');
+  await press(screen.container, 'Suivant', '3');
+  expect(strip(screen.container).scrollLeft).toBeGreaterThan(0);
+  expect(window.scrollY).toBe(0);
+});
+
+test('sans scrollable, la bande ne défile pas', async () => {
+  const screen = await render(<Long scrollable={false} defaultValue={8} />);
+  const list = strip(screen.container);
+
+  expect(list).not.toHaveClass('_scrollable');
+  expect(getComputedStyle(list).overflowX).toBe('visible');
+  expect(list.scrollLeft).toBe(0);
+});
+
+test('scrollable est sans effet en vertical', async () => {
+  const screen = await render(
+    <UiStepper scrollable orientation="vertical" defaultValue={1} aria-label="Étapes">
+      <UiStepItem value={1}>
+        <UiStep>Un</UiStep>
+      </UiStepItem>
+      <UiStepItem value={2}>
+        <UiStep>Deux</UiStep>
+      </UiStepItem>
+    </UiStepper>,
+  );
+
+  steps(screen.container).forEach((step) => expect(step).not.toHaveClass('_scrollable'));
+});

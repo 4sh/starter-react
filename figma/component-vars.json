@@ -10,9 +10,9 @@
         "Mode 1"
       ],
       "counts": {
-        "tokens": 1431,
+        "tokens": 1432,
         "alias": 1268,
-        "literal": 163,
+        "literal": 164,
         "skipped": 63,
         "derivedDescriptions": 223
       },
@@ -27833,6 +27833,30 @@
           },
           "com.4sh.ui-kit": {
             "cssVar": "--ui-stepper-separator-stroke-width",
+            "component": "ui-stepper",
+            "entryPoint": "@4sh/ui-kit-react/ui-stepper",
+            "descriptionSource": "scss"
+          }
+        }
+      }
+    },
+    "step": {
+      "min-width": {
+        "$value": "120px",
+        "$type": "dimension",
+        "$description": "Largeur minimale d'une étape (marqueur et connecteur) quand la barre défile.",
+        "$extensions": {
+          "com.figma": {
+            "resolvedType": "FLOAT",
+            "scopes": [
+              "WIDTH_HEIGHT"
+            ],
+            "codeSyntax": {
+              "WEB": "var(--ui-stepper-step-min-width)"
+            }
+          },
+          "com.4sh.ui-kit": {
+            "cssVar": "--ui-stepper-step-min-width",
             "component": "ui-stepper",
             "entryPoint": "@4sh/ui-kit-react/ui-stepper",
             "descriptionSource": "scss"

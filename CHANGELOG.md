@@ -10,6 +10,15 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
 
 ### Added
 
+- **`ui-stepper` : prop `scrollable`, bande d'étapes défilante** (FSHSP-237, parité de
+  FSHSP-236). Quand les étapes ne tiennent pas en largeur (mobile, parcours long), la bande
+  défile au lieu de se tasser, et les titres ne se chevauchent plus. À chaque changement
+  d'étape (clic, `useUiStepper`, `value` contrôlée), elle défile juste assez pour montrer
+  l'étape courante entière, sans jamais faire défiler la page ; au premier affichage, elle s'y
+  place sans animation. Désactivée par défaut, rendu inchangé ; sans effet en vertical.
+  - Nouveau hook `--ui-stepper-step-min-width` (largeur minimale d'une étape quand la bande
+    défile).
+  - Le titre d'une étape est désormais enveloppé dans un `span.ui-step-title-text`.
 - **`ui-input-group` : libellé, message et statut sur le groupe** (FSHSP-232). Un champ composé
   (indicatif et numéro, préfixe d'URL, montant et devise) affiche son libellé au-dessus de la
   rangée et son message d'aide ou d'erreur en dessous, avec le même rendu que `ui-field` :
