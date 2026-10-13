@@ -39,7 +39,7 @@
     "README.fr.md"
   ],
   "bin": {
-    "ui-kit-react-mcp": "./mcp/dist/index.js"
+    "ui-kit-react-mcp": "mcp/dist/index.js"
   },
   "sideEffects": [
     "**/*.css",
