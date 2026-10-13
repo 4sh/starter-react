@@ -61,11 +61,12 @@ import { UiIcon } from '@4sh/ui-kit-react/ui-icon';
 
 ## Entrées transverses
 
-| Sous-chemin | Contenu                                                                 |
-| ----------- | ----------------------------------------------------------------------- |
-| `/theming`  | `UiThemeProvider`, `useUiTheme`, `useUiBrand`, `uiThemeBootstrapScript` |
-| `/types`    | `UiLevel`, `UiSubLevel`, `UiFeedbackLevel` (types seuls)                |
-| `/utils`    | `cx` (concaténation de classes)                                         |
+| Sous-chemin     | Contenu                                                    |
+| --------------- | ---------------------------------------------------------- |
+| `/theming`      | `UiThemeProvider`, `useUiTheme`, `useUiBrand`              |
+| `/theme-script` | `uiThemeBootstrapScript`, seule entrée sans `'use client'` |
+| `/types`        | `UiLevel`, `UiSubLevel`, `UiFeedbackLevel` (types seuls)   |
+| `/utils`        | `cx` (concaténation de classes)                            |
 
 ## Rendu serveur
 
@@ -74,7 +75,17 @@ s'utilise tel quel sous Next App Router.
 
 Pour éviter le clignotement clair → sombre au premier rendu, injecter
 `uiThemeBootstrapScript()` dans le `<head>` : il pose le mode mémorisé avant la première
-peinture, ce que le provider ne peut pas faire puisqu'il s'exécute après.
+peinture, ce que le provider ne peut pas faire puisqu'il s'exécute après. La fonction vient
+de son propre sous-chemin, sans `'use client'`, pour qu'un layout serveur puisse l'appeler :
+
+```tsx
+// app/layout.tsx
+import { uiThemeBootstrapScript } from '@4sh/ui-kit-react/theme-script';
+
+<head>
+  <script dangerouslySetInnerHTML={{ __html: uiThemeBootstrapScript() }} />
+</head>;
+```
 
 ## Personnaliser
 

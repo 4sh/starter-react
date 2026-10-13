@@ -636,6 +636,11 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
 
 ### Fixed
 
+- **`uiThemeBootstrapScript()` s'appelle depuis un layout serveur** (FSHSP-238). Elle vivait
+  dans `/theming`, que le build marque `'use client'` : Next refusait de l'appeler dans le
+  `<head>` d'un layout serveur, seul endroit où elle sert. Elle s'importe désormais depuis
+  `@4sh/ui-kit-react/theme-script`, seul sous-chemin publié sans `'use client'`, et quitte
+  `/theming`.
 - Champs : le spinner et les boutons d'action gardaient leurs coins arrondis dans une boîte
   équerrée (FSHSP-234, parité de FSHSP-233). Un `ui-input-number` suivi d'un add-on dans un
   `ui-input-group` montrait l'arrondi du champ seul à droite de ses flèches ; idem pour les

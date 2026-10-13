@@ -95,7 +95,8 @@ Tout composant interactif porte `'use client'`, conservé par la construction du
 fonctionne tel quel sous l'App Router de Next. Pour éviter le passage du clair au sombre à la
 première image, injectez `uiThemeBootstrapScript()` dans le `<head>` : il applique le mode
 mémorisé avant la première peinture, ce que le fournisseur ne peut pas faire puisqu'il ne
-s'exécute qu'après.
+s'exécute qu'après. La fonction vient de `@4sh/ui-kit-react/theme-script`, seul sous-chemin
+sans `'use client'`, pour qu'un layout serveur puisse l'appeler.
 
 <br />
 <br />

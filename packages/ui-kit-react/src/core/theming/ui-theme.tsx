@@ -11,14 +11,13 @@ import {
   type ReactNode,
 } from 'react';
 
+import { STORAGE_KEY_BRAND, STORAGE_KEY_THEME } from '../theme-script/theme-script';
+
 /** Mode clair / sombre. Correspond à l'axe `theme` des jetons sémantiques. */
 export type UiThemeMode = 'light' | 'dark';
 
 /** Marque active. Correspond à l'axe `brand` des jetons primitifs. */
 export type UiBrandId = 'brand1' | 'brand2' | 'brand3';
-
-const STORAGE_KEY_THEME = 'ui-kit-theme';
-const STORAGE_KEY_BRAND = 'ui-kit-brand';
 
 const THEMES: readonly UiThemeMode[] = ['light', 'dark'];
 const BRANDS: readonly UiBrandId[] = ['brand1', 'brand2', 'brand3'];
@@ -229,29 +228,4 @@ export function useUiTheme() {
 export function useUiBrand() {
   const { brand, setBrand } = useUiThemeContext('useUiBrand');
   return { brand, setBrand };
-}
-
-/**
- * Script à injecter dans le `<head>`, avant tout rendu, pour poser le mode et
- * la marque mémorisés AVANT la première peinture.
- *
- * Sans lui, une page rendue côté serveur s'affiche en clair puis bascule à
- * l'hydratation : le provider ne s'exécute qu'après.
- *
- * @example
- * ```tsx
- * // app/layout.tsx
- * <head>
- *   <script dangerouslySetInnerHTML={{ __html: uiThemeBootstrapScript() }} />
- * </head>
- * ```
- */
-export function uiThemeBootstrapScript(): string {
-  return (
-    `(function(){try{var d=document.documentElement;` +
-    `var t=localStorage.getItem('${STORAGE_KEY_THEME}');` +
-    `if(t==='dark')d.setAttribute('data-theme','dark');` +
-    `var b=localStorage.getItem('${STORAGE_KEY_BRAND}');` +
-    `if(b==='brand2'||b==='brand3')d.setAttribute('data-brand',b);}catch(e){}})();`
-  );
 }

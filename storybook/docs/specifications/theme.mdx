@@ -189,6 +189,18 @@ s'afficherait en clair avant de basculer. `uiThemeBootstrapScript()` renvoie un 
 injecter dans le `<head>`, qui pose le mode et la marque mémorisés **avant la première
 peinture**.
 
+Il s'importe depuis `@4sh/ui-kit-react/theme-script`, et non depuis `/theming` : ce
+sous-chemin ne porte pas `'use client'`, ce qui permet de l'appeler dans un layout serveur.
+
+```tsx
+// app/layout.tsx
+import { uiThemeBootstrapScript } from '@4sh/ui-kit-react/theme-script';
+
+<head>
+  <script dangerouslySetInnerHTML={{ __html: uiThemeBootstrapScript() }} />
+</head>;
+```
+
 ### Un sous-arbre dans un autre mode
 
 Les jetons répondent aussi aux classes `.light` / `.dark` et `.brand2` / `.brand3`, et

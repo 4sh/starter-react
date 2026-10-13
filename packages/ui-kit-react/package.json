@@ -65,6 +65,10 @@
       "types": "./dist/core/ripple/index.d.ts",
       "import": "./dist/ripple.js"
     },
+    "./theme-script": {
+      "types": "./dist/core/theme-script/index.d.ts",
+      "import": "./dist/theme-script.js"
+    },
     "./theming": {
       "types": "./dist/core/theming/index.d.ts",
       "import": "./dist/theming.js"

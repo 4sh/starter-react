@@ -60,11 +60,12 @@ component between families is never a breaking change for you.
 
 ## Cross-cutting entry points
 
-| Subpath    | Contents                                                                |
-| ---------- | ----------------------------------------------------------------------- |
-| `/theming` | `UiThemeProvider`, `useUiTheme`, `useUiBrand`, `uiThemeBootstrapScript` |
-| `/types`   | `UiLevel`, `UiSubLevel`, `UiFeedbackLevel` (types only)                 |
-| `/utils`   | `cx` (class name concatenation)                                         |
+| Subpath         | Contents                                                        |
+| --------------- | --------------------------------------------------------------- |
+| `/theming`      | `UiThemeProvider`, `useUiTheme`, `useUiBrand`                   |
+| `/theme-script` | `uiThemeBootstrapScript`, the only entry without `'use client'` |
+| `/types`        | `UiLevel`, `UiSubLevel`, `UiFeedbackLevel` (types only)         |
+| `/utils`        | `cx` (class name concatenation)                                 |
 
 ## Server rendering
 
@@ -73,7 +74,17 @@ works as-is under the Next App Router.
 
 To avoid the light → dark flash on first paint, inject `uiThemeBootstrapScript()` into the
 `<head>`. It applies the stored mode before the first paint, which the provider cannot do
-since it only runs afterwards.
+since it only runs afterwards. It comes from its own subpath, which carries no
+`'use client'`, so a server layout can call it:
+
+```tsx
+// app/layout.tsx
+import { uiThemeBootstrapScript } from '@4sh/ui-kit-react/theme-script';
+
+<head>
+  <script dangerouslySetInnerHTML={{ __html: uiThemeBootstrapScript() }} />
+</head>;
+```
 
 ## Theming
 
