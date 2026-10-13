@@ -4,4 +4,4 @@
  */
 
 /** Version du paquet, alignée sur `package.json` au moment de la publication. */
-export const UI_KIT_VERSION = '0.1.0';
+export const UI_KIT_VERSION = '0.1.1';

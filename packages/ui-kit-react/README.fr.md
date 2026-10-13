@@ -55,7 +55,7 @@ import { UiIcon } from '@4sh/ui-kit-react/ui-icon';
 | `table`       | `ui-paginator`, `ui-table`                                                                                                                                                                                                                                                                                                                                                                                           |
 
 **62 composants** sur les 62 du Design System. Feuille de route :
-`docs/components-index.md`.
+[components-index.md](https://github.com/4sh/starter-react/blob/main/docs/components-index.md).
 
 ## Entrées transverses
 
@@ -136,7 +136,7 @@ version du kit qui l'embarque, et demande Node 22 ou plus.
 Deux, chacune importée par exactement un fichier interne : `@floating-ui/react-dom` pour le
 positionnement ancré et `@tanstack/react-virtual` pour les listes virtualisées. `react` et
 `react-dom` sont en `peerDependencies`. La plupart des composants restent donc sans
-dépendance, même recopiés chez vous. Voir `docs/DECISIONS.md` et sa décision D6.
+dépendance, même recopiés chez vous. Voir [DECISIONS.md](https://github.com/4sh/starter-react/blob/main/docs/DECISIONS.md) et sa décision D6.
 
 ## Licence
 
