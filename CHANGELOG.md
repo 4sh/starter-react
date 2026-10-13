@@ -8,6 +8,8 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-13
+
 ### Added
 
 - **Le paquet `@4sh/ui-kit-react` est publiable** (FSHSP-222). `private: true` est retiré, et
