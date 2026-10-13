@@ -9,8 +9,9 @@ guessing names, props and import paths.
 
 **Documentation (Storybook)**: https://4sh.github.io/starter-react/
 
-> ⚠️ Not published yet (`private: true`). See `docs/PUBLISHING.md` at the repository root.
-> Until then, run it from the repository (see [Development](#development)).
+> **Not published on its own**: the server ships inside `@4sh/ui-kit-react`, under `mcp/`,
+> as in the Angular starter. This package stays `private`: it is where the server is
+> written and tested, and `pnpm kit:mcp` copies its build into the kit.
 
 ---
 
@@ -36,14 +37,8 @@ import path (`@4sh/ui-kit-react/ui-<name>`, never the family), the one-time setu
 
 ## Use
 
-Install it next to the kit, **at the same version**: the server documents the kit it was
-built with, and announces that version to the MCP client.
-
-```bash
-pnpm add -D @4sh/ui-kit-react-mcp
-```
-
-Then declare it once, in the project's `.mcp.json`:
+Installing the kit is enough: the server comes with it, documents that exact version, and
+announces it to the MCP client. Declare it once, in the project's `.mcp.json`:
 
 ```json
 {
@@ -62,9 +57,9 @@ the client and never listens on the network. Node 22 or later.
 
 ## Zero runtime dependency
 
-The package is one self-contained ESM file (`dist/index.js`, the MCP SDK, Zod and MiniSearch
-inlined) plus its documentation snapshot (`data/`). Nothing is resolved at install time, so
-no transitive version escapes your lockfile.
+The server is one self-contained ESM file (`dist/index.js`, the MCP SDK, Zod and MiniSearch
+inlined) plus its documentation snapshot (`data/`). Embedding it adds nothing to the kit's
+dependencies, and no transitive version escapes your lockfile.
 
 ## Development
 
@@ -73,10 +68,11 @@ In the `starter-react` repository:
 ```bash
 pnpm mcp:build   # regenerate the doc, write data/, bundle dist/index.js
 pnpm mcp:smoke   # start the built binary over stdio and walk an agent's path
+pnpm kit:mcp     # build, copy into packages/ui-kit-react/mcp/, smoke-test that copy
 pnpm test        # includes the `mcp` Vitest project (Node, fixture manifest)
 ```
 
-To point a local client at it before publication, use
+To point a local client at a working copy, use
 `node <repo>/packages/ui-kit-react-mcp/dist/index.js` as the command.
 
 The snapshot is written by `scripts/mcp-assets.build.mjs`: the API from the types

@@ -66,6 +66,7 @@ export default tseslint.config(
       'packages/ui-kit-react/src/styles/generated',
       'packages/ui-kit-react-cli/assets',
       'packages/ui-kit-react-mcp/data',
+      'packages/ui-kit-react/mcp',
       'coverage',
     ],
   },

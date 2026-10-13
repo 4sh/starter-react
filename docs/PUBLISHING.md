@@ -1,11 +1,18 @@
 # Publication
 
-> ⚠️ **Aucun paquet n'est publié à ce jour.** Les trois paquets portent `private: true` en
-> attendant leur première release, ce qui empêche un `pnpm publish -r` distrait de pousser
-> une coquille vide. Ce document décrit la cible ; le workflow est à écrire en phase 5
-> (voir `docs/DECISIONS.md`).
+Un seul paquet part sur npm : **`@4sh/ui-kit-react`**, avec le serveur MCP embarqué sous
+`mcp/` (FSHSP-222). Le workflow est `.github/workflows/publish.yml`.
 
-## Principes, arrêtés dès maintenant
+| Paquet                  | Publié | Pourquoi                                                                 |
+| ----------------------- | ------ | ------------------------------------------------------------------------ |
+| `@4sh/ui-kit-react`     | oui    | Le kit, serveur MCP compris.                                             |
+| `@4sh/ui-kit-react-mcp` | non    | Là où le serveur s'écrit et se teste. Son build est recopié dans le kit. |
+| `@4sh/ui-kit-react-cli` | non    | Squelette en attendant la phase 4. Rejoindra ce workflow, publié avant.  |
+
+Les deux paquets non publiés gardent `private: true`, ce qui empêche un `pnpm publish -r`
+distrait de pousser une coquille vide.
+
+## Principes
 
 Ils sont repris du starter Angular, où ils sont éprouvés. Ce ne sont pas des détails
 d'implémentation : ils décident de ce qui peut mal tourner.
@@ -39,22 +46,56 @@ rien. Si cela doit bouger un jour, le test d'acceptation est un vrai `dry_run` c
 registre depuis ce workflow, pas un `pnpm publish --dry-run` vert en local, qui n'effectue
 aucun échange OIDC.
 
-## À faire en phase 5
+## Mise en place, une fois
 
-1. Écrire `.github/workflows/publish.yml` sur ce modèle (le fichier du starter Angular est
-   directement transposable : mêmes jobs, mêmes gardes, seuls les noms de paquets et les
-   commandes de build changent).
-2. Retirer `private: true` des trois `package.json`.
-3. Déclarer le Trusted Publishing sur npm pour les trois paquets : dépôt `4sh/starter-react`,
-   workflow `publish.yml`.
-4. Créer l'environnement GitHub `npm-publish` avec au moins un approbateur requis.
-5. Lancer un `dry_run: true` et **lire le contenu du tarball** avant toute publication
-   réelle. Points à vérifier en particulier : la présence de `dist/`, de `src/styles/`, du
-   `NOTICE` et des README, l'absence des stories, des tests et des `.mdx`, et la
-   cohérence de la table `exports` avec ce que `dist/` contient réellement.
-6. Pour `@4sh/ui-kit-react-mcp`, les jobs `verify` et `publish` enchaînent eux-mêmes
-   `pnpm mcp:build` puis `pnpm mcp:smoke`, **après** l'estampillage de la version : son
-   `dist/` et son `data/` ne sont pas committés, et le smoke test lance le binaire
-   construit. Un tarball sans `dist/index.js` ou sans `data/` doit faire échouer le job,
-   pas atteindre le registre : côté Angular, une release est déjà partie sans son serveur
-   MCP parce que l'étape qui l'assemblait n'était pas dans le workflow.
+À faire avant la première publication. Rien de tout ça ne vit dans le dépôt : c'est de la
+configuration GitHub et npm, et le workflow échoue tant qu'elle manque.
+
+1. **Créer l'environnement GitHub `npm-publish`** (_Settings → Environments_) avec au moins
+   un approbateur requis. ⚠️ Un environnement référencé par un workflow mais jamais créé
+   l'est automatiquement, **sans** règle de protection : le garde humain disparaît sans
+   bruit. Le créer d'abord, à la main.
+2. **Publier la première version depuis un poste.** Le Trusted Publisher se déclare sur la
+   page d'un paquet **déjà présent** sur le registre : la première version d'un nom neuf
+   ne peut donc pas passer par le workflow (il échouerait en `ENEEDAUTH`). Côté Angular,
+   `@4sh/ui-kit-schematics` est tombé exactement dans ce cas (FSHSP-109). Même chemin
+   ici : `pnpm kit:pack` pour que tous les contrôles passent, puis `npm publish` depuis
+   `packages/ui-kit-react`, en session `npm login` interactive sur le compte
+   `4sh-package-admin`, jamais avec un token de CI. Cette version-là ne porte aucune
+   attestation de provenance, et son tag `vX.Y.Z` se pose à la main, le job `release`
+   n'ayant pas tourné.
+3. **Déclarer le Trusted Publisher** sur la page du paquet (_Settings → Trusted
+   Publisher_) : GitHub Actions, organisation `4sh`, dépôt `starter-react`, workflow
+   `publish.yml`, environnement `npm-publish`, _Allowed actions_ limité à `npm publish`.
+   L'étape « Check npm supports Trusted Publishing » du job `publish` affiche les trois
+   valeurs exactes à recopier si l'échange échoue sur `ENEEDAUTH`. Les versions suivantes
+   passent entièrement par la CI.
+4. **Optionnel** : le secret `SLACK_WEBHOOK_URL` pour l'annonce de release. Sans lui,
+   l'étape est sautée, pas en échec.
+
+## Publier une version
+
+1. Préparer la release sur `main` (`docs/VERSIONING.md`) : section `[X.Y.Z]` dans le
+   CHANGELOG, version dans `packages/ui-kit-react/package.json` **et** `UI_KIT_VERSION` dans
+   `packages/ui-kit-react/src/index.ts`.
+2. _Actions → Publish @4sh/ui-kit-react to npm → Run workflow_, `dry_run` coché (défaut).
+   Lire la sortie de `npm publish --dry-run` : c'est la liste exacte des fichiers envoyés.
+3. Relancer avec `dry_run` décoché, puis approuver le job `publish`.
+4. Le job `release` pose le tag `vX.Y.Z` et ouvre la release GitHub.
+
+## Ce que le workflow contrôle, pour ne pas avoir à le faire de tête
+
+Le job `verify` et le job `publish` enchaînent les mêmes étapes, et la publication ne part
+que si toutes passent :
+
+| Étape                   | Échoue quand                                                                                                                                                                                                                    |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `changelog.section.mjs` | La section `[X.Y.Z]` du CHANGELOG manque : la release GitHub serait vide.                                                                                                                                                       |
+| `pnpm kit:build`        | Un point d'entrée ne se construit pas, ou ses déclarations de types.                                                                                                                                                            |
+| `pnpm kit:mcp`          | Le serveur MCP ne se construit pas depuis la doc de CE commit, ou sa copie embarquée ne répond pas au smoke test.                                                                                                               |
+| `pnpm kit:check`        | Un fichier attendu manque (`dist/`, `styles.css`, `mcp/`, `NOTICE`…), une cible `exports` ou `bin` ne résout pas, une story ou un test fuite, ou la version diffère entre `package.json`, `UI_KIT_VERSION` et le manifeste MCP. |
+
+Le serveur est reconstruit à chaque fois parce que son `dist/` et son `data/` ne sont pas
+committés. C'est aussi pourquoi `kit:mcp` est une étape explicite du workflow et non un
+effet de bord du build : côté Angular, la 0.4.0 est partie sans son serveur MCP parce que
+l'étape qui l'assemblait n'était pas dans le workflow (FSHSP-141).

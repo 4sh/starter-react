@@ -5,15 +5,21 @@
  * bundle, the `data/` path relative to `dist/`, and the real manifest.
  *
  * Requires `pnpm mcp:build`. Usage: pnpm mcp:smoke
+ *
+ * An optional directory walks another copy laid out the same way
+ * (`dist/index.js` + `data/`): `pnpm kit:mcp` points it at the one embedded
+ * in the kit, which is what the tarball actually ships.
  */
 import { readFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
-const PKG = join(dirname(fileURLToPath(import.meta.url)), '..');
+const PKG = process.argv[2]
+  ? resolve(process.argv[2])
+  : join(dirname(fileURLToPath(import.meta.url)), '..');
 const manifest = JSON.parse(readFileSync(join(PKG, 'data/manifest.json'), 'utf8'));
 
 const failures = [];

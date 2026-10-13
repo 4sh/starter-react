@@ -9,8 +9,9 @@ les noms, les props et les chemins d'import.
 
 **Documentation (Storybook)** : https://4sh.github.io/starter-react/
 
-> ⚠️ Paquet non encore publié (`private: true`). Voir `docs/PUBLISHING.md` à la racine du
-> dépôt. D'ici là, il se lance depuis le dépôt (voir [Développement](#développement)).
+> **Pas publié seul** : le serveur est livré dans `@4sh/ui-kit-react`, sous `mcp/`, comme
+> côté Angular. Ce paquet reste `private` : c'est là que le serveur s'écrit et se teste, et
+> `pnpm kit:mcp` en recopie le build dans le kit.
 
 ---
 
@@ -37,14 +38,8 @@ kit.
 
 ## Utilisation
 
-L'installer à côté du kit, **à la même version** : le serveur documente le kit avec lequel il
-a été construit, et annonce cette version au client MCP.
-
-```bash
-pnpm add -D @4sh/ui-kit-react-mcp
-```
-
-Puis le déclarer une fois, dans le `.mcp.json` du projet :
+Installer le kit suffit : le serveur vient avec, documente cette version exacte, et
+l'annonce au client MCP. Le déclarer une fois, dans le `.mcp.json` du projet :
 
 ```json
 {
@@ -63,9 +58,9 @@ local, il n'écoute jamais le réseau. Node 22 ou plus.
 
 ## Aucune dépendance à l'exécution
 
-Le paquet est un seul fichier ESM autonome (`dist/index.js`, où le SDK MCP, Zod et
-MiniSearch sont inlinés) plus son instantané de doc (`data/`). Rien ne se résout à
-l'installation, donc aucune version transitive n'échappe à votre lockfile.
+Le serveur est un seul fichier ESM autonome (`dist/index.js`, où le SDK MCP, Zod et
+MiniSearch sont inlinés) plus son instantané de doc (`data/`). L'embarquer n'ajoute aucune
+dépendance au kit, et aucune version transitive n'échappe à votre lockfile.
 
 ## Développement
 
@@ -74,10 +69,11 @@ Dans le dépôt `starter-react` :
 ```bash
 pnpm mcp:build   # régénère la doc, écrit data/, bundle dist/index.js
 pnpm mcp:smoke   # lance le binaire construit sur stdio et déroule le parcours d'un agent
+pnpm kit:mcp     # construit, recopie dans packages/ui-kit-react/mcp/, teste cette copie
 pnpm test        # comprend le projet Vitest `mcp` (Node, manifeste de test)
 ```
 
-Pour y brancher un client local avant la publication, prendre
+Pour y brancher un client local sur une copie de travail, prendre
 `node <dépôt>/packages/ui-kit-react-mcp/dist/index.js` comme commande.
 
 L'instantané est écrit par `scripts/mcp-assets.build.mjs` : l'API depuis les types

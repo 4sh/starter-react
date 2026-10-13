@@ -59,10 +59,6 @@ const PLANNED = [
     path: 'scripts/parity.check.mjs',
     why: 'Contrôle de parité Dual-Engine, phase 6. Son cahier des charges EST docs/DUAL-ENGINE.md.',
   },
-  {
-    path: '.github/workflows/publish.yml',
-    why: 'Workflow de publication, phase 5. Sa spécification est docs/PUBLISHING.md.',
-  },
 ];
 
 /** Fichiers scannés. Le `.mdx` en fait partie : la doc Storybook cite aussi des chemins. */
