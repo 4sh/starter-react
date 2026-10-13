@@ -36,7 +36,7 @@
     "smoke": "node scripts/smoke.mjs"
   },
   "devDependencies": {
-    "@modelcontextprotocol/sdk": "1.32.0",
+    "@modelcontextprotocol/sdk": "1.32.1",
     "@types/node": "26.6.5",
     "minisearch": "7.2.0",
     "typescript": "6.0.3",
