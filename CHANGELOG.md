@@ -8,6 +8,12 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
 
 ## [Unreleased]
 
+### Fixed
+
+- **README publiés : les renvois vers la doc du dépôt mènent quelque part** (FSHSP-240). Sur la
+  page npm, `docs/components-index.md` et `docs/DECISIONS.md` étaient cités comme des chemins,
+  alors que ces fichiers ne sont pas dans le paquet. Ce sont désormais des liens GitHub.
+
 ## [0.1.0] - 2026-10-13
 
 ### Added

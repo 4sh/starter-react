@@ -54,7 +54,7 @@ component between families is never a breaking change for you.
 | `navigation`  | `ui-bottom-tab-bar`, `ui-breadcrumb`, `ui-context-menu`, `ui-menu`, `ui-sidebar`, `ui-stepper`, `ui-tabs`                                                                                                                                                                                                                                                                                                            |
 | `table`       | `ui-paginator`, `ui-table`                                                                                                                                                                                                                                                                                                                                                                                           |
 
-**62 components** out of the Design System's 62. Roadmap: `docs/components-index.md`.
+**62 components** out of the Design System's 62. Roadmap: [components-index.md](https://github.com/4sh/starter-react/blob/main/docs/components-index.md).
 
 ## Cross-cutting entry points
 
@@ -135,7 +135,7 @@ kit version it ships with, and needs Node 22 or later.
 Two, each imported by exactly one internal file: `@floating-ui/react-dom` for anchored
 positioning and `@tanstack/react-virtual` for virtualised lists. `react` and `react-dom` are
 peer dependencies. Most components therefore stay dependency-free even when copied into
-your own codebase. See `docs/DECISIONS.md` and its D6.
+your own codebase. See [DECISIONS.md](https://github.com/4sh/starter-react/blob/main/docs/DECISIONS.md) and its D6.
 
 ## License
 
