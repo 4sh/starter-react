@@ -41,7 +41,7 @@ La liste est longue parce que chaque entrée a coûté du temps une fois.
 | 2     | Fondation transverse            | ✅ terminée (`core/ripple` en dernier)    |
 | 3     | La vague des composants         | ✅ 62 sur 62                              |
 | 4     | Mode copie (CLI)                | ⬜ pas commencée                          |
-| 5     | MCP, doc publique, publication  | 🟡 workflow prêt, 1re version à publier   |
+| 5     | MCP, doc publique, publication  | ✅ `0.1.0` publiée le 13 octobre          |
 | 6     | Contrôle de parité entre stacks | ⬜ pas commencée                          |
 
 **Chiffres du jour** : 62 composants, 73 points d'entrée publics, 7 garde-fous en CI,
@@ -91,17 +91,18 @@ donc la majorité des écrans d'un projet réel.
 
 **Les phases 2 et 3 sont closes le 23 septembre** : les 62 composants sont portés, et
 `core/ripple`, la dernière brique, a donné la prop `ripple` aux quatorze composants équipés.
-La suite du plan est la phase 4, le mode copie par CLI (décision D7) ; sortir un
-`0.1.0` avant, ou non, est une décision à prendre.
+**La suite du plan est la phase 4**, le mode copie par CLI (décision D7, FSHSP-223).
 
 **Le serveur MCP est en place le 6 octobre** (FSHSP-221), avant la phase 4 : il ne dépend que
 du kit et de sa doc, pas du CLI ni de la publication.
 
 **Le kit est publiable le 13 octobre** (FSHSP-222) : serveur MCP embarqué sous `mcp/`,
 `publish.yml`, tarball contrôlé par `pnpm kit:check`, installation vérifiée dans un projet
-Vite et un projet Next vierges. Ce qui reste de la phase 5 n'est pas du code : la mise en
-place GitHub et npm, puis la première version publiée depuis un poste
-(`docs/PUBLISHING.md`, « Mise en place, une fois »).
+Vite et un projet Next vierges.
+
+**`@4sh/ui-kit-react@0.1.0` est publiée le 13 octobre** (FSHSP-239), depuis un poste, et le
+Trusted Publisher est déclaré : les releases suivantes passent par `publish.yml`. Version
+Jira : `react-v0.1.0` (les `vX.Y.Z` du projet FSHSP sont celles du kit Angular).
 
 Restent ouverts, hors du plan : `format:check` absent de la CI (quatre fichiers ont dérivé),
 et les trois constats signalés le 23 septembre (contraste des jetons
@@ -2364,3 +2365,19 @@ dans `core/theme-script`, sous-chemin `./theme-script`, exclu de la bannière pa
 `SERVER_SAFE_ENTRIES` dans `vite.config.ts`. Vérifié ensuite : build Next statique, mode sombre
 posé avant l'hydratation, aucun avertissement d'hydratation, et le serveur MCP du tarball
 répond par `npx --no-install ui-kit-react-mcp` depuis le projet consommateur.
+
+### 2026-10-13 : `0.1.0` publiée
+
+FSHSP-239. Première publication depuis un poste (`npm login` sur `4sh-package-admin`), le
+Trusted Publisher ne se déclarant que sur un paquet existant ; puis Trusted Publisher
+déclaré, tag `v0.1.0` et release GitHub posés à la main. Environnement `npm-publish` créé
+avec la configuration d'Angular, moins `mrenou4sh`, qui n'a que la lecture sur ce dépôt
+(GitHub écarte en silence un approbateur sans droit d'écriture). Avant la release, les six
+PR Dependabot ont été fusionnées : `@tanstack/react-virtual` 3.14.14 (runtime) et le SDK
+MCP 1.32.1 (bundlé) sont dans la `0.1.0`.
+
+Le dry run local a montré un avertissement trompeur : npm dit le `bin` « invalid and
+removed » alors qu'il ne fait que retirer le `./` du chemin. Le chemin s'écrit désormais
+sans. Après publication, npm a d'abord servi un paquet provisoire `0.0.0-stage` et un 404
+sur la `0.1.0` pendant quelques minutes (`docs/PUBLISHING.md`). Vérifié ensuite depuis le
+registre : installation dans un dossier vierge, `bin` lié, serveur MCP qui répond.

@@ -48,8 +48,27 @@ aucun échange OIDC.
 
 ## Mise en place, une fois
 
-À faire avant la première publication. Rien de tout ça ne vit dans le dépôt : c'est de la
-configuration GitHub et npm, et le workflow échoue tant qu'elle manque.
+Faite avant la première publication. Rien de tout ça ne vit dans le dépôt : c'est de la
+configuration GitHub et npm, et le workflow échoue tant qu'elle manque. Gardée ici pour un
+nouveau paquet (le CLI, en phase 4, repassera par les étapes 2 et 3).
+
+> ℹ️ **Amorçage terminé le 13/10/2026** (FSHSP-239). L'environnement `npm-publish` existe,
+> avec la même configuration que côté Angular : trois approbateurs (`robinlopez`,
+> `wandabardey`, `LBU4SH`), branche `main` seule. La `0.1.0` a été publiée depuis un poste,
+> en session `npm login` sur `4sh-package-admin` : elle ne porte **aucune attestation de
+> provenance**, et son tag `v0.1.0` comme sa release GitHub ont été posés à la main, le job
+> `release` n'ayant pas tourné. Le Trusted Publisher est déclaré : les versions suivantes
+> passent entièrement par la CI.
+>
+> Deux surprises de cette première publication, à connaître :
+>
+> - **npm affiche d'abord un paquet provisoire `0.0.0-stage`** (« Temporary package
+>   placeholder for staged publishing ») et un `404` sur la version publiée, le temps
+>   d'analyser un nom neuf. La `0.1.0` est apparue quelques minutes plus tard. Le
+>   `0.0.0-stage` reste listé dans les versions du paquet ; `latest` pointe bien sur la
+>   `0.1.0`.
+> - **Le `401` qui précède le `202` dans le journal de `npm publish` n'est pas une erreur** :
+>   c'est la demande du second facteur.
 
 1. **Créer l'environnement GitHub `npm-publish`** (_Settings → Environments_) avec au moins
    un approbateur requis. ⚠️ Un environnement référencé par un workflow mais jamais créé
@@ -70,8 +89,8 @@ configuration GitHub et npm, et le workflow échoue tant qu'elle manque.
    L'étape « Check npm supports Trusted Publishing » du job `publish` affiche les trois
    valeurs exactes à recopier si l'échange échoue sur `ENEEDAUTH`. Les versions suivantes
    passent entièrement par la CI.
-4. **Optionnel** : le secret `SLACK_WEBHOOK_URL` pour l'annonce de release. Sans lui,
-   l'étape est sautée, pas en échec.
+4. **Optionnel** : le secret de dépôt `SLACK_WEBHOOK_URL` pour l'annonce de release, dans
+   le même canal que côté Angular. Sans lui, l'étape est sautée, pas en échec.
 
 ## Publier une version
 
