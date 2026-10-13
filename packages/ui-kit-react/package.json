@@ -2,8 +2,7 @@
   "name": "@4sh/ui-kit-react",
   "version": "0.1.0",
   "type": "module",
-  "private": true,
-  "description": "Composants React headless du Design System 4SH : props typées, primitives Radix, style piloté exclusivement par les jetons de design.",
+  "description": "Headless React components from the 4SH Design System: typed props, hand-written behaviour, styled exclusively through design tokens. Ships a companion MCP server exposing the kit catalog and doc to AI coding agents.",
   "homepage": "https://4sh.github.io/starter-react/?path=/docs/introduction--docs",
   "repository": {
     "type": "git",
@@ -23,7 +22,9 @@
     "design-tokens",
     "ui-kit",
     "accessibility",
-    "a11y"
+    "a11y",
+    "mcp",
+    "mcp-server"
   ],
   "publishConfig": {
     "access": "public",
@@ -32,10 +33,14 @@
   "files": [
     "dist",
     "src/styles",
+    "mcp",
     "NOTICE",
     "README.md",
     "README.fr.md"
   ],
+  "bin": {
+    "ui-kit-react-mcp": "mcp/dist/index.js"
+  },
   "sideEffects": [
     "**/*.css",
     "**/*.scss"
@@ -64,6 +69,10 @@
     "./ripple": {
       "types": "./dist/core/ripple/index.d.ts",
       "import": "./dist/ripple.js"
+    },
+    "./theme-script": {
+      "types": "./dist/core/theme-script/index.d.ts",
+      "import": "./dist/theme-script.js"
     },
     "./theming": {
       "types": "./dist/core/theming/index.d.ts",

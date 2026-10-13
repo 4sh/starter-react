@@ -64,7 +64,7 @@ packages/
           ui-<nom>.stories.tsx · ui-<nom>.mdx · ui-<nom>.test.tsx
       styles/             #   fondation SCSS : LIVRÉE avec le paquet
   ui-kit-react-cli/       # @4sh/ui-kit-react-cli : mode copie (phase 4)
-  ui-kit-react-mcp/       # @4sh/ui-kit-react-mcp : serveur MCP (pnpm mcp:build)
+  ui-kit-react-mcp/       # serveur MCP, privé : livré DANS le kit sous mcp/ (pnpm kit:mcp)
 storybook/                # config, addons locaux, blocs de doc, doc globale
 ```
 

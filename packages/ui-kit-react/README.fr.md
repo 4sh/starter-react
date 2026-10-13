@@ -3,12 +3,10 @@
 _[English](./README.md) · **Français**_
 
 Composants React headless du Design System 4SH : props typées, comportement écrit à la
-main, style piloté exclusivement par des jetons de design. **Aucune dépendance runtime.**
+main, style piloté exclusivement par des jetons de design. Livré avec un serveur MCP pour
+les agents de codage.
 
-**Documentation (Storybook)** : à déployer en phase 5.
-
-> ⚠️ Paquet non encore publié (`private: true`). Voir `docs/PUBLISHING.md` à la racine du
-> dépôt.
+**Documentation (Storybook)** : <https://4sh.github.io/starter-react/>
 
 ---
 
@@ -61,11 +59,12 @@ import { UiIcon } from '@4sh/ui-kit-react/ui-icon';
 
 ## Entrées transverses
 
-| Sous-chemin | Contenu                                                                 |
-| ----------- | ----------------------------------------------------------------------- |
-| `/theming`  | `UiThemeProvider`, `useUiTheme`, `useUiBrand`, `uiThemeBootstrapScript` |
-| `/types`    | `UiLevel`, `UiSubLevel`, `UiFeedbackLevel` (types seuls)                |
-| `/utils`    | `cx` (concaténation de classes)                                         |
+| Sous-chemin     | Contenu                                                    |
+| --------------- | ---------------------------------------------------------- |
+| `/theming`      | `UiThemeProvider`, `useUiTheme`, `useUiBrand`              |
+| `/theme-script` | `uiThemeBootstrapScript`, seule entrée sans `'use client'` |
+| `/types`        | `UiLevel`, `UiSubLevel`, `UiFeedbackLevel` (types seuls)   |
+| `/utils`        | `cx` (concaténation de classes)                            |
 
 ## Rendu serveur
 
@@ -74,7 +73,17 @@ s'utilise tel quel sous Next App Router.
 
 Pour éviter le clignotement clair → sombre au premier rendu, injecter
 `uiThemeBootstrapScript()` dans le `<head>` : il pose le mode mémorisé avant la première
-peinture, ce que le provider ne peut pas faire puisqu'il s'exécute après.
+peinture, ce que le provider ne peut pas faire puisqu'il s'exécute après. La fonction vient
+de son propre sous-chemin, sans `'use client'`, pour qu'un layout serveur puisse l'appeler :
+
+```tsx
+// app/layout.tsx
+import { uiThemeBootstrapScript } from '@4sh/ui-kit-react/theme-script';
+
+<head>
+  <script dangerouslySetInnerHTML={{ __html: uiThemeBootstrapScript() }} />
+</head>;
+```
 
 ## Personnaliser
 
@@ -97,13 +106,37 @@ Deux niveaux, sans jamais toucher au CSS du kit :
 }
 ```
 
+## Agent IA (serveur MCP)
+
+Un petit serveur MCP est livré **dans ce paquet**, sous `mcp/` : bundlé au build, il n'a
+besoin de rien d'autre. Il donne à un agent de codage compatible MCP (Claude Code, Claude
+Desktop, Cursor…) le catalogue des composants, l'API exacte de chacun (props, valeurs
+admises, défauts), ses hooks `--ui-*` et la doc Storybook, recherche plein texte comprise.
+Quatre tools : `list_components`, `get_component_doc`, `search_docs` et `get_shared_config`.
+
+Rien ne le déclare à votre place : ajoutez-le une fois au `.mcp.json` du projet.
+
+```json
+{
+  "mcpServers": {
+    "ui-kit-react": {
+      "command": "npx",
+      "args": ["--no-install", "ui-kit-react-mcp"]
+    }
+  }
+}
+```
+
+L'installation lie `ui-kit-react-mcp` dans `node_modules/.bin/` : cette forme se résout
+quel que soit le dossier d'où le client MCP lance le serveur. Le serveur sert la doc de la
+version du kit qui l'embarque, et demande Node 22 ou plus.
+
 ## Dépendances
 
-**Aucune.** Le paquet déclare `react` et `react-dom` en `peerDependencies`, et rien d'autre.
-Deux dépendances de comportement sont budgétées pour plus tard, `@floating-ui/react-dom`
-pour le positionnement ancré et `@tanstack/react-virtual` pour les listes virtualisées, et
-chacune sera importée par exactement un fichier interne. La plupart des composants restent
-donc sans dépendance, même recopiés chez vous. Voir `docs/DECISIONS.md` et sa décision D6.
+Deux, chacune importée par exactement un fichier interne : `@floating-ui/react-dom` pour le
+positionnement ancré et `@tanstack/react-virtual` pour les listes virtualisées. `react` et
+`react-dom` sont en `peerDependencies`. La plupart des composants restent donc sans
+dépendance, même recopiés chez vous. Voir `docs/DECISIONS.md` et sa décision D6.
 
 ## Licence
 

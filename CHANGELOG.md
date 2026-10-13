@@ -10,6 +10,17 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
 
 ### Added
 
+- **Le paquet `@4sh/ui-kit-react` est publiable** (FSHSP-222). `private: true` est retiré, et
+  `.github/workflows/publish.yml` le publie sur npm, transposé du starter Angular :
+  déclenchement manuel, `dry_run` par défaut, approbation humaine, Trusted Publishing (OIDC),
+  tag et release GitHub tirés du CHANGELOG. Vérifié en installant le tarball dans un projet
+  Vite et dans un projet Next (App Router, rendu serveur) vierges.
+  - **Le serveur MCP est livré dans le kit**, sous `mcp/`, comme côté Angular : installer le
+    kit suffit, et `npx --no-install ui-kit-react-mcp` le lance. `@4sh/ui-kit-react-mcp`
+    reste privé.
+  - `pnpm kit:check` contrôle le tarball avant toute publication : fichiers attendus, cibles
+    `exports` et `bin`, aucune story ni test, même version dans `package.json`,
+    `UI_KIT_VERSION` et le manifeste MCP. Il tourne aussi sur chaque PR.
 - **`ui-stepper` : prop `scrollable`, bande d'étapes défilante** (FSHSP-237, parité de
   FSHSP-236). Quand les étapes ne tiennent pas en largeur (mobile, parcours long), la bande
   défile au lieu de se tasser, et les titres ne se chevauchent plus. À chaque changement
@@ -636,6 +647,11 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
 
 ### Fixed
 
+- **`uiThemeBootstrapScript()` s'appelle depuis un layout serveur** (FSHSP-238). Elle vivait
+  dans `/theming`, que le build marque `'use client'` : Next refusait de l'appeler dans le
+  `<head>` d'un layout serveur, seul endroit où elle sert. Elle s'importe désormais depuis
+  `@4sh/ui-kit-react/theme-script`, seul sous-chemin publié sans `'use client'`, et quitte
+  `/theming`.
 - Champs : le spinner et les boutons d'action gardaient leurs coins arrondis dans une boîte
   équerrée (FSHSP-234, parité de FSHSP-233). Un `ui-input-number` suivi d'un add-on dans un
   `ui-input-group` montrait l'arrondi du champ seul à droite de ses flèches ; idem pour les

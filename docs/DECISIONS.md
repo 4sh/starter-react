@@ -36,8 +36,10 @@ jeton qui concerne les deux stacks se reporte à la main.
 
 ## D3 : Nommage des paquets
 
-**Retenu : `@4sh/ui-kit-react`**, plus `@4sh/ui-kit-react-cli` (mode copie) et
-`@4sh/ui-kit-react-mcp` (serveur MCP).
+**Retenu : `@4sh/ui-kit-react`**, plus `@4sh/ui-kit-react-cli` (mode copie). Le serveur MCP
+s'écrit dans `packages/ui-kit-react-mcp`, mais il est **livré dans le kit**, sous `mcp/`,
+comme côté Angular : ce paquet-là reste privé (FSHSP-222). Un consommateur a le serveur dès
+l'installation du kit, et sa version est forcément celle du kit qu'il documente.
 
 Se lit comme « le ui-kit, déclinaison React », laisse la place à `@4sh/ui-kit-react-native`,
 et reste symétrique de `@4sh/ui-kit` côté Angular.

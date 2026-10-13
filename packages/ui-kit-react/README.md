@@ -3,11 +3,9 @@
 _**English** · [Français](./README.fr.md)_
 
 Headless React components from the 4SH Design System: typed props, hand-written behaviour,
-styled exclusively through design tokens. **No runtime dependencies.**
+styled exclusively through design tokens. Ships an MCP server for AI coding agents.
 
-**Documentation (Storybook)**: to be deployed in phase 5.
-
-> ⚠️ Not published yet (`private: true`). See `docs/PUBLISHING.md` at the repository root.
+**Documentation (Storybook)**: <https://4sh.github.io/starter-react/>
 
 ---
 
@@ -60,11 +58,12 @@ component between families is never a breaking change for you.
 
 ## Cross-cutting entry points
 
-| Subpath    | Contents                                                                |
-| ---------- | ----------------------------------------------------------------------- |
-| `/theming` | `UiThemeProvider`, `useUiTheme`, `useUiBrand`, `uiThemeBootstrapScript` |
-| `/types`   | `UiLevel`, `UiSubLevel`, `UiFeedbackLevel` (types only)                 |
-| `/utils`   | `cx` (class name concatenation)                                         |
+| Subpath         | Contents                                                        |
+| --------------- | --------------------------------------------------------------- |
+| `/theming`      | `UiThemeProvider`, `useUiTheme`, `useUiBrand`                   |
+| `/theme-script` | `uiThemeBootstrapScript`, the only entry without `'use client'` |
+| `/types`        | `UiLevel`, `UiSubLevel`, `UiFeedbackLevel` (types only)         |
+| `/utils`        | `cx` (class name concatenation)                                 |
 
 ## Server rendering
 
@@ -73,7 +72,17 @@ works as-is under the Next App Router.
 
 To avoid the light → dark flash on first paint, inject `uiThemeBootstrapScript()` into the
 `<head>`. It applies the stored mode before the first paint, which the provider cannot do
-since it only runs afterwards.
+since it only runs afterwards. It comes from its own subpath, which carries no
+`'use client'`, so a server layout can call it:
+
+```tsx
+// app/layout.tsx
+import { uiThemeBootstrapScript } from '@4sh/ui-kit-react/theme-script';
+
+<head>
+  <script dangerouslySetInnerHTML={{ __html: uiThemeBootstrapScript() }} />
+</head>;
+```
 
 ## Theming
 
@@ -96,13 +105,37 @@ Two levels, neither of which touches the kit's CSS:
 }
 ```
 
+## AI agent (MCP server)
+
+A small MCP server ships **inside this package**, under `mcp/`: bundled at build time, it
+needs nothing else installed. It gives an MCP-aware coding agent (Claude Code, Claude
+Desktop, Cursor…) the component catalog, each component's exact API (props, allowed values,
+defaults), its `--ui-*` hooks and the Storybook doc, full-text search included. Four tools:
+`list_components`, `get_component_doc`, `search_docs` and `get_shared_config`.
+
+Nothing registers it for you: add it once to your project's `.mcp.json`.
+
+```json
+{
+  "mcpServers": {
+    "ui-kit-react": {
+      "command": "npx",
+      "args": ["--no-install", "ui-kit-react-mcp"]
+    }
+  }
+}
+```
+
+Installing links `ui-kit-react-mcp` into `node_modules/.bin/`, so this form resolves
+whatever directory your MCP client starts the server from. The server serves the doc of the
+kit version it ships with, and needs Node 22 or later.
+
 ## Dependencies
 
-**None.** The package declares `react` and `react-dom` as peer dependencies and nothing
-else. Two behaviour dependencies are budgeted for later, `@floating-ui/react-dom` for
-anchored positioning and `@tanstack/react-virtual` for virtualised lists, and each will be
-imported by exactly one internal file. Most components therefore stay dependency-free even
-when copied into your own codebase. See `docs/DECISIONS.md` and its D6.
+Two, each imported by exactly one internal file: `@floating-ui/react-dom` for anchored
+positioning and `@tanstack/react-virtual` for virtualised lists. `react` and `react-dom` are
+peer dependencies. Most components therefore stay dependency-free even when copied into
+your own codebase. See `docs/DECISIONS.md` and its D6.
 
 ## License
 

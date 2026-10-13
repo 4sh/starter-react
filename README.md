@@ -40,7 +40,7 @@ design-tokens/     DTCG tokens (JSON): the local copy of this starter
 packages/
   ui-kit-react/    the published package: components + SCSS foundation
   ui-kit-react-cli/  source copy mode (phase 4)
-  ui-kit-react-mcp/  MCP server for coding agents
+  ui-kit-react-mcp/  MCP server for coding agents (shipped inside ui-kit-react, under mcp/)
 storybook/         config, local addons, global doc
 scripts/           tokens pipeline, doc pipeline, guardrails
 ```

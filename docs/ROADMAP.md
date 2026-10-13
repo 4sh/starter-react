@@ -41,10 +41,10 @@ La liste est longue parce que chaque entrée a coûté du temps une fois.
 | 2     | Fondation transverse            | ✅ terminée (`core/ripple` en dernier)    |
 | 3     | La vague des composants         | ✅ 62 sur 62                              |
 | 4     | Mode copie (CLI)                | ⬜ pas commencée                          |
-| 5     | MCP, doc publique, publication  | 🟡 serveur MCP fait, publication à faire  |
+| 5     | MCP, doc publique, publication  | 🟡 workflow prêt, 1re version à publier   |
 | 6     | Contrôle de parité entre stacks | ⬜ pas commencée                          |
 
-**Chiffres du jour** : 62 composants, 72 points d'entrée publics, 7 garde-fous en CI,
+**Chiffres du jour** : 62 composants, 73 points d'entrée publics, 7 garde-fous en CI,
 **deux** dépendances runtime (`@floating-ui/react-dom` et `@tanstack/react-virtual`, un seul
 fichier chacune).
 
@@ -95,8 +95,13 @@ La suite du plan est la phase 4, le mode copie par CLI (décision D7) ; sortir u
 `0.1.0` avant, ou non, est une décision à prendre.
 
 **Le serveur MCP est en place le 6 octobre** (FSHSP-221), avant la phase 4 : il ne dépend que
-du kit et de sa doc, pas du CLI ni de la publication. Ce qui reste de la phase 5 est la
-publication des trois paquets (`docs/PUBLISHING.md`).
+du kit et de sa doc, pas du CLI ni de la publication.
+
+**Le kit est publiable le 13 octobre** (FSHSP-222) : serveur MCP embarqué sous `mcp/`,
+`publish.yml`, tarball contrôlé par `pnpm kit:check`, installation vérifiée dans un projet
+Vite et un projet Next vierges. Ce qui reste de la phase 5 n'est pas du code : la mise en
+place GitHub et npm, puis la première version publiée depuis un poste
+(`docs/PUBLISHING.md`, « Mise en place, une fois »).
 
 Restent ouverts, hors du plan : `format:check` absent de la CI (quatre fichiers ont dérivé),
 et les trois constats signalés le 23 septembre (contraste des jetons
@@ -222,7 +227,8 @@ Une dette écrite n'est pas une dette : c'est un choix. Ce qui suit est assumé,
   zone gardent la marque de la page. L'explorateur `Foundations / Colors` y échappe parce
   qu'il pose toujours `data-theme`. Correctif probable : sur une cible autre que `<html>`,
   poser `data-theme` dans les deux modes.
-- **Les trois paquets sont `private: true`** en attendant la phase 5.
+- **`@4sh/ui-kit-react-cli` et `@4sh/ui-kit-react-mcp` restent `private: true`** : le
+  premier en attendant la phase 4, le second parce que le serveur est livré dans le kit.
 - **`data-unpositioned` est posé par tous les panneaux flottants, mais le mixin ne s'en sert
   que là.** Un composant qui ajouterait un panneau devra penser à l'attribut : rien ne le lui
   rappelle, `docs.config` ne voyant que les hooks `--ui-*`. Les sous-menus en cascade de
@@ -2332,3 +2338,29 @@ titres au pixel, même suite de `scrollLeft` sur sept « Suivant » puis trois �
 (0, 0, 55, 175, 295, 415, 535, 609, puis 609, 609, 494), page immobile. `Basic` est inchangé.
 Six tests ajoutés ; deux mutations (défilement supprimé, premier placement animé) les font
 échouer.
+
+### 2026-10-13 : le kit devient publiable, serveur MCP compris
+
+FSHSP-222. `private: true` retiré de `@4sh/ui-kit-react`, et `publish.yml` transposé du
+starter Angular (mêmes trois jobs, mêmes gardes OIDC). Décision prise avec l'utilisateur :
+**le serveur MCP est embarqué dans le kit**, comme `@4sh/ui-kit` l'embarque, au lieu d'un
+troisième paquet publié. `scripts/kit-mcp-embed.build.mjs` recopie le build sous
+`packages/ui-kit-react/mcp/` en gardant la forme du paquet MCP (`dist/index.js` à côté de
+`data/`), puisque `src/data.ts` cherche `data/` un niveau au-dessus du bundle ; `bin` pointe
+dessus. Le smoke test prend désormais un dossier en argument, et `pnpm kit:mcp` le lance sur
+la copie embarquée, celle que le tarball livre.
+
+La relecture du tarball, jusqu'ici une liste à cocher, est devenue `scripts/kit-tarball.check.mjs`
+(fichiers attendus, cibles `exports` et `bin`, aucune story ni test, même version dans
+`package.json`, `UI_KIT_VERSION` et le manifeste MCP). Il tourne en PR et avant de publier.
+`UI_KIT_VERSION` est écrit à la main dans `src/index.ts` : sans ce contrôle, il aurait dérivé
+à la première release.
+
+Installé dans deux projets vierges : Vite 8 (TypeScript strict, `skipLibCheck: false`) et
+Next 16 (App Router). Le second a trouvé un vrai défaut, FSHSP-238 :
+`uiThemeBootstrapScript()` était exportée par `/theming`, que le build marque `'use client'`,
+donc inappelable depuis le `<head>` d'un layout serveur, son seul usage. Elle vit maintenant
+dans `core/theme-script`, sous-chemin `./theme-script`, exclu de la bannière par
+`SERVER_SAFE_ENTRIES` dans `vite.config.ts`. Vérifié ensuite : build Next statique, mode sombre
+posé avant l'hydratation, aucun avertissement d'hydratation, et le serveur MCP du tarball
+répond par `npx --no-install ui-kit-react-mcp` depuis le projet consommateur.

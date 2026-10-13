@@ -9,11 +9,10 @@ projet. La première est disponible, la seconde est en construction.
 
 <div className="sb-callout">
 
-**Rien n'est publié à ce jour.** Les trois paquets portent `private: true` en attendant leur
-première release, et le nom `@4sh/ui-kit-react` n'est pas encore réservé sur npm : il peut
-donc changer d'ici là. En attendant, le kit se consomme depuis le dépôt : par un lien
-d'espace de travail (`workspace:*`) pour un projet du même monorepo, ou par le tarball que
-produit `pnpm kit:pack`. Les détails de la publication visée sont dans `docs/PUBLISHING.md`.
+**Un seul paquet est publiable : `@4sh/ui-kit-react`**, serveur MCP compris. Il part sur
+npm par un workflow lancé à la main (`docs/PUBLISHING.md`). Tant que sa première version n'y
+est pas, il se consomme depuis le dépôt : par un lien d'espace de travail (`workspace:*`)
+pour un projet du même monorepo, ou par le tarball que produit `pnpm kit:pack`.
 
 </div>
 
@@ -95,7 +94,8 @@ Tout composant interactif porte `'use client'`, conservé par la construction du
 fonctionne tel quel sous l'App Router de Next. Pour éviter le passage du clair au sombre à la
 première image, injectez `uiThemeBootstrapScript()` dans le `<head>` : il applique le mode
 mémorisé avant la première peinture, ce que le fournisseur ne peut pas faire puisqu'il ne
-s'exécute qu'après.
+s'exécute qu'après. La fonction vient de `@4sh/ui-kit-react/theme-script`, seul sous-chemin
+sans `'use client'`, pour qu'un layout serveur puisse l'appeler.
 
 <br />
 <br />
@@ -119,7 +119,7 @@ disponible. L'état d'avancement se lit dans `docs/ROADMAP.md`.
 <br />
 <br />
 
-## MCP : `@4sh/ui-kit-react-mcp`
+## MCP : livré dans le kit
 
 Un serveur MCP compagnon, pour qu'un agent de codage (Claude Code, Claude Desktop, Cursor…)
 interroge le kit au lieu de deviner : le catalogue, l'API exacte de chaque composant (props,
@@ -127,7 +127,8 @@ valeurs admises, défauts), ses hooks `--ui-*` et la doc de ce Storybook. Quatre
 `list_components`, `get_component_doc`, `search_docs` et `get_shared_config`, les mêmes que
 côté Angular.
 
-Installé à côté du kit, à la même version, il se déclare une fois dans le `.mcp.json` du
+Il est livré **dans** `@4sh/ui-kit-react`, sous `mcp/`, et documente la version exacte du kit
+qui l'embarque : rien de plus à installer. Il se déclare une fois dans le `.mcp.json` du
 projet :
 
 ```json
@@ -143,10 +144,9 @@ projet :
 
 <div className="sb-callout">
 
-**Pas encore publié**, comme le kit. Le serveur fonctionne déjà depuis le dépôt :
-`pnpm mcp:build` le construit, et un client local se branche sur
+Depuis le dépôt, `pnpm mcp:build` le construit, et un client local se branche sur
 `node packages/ui-kit-react-mcp/dist/index.js`. Le mode d'emploi complet est dans le README
-du paquet.
+de `packages/ui-kit-react-mcp`.
 
 </div>
 

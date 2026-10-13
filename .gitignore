@@ -34,6 +34,9 @@ packages/ui-kit-react-cli/assets
 # Manifeste de doc embarqué dans le serveur MCP (regénéré par pnpm mcp:assets)
 packages/ui-kit-react-mcp/data
 
+# Serveur MCP embarqué dans le kit publié (regénéré par pnpm kit:mcp)
+packages/ui-kit-react/mcp
+
 # Couverture de test et pièces jointes des échecs (captures Vitest)
 coverage
 .vitest

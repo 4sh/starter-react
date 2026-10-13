@@ -16,6 +16,12 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 // consommateurs : c'est ce qui empêche « compilé mais non déclaré ».
 const entry = Object.fromEntries(collectEntries().map((e) => [e.name, e.absEntry]));
 
+// Entrées publiées SANS `'use client'`. `theme-script` se pose dans le `<head>`
+// d'un layout serveur : marquée client, la fonction y devient une référence que
+// Next refuse d'appeler (FSHSP-238). Une entrée n'entre ici que si elle ne
+// touche ni à React ni au DOM au chargement.
+const SERVER_SAFE_ENTRIES = new Set(['theme-script']);
+
 export default defineConfig({
   plugins: [
     react(),
@@ -70,10 +76,11 @@ export default defineConfig({
         assetFileNames: '[name][extname]',
         // Les composants sont interactifs : ils portent tous la frontière
         // client. Rollup supprime les directives de haut niveau au bundling,
-        // donc on la repose sur chaque entrée. Le jour où une entrée doit
-        // rester utilisable en composant serveur, elle sortira de cette règle
-        // par une liste d'exception, pas en retirant la bannière.
-        banner: (chunk) => (chunk.isEntry ? "'use client';" : ''),
+        // donc on la repose sur chaque entrée, sauf celles de
+        // SERVER_SAFE_ENTRIES, qui doivent rester appelables depuis un
+        // composant serveur.
+        banner: (chunk) =>
+          chunk.isEntry && !SERVER_SAFE_ENTRIES.has(chunk.name) ? "'use client';" : '',
       },
     },
   },

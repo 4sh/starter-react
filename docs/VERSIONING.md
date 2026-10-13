@@ -3,14 +3,18 @@
 Le projet suit [Semantic Versioning](https://semver.org/lang/fr/) adapté à un Design
 System. Format : `MAJEUR.MINEUR.CORRECTIF`.
 
-## Portée : un numéro, trois paquets
+## Portée : un numéro
 
 Le SemVer porte sur **`packages/ui-kit-react/package.json`** : c'est l'artefact publié sous
 `@4sh/ui-kit-react`, celui contre lequel un projet épingle une version.
 
-`@4sh/ui-kit-react-cli` et `@4sh/ui-kit-react-mcp` sont publiés depuis le même dépôt, en
-même temps, et portent **le même numéro**, estampillé depuis celui du kit au moment de
-l'assemblage. Ils n'ont pas de version propre à maintenir.
+Le serveur MCP n'a pas de numéro propre : il est livré **dans** ce paquet (sous `mcp/`), et
+annonce au client la version du kit qui l'embarque, lue dans son manifeste au moment du
+build. `@4sh/ui-kit-react-mcp` reste privé, son `version` n'est qu'un repère de
+développement.
+
+`@4sh/ui-kit-react-cli` (phase 4) sera publié depuis le même dépôt, en même temps, et
+portera **le même numéro**, estampillé depuis celui du kit au moment de l'assemblage.
 
 Ce verrouillage n'est pas cosmétique. Le CLI embarque une copie des sources du kit, et le
 numéro partagé est ce qui identifie **de quel kit** vient un fichier copié : il est écrit
@@ -39,7 +43,7 @@ Angular, où c'en est une.
 
 ## Pas de release sans changement de tarball
 
-**Si aucun des trois paquets n'a changé, il n'y a pas de release** : pas d'incrément, pas
+**Si le tarball publié n'a pas changé, il n'y a pas de release** : pas d'incrément, pas
 de tag, pas d'entrée de CHANGELOG, pas de publication. Un changement limité au Storybook
 (stories, MDX, config), à la CI ou à la documentation part sur `main` comme n'importe quel
 changement : Storybook se redéploie à chaque push sur `main`, indépendamment du workflow de
@@ -54,13 +58,16 @@ publication, qui ne se déclenche qu'à la main.
 3. PR, puis fusion dans `main`.
 4. Au moment de publier, sur `main` :
    - déplacer le contenu de `[Unreleased]` dans une nouvelle section `[X.Y.Z] - AAAA-MM-JJ` ;
-   - incrémenter la version dans **`packages/ui-kit-react/package.json`** ;
+   - incrémenter la version dans **`packages/ui-kit-react/package.json`**, et la recopier
+     dans `UI_KIT_VERSION` (`packages/ui-kit-react/src/index.ts`) ;
    - committer et pousser.
 
+   `pnpm kit:check` refuse un tarball où ces deux numéros diffèrent, et le workflow le lance
+   avant de publier.
+
    Rien à faire pour le serveur MCP : son manifeste (doc, API, version annoncée aux
-   clients) n'est pas committé, `pnpm mcp:build` le régénère depuis le dépôt. Le workflow
-   de publication doit donc l'exécuter **après** l'incrément, juste avant d'empaqueter
-   `@4sh/ui-kit-react-mcp`.
+   clients) n'est pas committé, et le workflow le régénère depuis le commit publié
+   (`pnpm kit:mcp`), donc **après** l'incrément.
 
 5. Lancer le workflow de publication (`docs/PUBLISHING.md`).
 
