@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
 
-import { payloadOf } from '../test-fixtures';
+import { FIXTURE_MANIFEST, payloadOf } from '../test-fixtures';
 
 vi.mock('node:fs', async () => ({ readFileSync: (await import('../test-fixtures')).readFixture }));
 
@@ -25,9 +25,9 @@ describe('getComponentDoc', () => {
       name: 'ButtonVariant',
       definition: "'filled' | 'outlined' | 'ghost'",
     });
-    expect(payload.theming.cssHooks).toEqual([
-      { name: '--ui-button-radius', role: 'Rayon des coins.', fallback: '--radius-sm' },
-    ]);
+    expect(payload.theming.cssHooks).toEqual(
+      FIXTURE_MANIFEST.components.find((c) => c.name === 'ui-button')?.cssHooks,
+    );
     expect(payload.doc.sections.map((s: { section: string }) => s.section)).toEqual([
       'Présentation',
       'API',
@@ -35,9 +35,14 @@ describe('getComponentDoc', () => {
     ]);
   });
 
-  test('dit où poser un hook --ui-*', () => {
+  test('dit quels hooks vont sur :root, et pourquoi pas les autres', () => {
     const payload = payloadOf(getComponentDoc('ui-button'));
-    expect(payload.theming.note).toMatch(/:root/);
+    expect(payload.theming.note).toMatch(/Seul un hook `themable` va sur\s+`:root`/);
+    expect(payload.theming.note).toMatch(/perVariant/);
+    const radius = payload.theming.cssHooks.find(
+      (h: { name: string }) => h.name === '--ui-button-radius',
+    );
+    expect(radius).toMatchObject({ themable: false, exclusion: 'perVariant', defaults: 2 });
   });
 
   test('include ne rend que les parties demandées', () => {

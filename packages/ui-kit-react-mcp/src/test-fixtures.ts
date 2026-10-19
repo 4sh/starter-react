@@ -42,7 +42,18 @@ export const FIXTURE_MANIFEST: Manifest = {
           { name: 'ButtonVariant', definition: "'filled' | 'outlined' | 'ghost'" },
         ],
       },
-      cssHooks: [{ name: '--ui-button-radius', role: 'Rayon des coins.', fallback: '--radius-sm' }],
+      cssHooks: [
+        {
+          name: '--ui-button-radius',
+          role: 'Rayon des coins.',
+          fallback: '--radius-sm',
+          themable: false,
+          exclusion: 'perVariant',
+          reason: '2 défauts selon la variante rendue : en déclarer un seul écraserait les autres.',
+          defaults: 2,
+        },
+        { name: '--ui-button-gap', role: 'Espacement.', fallback: '--units-sm', themable: true },
+      ],
     },
     {
       name: 'ui-tabs',
