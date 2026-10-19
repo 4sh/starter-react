@@ -8,6 +8,8 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-19
+
 ### Added
 
 - **Serveur MCP : statut de chaque hook `--ui-*` vis-à-vis d'un thème global** (FSHSP-246).
