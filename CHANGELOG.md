@@ -8,6 +8,14 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
 
 ## [Unreleased]
 
+### Added
+
+- **`ui-button` : hook `--ui-button-radius-default`, rayon thémable du bouton standard**
+  (FSHSP-247). Il règle le rayon hors `rounded` et figure dans `component-vars.scss`. Avant,
+  le seul levier était `--ui-button-radius`, lu aussi par les pilules : posé sur `:root`, il
+  les rendait rectangulaires. Ce dernier reste réservé aux hôtes qui reforment des coins.
+  Les coins extérieurs de `ui-button-split` suivent le nouveau hook.
+
 ## [0.1.1] - 2026-10-13
 
 ### Fixed

@@ -24,12 +24,13 @@ $stroke-width: var(--ui-button-split-stroke-width, #{utils.$control-stroke-width
     }
   }
 
+  // Les coins extérieurs suivent le rayon thémé du bouton.
   &-action {
-    --ui-button-radius: var(--radius-sm) 0 0 var(--radius-sm);
+    --ui-button-radius: var(--ui-button-radius-default, var(--radius-sm)) 0 0 var(--ui-button-radius-default, var(--radius-sm));
   }
 
   &-trigger {
-    --ui-button-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    --ui-button-radius: 0 var(--ui-button-radius-default, var(--radius-sm)) var(--ui-button-radius-default, var(--radius-sm)) 0;
 
     margin-left: calc(-1 * #{$stroke-width});
   }

@@ -158,10 +158,12 @@ d'entrée à part côté Angular, et n'est pas porté. Le bouton React n'émet d
 
 ## Theming
 
-Les points d'extension de ce composant sont documentés ci-dessous. Trois d'entre eux
-méritent un mot : `--ui-button-radius` est lu à la fois par la forme normale et par la
-présentation `rounded`, ce qui permet à un hôte comme `ui-button-split` de reformer des
-coins accolés sans écraser la pilule ; et les trois `--ui-button-icon-stacked-*` ne
-s'appliquent qu'aux positions d'icône empilées, où la hauteur passe en `auto`.
+Les points d'extension de ce composant sont documentés ci-dessous. Deux familles
+méritent un mot. Les rayons d'abord : un thème règle `--ui-button-radius-default` (forme
+standard) et `--ui-button-radius-rounded` (pilule). `--ui-button-radius`, lu par les deux
+formes, est réservé à un hôte comme `ui-button-split` qui reforme des coins accolés : posé
+sur `:root`, il transformerait aussi les pilules en rectangles. Ensuite, les trois
+`--ui-button-icon-stacked-*` ne s'appliquent qu'aux positions d'icône empilées, où la
+hauteur passe en `auto`.
 
 <ConfigTable of="ui-button" />
