@@ -50,6 +50,13 @@ export interface CssHook {
   role: string;
   /** Fallback chain when the hook is unset: `--ui-x → --token`. */
   fallback: string | null;
+  /** In `component-vars.scss`, the kit's global theme: may go on `:root`. */
+  themable: boolean;
+  /** Why not, when not `themable`. */
+  exclusion?: 'perVariant' | 'selfDeclared' | 'inputDriven' | 'crossCutting' | 'privateDefault';
+  reason?: string;
+  /** `perVariant` only: distinct defaults across the rendered variants. */
+  defaults?: number;
 }
 
 export interface ComponentEntry {

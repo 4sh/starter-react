@@ -31,6 +31,12 @@ and deprecation, plus the native element that receives the remaining attributes.
 `get_component_doc` accepts `ui-button`, `button`, `@4sh/ui-kit-react/ui-button`, or the React
 name of any export (`UiTabPanel` leads to `ui-tabs`).
 
+Each `--ui-*` hook says whether it may go in a global theme: `themable` hooks are the ones in
+`component-vars.scss` and may sit on `:root`. The others carry `exclusion` (`perVariant`,
+`selfDeclared`, `inputDriven`, `crossCutting`, `privateDefault`) and `reason`; a `perVariant`
+hook also gives `defaults`, its number of defaults across the rendered variants, which a value
+on `:root` would flatten.
+
 The server also hands the agent short **instructions** on connect: the workflow, the flat
 import path (`@4sh/ui-kit-react/ui-<name>`, never the family), the one-time setup
 (`styles.css` + `UiThemeProvider`), and how to customise without overriding kit classes.

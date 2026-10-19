@@ -112,7 +112,7 @@
         {
           "cssVar": "--ui-editor-swatch-indicator-color",
           "component": "ui-editor",
-          "reason": "pilotée par une entrée Angular du composant : le thème ne vaudrait que pour les exemplaires qui ne s’en servent pas."
+          "reason": "pilotée par une prop du composant : le thème ne vaudrait que pour les exemplaires qui ne s’en servent pas."
         },
         {
           "cssVar": "--ui-empty-state-max-width",

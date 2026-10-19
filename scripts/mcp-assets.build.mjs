@@ -57,6 +57,26 @@ function exposedHook(row) {
 }
 
 /**
+ * Verdict de `component-vars.build.mjs` (`hookStatus`) : le hook va-t-il dans un thème
+ * global, et sinon pourquoi. Sans lui, l'agent croirait que tout hook se pose sur `:root`.
+ */
+function withStatus(hook, uiConfig) {
+  const status = uiConfig.hookStatus?.[hook.name];
+  if (!status) {
+    throw new Error(
+      `[mcp-assets] ${hook.name} absent de hookStatus (ui-config.json) : lance \`pnpm docs:config\`.`,
+    );
+  }
+  const { themable, exclusion, reason, defaults } = status;
+  return {
+    ...hook,
+    themable,
+    ...(themable ? {} : { exclusion, reason }),
+    ...(defaults ? { defaults } : {}),
+  };
+}
+
+/**
  * Every stylesheet of the folder: a sub-component exported by the same entry
  * point (`ui-file-upload-list.scss`) has its own entry in the doc manifest.
  */
@@ -66,7 +86,7 @@ function cssHooks(uiConfig, dir) {
     if (posix.dirname(config.file) !== dir) continue;
     for (const row of [...(config.vars ?? []), ...(config.hooks ?? [])]) {
       const hook = exposedHook(row);
-      if (hook && !hooks.has(hook.name)) hooks.set(hook.name, hook);
+      if (hook && !hooks.has(hook.name)) hooks.set(hook.name, withStatus(hook, uiConfig));
     }
   }
   return [...hooks.values()];

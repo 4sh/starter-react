@@ -537,6 +537,22 @@ function collectComponents(shared) {
   return components;
 }
 
+/**
+ * `hookStatus` (un hook peut-il aller dans un thème global, et sinon pourquoi) est
+ * écrit par `component-vars.build.mjs`, qui tourne juste après ce script et a besoin
+ * du CSS compilé. On le recopie tel quel : `--check` ne juge ici que ce que ce script
+ * produit.
+ */
+function carriedHookStatus() {
+  if (!existsSync(OUT_FILE)) return null;
+  try {
+    return JSON.parse(readFileSync(OUT_FILE, 'utf8')).hookStatus ?? null;
+  } catch {
+    // Illisible : la table s'affiche simplement sans le repère.
+    return null;
+  }
+}
+
 function build() {
   const shared = parseSharedConfig();
   const sharedOut = {};
@@ -547,6 +563,7 @@ function build() {
       default: resolveBinding(decl.value, { shared, local: shared }),
     };
   }
+  const hookStatus = carriedHookStatus();
 
   return {
     $generatedBy: 'scripts/docs.config.mjs',
@@ -557,6 +574,7 @@ function build() {
     groups: GROUPS,
     shared: sharedOut,
     components: collectComponents(shared),
+    ...(hookStatus ? { hookStatus } : {}),
   };
 }
 
