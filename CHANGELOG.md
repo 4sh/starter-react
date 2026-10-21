@@ -8,6 +8,19 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
 
 ## [Unreleased]
 
+### Added
+
+- **`tokens:build` lit les valeurs typées du format DTCG : durées, courbes, dimensions**
+  (FSHSP-253). Une courbe `[0.42, 0, 0.58, 1]` sort en `cubic-bezier(0.42, 0, 0.58, 1)`, une
+  durée `"80ms"` ou `{ "value": 80, "unit": "ms" }` en `80ms`, une dimension
+  `{ "value": 0.5, "unit": "rem" }` en `0.5rem`. C'est ce que Token Flow exporte pour les
+  variables Figma `TIMING` (`"80ms"`) et `EASING` (le tableau). Une durée sans unité fait
+  échouer le build au lieu d'être devinée (une variable TIMING de Figma compte en secondes),
+  tout comme une courbe dont un x sort de [0, 1], que CSS ignorerait. Un nombre est arrondi à
+  six chiffres significatifs : Figma stocke `0.96` en `0.9599999785423279`. Dans
+  `tokens.config.json`, un mode associé à `null` n'est pas émis. Les jetons écrits en texte
+  CSS sortent à l'identique. Même conversion que le starter Angular (FSHSP-252).
+
 ## [0.2.0] - 2026-10-19
 
 ### Added
