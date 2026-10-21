@@ -399,7 +399,7 @@ pnpm tokens:build        # Régénère les variables CSS depuis les JSON
 pnpm test                # Tests de composants (Chromium via Playwright)
 pnpm lint:check          # ESLint sans --fix
 pnpm typecheck           # tsc sur les trois projets
-pnpm docs:config:check   # Les sept garde-fous, en une commande, voir ci-dessous
+pnpm docs:config:check   # Les huit garde-fous, en une commande, voir ci-dessous
 pnpm deps:check          # La règle d'import des librairies tierces (chaîné dans le précédent)
 ```
 
@@ -414,7 +414,13 @@ committer**. Il échoue sur :
 - un point d'entrée absent de la table `exports` du `package.json` ;
 - un composant qui importe une librairie tierce au lieu d'une brique de `core/` ;
 - un renvoi de doc vers un fichier qui n'existe pas ;
-- un tiret cadratin dans une prose, ou un tableau markdown dans un `.mdx`.
+- un tiret cadratin dans une prose, ou un tableau markdown dans un `.mdx` ;
+- une durée (`180ms`), une courbe (`ease-out`, `cubic-bezier(…)`) ou une primitive
+  `var(--transition-*)` écrite dans le `.scss` d'un composant (`pnpm motion:check`,
+  `scripts/motion.check.mjs`). Un composant lit une recette `--motion-*` à travers
+  `ui-config` ou les mixins `utils`, pour qu'un recadençage du kit et le mouvement réduit
+  l'atteignent. Une exception va dans le `ALLOWED` du script, avec sa raison ; une exception
+  devenue inutile fait échouer le contrôle aussi.
 
 À côté de lui, `git diff --exit-code` sur les fichiers **générés mais committés**
 (`packages/ui-kit-react/package.json` pour la table `exports`,

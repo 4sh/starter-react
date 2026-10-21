@@ -23,8 +23,8 @@ Puis, avant de coder :
 
 ```bash
 pnpm install          # génère les jetons et la table exports
-pnpm docs:config:check # les sept garde-fous, en une commande
-pnpm test             # 3 projets : tests écrits, chaque story passée à axe, serveur MCP
+pnpm docs:config:check # les huit garde-fous, en une commande
+pnpm test             # 4 projets : tests écrits, chaque story passée à axe, serveur MCP, scripts
 ```
 
 Et quand quelque chose se comporte bizarrement : chercher d'abord dans **Pièges déjà payés**.
@@ -44,7 +44,7 @@ La liste est longue parce que chaque entrée a coûté du temps une fois.
 | 5     | MCP, doc publique, publication  | ✅ `0.1.0` publiée le 13 octobre          |
 | 6     | Contrôle de parité entre stacks | ⬜ pas commencée                          |
 
-**Chiffres du jour** : 62 composants, 73 points d'entrée publics, 7 garde-fous en CI,
+**Chiffres du jour** : 62 composants, 73 points d'entrée publics, 8 garde-fous en CI,
 **deux** dépendances runtime (`@floating-ui/react-dom` et `@tanstack/react-virtual`, un seul
 fichier chacune).
 
