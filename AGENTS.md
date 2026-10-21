@@ -235,6 +235,11 @@ par `useSyncExternalStore` avec un instantané serveur distinct : voir `core/the
 
 - **Jetons uniquement** : jamais une couleur, un espacement ou un rayon en dur. Clair ET
   sombre à chaque fois.
+- **Mouvement** : `--transition-*` sont les primitives, `--motion-*` les recettes par
+  usage (`hover`, `toggle`, `overlay-in`…). Un composant lit une recette, à travers les
+  mixins `utils` (`control-transition`, `motion-transition`, `overlay-motion`) ou
+  `ui-config`, jamais une primitive ni une durée écrite à la main : sinon ni un recadençage
+  du kit ni le mouvement réduit ne l'atteignent. Voir `Foundations / Motion`.
 - **Nommage** : racine `.ui-<nom>` ; sous-élément `&-<partie>` (→ `.ui-button-icon`) ;
   modifieur `&._<modifieur>` (→ `._small`, `._high`).
 - **États interactifs** (`hover`/`focus`/`active`/`disabled`) : pseudo-classes CSS via les

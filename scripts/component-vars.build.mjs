@@ -632,6 +632,21 @@ function figmaValue(rawInput, expectedType) {
       reason: 'hook sans défaut : point de surcharge pur, le composant ne pose rien.',
     };
 
+  // A token read with a fallback (`var(--motion-slide-distance, 0.5rem)`) aliases the
+  // token: the fallback only serves a project whose tokens predate it.
+  const withFallback = raw.match(/^var\(\s*(--[\w-]+)\s*,/);
+  if (withFallback && closingParen(raw, 3) === raw.length - 1) {
+    const target = tokenIndex.get(withFallback[1]);
+    if (target) {
+      return {
+        type: 'ALIAS',
+        collection: target.collection,
+        name: target.name,
+        cssVar: withFallback[1],
+      };
+    }
+  }
+
   const single = raw.match(SINGLE_VAR);
   if (single) {
     const target = tokenIndex.get(single[1]);

@@ -7,16 +7,17 @@ doit être vérifié à la main, et le cahier des charges du contrôle qui l'aut
 
 ## Les invariants
 
-| Invariant                   | Pourquoi il compte                                                                                          |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| **Nom du composant**        | `ui-button` des deux côtés. C'est la clé qui relie une story, une page Figma et une entrée MCP.             |
-| **Valeurs des jetons**      | `design-tokens/*.json` est la même donnée dupliquée (décision D2). Une divergence casse la parité visuelle. |
-| **Noms de classes CSS**     | `.ui-button`, `._high`, `._small`. Un projet qui migre d'un stack à l'autre garde ses surcharges.           |
-| **Noms des hooks `--ui-*`** | Le thème d'un projet (`component-vars.scss`) doit s'appliquer aux deux stacks sans réécriture.              |
-| **`node-id` Figma**         | Un seul composant Figma par composant du DS, référencé par les deux stories.                                |
-| **Sémantique des props**    | Les noms peuvent différer (`ngModel` → `value`), le sens jamais.                                            |
-| **Titre dans Storybook**    | `Components/ui/<catégorie>/ui-<nom>` : la doc des deux stacks se lit au même endroit.                       |
-| **Noms des tools MCP**      | `list_components`, `get_component_doc`, `search_docs`, `get_shared_config` : un agent garde sa démarche.    |
+| Invariant                   | Pourquoi il compte                                                                                                                                |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Nom du composant**        | `ui-button` des deux côtés. C'est la clé qui relie une story, une page Figma et une entrée MCP.                                                   |
+| **Valeurs des jetons**      | `design-tokens/*.json` est la même donnée dupliquée (décision D2). Une divergence casse la parité visuelle.                                       |
+| **Noms de classes CSS**     | `.ui-button`, `._high`, `._small`. Un projet qui migre d'un stack à l'autre garde ses surcharges.                                                 |
+| **Noms des hooks `--ui-*`** | Le thème d'un projet (`component-vars.scss`) doit s'appliquer aux deux stacks sans réécriture.                                                    |
+| **`node-id` Figma**         | Un seul composant Figma par composant du DS, référencé par les deux stories.                                                                      |
+| **Sémantique des props**    | Les noms peuvent différer (`ngModel` → `value`), le sens jamais.                                                                                  |
+| **Titre dans Storybook**    | `Components/ui/<catégorie>/ui-<nom>` : la doc des deux stacks se lit au même endroit.                                                             |
+| **Noms des tools MCP**      | `list_components`, `get_component_doc`, `search_docs`, `get_shared_config` : un agent garde sa démarche.                                          |
+| **Noms du mouvement**       | Mêmes primitives `--transition-*` et mêmes recettes `--motion-*` des deux côtés (décision D9) : une surcharge de thème recadence les deux stacks. |
 
 ## Ce qui a le droit de diverger
 

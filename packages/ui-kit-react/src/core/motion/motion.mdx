@@ -179,38 +179,102 @@ allow-discrete` et `@starting-style`.
 `utils.overlay-motion-enter` en est la variante « entrée seule » : la sortie est instantanée,
 pour un panneau dont l'ancre peut disparaître sous lui, un sous-menu en cascade typiquement.
 
+## Jetons : primitives et recettes
+
+Le mouvement suit le même modèle que la couleur. Les **primitives** `--transition-*`
+(collection `transitions`) sont les valeurs. Les **recettes** `--motion-*` (collection
+`motion`) les associent à un usage : une recette, c'est une durée et une courbe, en alias
+d'une primitive. Les composants lisent les recettes, jamais les primitives. Les noms sont
+les mêmes dans le starter Angular.
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Recette</th>
+      <th>Primitives</th>
+      <th>Usage</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>{'--motion-hover-*'}</code></td>
+      <td><code>default</code> · <code>easeinout</code></td>
+      <td>Changement d'apparence : couleur, opacité, ombre d'un contrôle.</td>
+    </tr>
+    <tr>
+      <td><code>{'--motion-toggle-*'}</code></td>
+      <td><code>default</code> · <code>easeinout</code></td>
+      <td>Déplacement entre deux états : pouce du toggle, indicateur d'onglet, chevron, repli (<code>utils.motion-transition</code>).</td>
+    </tr>
+    <tr>
+      <td><code>{'--motion-overlay-in-*'}</code> / <code>{'-out-*'}</code></td>
+      <td><code>default</code> · <code>easeout</code> / <code>easein</code></td>
+      <td>Entrée et sortie des préréglages <code>{'ui-motion-*'}</code> et des panneaux <code>utils.overlay-motion</code>.</td>
+    </tr>
+    <tr>
+      <td><code>{'--motion-disclosure-*'}</code>, <code>{'--motion-dialog-*'}</code>, <code>{'--motion-notify-*'}</code></td>
+      <td><code>default</code> · <code>easeout</code> / <code>easein</code></td>
+      <td>Section repliable, modale, toast : prêtes pour l'atelier, pas encore lues par le kit.</td>
+    </tr>
+    <tr>
+      <td><code>--motion-stagger-delay</code></td>
+      <td><code>fast</code></td>
+      <td>Décalage entre deux éléments qui apparaissent l'un après l'autre (speed-dial).</td>
+    </tr>
+    <tr>
+      <td><code>--motion-slide-distance</code></td>
+      <td><code>8px</code></td>
+      <td>Glissement des préréglages <code>{'slide-*'}</code> et des panneaux.</td>
+    </tr>
+    <tr>
+      <td><code>--motion-zoom-scale</code></td>
+      <td><code>0.96</code></td>
+      <td>Échelle de départ du préréglage <code>zoom</code> et des panneaux qui zooment.</td>
+    </tr>
+  </tbody>
+</table>
+
+Chaque recette vaut aujourd'hui le timing que le kit avait avant elles. Pour recadencer
+**tout le kit**, surchargez une recette sur `:root` (`--motion-hover-duration: 120ms`) :
+seuls les usages qu'elle couvre changent. Surcharger une primitive (`--transition-default`)
+fonctionne toujours, et touche toutes les recettes qui la référencent.
+
+Le mixin `utils.control-transition` choisit la recette selon la propriété : `transform`,
+`top` ou `width` déplacent quelque chose et suivent `toggle`, une couleur ou une opacité suit
+`hover`. Le hook `--ui-control-transition-duration` règle toujours les deux à la fois.
+
 ## Personnalisation
 
 Chaque exemplaire se recadence par des custom properties, que le crochet pose depuis ses
-options ou qu'on écrit directement en CSS. Les jetons servent de défauts.
+options ou qu'on écrit directement en CSS. Les recettes servent de défauts.
 
 <table className="doc-table">
   <thead>
     <tr>
       <th>Custom property</th>
-      <th>Défaut</th>
+      <th>Défaut (recette)</th>
       <th>Rôle</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td><code>--ui-motion-duration</code></td>
-      <td><code>--transition-default</code></td>
-      <td>Durée.</td>
+      <td><code>--motion-overlay-in-duration</code> / <code>-out-</code> (180ms) ; <code>--motion-toggle-duration</code> pour <code>utils.motion-transition</code></td>
+      <td>Durée, dans les deux sens.</td>
     </tr>
     <tr>
       <td><code>--ui-motion-easing</code></td>
-      <td><code>--transition-easeinout</code></td>
+      <td><code>--motion-toggle-easing</code> ; <code>--motion-overlay-in-easing</code> / <code>-out-</code> pour les panneaux</td>
       <td>Courbe des transitions symétriques et des panneaux.</td>
     </tr>
     <tr>
       <td><code>--ui-motion-easing-enter</code></td>
-      <td><code>--transition-easeout</code></td>
+      <td><code>--motion-overlay-in-easing</code></td>
       <td>Courbe d'entrée des préréglages, décélérée.</td>
     </tr>
     <tr>
       <td><code>--ui-motion-easing-leave</code></td>
-      <td><code>--transition-easein</code></td>
+      <td><code>--motion-overlay-out-easing</code></td>
       <td>Courbe de sortie des préréglages, accélérée.</td>
     </tr>
     <tr>
@@ -220,12 +284,12 @@ options ou qu'on écrit directement en CSS. Les jetons servent de défauts.
     </tr>
     <tr>
       <td><code>--ui-motion-distance</code></td>
-      <td><code>0.5rem</code></td>
-      <td>Décalage des préréglages <code>slide-*</code>.</td>
+      <td><code>--motion-slide-distance</code> (8px)</td>
+      <td>Décalage des préréglages <code>{'slide-*'}</code>.</td>
     </tr>
     <tr>
       <td><code>--ui-motion-scale</code></td>
-      <td><code>0.96</code></td>
+      <td><code>--motion-zoom-scale</code> (0.96)</td>
       <td>Échelle de départ et d'arrivée de <code>zoom</code>.</td>
     </tr>
   </tbody>

@@ -84,13 +84,14 @@ $focus-ring-width: var(--ui-bottom-sheet-focus-ring-width, #{utils.$focus-ring-w
     background-color: $mask-background;
     opacity: 1;
     transition:
-      display allow-discrete var(--ui-motion-duration, #{utils.$motion-duration-base}),
-      overlay allow-discrete var(--ui-motion-duration, #{utils.$motion-duration-base}),
-      opacity var(--ui-motion-duration, #{utils.$motion-duration-base});
+      display allow-discrete var(--ui-motion-duration, #{utils.$motion-overlay-in-duration}),
+      overlay allow-discrete var(--ui-motion-duration, #{utils.$motion-overlay-in-duration}),
+      opacity var(--ui-motion-duration, #{utils.$motion-overlay-in-duration});
   }
 
   &:not([open])::backdrop {
     opacity: 0;
+    transition-duration: var(--ui-motion-duration, #{utils.$motion-overlay-out-duration});
   }
 
   @starting-style {

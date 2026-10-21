@@ -36,6 +36,12 @@
         "Mode 1": ["transitions.json"]
       }
     },
+    "motion": {
+      "modes": {
+        "modeStandard": ["motion.json"],
+        "modeReduced": ["motion.json"]
+      }
+    },
     "typography": {
       "modes": {
         "Mode 1": ["typography.json"]

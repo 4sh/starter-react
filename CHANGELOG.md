@@ -20,6 +20,34 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
   six chiffres significatifs : Figma stocke `0.96` en `0.9599999785423279`. Dans
   `tokens.config.json`, un mode associé à `null` n'est pas émis. Les jetons écrits en texte
   CSS sortent à l'identique. Même conversion que le starter Angular (FSHSP-252).
+- **Jetons : recettes de mouvement `--motion-*`, lues par le kit** (FSHSP-253). Une nouvelle
+  collection associe chaque usage à une durée et une courbe, en alias des primitives
+  `--transition-*` : `hover`, `toggle`, `overlay-in` / `-out`, `disclosure-*`, `dialog-*`,
+  `notify-*`, plus `--motion-stagger-delay`, `--motion-slide-distance` et
+  `--motion-zoom-scale`. Elles valent le timing d'avant : rien ne change à l'écran.
+  `utils.control-transition` prend `toggle` pour une propriété qui déplace (`transform`,
+  `top`, `width`…) et `hover` pour une couleur ou une opacité ; `utils.motion-transition` lit
+  `toggle` ; les préréglages `ui-motion-*`, `utils.overlay-motion` et les fonds des modales,
+  tiroirs et bottom sheets lisent `overlay-in` à l'entrée et `overlay-out` à la sortie ; le
+  décalage du speed-dial lit `stagger`. Pour recadencer tout le kit, surcharger une recette sur
+  `:root`. Les surcharges de `--transition-*` et de `--ui-control-transition-*` continuent de
+  s'appliquer. Ce dernier hook ne figure plus dans `component-vars.scss` : il règle à la fois
+  les couleurs et les déplacements, la recette est désormais le réglage global. Mêmes noms que
+  le starter Angular.
+
+### Changed
+
+- **Les courbes `--transition-*` s'écrivent en `cubic-bezier()`** (FSHSP-253). Leurs variables
+  Figma sont passées du type `STRING` aux types `TIMING` et `EASING`, sous les mêmes noms.
+  Les durées ne changent pas (`80ms`, `180ms`, `280ms`). Les courbes valent la définition
+  exacte de leur ancien mot-clé : `--transition-easein` vaut `cubic-bezier(0.42, 0, 1, 1)` au
+  lieu de `ease-in`, `--transition-easeout` `cubic-bezier(0, 0, 0.58, 1)`,
+  `--transition-easeinout` `cubic-bezier(0.42, 0, 0.58, 1)` et `--transition-linear`
+  `cubic-bezier(0, 0, 1, 1)`. Le rendu est identique ; seul un test qui compare la courbe
+  calculée sous forme de texte (`ease-in-out`) est à mettre à jour.
+- **`figma/component-vars.json` : un défaut lu avec repli devient un alias** (FSHSP-253).
+  `var(--motion-slide-distance, 0.5rem)` s'importe en `{motion.slide.distance}` au lieu d'une
+  chaîne, et `--ui-label-color` en `{semantics.form.high.content.default}`.
 
 ## [0.2.0] - 2026-10-19
 

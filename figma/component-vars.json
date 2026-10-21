@@ -11,13 +11,14 @@
       ],
       "counts": {
         "tokens": 1433,
-        "alias": 1269,
-        "literal": 164,
+        "alias": 1271,
+        "literal": 162,
         "skipped": 63,
         "derivedDescriptions": 223
       },
       "aliasTargets": [
         "metrics",
+        "motion",
         "primitives",
         "responsive",
         "semantics",
@@ -72,12 +73,12 @@
         {
           "cssVar": "--ui-control-transition-duration",
           "component": "ui-config",
-          "reason": "sans équivalent variable Figma (durée, easing, curseur, plan d’empilement, ratio)."
+          "reason": "2 défauts selon la variante rendue : en déclarer un seul écraserait les autres."
         },
         {
           "cssVar": "--ui-control-transition-easing",
           "component": "ui-config",
-          "reason": "sans équivalent variable Figma (durée, easing, curseur, plan d’empilement, ratio)."
+          "reason": "2 défauts selon la variante rendue : en déclarer un seul écraserait les autres."
         },
         {
           "cssVar": "--ui-datepicker-panel-max-height",
@@ -18642,7 +18643,7 @@
   },
   "label": {
     "color": {
-      "$value": "var(--form-high-content-default, var(--global-text-default))",
+      "$value": "{semantics.form.high.content.default}",
       "$type": "color",
       "$description": "Couleur du texte, pilotable par un composant de formulaire parent (hover, disabled…).",
       "$extensions": {
@@ -20325,7 +20326,7 @@
   },
   "motion": {
     "distance": {
-      "$value": "8px",
+      "$value": "{motion.slide.distance}",
       "$type": "dimension",
       "$description": "Distance du glissement d’entrée et de sortie, pour un exemplaire.",
       "$extensions": {
