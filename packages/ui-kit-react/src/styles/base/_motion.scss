@@ -1,7 +1,9 @@
 // =====================================================================
 // Motion presets: global `.ui-motion-<preset>-enter` / `-leave` classes, set by
 // `useUiMotion` (which keeps the leaving node mounted) or by hand. Timing reads
-// `--ui-motion-*`; `data-motion="off"` on <html> opts out globally.
+// `--ui-motion-*`; `data-motion="off"` on <html> opts out globally, and the user's
+// reduced-motion preference turns every preset into a short fade (see the end of
+// this file).
 // =====================================================================
 
 @use 'sass:list';
@@ -110,13 +112,11 @@ $_presets: fade, slide-up, slide-down, slide-left, slide-right, zoom, collapse;
   to { opacity: 0; grid-template-rows: 0fr; }
 }
 
-// --- Global opt-out --------------------------------------------------
-// Reduced motion: every preset collapses to a flash, so state still changes.
-@media (prefers-reduced-motion: reduce) {
-  [class*='ui-motion-'] {
-    animation-duration: 0.01ms !important;
-  }
-}
+// --- Reduced motion ----------------------------------------------------
+// No rule here: the OS reduced-motion setting switches the `motion` tokens to their
+// `Reduced` mode (generated/_tokens-motion.scss). The slide distance drops to 0 and
+// the zoom scale to 1, the recipes shorten: every preset becomes a short fade, so the
+// change of state is still seen, without the movement.
 
 // Kit-wide kill-switch (`<html data-motion="off">`): neutralises animations AND transitions.
 :root[data-motion='off'] {

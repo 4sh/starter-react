@@ -80,6 +80,12 @@ $focus-ring-width: var(--ui-bottom-sheet-focus-ring-width, #{utils.$focus-ring-w
     translate: 0 100%;
   }
 
+  // La feuille monte depuis le bas de l'écran, pas de la distance des recettes : le
+  // mode `Reduced` ne l'atteint pas, elle reste donc instantanée.
+  @include utils.motion-reduce {
+    transition-duration: 0.01ms;
+  }
+
   &::backdrop {
     background-color: $mask-background;
     opacity: 1;

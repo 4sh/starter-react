@@ -313,11 +313,11 @@ Trois niveaux, du plus étroit au plus large, et le plus large gagne toujours.
     </tr>
     <tr>
       <td>Toute l'application</td>
-      <td><code>data-motion="off"</code> sur <code>&lt;html&gt;</code> : neutralise les animations <strong>et</strong> les transitions du kit.</td>
+      <td><code>data-motion="off"</code> sur <code>&lt;html&gt;</code> : neutralise les animations <strong>et</strong> les transitions du kit. C'est le réglage à poser dans les tests de bout en bout.</td>
     </tr>
     <tr>
       <td>Préférence système</td>
-      <td><code>prefers-reduced-motion: reduce</code> réduit tous les préréglages à un éclair : l'état change, sans mouvement.</td>
+      <td><code>prefers-reduced-motion: reduce</code> bascule la collection <code>motion</code> dans son mode <code>Reduced</code> : glissement à 0, échelle du <code>zoom</code> à 1, recettes de déplacement à 80ms. Chaque préréglage et chaque panneau devient un fondu court : l'état change, sans mouvement. Les changements de couleur (<code>hover</code>) gardent leur durée. Un composant qui pose sa propre garde <code>utils.motion-reduce</code> (tiroir, bottom sheet, barre latérale, tooltip) reste instantané.</td>
     </tr>
   </tbody>
 </table>

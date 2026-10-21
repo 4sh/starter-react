@@ -366,6 +366,15 @@ interne, invisible dans la doc.
    son `///`.
 3. Mettre à jour story, MDX et test si l'API bouge ; `pnpm docs:config` si le SCSS a bougé.
 4. Vérifier clair + sombre + les 3 marques.
+5. Si le composant s'anime, le revoir aussi en mouvement réduit : outils du navigateur, ou
+   Playwright `browser.newContext({ reducedMotion: 'reduce' })`. Les jetons `motion` y
+   passent dans leur mode `Reduced` (glissement à 0, zoom à 1, déplacements à 80ms) : un
+   glissement ou un zoom doit devenir un fondu court, un changement de couleur garder sa
+   durée, et rien ne doit rester bloqué à mi-chemin. Lire
+   `getComputedStyle(el).transitionDuration`, ou, pour un préréglage, mettre son
+   `Animation` en pause à `currentTime = 0` et lire le `transform` de départ. Un test de
+   bout en bout qui ne doit attendre aucune animation pose `data-motion="off"` sur
+   `<html>`.
 
 ### Ajouter ou modifier un jeton
 

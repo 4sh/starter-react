@@ -34,6 +34,19 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
   s'appliquer. Ce dernier hook ne figure plus dans `component-vars.scss` : il règle à la fois
   les couleurs et les déplacements, la recette est désormais le réglage global. Mêmes noms que
   le starter Angular.
+- **Mouvement réduit : les préréglages et les panneaux deviennent des fondus courts au lieu de
+  disparaître** (FSHSP-253). Sous `prefers-reduced-motion: reduce`, la collection `motion`
+  passe dans son mode `Reduced` : glissement à 0, échelle du `zoom` à 1, recettes de
+  déplacement à `--transition-fast` (80ms), décalage du speed-dial à 0. Avant, les préréglages
+  `ui-motion-*` et `utils.overlay-motion` tombaient à 0,01ms, fondu compris : la modale, le
+  popover, les menus et les listes déroulantes apparaissent désormais en un fondu de 80ms. Les
+  déplacements qui passent par `utils.control-transition` ou `utils.motion-transition` (pouce
+  du toggle, rotation du speed-dial, chevrons, replis), jusqu'ici non couverts, raccourcissent
+  aussi. Les changements de couleur gardent leur durée. Un composant qui pose sa propre garde
+  `utils.motion-reduce` reste instantané : tiroir et bottom sheet, qui glissent depuis le bord
+  de l'écran, en reçoivent une. `data-motion="off"` coupe toujours tout : c'est le réglage à
+  garder dans les tests de bout en bout qui s'appuyaient sur le mouvement réduit pour
+  supprimer les animations.
 
 ### Changed
 

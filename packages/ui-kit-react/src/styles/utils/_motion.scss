@@ -69,9 +69,10 @@
     --_overlay-easing: #{ui-config.$motion-overlay-out-easing};
   }
 
-  @include motion-reduce {
-    transition-duration: 0.01ms;
-  }
+  // Pas de garde `motion-reduce` : en mouvement réduit, les recettes raccourcissent et
+  // la distance et l'échelle tombent à zéro, donc un état fermé écrit avec
+  // `--ui-motion-distance` / `--ui-motion-scale` devient un fondu court. Un panneau
+  // qui glisse depuis le bord de l'écran (`translate: 100%`) pose sa propre garde.
 }
 
 /// Entrée SEULE d'un panneau du calque supérieur : la sortie est instantanée.
@@ -100,10 +101,6 @@
     &[open] {
       @content;
     }
-  }
-
-  @include motion-reduce {
-    transition-duration: 0.01ms;
   }
 }
 
