@@ -16,8 +16,18 @@ import { createPropertyFormatter, usesReferences, getReferences } from 'style-di
 
 // --- Config & paths ---------------------------------------------------------
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const CONFIG = JSON.parse(readFileSync(join(ROOT, 'tokens.config.json'), 'utf8'));
+// `--config <path>` builds another tokens.config.json, relative paths resolved from it:
+// what the tests use to run the pipeline in a throwaway folder.
+const configArg = process.argv.indexOf('--config');
+const CONFIG_PATH =
+  configArg !== -1 && process.argv[configArg + 1]
+    ? isAbsolute(process.argv[configArg + 1])
+      ? process.argv[configArg + 1]
+      : join(process.cwd(), process.argv[configArg + 1])
+    : join(dirname(fileURLToPath(import.meta.url)), '..', 'tokens.config.json');
+
+const ROOT = dirname(CONFIG_PATH);
+const CONFIG = JSON.parse(readFileSync(CONFIG_PATH, 'utf8'));
 const SRC = isAbsolute(CONFIG.sourceRoot) ? CONFIG.sourceRoot : join(ROOT, CONFIG.sourceRoot);
 const HEADER = `/* ${CONFIG.header ?? 'Generated : do not edit.'} */\n\n`;
 
@@ -103,23 +113,122 @@ for (const c of CONFIG.collections) for (const k of refKeys(c)) byRefKey[k] = c;
 
 // --- Token file walking -------------------------------------------------------
 
-/** Flatten a DTCG tree into [{ path, token }] leaves ($value nodes). */
-function leaves(node, path = [], out = []) {
+/** Flatten a DTCG tree into [{ file, path, token }] leaves ($value nodes).
+ * `file` travels with the leaf so an unreadable value can name the file to open. */
+function leaves(node, file, path = [], out = []) {
   if (!node || typeof node !== 'object') return out;
   if ('$value' in node) {
-    out.push({ path, token: node });
+    out.push({ file, path, token: node });
     return out;
   }
-  for (const k of Object.keys(node)) if (!k.startsWith('$')) leaves(node[k], [...path, k], out);
+  for (const k of Object.keys(node))
+    if (!k.startsWith('$')) leaves(node[k], file, [...path, k], out);
   return out;
 }
 
 const leavesByCol = {};
 for (const c of CONFIG.collections) {
   leavesByCol[c.id] = (c.files ?? []).flatMap((f) =>
-    leaves(JSON.parse(readFileSync(join(SRC, f), 'utf8'))),
+    leaves(JSON.parse(readFileSync(join(SRC, f), 'utf8')), f),
   );
 }
+
+// --- Modes not emitted yet ------------------------------------------------------
+// A mode mapped to `null` in an axis exists in Figma but is not emitted: its tokens are
+// dropped here, before anything reads them. Left in, a mode with no selector nor media
+// would land in :root and override the default mode token by token.
+for (const c of CONFIG.collections) {
+  const skipped = new Set(
+    (c.modeAxes ?? []).flatMap((a) =>
+      Object.entries(a.map ?? {})
+        .filter(([, target]) => target === null)
+        .map(([mode]) => mode),
+    ),
+  );
+  if (skipped.size)
+    leavesByCol[c.id] = leavesByCol[c.id].filter((l) => !l.path.some((p) => skipped.has(p)));
+}
+
+// --- Typed values -----------------------------------------------------------------
+// DTCG 2025.10 writes some values as structures: a duration or a dimension is
+// `{ value, unit }`, a curve `[x1, y1, x2, y2]`. Left as is, `setLeaf` would split
+// the object into sub-tokens and stringify the array. They take their CSS form here,
+// before anything else reads them: `80ms`, `0.5rem`, `cubic-bezier(0.42, 0, 0.58, 1)`.
+// A string (CSS text or a {…} reference) goes through untouched: it is what every
+// file exported from Figma contains so far.
+//
+// A unitless duration is refused rather than guessed: Figma's TIMING variables count
+// in seconds, and CSS has no unitless time to fall back on.
+
+/** `{ value: 80, unit: 'ms' }` → `80ms`; a string goes through. `units` restricts the unit. */
+function unitValue(value, units) {
+  if (typeof value === 'string') return value;
+  const readable =
+    value &&
+    typeof value === 'object' &&
+    Number.isFinite(value.value) &&
+    typeof value.unit === 'string' &&
+    (!units || units.includes(value.unit));
+  return readable ? `${value.value}${value.unit}` : undefined;
+}
+
+/** `[0.42, 0, 0.58, 1]` → `cubic-bezier(0.42, 0, 0.58, 1)`; a string goes through. */
+function cubicBezier(value) {
+  if (typeof value === 'string') return value;
+  if (!Array.isArray(value) || value.length !== 4 || !value.every(Number.isFinite))
+    return undefined;
+  const [x1, , x2] = value;
+  // CSS drops the whole declaration when a curve's x leaves [0, 1].
+  if (x1 < 0 || x1 > 1 || x2 < 0 || x2 > 1) return undefined;
+  return `cubic-bezier(${value.join(', ')})`;
+}
+
+const TYPED_VALUES = {
+  duration: {
+    css: (v) => unitValue(v, ['ms', 's']),
+    expected: '{ "value": 80, "unit": "ms" } (ms ou s), ou une chaîne CSS ("80ms")',
+  },
+  dimension: {
+    css: (v) => (typeof v === 'number' ? v : unitValue(v)),
+    expected: '{ "value": 0.5, "unit": "rem" }, ou une chaîne CSS ("8px")',
+  },
+  cubicBezier: {
+    css: cubicBezier,
+    expected: '[x1, y1, x2, y2] avec x1 et x2 entre 0 et 1, ou une chaîne CSS ("ease-out")',
+  },
+  // Figma stores numbers on 32 bits: 0.96 comes out as 0.9599999785423279. Six
+  // significant digits give the value back without touching a clean one (12, 1.25).
+  number: {
+    css: (v) => (typeof v === 'number' ? Number(v.toPrecision(6)) : v),
+    expected: 'un nombre, ou une référence {…}',
+  },
+};
+
+function normalizeTypedValues() {
+  const unreadable = [];
+  for (const col of CONFIG.collections) {
+    for (const leaf of leavesByCol[col.id]) {
+      const typed = TYPED_VALUES[leaf.token.$type];
+      if (!typed) continue;
+      const css = typed.css(leaf.token.$value);
+      if (css === undefined) unreadable.push({ ...leaf, expected: typed.expected });
+      else if (css !== leaf.token.$value) leaf.token = { ...leaf.token, $value: css };
+    }
+  }
+  if (!unreadable.length) return;
+  const lines = unreadable.map(
+    (u) =>
+      `  ${u.file} → ${u.path.join('.')} (${u.token.$type})\n` +
+      `      reçu ${JSON.stringify(u.token.$value)}, attendu ${u.expected}`,
+  );
+  throw new Error(
+    `Valeurs de jetons illisibles (${unreadable.length}) :\n${lines.join('\n')}\n\n` +
+      `Une durée sans unité n'est jamais devinée : une variable TIMING de Figma compte en ` +
+      `secondes, et CSS n'a pas de durée sans unité.`,
+  );
+}
+
+normalizeTypedValues();
 
 /** Detect all mode names from the JSON structure for a given axis. */
 function detectModeNames(col, axis) {

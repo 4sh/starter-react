@@ -62,14 +62,15 @@ $mask-background: var(--ui-modal-mask-background, var(--primitives-black-50));  
   &::backdrop {
     background-color: $mask-background;
     transition:
-      display allow-discrete var(--ui-motion-duration, #{utils.$motion-duration-base}),
-      overlay allow-discrete var(--ui-motion-duration, #{utils.$motion-duration-base}),
-      opacity var(--ui-motion-duration, #{utils.$motion-duration-base});
+      display allow-discrete var(--ui-motion-duration, #{utils.$motion-overlay-in-duration}),
+      overlay allow-discrete var(--ui-motion-duration, #{utils.$motion-overlay-in-duration}),
+      opacity var(--ui-motion-duration, #{utils.$motion-overlay-in-duration});
     opacity: 1;
   }
 
   &:not([open])::backdrop {
     opacity: 0;
+    transition-duration: var(--ui-motion-duration, #{utils.$motion-overlay-out-duration});
   }
 
   @starting-style {

@@ -235,6 +235,11 @@ par `useSyncExternalStore` avec un instantané serveur distinct : voir `core/the
 
 - **Jetons uniquement** : jamais une couleur, un espacement ou un rayon en dur. Clair ET
   sombre à chaque fois.
+- **Mouvement** : `--transition-*` sont les primitives, `--motion-*` les recettes par
+  usage (`hover`, `toggle`, `overlay-in`…). Un composant lit une recette, à travers les
+  mixins `utils` (`control-transition`, `motion-transition`, `overlay-motion`) ou
+  `ui-config`, jamais une primitive ni une durée écrite à la main : sinon ni un recadençage
+  du kit ni le mouvement réduit ne l'atteignent. Voir `Foundations / Motion`.
 - **Nommage** : racine `.ui-<nom>` ; sous-élément `&-<partie>` (→ `.ui-button-icon`) ;
   modifieur `&._<modifieur>` (→ `._small`, `._high`).
 - **États interactifs** (`hover`/`focus`/`active`/`disabled`) : pseudo-classes CSS via les
@@ -361,6 +366,15 @@ interne, invisible dans la doc.
    son `///`.
 3. Mettre à jour story, MDX et test si l'API bouge ; `pnpm docs:config` si le SCSS a bougé.
 4. Vérifier clair + sombre + les 3 marques.
+5. Si le composant s'anime, le revoir aussi en mouvement réduit : outils du navigateur, ou
+   Playwright `browser.newContext({ reducedMotion: 'reduce' })`. Les jetons `motion` y
+   passent dans leur mode `Reduced` (glissement à 0, zoom à 1, déplacements à 80ms) : un
+   glissement ou un zoom doit devenir un fondu court, un changement de couleur garder sa
+   durée, et rien ne doit rester bloqué à mi-chemin. Lire
+   `getComputedStyle(el).transitionDuration`, ou, pour un préréglage, mettre son
+   `Animation` en pause à `currentTime = 0` et lire le `transform` de départ. Un test de
+   bout en bout qui ne doit attendre aucune animation pose `data-motion="off"` sur
+   `<html>`.
 
 ### Ajouter ou modifier un jeton
 
@@ -385,7 +399,7 @@ pnpm tokens:build        # Régénère les variables CSS depuis les JSON
 pnpm test                # Tests de composants (Chromium via Playwright)
 pnpm lint:check          # ESLint sans --fix
 pnpm typecheck           # tsc sur les trois projets
-pnpm docs:config:check   # Les sept garde-fous, en une commande, voir ci-dessous
+pnpm docs:config:check   # Les huit garde-fous, en une commande, voir ci-dessous
 pnpm deps:check          # La règle d'import des librairies tierces (chaîné dans le précédent)
 ```
 
@@ -400,7 +414,13 @@ committer**. Il échoue sur :
 - un point d'entrée absent de la table `exports` du `package.json` ;
 - un composant qui importe une librairie tierce au lieu d'une brique de `core/` ;
 - un renvoi de doc vers un fichier qui n'existe pas ;
-- un tiret cadratin dans une prose, ou un tableau markdown dans un `.mdx`.
+- un tiret cadratin dans une prose, ou un tableau markdown dans un `.mdx` ;
+- une durée (`180ms`), une courbe (`ease-out`, `cubic-bezier(…)`) ou une primitive
+  `var(--transition-*)` écrite dans le `.scss` d'un composant (`pnpm motion:check`,
+  `scripts/motion.check.mjs`). Un composant lit une recette `--motion-*` à travers
+  `ui-config` ou les mixins `utils`, pour qu'un recadençage du kit et le mouvement réduit
+  l'atteignent. Une exception va dans le `ALLOWED` du script, avec sa raison ; une exception
+  devenue inutile fait échouer le contrôle aussi.
 
 À côté de lui, `git diff --exit-code` sur les fichiers **générés mais committés**
 (`packages/ui-kit-react/package.json` pour la table `exports`,

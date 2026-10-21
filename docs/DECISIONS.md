@@ -296,3 +296,34 @@ déclare deux projets, `unit` et `storybook`. Le second rend chaque story et la 
 Le contrôle a trouvé sa première violation à la minute où il a été branché : un contraste de
 1,75 sur le contre-exemple `OnColorOmitted` de `ui-button`, qui existe justement pour
 montrer ce défaut, et qui est donc exempté avec sa justification écrite.
+
+## D9, Mouvement : primitives typées, recettes par usage, mouvement réduit par mode
+
+**Retenu le 20 octobre (FSHSP-252 côté Angular, FSHSP-253 ici)** : le mouvement suit le
+modèle de la couleur, en trois couches. Inspiration : motiondesignsystem.org.
+
+- **Primitives** : la collection `transitions`, `--transition-*`, sous les mêmes noms
+  qu'avant. Dans Figma, elles passent du type `STRING` aux types `TIMING` et `EASING` :
+  `tokens:build` lit donc les valeurs typées du format DTCG (`"80ms"`, `[x1, y1, x2, y2]`).
+- **Recettes** : la collection `motion`, `--motion-*`, une par usage (`hover`, `toggle`,
+  `overlay-in`/`-out`, `disclosure`, `dialog`, `notify`, `stagger`, `slide`, `zoom`), en
+  alias des primitives. Les composants lisent les recettes, avec repli sur la primitive
+  d'avant (`var(--motion-hover-duration, var(--transition-default))`).
+- **Chorégraphies** : les préréglages `ui-motion-*` et `utils.overlay-motion`, qui lisent
+  les recettes.
+
+**Écarté : renommer ou déprécier les `--transition-*`.** Ce serait une rupture pour tout
+projet qui les surcharge, sans rien gagner : une recette qui les référence apporte le
+vocabulaire par usage, et une surcharge de primitive continue de s'appliquer.
+
+**Le mouvement réduit est un mode de la collection `motion`**, `Reduced`, émis sous
+`(prefers-reduced-motion: reduce)` : glissement à 0, échelle à 1, durées de déplacement à
+`fast`. Un glissement devient un fondu court au lieu de disparaître : l'utilisateur voit
+encore l'état changer. Les changements de couleur (`hover`) gardent leur durée, ce ne sont
+pas des mouvements. `data-motion="off"` reste l'interrupteur dur, celui des tests de bout en
+bout. Un panneau qui glisse depuis le bord de l'écran (tiroir, bottom sheet, barre latérale
+en surimpression) ne lit pas la distance des recettes : il garde sa garde instantanée.
+
+Le mouvement ne passe que par des jetons : `pnpm motion:check` refuse une durée, une courbe
+ou une primitive écrite dans le SCSS d'un composant. Les boucles (skeleton, spinner,
+progress-bar) en sont exemptées tant que la recette `loop` n'existe pas.

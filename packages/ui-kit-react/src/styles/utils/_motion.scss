@@ -8,15 +8,15 @@
 
 /// Transition recipe timed by the motion system.
 /// Duration/easing/delay resolve from `--ui-motion-*` (per-instance override)
-/// falling back to the motion tokens. Easing defaults to the symmetric curve.
+/// falling back to the `toggle` recipe: an element that switches between two states.
 /// e.g. @include utils.motion-transition(opacity, translate);
 @mixin motion-transition($properties...) {
   $transitions: ();
   @each $property in $properties {
     $transitions: list.append(
       $transitions,
-      $property var(--ui-motion-duration, #{ui-config.$motion-duration-base})
-        var(--ui-motion-easing, #{ui-config.$motion-easing-standard})
+      $property var(--ui-motion-duration, #{ui-config.$motion-toggle-duration})
+        var(--ui-motion-easing, #{ui-config.$motion-toggle-easing})
         var(--ui-motion-delay, 0ms),
       comma
     );
@@ -31,13 +31,20 @@
 /// Le `@content` décrit l'état FERMÉ, qui sert des deux côtés : point de départ
 /// de l'entrée, point d'arrivée de la sortie.
 ///
+/// L'entrée suit la recette `overlay-in`, la sortie `overlay-out`.
+///
 /// e.g. @include utils.overlay-motion { opacity: 0; scale: 0.96; }
 @mixin overlay-motion($properties: (opacity, translate, scale)) {
+  // Le sens passe par deux propriétés privées : l'état fermé ne redéclare pas
+  // `transition-*`, donc une garde `motion-reduce` posée par le composant garde
+  // la main dans les deux sens.
+  --_overlay-duration: #{ui-config.$motion-overlay-in-duration};
+  --_overlay-easing: #{ui-config.$motion-overlay-in-easing};
   transition-property: list.join((display, overlay), $properties, $separator: comma);
-  transition-duration: var(--ui-motion-duration, #{ui-config.$motion-duration-base});
-  // Un seul crochet pour les deux sens, `--ui-motion-easing`, comme
-  // `motion-transition` : les courbes par sens restent des jetons.
-  transition-timing-function: var(--ui-motion-easing, #{ui-config.$motion-easing-enter});
+  // Un seul crochet pour les deux sens, `--ui-motion-duration` / `--ui-motion-easing`,
+  // comme `motion-transition` : les valeurs par sens restent des recettes.
+  transition-duration: var(--ui-motion-duration, var(--_overlay-duration));
+  transition-timing-function: var(--ui-motion-easing, var(--_overlay-easing));
   transition-delay: var(--ui-motion-delay, 0ms);
   transition-behavior: allow-discrete;
 
@@ -56,14 +63,16 @@
   }
 
   // La sortie accélère là où l'entrée décélère. `[data-unpositioned]` n'est pas
-  // visé : c'est une attente d'entrée, qui garde la courbe d'entrée.
+  // visé : c'est une attente d'entrée, qui garde la recette d'entrée.
   &:not(:popover-open):not([open]) {
-    transition-timing-function: var(--ui-motion-easing, #{ui-config.$motion-easing-leave});
+    --_overlay-duration: #{ui-config.$motion-overlay-out-duration};
+    --_overlay-easing: #{ui-config.$motion-overlay-out-easing};
   }
 
-  @include motion-reduce {
-    transition-duration: 0.01ms;
-  }
+  // Pas de garde `motion-reduce` : en mouvement réduit, les recettes raccourcissent et
+  // la distance et l'échelle tombent à zéro, donc un état fermé écrit avec
+  // `--ui-motion-distance` / `--ui-motion-scale` devient un fondu court. Un panneau
+  // qui glisse depuis le bord de l'écran (`translate: 100%`) pose sa propre garde.
 }
 
 /// Entrée SEULE d'un panneau du calque supérieur : la sortie est instantanée.
@@ -77,8 +86,8 @@
   &:popover-open,
   &[open] {
     transition-property: $properties;
-    transition-duration: var(--ui-motion-duration, #{ui-config.$motion-duration-base});
-    transition-timing-function: var(--ui-motion-easing, #{ui-config.$motion-easing-enter});
+    transition-duration: var(--ui-motion-duration, #{ui-config.$motion-overlay-in-duration});
+    transition-timing-function: var(--ui-motion-easing, #{ui-config.$motion-overlay-in-easing});
     transition-delay: var(--ui-motion-delay, 0ms);
   }
 
@@ -92,10 +101,6 @@
     &[open] {
       @content;
     }
-  }
-
-  @include motion-reduce {
-    transition-duration: 0.01ms;
   }
 }
 

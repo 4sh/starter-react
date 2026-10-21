@@ -8,7 +8,7 @@
 // --- Config -----------------------------------------------------------
 $z-index: var(--ui-speed-dial-z-index, 10); /// Palier d'empilement du bouton et de ses actions au-dessus du masque.
 $item-gap: var(--ui-speed-dial-item-gap, var(--units-sm)); /// Espace entre le déclencheur et la première action, et entre deux actions empilées.
-$item-delay: var(--ui-speed-dial-item-delay, var(--transition-fast)); /// Décalage d'apparition entre deux actions successives.
+$item-delay: var(--ui-speed-dial-item-delay, #{utils.$motion-stagger-delay}); /// Décalage d'apparition entre deux actions successives.
 $radius-default: var(
   --ui-speed-dial-radius,
   calc(2 * var(--size-components-default))

@@ -127,13 +127,14 @@ $rail-width-default: utils.rem-calc(72);                                        
     &::backdrop {
       background-color: $backdrop-background;
       transition:
-        display allow-discrete var(--ui-motion-duration, #{utils.$motion-duration-base}),
-        overlay allow-discrete var(--ui-motion-duration, #{utils.$motion-duration-base}),
-        opacity var(--ui-motion-duration, #{utils.$motion-duration-base});
+        display allow-discrete var(--ui-motion-duration, #{utils.$motion-overlay-in-duration}),
+        overlay allow-discrete var(--ui-motion-duration, #{utils.$motion-overlay-in-duration}),
+        opacity var(--ui-motion-duration, #{utils.$motion-overlay-in-duration});
       opacity: 1;
     }
     &:not([open])::backdrop {
       opacity: 0;
+      transition-duration: var(--ui-motion-duration, #{utils.$motion-overlay-out-duration});
     }
     @starting-style {
       &[open]::backdrop {

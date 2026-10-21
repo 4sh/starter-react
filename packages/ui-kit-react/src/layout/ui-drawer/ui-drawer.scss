@@ -47,17 +47,24 @@ $size-edge: var(--ui-drawer-size-edge, #{utils.rem-calc(160)});                 
     translate: var(--_motion-slide);
   }
 
+  // Le tiroir glisse depuis le bord de l'écran, pas de la distance des recettes :
+  // le mode `Reduced` ne l'atteint pas, il reste donc instantané.
+  @include utils.motion-reduce {
+    transition-duration: 0.01ms;
+  }
+
   &::backdrop {
     background-color: $mask-background;
     transition:
-      display allow-discrete var(--ui-motion-duration, #{utils.$motion-duration-base}),
-      overlay allow-discrete var(--ui-motion-duration, #{utils.$motion-duration-base}),
-      opacity var(--ui-motion-duration, #{utils.$motion-duration-base});
+      display allow-discrete var(--ui-motion-duration, #{utils.$motion-overlay-in-duration}),
+      overlay allow-discrete var(--ui-motion-duration, #{utils.$motion-overlay-in-duration}),
+      opacity var(--ui-motion-duration, #{utils.$motion-overlay-in-duration});
     opacity: 1;
   }
 
   &:not([open])::backdrop {
     opacity: 0;
+    transition-duration: var(--ui-motion-duration, #{utils.$motion-overlay-out-duration});
   }
 
   @starting-style {

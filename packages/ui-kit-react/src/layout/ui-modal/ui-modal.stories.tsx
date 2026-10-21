@@ -213,7 +213,7 @@ export const Motions: Story = {
 /**
  * `motionDisabled` met la durée du mouvement à zéro pour ce dialogue : il
  * apparaît et disparaît d'un coup. Même effet, à l'échelle du kit, avec
- * `data-motion="off"` ou la préférence système de mouvement réduit.
+ * `data-motion="off"`. La préférence système de mouvement réduit en laisse un fondu court.
  */
 export const MotionDisabled: Story = {
   args: { motionDisabled: true, header: 'Sans animation' },

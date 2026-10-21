@@ -8,6 +8,60 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
 
 ## [Unreleased]
 
+### Added
+
+- **`tokens:build` lit les valeurs typées du format DTCG : durées, courbes, dimensions**
+  (FSHSP-253). Une courbe `[0.42, 0, 0.58, 1]` sort en `cubic-bezier(0.42, 0, 0.58, 1)`, une
+  durée `"80ms"` ou `{ "value": 80, "unit": "ms" }` en `80ms`, une dimension
+  `{ "value": 0.5, "unit": "rem" }` en `0.5rem`. C'est ce que Token Flow exporte pour les
+  variables Figma `TIMING` (`"80ms"`) et `EASING` (le tableau). Une durée sans unité fait
+  échouer le build au lieu d'être devinée (une variable TIMING de Figma compte en secondes),
+  tout comme une courbe dont un x sort de [0, 1], que CSS ignorerait. Un nombre est arrondi à
+  six chiffres significatifs : Figma stocke `0.96` en `0.9599999785423279`. Dans
+  `tokens.config.json`, un mode associé à `null` n'est pas émis. Les jetons écrits en texte
+  CSS sortent à l'identique. Même conversion que le starter Angular (FSHSP-252).
+- **Jetons : recettes de mouvement `--motion-*`, lues par le kit** (FSHSP-253). Une nouvelle
+  collection associe chaque usage à une durée et une courbe, en alias des primitives
+  `--transition-*` : `hover`, `toggle`, `overlay-in` / `-out`, `disclosure-*`, `dialog-*`,
+  `notify-*`, plus `--motion-stagger-delay`, `--motion-slide-distance` et
+  `--motion-zoom-scale`. Elles valent le timing d'avant : rien ne change à l'écran.
+  `utils.control-transition` prend `toggle` pour une propriété qui déplace (`transform`,
+  `top`, `width`…) et `hover` pour une couleur ou une opacité ; `utils.motion-transition` lit
+  `toggle` ; les préréglages `ui-motion-*`, `utils.overlay-motion` et les fonds des modales,
+  tiroirs et bottom sheets lisent `overlay-in` à l'entrée et `overlay-out` à la sortie ; le
+  décalage du speed-dial lit `stagger`. Pour recadencer tout le kit, surcharger une recette sur
+  `:root`. Les surcharges de `--transition-*` et de `--ui-control-transition-*` continuent de
+  s'appliquer. Ce dernier hook ne figure plus dans `component-vars.scss` : il règle à la fois
+  les couleurs et les déplacements, la recette est désormais le réglage global. Mêmes noms que
+  le starter Angular.
+- **Mouvement réduit : les préréglages et les panneaux deviennent des fondus courts au lieu de
+  disparaître** (FSHSP-253). Sous `prefers-reduced-motion: reduce`, la collection `motion`
+  passe dans son mode `Reduced` : glissement à 0, échelle du `zoom` à 1, recettes de
+  déplacement à `--transition-fast` (80ms), décalage du speed-dial à 0. Avant, les préréglages
+  `ui-motion-*` et `utils.overlay-motion` tombaient à 0,01ms, fondu compris : la modale, le
+  popover, les menus et les listes déroulantes apparaissent désormais en un fondu de 80ms. Les
+  déplacements qui passent par `utils.control-transition` ou `utils.motion-transition` (pouce
+  du toggle, rotation du speed-dial, chevrons, replis), jusqu'ici non couverts, raccourcissent
+  aussi. Les changements de couleur gardent leur durée. Un composant qui pose sa propre garde
+  `utils.motion-reduce` reste instantané : tiroir et bottom sheet, qui glissent depuis le bord
+  de l'écran, en reçoivent une. `data-motion="off"` coupe toujours tout : c'est le réglage à
+  garder dans les tests de bout en bout qui s'appuyaient sur le mouvement réduit pour
+  supprimer les animations.
+
+### Changed
+
+- **Les courbes `--transition-*` s'écrivent en `cubic-bezier()`** (FSHSP-253). Leurs variables
+  Figma sont passées du type `STRING` aux types `TIMING` et `EASING`, sous les mêmes noms.
+  Les durées ne changent pas (`80ms`, `180ms`, `280ms`). Les courbes valent la définition
+  exacte de leur ancien mot-clé : `--transition-easein` vaut `cubic-bezier(0.42, 0, 1, 1)` au
+  lieu de `ease-in`, `--transition-easeout` `cubic-bezier(0, 0, 0.58, 1)`,
+  `--transition-easeinout` `cubic-bezier(0.42, 0, 0.58, 1)` et `--transition-linear`
+  `cubic-bezier(0, 0, 1, 1)`. Le rendu est identique ; seul un test qui compare la courbe
+  calculée sous forme de texte (`ease-in-out`) est à mettre à jour.
+- **`figma/component-vars.json` : un défaut lu avec repli devient un alias** (FSHSP-253).
+  `var(--motion-slide-distance, 0.5rem)` s'importe en `{motion.slide.distance}` au lieu d'une
+  chaîne, et `--ui-label-color` en `{semantics.form.high.content.default}`.
+
 ## [0.2.0] - 2026-10-19
 
 ### Added

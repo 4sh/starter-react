@@ -76,6 +76,14 @@ export default defineConfig({
         },
       },
       {
+        // Les scripts du dépôt (jetons, contrôles) : des processus Node, comme le MCP.
+        test: {
+          name: 'scripts',
+          include: ['scripts/**/*.spec.mjs'],
+          environment: 'node',
+        },
+      },
+      {
         // Le plugin lit la config Storybook, transforme chaque story en test et
         // injecte lui-même les annotations du `preview`. Rien à recopier ici.
         plugins: [
