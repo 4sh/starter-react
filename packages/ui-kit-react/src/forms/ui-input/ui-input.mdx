@@ -95,6 +95,110 @@ avec celui que vous fournissez, jamais à sa place.
 
 <Canvas of={InputStories.Invalid} />
 
+## Saisie automatique du navigateur
+
+Quand le navigateur préremplit un formulaire (adresse, e-mail, code reçu par SMS), il écrit
+dans des champs où l'utilisateur n'est pas. Selon le navigateur, il annonce la valeur par un
+`input`, par un `change` seul, ou par **aucun événement** : la valeur s'affiche alors sans que
+React la connaisse, et le rendu suivant d'un champ contrôlé l'écrase. Les champs du kit
+suivent ces trois cas : `onValueChange` est appelé **une seule fois**, sans attendre un clic
+dans le champ, en mode contrôlé comme non contrôlé. La frappe et le collage ne changent pas.
+
+Le cas sans événement passe par une animation que `styles.css` lance sur `:-webkit-autofill` :
+le champ reçoit alors l'`input` que le navigateur n'a pas émis. **La feuille `styles.css` doit
+donc être chargée**, ce qu'elle est déjà pour les jetons.
+
+Une valeur écrite sans focus est traitée comme un remplissage, pas comme une frappe :
+
+<table className="doc-table">
+  <thead>
+    <tr>
+      <th>Champ</th>
+      <th>Valeur préremplie</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>ui-input</code>, <code>ui-textarea</code>
+      </td>
+      <td>Reprise telle quelle.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>ui-input-number</code>
+      </td>
+      <td>Lue puis formatée aussitôt : aucune sortie du champ ne viendra le faire.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>ui-input-mask</code>
+      </td>
+      <td>Passée au masque, sans placer de curseur.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>ui-input-otp</code>
+      </td>
+      <td>Répartie dans les cases sans prendre le focus.</td>
+    </tr>
+    <tr>
+      <td>
+        <code>ui-datepicker</code>
+      </td>
+      <td>
+        Validée sans attendre la sortie du champ ; si ce n'est pas une date, le champ revient à
+        la valeur précédente.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>ui-autocomplete</code>
+      </td>
+      <td>
+        Prise comme texte libre, <code>onComplete</code> appelé aussitôt, panneau fermé. Avec{' '}
+        <code>forceSelection</code>, la suggestion qui porte ce libellé est retenue dès qu'elle
+        arrive.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+Chrome envoie aussi, à chaque champ qu'il remplit, un `focus` qui ne lui donne pas le focus.
+Les comportements liés au focus l'ignorent : `showOnFocus` de `ui-datepicker`,
+`completeOnFocus` de `ui-autocomplete`, la sélection d'une case de `ui-input-otp`.
+
+Pour guider le navigateur, renseigner `autoComplete` (`name`, `email`, `tel`, `postal-code`,
+`bday`…) et `name` sur le champ.
+
+> **À prévoir côté application.** `onValueChange` (et `onOptionSelect` avec `forceSelection`)
+> peut être appelé sans geste de l'utilisateur : un gestionnaire qui appelle une API ou remplit
+> d'autres champs doit le tolérer. Dans les tests, un `input` envoyé à un champ sans focus vaut
+> remplissage : focaliser le champ avant de simuler une frappe (`userEvent.type` ou `fill()` de
+> Playwright le font déjà). Hors de portée : Chrome garde illisible par JavaScript une valeur
+> qu'il préremplit au chargement de la page, jusqu'à une interaction.
+
+### Dans un champ maison
+
+Un champ bâti sur `@4sh/ui-kit-react/forms` obtient le même comportement : poser
+`BROWSER_FILL_CLASS` sur l'élément natif et brancher `announceBrowserFill` sur son
+`onAnimationStart`. `hasFocus(element)` distingue une frappe d'une valeur écrite sans focus,
+par exemple pour ne pas ouvrir de panneau.
+
+```tsx
+import { BROWSER_FILL_CLASS, announceBrowserFill, hasFocus } from '@4sh/ui-kit-react/forms';
+
+<input
+  className={cx('mon-champ', BROWSER_FILL_CLASS)}
+  value={text}
+  onChange={(event) => {
+    setText(event.target.value);
+    if (hasFocus(event.target)) openPanel();
+  }}
+  onAnimationStart={announceBrowserFill}
+/>;
+```
+
 ## Theming
 
 Le champ délègue l'essentiel de son apparence à `ui-field` : les points d'extension de la

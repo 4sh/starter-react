@@ -11,7 +11,9 @@ import {
 } from 'react';
 
 import {
+  BROWSER_FILL_CLASS,
   joinIds,
+  announceBrowserFill,
   useControllableState,
   useUiField,
   type UiFieldSharedProps,
@@ -173,6 +175,7 @@ export function UiTextarea({
           'ui-textarea-native',
           size === 'small' && '_small',
           autoResize && '_auto-resize',
+          BROWSER_FILL_CLASS,
         )}
         style={{ resize: autoResize ? 'none' : resize, ...rest.style }}
         id={field.inputId}
@@ -187,6 +190,10 @@ export function UiTextarea({
         aria-describedby={describedBy}
         aria-invalid={field.ariaInvalid}
         onChange={(event: ChangeEvent<HTMLTextAreaElement>) => setText(event.target.value)}
+        onAnimationStart={(event) => {
+          rest.onAnimationStart?.(event);
+          announceBrowserFill(event);
+        }}
       />
     </UiField>
   );

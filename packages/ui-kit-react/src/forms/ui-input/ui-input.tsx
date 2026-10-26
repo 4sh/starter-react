@@ -3,7 +3,13 @@
 import type { ChangeEvent, ComponentPropsWithRef, MouseEvent, ReactNode, Ref } from 'react';
 
 import { UiIcon, type UiIconSize } from '../../base/ui-icon';
-import { useControllableState, useUiField, type UiFieldSharedProps } from '../../core/forms';
+import {
+  BROWSER_FILL_CLASS,
+  announceBrowserFill,
+  useControllableState,
+  useUiField,
+  type UiFieldSharedProps,
+} from '../../core/forms';
 import { cx } from '../../core/utils';
 import { UiField } from '../ui-field';
 
@@ -169,7 +175,7 @@ export function UiInput({
       <input
         {...rest}
         ref={ref}
-        className={cx('ui-input-native', size === 'small' && '_small')}
+        className={cx('ui-input-native', size === 'small' && '_small', BROWSER_FILL_CLASS)}
         type={type}
         id={field.inputId}
         value={text}
@@ -183,6 +189,10 @@ export function UiInput({
         aria-invalid={field.ariaInvalid}
         // `rest.onInput` est déjà attaché par le spread : le rechaîner le ferait tirer deux fois.
         onChange={(event: ChangeEvent<HTMLInputElement>) => setText(event.target.value)}
+        onAnimationStart={(event) => {
+          rest.onAnimationStart?.(event);
+          announceBrowserFill(event);
+        }}
       />
     </UiField>
   );

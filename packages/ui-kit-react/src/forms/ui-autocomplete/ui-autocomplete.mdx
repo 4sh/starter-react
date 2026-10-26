@@ -60,6 +60,16 @@ libre.
 
 <Canvas of={AutocompleteStories.ForceSelection} />
 
+Une valeur que le navigateur écrit dans le champ sans que l'utilisateur y soit (saisie
+automatique) appelle `onComplete` aussitôt, **sans ouvrir le panneau** sous un champ où
+personne n'est. Avec `forceSelection`, elle n'attend pas de sortie du champ : la suggestion qui
+porte ce libellé est retenue dès que `suggestions` la contient, même quand une recherche
+asynchrone la renvoie après le flou que Chrome envoie au champ rempli. Tant qu'elle attend, la
+sortie du champ ne la juge pas : sans correspondance, le texte reste affiché et la valeur vide.
+`completeOnFocus` ignore le `focus` que Chrome envoie au champ qu'il remplit. Comportement
+commun aux champs : section « Saisie automatique du navigateur » de
+[`ui-input`](?path=/docs/components-ui-forms-ui-input--docs).
+
 ## Sélection multiple
 
 La valeur devient un tableau, rendu en puces retirables. `unique` refuse deux fois la même

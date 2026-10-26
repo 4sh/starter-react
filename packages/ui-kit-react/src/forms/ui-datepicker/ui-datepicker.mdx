@@ -155,6 +155,11 @@ chiffres marche pour construire, pas pour éditer.
 Le masque se réarme dès que le champ se lit vide, sans attendre un flou qui peut ne jamais
 venir.
 
+Une date préremplie par le navigateur (`autoComplete="bday"`) dans le champ sans focus est
+**validée aussitôt**, sans attendre de flou ni d'`Entrée` : la valeur est mise à jour et
+`onDateSelect` appelé. Un texte qui n'est pas une date fait revenir le champ à la valeur
+précédente. Comportement commun aux champs : section « Saisie automatique du navigateur » de [`ui-input`](?path=/docs/components-ui-forms-ui-input--docs).
+
 Un champ tapable est d'abord un champ texte : **un clic dedans n'ouvre pas le panneau**.
 Celui-ci avalerait les clics suivants, et corriger un seul segment à la souris deviendrait
 impossible. L'icône, `↓` et le clavier s'en chargent. `allowInput={false}`, `readOnly`,
@@ -242,7 +247,8 @@ Deux saveurs, selon `showOnFocus` :
 
 `showOnFocus` ouvre dès que le déclencheur prend le focus, au pointeur comme au clavier, mais
 **jamais sur un focus programmatique** : un `autofocus` ou un `focus()` d'application hôte ne
-doit pas faire surgir un calendrier que personne n'a demandé.
+doit pas faire surgir un calendrier que personne n'a demandé. Ni sur le `focus` que Chrome
+envoie à chaque champ rempli par sa saisie automatique, sans lui donner le focus.
 
 <Canvas of={DatepickerStories.ShowOnFocus} />
 

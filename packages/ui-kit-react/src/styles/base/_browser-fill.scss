@@ -1,0 +1,15 @@
+// =====================================================================
+// Browser fill: an animation started on `:-webkit-autofill`, the only sign of a value
+// the browser autofills without any event. Fields marked `.ui-browser-fill` read it in
+// `onAnimationStart` (`core/forms/browser-fill.ts`).
+// =====================================================================
+
+.ui-browser-fill:-webkit-autofill {
+  animation: ui-browser-fill 0s;
+}
+
+@keyframes ui-browser-fill {
+  from {
+    opacity: 1;
+  }
+}

@@ -530,3 +530,90 @@ test('le panneau attend sa position avant d’être peint', async () => {
     .forEach((animation) => animation.finish());
   expect(getComputedStyle(panneau(screen)).opacity).toBe('1');
 });
+
+// --- Saisie automatique du navigateur -------------------------------------
+
+/** Écrit comme le navigateur (setter natif, que React ne voit pas), puis émet `evenements`. */
+function remplir(el: HTMLInputElement, texte: string, ...evenements: string[]) {
+  Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(el, texte);
+  for (const type of evenements) {
+    el.dispatchEvent(
+      type === 'animationstart'
+        ? new AnimationEvent(type, { animationName: 'ui-browser-fill', bubbles: true })
+        : new Event(type, { bubbles: true }),
+    );
+  }
+}
+
+test('une valeur écrite sans focus lance la recherche sans ouvrir le panneau', async () => {
+  const onComplete = vi.fn();
+  const onValueChange = vi.fn();
+  const screen = await render(<Demo onComplete={onComplete} onValueChange={onValueChange} />);
+
+  remplir(champ(screen), 'Lyon', 'input');
+
+  await expect.poll(() => onComplete.mock.calls).toEqual([['Lyon']]);
+  await new Promise((r) => setTimeout(r, 50));
+  expect(panneau(screen).matches(':popover-open')).toBe(false);
+  expect(onValueChange.mock.calls).toEqual([['Lyon']]);
+  expect(document.activeElement).not.toBe(champ(screen));
+});
+
+test('forceSelection retient une seule fois la suggestion qui porte le libellé prérempli', async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(<Demo forceSelection onValueChange={onValueChange} />);
+
+  remplir(champ(screen), 'lyon', 'animationstart');
+
+  await expect.poll(() => onValueChange.mock.calls).toEqual([['Lyon']]);
+  await expect.element(champ(screen)).toHaveValue('Lyon');
+  // Le flou que Chrome envoie ensuite ne la republie pas.
+  champ(screen).dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
+  await new Promise((r) => setTimeout(r, 50));
+  expect(onValueChange).toHaveBeenCalledOnce();
+});
+
+test('completeOnFocus ignore le focus que Chrome envoie avec son autofill', async () => {
+  const onComplete = vi.fn();
+  const screen = await render(<Demo completeOnFocus onComplete={onComplete} />);
+
+  champ(screen).dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+  await new Promise((r) => setTimeout(r, 50));
+  expect(onComplete).not.toHaveBeenCalled();
+
+  champ(screen).focus();
+  await expect.poll(() => onComplete.mock.calls).toEqual([['']]);
+});
+
+test('forceSelection attend les suggestions asynchrones malgré le faux flou de Chrome', async () => {
+  const onValueChange = vi.fn();
+  function Lent() {
+    const [suggestions, setSuggestions] = useState<readonly unknown[]>([]);
+    return (
+      <UiAutocomplete
+        label="Ville"
+        delay={0}
+        forceSelection
+        suggestions={suggestions}
+        onValueChange={onValueChange}
+        onComplete={(query) =>
+          setTimeout(
+            () =>
+              setSuggestions(
+                VILLES.filter((v) => normalizeText(v).startsWith(normalizeText(query))),
+              ),
+            100,
+          )
+        }
+      />
+    );
+  }
+  const screen = await render(<Lent />);
+  const input = champ(screen);
+
+  remplir(input, 'lyon', 'input', 'change');
+  input.dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
+
+  await expect.poll(() => onValueChange.mock.calls).toEqual([['Lyon']]);
+  await expect.element(input).toHaveValue('Lyon');
+});

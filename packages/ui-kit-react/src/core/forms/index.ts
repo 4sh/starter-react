@@ -5,6 +5,7 @@
 
 export { useControllableState, type UiControllableStateOptions } from './use-controllable-state';
 export { useUiField, joinIds, type UiFieldWiring } from './use-ui-field';
+export { BROWSER_FILL_CLASS, announceBrowserFill, hasFocus } from './browser-fill';
 export type { FieldSize, FieldLevel, FieldFloatLabel, UiFieldSharedProps } from './field-types';
 export {
   MASK_TOKENS,

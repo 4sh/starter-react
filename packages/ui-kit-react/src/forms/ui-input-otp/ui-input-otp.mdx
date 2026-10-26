@@ -26,7 +26,9 @@ remplies : c'est le moment où l'on valide, pas avant.
 La frappe avance seule à la case suivante, `Retour arrière` efface et recule, et un code
 **collé se répartit** sur les cases à partir de celle qui reçoit le collage. Le remplissage
 automatique du navigateur, qui pousse le code entier dans une seule case, se répartit de la
-même façon : les cases portent `autocomplete="one-time-code"`.
+même façon : les cases portent `autocomplete="one-time-code"`. Écrit dans une case sans focus,
+le code ne déplace pas le focus. Comportement commun aux champs : section « Saisie automatique
+du navigateur » de [`ui-input`](?path=/docs/components-ui-forms-ui-input--docs).
 
 <Canvas of={OtpStories.Basic} />
 
@@ -51,6 +53,9 @@ quel, et c'est ce qui garde le comportement du groupe.
 
 ⚠️ Le contrôle rendu doit rester un `<input>` : c'est ce que le groupe retrouve dans le DOM
 pour faire glisser le focus de case en case.
+
+Pour qu'une case sur mesure suive aussi la saisie automatique du navigateur, lui poser
+`BROWSER_FILL_CLASS` (de `@4sh/ui-kit-react/forms`) en plus de `onAnimationStart` du contexte.
 
 <Canvas of={OtpStories.CustomCell} />
 

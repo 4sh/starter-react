@@ -81,6 +81,9 @@ valeur étant contrôlée par React.
 L'ancre utilisée est le nombre de caractères de donnée situés avant le curseur, jamais sa
 position absolue : celle-ci se décale dès qu'un littéral s'insère.
 
+Une valeur préremplie par le navigateur (téléphone, code postal) passe par le masque sans
+placer de curseur : écrite sans focus, elle n'a pas de position à restaurer. Comportement commun aux champs : section « Saisie automatique du navigateur » de [`ui-input`](?path=/docs/components-ui-forms-ui-input--docs).
+
 ## Le moteur
 
 Le masquage lui-même vit dans `core/forms`, sous forme de fonctions pures sans état ni
