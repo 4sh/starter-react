@@ -86,3 +86,46 @@ test('le curseur se replace après le Nième caractère saisi', async () => {
 
   expect(input.selectionStart).toBe(4);
 });
+
+// --- Saisie automatique du navigateur -------------------------------------
+
+/** Écrit comme le navigateur (setter natif, que React ne voit pas), puis émet `evenements`. */
+function remplir(el: HTMLInputElement, texte: string, ...evenements: string[]) {
+  Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(el, texte);
+  for (const type of evenements) {
+    el.dispatchEvent(
+      type === 'animationstart'
+        ? new AnimationEvent(type, { animationName: 'ui-browser-fill', bubbles: true })
+        : new Event(type, { bubbles: true }),
+    );
+  }
+}
+
+test('une valeur écrite sans focus passe au masque sans placer de curseur', async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <UiInputMask label="Téléphone" mask="99 99 99 99 99" onValueChange={onValueChange} />,
+  );
+  const input = screen.container.querySelector('input')!;
+  const select = vi.spyOn(input, 'setSelectionRange');
+
+  remplir(input, '0612345678', 'input');
+
+  await expect.element(input).toHaveValue('06 12 34 56 78');
+  expect(onValueChange.mock.calls).toEqual([['06 12 34 56 78']]);
+  expect(select).not.toHaveBeenCalled();
+  expect(document.activeElement).not.toBe(input);
+});
+
+test("une valeur préremplie sans événement passe par l'animation d'autofill", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <UiInputMask label="Téléphone" mask="99 99 99 99 99" onValueChange={onValueChange} />,
+  );
+  const input = screen.container.querySelector('input')!;
+
+  remplir(input, '0612345678', 'animationstart');
+
+  await expect.element(input).toHaveValue('06 12 34 56 78');
+  expect(onValueChange.mock.calls).toEqual([['06 12 34 56 78']]);
+});

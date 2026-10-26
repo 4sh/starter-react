@@ -8,6 +8,35 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
 
 ## [Unreleased]
 
+### Added
+
+- **`BROWSER_FILL_CLASS`, `announceBrowserFill` et `hasFocus`** dans `@4sh/ui-kit-react/forms`
+  (FSHSP-259), pour un champ maison : la classe et le gestionnaire `onAnimationStart` font
+  suivre au champ une valeur que le navigateur préremplit sans aucun événement. Une case sur
+  mesure de `ui-input-otp` reçoit `onAnimationStart` dans le contexte de `renderCell`.
+
+### Fixed
+
+- **Une valeur préremplie par le navigateur est prise en compte sans clic dans le champ**
+  (FSHSP-259). Quand le navigateur n'émettait aucun événement, la valeur s'affichait sans que
+  React la connaisse, et le rendu suivant l'écrasait, dans tous les champs. `styles.css` lance
+  désormais une animation sur `:-webkit-autofill`, qui fait recevoir au champ l'`input`
+  manquant : `ui-input`, `ui-textarea`, `ui-input-number`, `ui-input-mask`, `ui-input-otp`,
+  `ui-autocomplete` et `ui-datepicker` appellent `onValueChange` une seule fois, en mode
+  contrôlé comme non contrôlé. Une valeur écrite sans focus est traitée comme telle :
+  `ui-input-number` la formate aussitôt, `ui-datepicker` la valide sans attendre la sortie du
+  champ (et revient à la valeur précédente si ce n'est pas une date), `ui-input-otp` la
+  répartit sans prendre le focus, `ui-input-mask` ne place pas de curseur, `ui-autocomplete`
+  appelle `onComplete` sans ouvrir son panneau et, avec `forceSelection`, retient la
+  suggestion qui porte ce libellé dès qu'elle arrive, même après le flou que Chrome envoie au
+  champ rempli. Le `focus` que Chrome envoie à chaque
+  champ qu'il remplit n'ouvre plus le calendrier en `showOnFocus`, ne lance plus la recherche
+  en `completeOnFocus` et ne focalise plus une case de code. Dans les tests d'une application,
+  un `input` envoyé sans focus à `ui-datepicker` ou `ui-autocomplete` vaut désormais
+  remplissage : focaliser le champ pour simuler une frappe. Hors de portée : une valeur que
+  Chrome préremplit au chargement de la page reste illisible par JavaScript jusqu'à une
+  interaction.
+
 ## [0.3.0] - 2026-10-23
 
 ### Added

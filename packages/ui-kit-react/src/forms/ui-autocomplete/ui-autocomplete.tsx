@@ -21,9 +21,12 @@ import { UiChip } from '../../informative/ui-chip';
 import { UiSpinner } from '../../informative/ui-spinner';
 import { useRovingTabIndex } from '../../core/focus';
 import {
+  BROWSER_FILL_CLASS,
   createOptionResolver,
   formatLabel,
+  hasFocus,
   normalizeText,
+  announceBrowserFill,
   useControllableState,
   useUiField,
   type OptionEntry,
@@ -229,6 +232,8 @@ export function UiAutocomplete({
   const searchTimer = useRef(0);
   /** Une requête a déjà été traitée : évite que `completeOnFocus` en refasse une. */
   const queryDirty = useRef(false);
+  /** `forceSelection` : texte écrit par le navigateur, en attente de la suggestion qui le porte. */
+  const pendingFill = useRef<string | null>(null);
 
   const uid = useId();
   const [open, setOpen] = useState(false);
@@ -277,6 +282,13 @@ export function UiAutocomplete({
   const flatEntries = useMemo(
     () => (group ? groups.flatMap((g) => g.entries) : suggestions.map((o) => resolver.toEntry(o))),
     [group, groups, suggestions, resolver],
+  );
+
+  /** Suggestion active dont le libellé vaut `text`, à la casse et aux accents près. */
+  const entryLabelled = useCallback(
+    (text: string) =>
+      flatEntries.find((e) => !e.disabled && normalizeText(e.label) === normalizeText(text.trim())),
+    [flatEntries],
   );
 
   const rows = useMemo<AcRow[]>(() => {
@@ -571,9 +583,11 @@ export function UiAutocomplete({
   };
 
   // --- Saisie --------------------------------------------------------------
-  const onInput = (event: ChangeEvent<HTMLInputElement>) => {
-    const query = event.target.value;
+  const onQuery = (query: string, element: HTMLInputElement) => {
+    // Écrit par le navigateur sans focus : la recherche part aussitôt, panneau fermé.
+    const typed = hasFocus(element);
     setInputText(query);
+    pendingFill.current = !typed && forceSelection && query ? query : null;
 
     // Texte libre pendant la frappe, sauf avec `forceSelection` (une vraie suggestion
     // est attendue) et `multiple` (la requête ne touche jamais la sélection).
@@ -592,20 +606,28 @@ export function UiAutocomplete({
     }
 
     setFocusedIndex(-1);
+    if (!typed) {
+      onComplete?.(query);
+      return;
+    }
     searchTimer.current = window.setTimeout(() => runSearch(query), delay);
   };
+
+  const onInput = (event: ChangeEvent<HTMLInputElement>) =>
+    onQuery(event.target.value, event.target);
 
   /**
    * `forceSelection` : à la sortie du champ, un texte sans suggestion correspondante
    * est effacé, pour que le modèle ne contienne jamais de texte libre.
    */
   const validateForceSelection = useCallback(() => {
+    pendingFill.current = null;
     const text = inputText.trim();
     if (!text) return;
-    const match = flatEntries.find(
-      (e) => !e.disabled && normalizeText(e.label) === normalizeText(text),
-    );
+    const match = entryLabelled(text);
     if (match) {
+      // Déjà retenue (remplissage du navigateur) : la reprendre la publierait deux fois.
+      if (!multiple && resolver.equals(model, match.value)) return;
       selectEntry(match, false);
     } else if (multiple) {
       setInputText('');
@@ -614,13 +636,24 @@ export function UiAutocomplete({
       setInputText('');
       onClear?.();
     }
-  }, [inputText, flatEntries, selectEntry, multiple, commit, onClear]);
+  }, [inputText, entryLabelled, resolver, model, selectEntry, multiple, commit, onClear]);
+
+  // `forceSelection` applique à un remplissage du navigateur la règle de la sortie du champ,
+  // dès qu'une suggestion porte son libellé : aucune sortie du champ ne viendra l'appliquer.
+  useEffect(() => {
+    const text = pendingFill.current;
+    const match = text === null ? undefined : entryLabelled(text);
+    if (!match) return;
+    pendingFill.current = null;
+    selectEntry(match, false);
+  }, [inputText, entryLabelled, selectEntry]);
 
   const onInputBlur = (event: FocusEvent<HTMLInputElement>) => {
     const next = event.relatedTarget as Node | null;
     const inside =
       (next && anchorRef.current?.contains(next)) || (next && panelRef.current?.contains(next));
-    if (!inside && forceSelection) validateForceSelection();
+    // Un remplissage du navigateur attend sa suggestion : le faux flou de Chrome ne le juge pas.
+    if (!inside && forceSelection && pendingFill.current === null) validateForceSelection();
   };
 
   const onInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -708,6 +741,7 @@ export function UiAutocomplete({
 
   const clear = (event: MouseEvent) => {
     event.stopPropagation();
+    pendingFill.current = null;
     commit(multiple ? [] : null);
     setInputText('');
     onClear?.();
@@ -926,7 +960,11 @@ export function UiAutocomplete({
             }}
             id={field.inputId}
             type="text"
-            className={cx('ui-autocomplete-input', size === 'small' && '_small')}
+            className={cx(
+              'ui-autocomplete-input',
+              size === 'small' && '_small',
+              BROWSER_FILL_CLASS,
+            )}
             role="combobox"
             aria-haspopup="listbox"
             aria-autocomplete="list"
@@ -944,9 +982,12 @@ export function UiAutocomplete({
             disabled={disabled}
             readOnly={readOnly}
             onChange={onInput}
+            onAnimationStart={announceBrowserFill}
             onKeyDown={onInputKeyDown}
-            onFocus={() => {
+            onFocus={(event) => {
               if (disabled) return;
+              // Chrome envoie ce focus au champ qu'il remplit, sans le lui donner.
+              if (!hasFocus(event.currentTarget)) return;
               if (!queryDirty.current && completeOnFocus) runSearch(inputText);
             }}
             onBlur={onInputBlur}

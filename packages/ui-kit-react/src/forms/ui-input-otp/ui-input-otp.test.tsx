@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 
+import { BROWSER_FILL_CLASS } from '../../core/forms';
+
 import { UiInputOtp, type UiInputOtpProps } from './ui-input-otp';
 
 function Host(props: Partial<UiInputOtpProps>) {
@@ -352,4 +354,66 @@ test('les tailles posent leur modifieur', async () => {
   expect(casePetite.getBoundingClientRect().width).toBeLessThan(
     caseGrande.getBoundingClientRect().width,
   );
+});
+
+// --- Saisie automatique du navigateur -------------------------------------
+
+/** Écrit comme le navigateur (setter natif, que React ne voit pas), puis émet `evenements`. */
+function remplir(el: HTMLInputElement, texte: string, ...evenements: string[]) {
+  Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(el, texte);
+  for (const type of evenements) {
+    el.dispatchEvent(
+      type === 'animationstart'
+        ? new AnimationEvent(type, { animationName: 'ui-browser-fill', bubbles: true })
+        : new Event(type, { bubbles: true }),
+    );
+  }
+}
+
+test('un code écrit sans focus est réparti sans déplacer le focus', async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(<Host length={4} integerOnly onValueChange={onValueChange} />);
+
+  remplir(cells(screen.container)[0]!, '4821', 'input');
+
+  await expect
+    .poll(() => cells(screen.container).map((c) => c.value))
+    .toEqual(['4', '8', '2', '1']);
+  expect(onValueChange.mock.calls).toEqual([['4821']]);
+  expect(cells(screen.container)).not.toContain(document.activeElement);
+});
+
+test('le focus que Chrome envoie avec son autofill ne focalise pas la case', async () => {
+  const screen = await render(<Host length={4} />);
+  const premiere = cells(screen.container)[0]!;
+  const select = vi.spyOn(premiere, 'select');
+
+  premiere.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+
+  expect(select).not.toHaveBeenCalled();
+  expect(document.activeElement).not.toBe(premiere);
+});
+
+test("une case personnalisée suit l'autofill par onAnimationStart", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <Host
+      length={2}
+      onValueChange={onValueChange}
+      renderCell={(cell) => (
+        <input
+          className={`ma-case ${BROWSER_FILL_CLASS}`}
+          aria-label={`Case ${cell.index + 1}`}
+          value={cell.value}
+          tabIndex={cell.tabIndex}
+          onChange={cell.onChange}
+          onAnimationStart={cell.onAnimationStart}
+        />
+      )}
+    />,
+  );
+
+  remplir(screen.container.querySelector<HTMLInputElement>('.ma-case')!, '7', 'animationstart');
+
+  await expect.poll(() => onValueChange.mock.calls).toEqual([['7']]);
 });

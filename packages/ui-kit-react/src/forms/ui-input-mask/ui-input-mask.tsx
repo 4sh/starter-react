@@ -12,10 +12,13 @@ import {
 
 import { UiIcon, type UiIconSize } from '../../base/ui-icon';
 import {
+  BROWSER_FILL_CLASS,
   applyMaskTemplate,
   buildMaskSlots,
   caretForMask,
   extractMaskData,
+  hasFocus,
+  announceBrowserFill,
   parseMaskRanges,
   useControllableState,
   useUiField,
@@ -128,16 +131,18 @@ export function UiInputMask({
     pendingCaret.current = null;
   });
 
-  const onChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const raw = event.target.value;
-    const caret = event.target.selectionStart ?? raw.length;
+  const onInput = (raw: string, element: HTMLInputElement) => {
+    const caret = element.selectionStart ?? raw.length;
     // Ancre stable : les caractères de donnée avant le curseur, insensibles aux littéraux insérés.
     const dataBeforeCaret = extractMaskData(raw.slice(0, caret)).length;
 
     const next = applyMaskTemplate(slots, extractMaskData(raw), slotChar);
     const nextDisplay = next.data.length ? next.display : '';
 
-    pendingCaret.current = caretForMask(next.tokenIndices, dataBeforeCaret, nextDisplay.length);
+    // Un remplissage écrit sans focus n'a pas de curseur à restaurer.
+    pendingCaret.current = hasFocus(element)
+      ? caretForMask(next.tokenIndices, dataBeforeCaret, nextDisplay.length)
+      : null;
     setModel(unmask ? next.data : next.masked);
   };
 
@@ -173,7 +178,7 @@ export function UiInputMask({
           if (typeof ref === 'function') ref(node);
           else if (ref) ref.current = node;
         }}
-        className={cx('ui-input-mask-native', size === 'small' && '_small')}
+        className={cx('ui-input-mask-native', size === 'small' && '_small', BROWSER_FILL_CLASS)}
         type="text"
         id={field.inputId}
         value={display}
@@ -184,7 +189,13 @@ export function UiInputMask({
         aria-label={field.ariaLabel}
         aria-describedby={field.describedBy}
         aria-invalid={field.ariaInvalid}
-        onChange={onChange}
+        onChange={(event: ChangeEvent<HTMLInputElement>) =>
+          onInput(event.target.value, event.target)
+        }
+        onAnimationStart={(event) => {
+          rest.onAnimationStart?.(event);
+          announceBrowserFill(event);
+        }}
       />
     </UiField>
   );

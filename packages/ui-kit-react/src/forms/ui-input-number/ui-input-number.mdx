@@ -29,6 +29,10 @@ ni devise), et applique le formatage riche à la **sortie**, en même temps que 
 C'est aussi ce qui distingue ce champ de `ui-input-mask` : là-bas l'affichage se déduit
 toujours de la valeur, ici le texte est un état à part le temps de la saisie.
 
+Une valeur préremplie par le navigateur dans le champ sans focus est lue et **formatée
+aussitôt**, puisqu'aucune sortie du champ ne viendra le faire ; elle n'est pas ramenée dans
+`[min, max]`, ce que seule la sortie du champ fait. Comportement commun aux champs : section « Saisie automatique du navigateur » de [`ui-input`](?path=/docs/components-ui-forms-ui-input--docs).
+
 ## Ce n'est pas un `<input type="number">`
 
 Le champ natif refuse les séparateurs de la locale, avale les décimales différemment selon

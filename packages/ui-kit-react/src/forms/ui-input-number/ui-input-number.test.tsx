@@ -144,3 +144,44 @@ test('sans borne, aucun attribut de borne n’est posé', async () => {
   expect(input.hasAttribute('aria-valuemin')).toBe(false);
   expect(input.hasAttribute('aria-valuemax')).toBe(false);
 });
+
+// --- Saisie automatique du navigateur -------------------------------------
+
+/** Écrit comme le navigateur (setter natif, que React ne voit pas), puis émet `evenements`. */
+function remplir(el: HTMLInputElement, texte: string, ...evenements: string[]) {
+  Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(el, texte);
+  for (const type of evenements) {
+    el.dispatchEvent(
+      type === 'animationstart'
+        ? new AnimationEvent(type, { animationName: 'ui-browser-fill', bubbles: true })
+        : new Event(type, { bubbles: true }),
+    );
+  }
+}
+
+test('une valeur écrite sans focus est formatée aussitôt', async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <UiInputNumber label="Surface" locale="en-US" useGrouping onValueChange={onValueChange} />,
+  );
+  const input = screen.container.querySelector('input')!;
+
+  remplir(input, '1234.5', 'input');
+
+  await expect.element(input).toHaveValue('1,234.5');
+  expect(onValueChange.mock.calls).toEqual([[1234.5]]);
+});
+
+test("une valeur préremplie sans événement passe par l'animation d'autofill", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <UiInputNumber label="Surface" locale="en-US" onValueChange={onValueChange} />,
+  );
+  const input = screen.container.querySelector('input')!;
+
+  remplir(input, '42', 'animationstart');
+  await expect.element(input).toHaveValue('42');
+  remplir(input, '42', 'change');
+
+  await expect.poll(() => onValueChange.mock.calls).toEqual([[42]]);
+});

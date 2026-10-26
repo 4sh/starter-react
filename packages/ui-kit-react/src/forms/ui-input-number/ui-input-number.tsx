@@ -13,7 +13,14 @@ import {
 } from 'react';
 
 import { UiIcon } from '../../base/ui-icon';
-import { useControllableState, useUiField, type UiFieldSharedProps } from '../../core/forms';
+import {
+  BROWSER_FILL_CLASS,
+  hasFocus,
+  announceBrowserFill,
+  useControllableState,
+  useUiField,
+  type UiFieldSharedProps,
+} from '../../core/forms';
 import { cx } from '../../core/utils';
 import { UiField } from '../ui-field';
 
@@ -188,9 +195,11 @@ export function UiInputNumber({
   const atMax = model != null && max != null && model >= max;
   const atMin = model != null && min != null && model <= min;
 
-  const onInput = (event: ChangeEvent<HTMLInputElement>) => {
-    setText(event.target.value);
-    setModel(parse(event.target.value));
+  const onInput = (raw: string, element: HTMLInputElement) => {
+    const next = parse(raw);
+    setModel(next);
+    // Écrit par le navigateur sans focus : aucun flou ne viendra le formater.
+    setText(hasFocus(element) ? raw : next === null ? '' : format(next));
   };
 
   const onFocus = (event: FocusEvent<HTMLInputElement>) => {
@@ -287,7 +296,7 @@ export function UiInputNumber({
           if (typeof ref === 'function') ref(node);
           else if (ref) ref.current = node;
         }}
-        className={cx('ui-input-number-native', size === 'small' && '_small')}
+        className={cx('ui-input-number-native', size === 'small' && '_small', BROWSER_FILL_CLASS)}
         // `text` et non `number` : le natif refuse les séparateurs de la locale, perd des
         // décimales selon le navigateur et impose son pavé ; `inputMode` suffit au tactile.
         type="text"
@@ -305,7 +314,13 @@ export function UiInputNumber({
         aria-label={field.ariaLabel}
         aria-describedby={field.describedBy}
         aria-invalid={field.ariaInvalid}
-        onChange={onInput}
+        onChange={(event: ChangeEvent<HTMLInputElement>) =>
+          onInput(event.target.value, event.target)
+        }
+        onAnimationStart={(event) => {
+          rest.onAnimationStart?.(event);
+          announceBrowserFill(event);
+        }}
         onKeyDown={onKeyDown}
         onFocus={onFocus}
         onBlur={onBlur}

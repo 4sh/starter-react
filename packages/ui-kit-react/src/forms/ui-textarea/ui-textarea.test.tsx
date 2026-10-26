@@ -53,3 +53,23 @@ test('la coquille est en mode multiligne', async () => {
 
   expect(screen.container.querySelector('.ui-field')!.className).toContain('_multiline');
 });
+
+// --- Saisie automatique du navigateur -------------------------------------
+
+test('une adresse préremplie sans événement est prise en compte une seule fois', async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(<UiTextarea label="Adresse" onValueChange={onValueChange} />);
+  const area = screen.container.querySelector('textarea')!;
+
+  Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')!.set!.call(
+    area,
+    '12 rue',
+  );
+  area.dispatchEvent(
+    new AnimationEvent('animationstart', { animationName: 'ui-browser-fill', bubbles: true }),
+  );
+  await expect.element(area).toHaveValue('12 rue');
+  area.dispatchEvent(new Event('change', { bubbles: true }));
+
+  await expect.poll(() => onValueChange.mock.calls).toEqual([['12 rue']]);
+});

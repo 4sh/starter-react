@@ -686,6 +686,21 @@ Ne pas les repayer. Chacun est documenté sur place, dans le fichier concerné.
   frappe directe d'un déclencheur `<button>` n'en voit rien, et `shift+Equal` y produit une
   touche vide au lieu de « + ». Pour vérifier un raccourci, envoyer un vrai `KeyboardEvent`, ou
   passer par `userEvent` dans un test.
+- **La saisie automatique de Chrome se rejoue pour de vrai, pas les autres.** `Autofill.trigger`
+  du protocole DevTools remplit un formulaire de carte (`cc-name`, `cc-number`, `cc-exp`,
+  `cc-csc`) dans le Chrome système (`channel: 'chrome'`), pas dans le Chromium de Playwright :
+  page servie en HTTP, 1,5 s pour l'analyse du formulaire, champ déclencheur focalisé et dans
+  le même `<form>` que les champs à remplir. Chrome envoie alors à chaque champ rempli
+  `focus`, `keydown` (un `Event` nu), `input`, `change` et `blur`, sans jamais lui donner le
+  focus : un `onFocus` qui ouvre un panneau ou appelle `select()` réagit à ce faux focus.
+  Safari et Firefox ne se rejouent pas ; on simule en écrivant par le setter du prototype
+  (React ne voit pas l'écriture), puis en émettant l'événement voulu.
+- **Deux événements du même remplissage, un seul rendu entre eux, au mieux.** Une
+  `animationstart` est rendue avec une priorité ordinaire : un `change` qui la suit peut
+  arriver avant le rendu, et son gestionnaire lit encore la valeur d'avant. Comparer la valeur
+  au rendu ne protège donc pas d'une double notification. `announceBrowserFill` émet plutôt
+  l'`input` manquant : React suit lui-même la dernière valeur vue et ne rapporte jamais deux
+  fois la même. FSHSP-259.
 
 ---
 
@@ -2381,3 +2396,20 @@ removed » alors qu'il ne fait que retirer le `./` du chemin. Le chemin s'écrit
 sans. Après publication, npm a d'abord servi un paquet provisoire `0.0.0-stage` et un 404
 sur la `0.1.0` pendant quelques minutes (`docs/PUBLISHING.md`). Vérifié ensuite depuis le
 registre : installation dans un dossier vierge, `bin` lié, serveur MCP qui répond.
+
+### 2026-10-26 : la saisie automatique du navigateur
+
+FSHSP-259, pendant de FSHSP-258 côté Angular. Les défauts ont d'abord été reproduits sur le
+kit tel quel : vrai autofill Chrome par le protocole DevTools, et simulations sur Chromium,
+Firefox et WebKit. Le `onChange` de React couvrait déjà `input` et `change`. Restaient une
+valeur écrite sans événement, écrasée au rendu suivant dans **tous** les champs, contrôlés ou
+non ; le panneau de `ui-autocomplete` ouvert sous un champ sans focus ; le focus volé par
+`ui-input-otp` ; une date remplie jamais validée ; et le faux `focus` de Chrome, qui ouvrait le
+calendrier en `showOnFocus`.
+
+Le correctif tient dans `core/forms/browser-fill.ts` et une règle de `styles.css` : une
+animation sur `:-webkit-autofill` fait recevoir au champ l'`input` manquant. Chaque champ
+distingue ensuite une écriture sans focus (`hasFocus`) d'une frappe. Frappe et collage
+mesurés identiques avant et après, sur les trois moteurs. Reste un double appel préexistant,
+commun aux deux stacks : `ui-input-number` republie sa valeur à la sortie du champ, ce que
+Chrome déclenche aussi avec son faux `blur`.

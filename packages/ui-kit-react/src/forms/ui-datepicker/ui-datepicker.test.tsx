@@ -775,3 +775,49 @@ test('le panneau attend sa position avant d’être peint', async () => {
     .forEach((animation) => animation.finish());
   expect(getComputedStyle(panneau(screen)).opacity).toBe('1');
 });
+
+// --- Saisie automatique du navigateur -------------------------------------
+
+/** Écrit comme le navigateur (setter natif, que React ne voit pas), puis émet `evenements`. */
+function remplir(el: HTMLInputElement, texte: string, ...evenements: string[]) {
+  Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(el, texte);
+  for (const type of evenements) {
+    el.dispatchEvent(
+      type === 'animationstart'
+        ? new AnimationEvent(type, { animationName: 'ui-browser-fill', bubbles: true })
+        : new Event(type, { bubbles: true }),
+    );
+  }
+}
+
+test('une date écrite sans focus est validée sans attendre la sortie du champ', async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(<Demo valueType="iso" onValueChange={onValueChange} />);
+
+  remplir(champ(screen), '14/02/1990', 'input');
+
+  await expect.poll(() => onValueChange.mock.calls).toEqual([['1990-02-14']]);
+  await expect.element(champ(screen)).toHaveValue('14/02/1990');
+  expect(panneau(screen).matches(':popover-open')).toBe(false);
+});
+
+test("un texte prérempli qui n'est pas une date est retiré", async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(<Demo onValueChange={onValueChange} />);
+
+  remplir(champ(screen), '07/2030', 'animationstart');
+
+  await expect.element(champ(screen)).toHaveValue('');
+  expect(onValueChange).not.toHaveBeenCalled();
+});
+
+test('showOnFocus ignore le focus que Chrome envoie avec son autofill', async () => {
+  const screen = await render(<Demo showOnFocus />);
+
+  // Chrome : un keydown sur le champ rempli juste avant, puis ce focus, sans le focus.
+  document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true }));
+  champ(screen).dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+  await new Promise((r) => setTimeout(r, 50));
+
+  expect(panneau(screen).matches(':popover-open')).toBe(false);
+});

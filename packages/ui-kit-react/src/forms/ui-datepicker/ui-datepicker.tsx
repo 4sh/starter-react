@@ -16,6 +16,7 @@ import {
 import { UiButton } from '../../actions/ui-button';
 import { UiIcon, type UiIconSize } from '../../base/ui-icon';
 import {
+  BROWSER_FILL_CLASS,
   addDays,
   addMonths,
   autoFormatSegments,
@@ -24,6 +25,8 @@ import {
   extractMaskData,
   finalizeParsed,
   firstOfMonth,
+  hasFocus,
+  announceBrowserFill,
   isSameDay,
   normalizeDateInput,
   parseIsoDate,
@@ -1519,9 +1522,62 @@ export function UiDatepicker({
     [selectionMode, showTime, view, activeFields, parseTypedValue, setModel, toExternalValue],
   );
 
+  /**
+   * Lit et applique un texte ; revient a la valeur precedente si invalide. Rend `false`
+   * dans ce dernier cas.
+   */
+  const commitText = useCallback(
+    (raw: string | null) => {
+      if (triggerReadonly) return true;
+      if (raw === null) return true; // pas touche
+      // Quelle que soit l'issue, la saisie est terminee : le masque vif se rearme.
+      setMaskSuspended(false);
+      const text = raw.trim();
+      if (!text) {
+        setTypedValue(null);
+        if (hasValue) clear();
+        return true;
+      }
+      const picked = parseTypedValue(text, true);
+      if (!picked) {
+        setTypedValue(null); // retour en arriere : l'affichage reformate la valeur
+        return false;
+      }
+      commit(picked);
+      const first = Array.isArray(picked) ? picked[0] : picked;
+      // `onDateSelect` rapporte un jour choisi : sans objet pour une plage ou une liste tapees.
+      if (!Array.isArray(picked)) onDateSelect?.(serializeValue(picked));
+      if (first) {
+        setViewDate(firstOfMonth(first));
+        setFocusedDate(startOfDay(first));
+      }
+      return true;
+    },
+    [triggerReadonly, hasValue, clear, parseTypedValue, commit, onDateSelect, serializeValue],
+  );
+
+  const commitTyped = useCallback(() => commitText(typedValue), [commitText, typedValue]);
+
+  /**
+   * Texte ecrit par le navigateur sans focus : aucun flou ni Entree ne viendra le valider.
+   * Rejete, il cede la place a la valeur precedente, que le rendu ne reecrirait pas s'il
+   * n'a pas change.
+   */
+  const commitFill = useCallback(
+    (raw: string, el: HTMLInputElement) => {
+      if (!commitText(raw)) el.value = displayValue;
+    },
+    [commitText, displayValue],
+  );
+
   const onTriggerInput = useCallback(
     (raw: string) => {
       if (triggerReadonly) return;
+      const trigger = inputRef.current;
+      if (trigger && !hasFocus(trigger)) {
+        commitFill(raw, trigger);
+        return;
+      }
       if (!typingSlots) {
         setTypedValue(raw);
         // Champ vide a la main : enregistrer tout de suite, sans attendre flou ou Entree,
@@ -1564,44 +1620,8 @@ export function UiDatepicker({
       }
       if (open) previewTyped(text);
     },
-    [triggerReadonly, typingSlots, hasValue, clear, open, previewTyped, displayValue],
+    [triggerReadonly, typingSlots, hasValue, clear, open, previewTyped, displayValue, commitFill],
   );
-
-  /** Lit et applique le texte tape ; revient a la valeur precedente si invalide. */
-  const commitTyped = useCallback(() => {
-    if (triggerReadonly) return;
-    if (typedValue === null) return; // pas touche
-    // Quelle que soit l'issue, la saisie est terminee : le masque vif se rearme.
-    setMaskSuspended(false);
-    const text = typedValue.trim();
-    if (!text) {
-      setTypedValue(null);
-      if (hasValue) clear();
-      return;
-    }
-    const picked = parseTypedValue(text, true);
-    if (picked) {
-      commit(picked);
-      const first = Array.isArray(picked) ? picked[0] : picked;
-      // `onDateSelect` rapporte un jour choisi : sans objet pour une plage ou une liste tapees.
-      if (!Array.isArray(picked)) onDateSelect?.(serializeValue(picked));
-      if (first) {
-        setViewDate(firstOfMonth(first));
-        setFocusedDate(startOfDay(first));
-      }
-    } else {
-      setTypedValue(null); // retour en arriere : l'affichage reformate la valeur
-    }
-  }, [
-    triggerReadonly,
-    typedValue,
-    hasValue,
-    clear,
-    parseTypedValue,
-    commit,
-    onDateSelect,
-    serializeValue,
-  ]);
 
   /**
    * Echap n'est consommee que quand elle ferme vraiment le panneau. Fermee, elle
@@ -2464,7 +2484,7 @@ export function UiDatepicker({
             id={field.inputId}
             name={name}
             type="text"
-            className="ui-datepicker-input"
+            className={cx('ui-datepicker-input', BROWSER_FILL_CLASS)}
             role="combobox"
             aria-haspopup="dialog"
             aria-expanded={open}
@@ -2485,9 +2505,12 @@ export function UiDatepicker({
             disabled={disabled}
             readOnly={triggerReadonly}
             onChange={(event) => onTriggerInput(event.currentTarget.value)}
+            onAnimationStart={announceBrowserFill}
             onFocus={(event) => {
               onFocus?.(event);
               if (disabled || readOnly) return;
+              // Chrome envoie ce focus au champ qu'il remplit, sans le lui donner.
+              if (!hasFocus(event.currentTarget)) return;
               if (showOnFocus && recentGesture.current && !suppressFocusOpen.current) {
                 openFrom('focus');
               }

@@ -6,6 +6,7 @@ import {
   useEffect,
   useId,
   useState,
+  type AnimationEventHandler,
   type ChangeEvent,
   type ClipboardEvent,
   type ComponentPropsWithRef,
@@ -14,7 +15,12 @@ import {
   type ReactNode,
 } from 'react';
 
-import { useControllableState } from '../../core/forms';
+import {
+  BROWSER_FILL_CLASS,
+  hasFocus,
+  announceBrowserFill,
+  useControllableState,
+} from '../../core/forms';
 import { cx } from '../../core/utils';
 
 import './ui-input-otp.scss';
@@ -44,6 +50,8 @@ export interface UiInputOtpCellContext {
   onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
   onFocus: (event: FocusEvent<HTMLInputElement>) => void;
   onPaste: (event: ClipboardEvent<HTMLInputElement>) => void;
+  /** Reads a code the browser autofills, on a cell carrying `BROWSER_FILL_CLASS`. */
+  onAnimationStart: AnimationEventHandler<HTMLInputElement>;
 }
 
 export interface UiInputOtpProps extends Omit<
@@ -175,7 +183,7 @@ export function UiInputOtp({
     if (joined.length === length && trimmed.every((char) => char !== '')) onComplete?.(joined);
   };
 
-  const fillFrom = (source: HTMLElement, from: number, chars: string) => {
+  const fillFrom = (source: HTMLElement, from: number, chars: string, moveFocus = true) => {
     const next = [...tokens];
     let cursor = from;
     for (const char of chars) {
@@ -183,17 +191,18 @@ export function UiInputOtp({
       next[cursor++] = char;
     }
     commit(next);
-    focusCell(source, Math.min(cursor, length - 1));
+    if (moveFocus) focusCell(source, Math.min(cursor, length - 1));
   };
 
-  const onCellChange = (event: ChangeEvent<HTMLInputElement>, index: number) => {
+  const onCellInput = (target: HTMLInputElement, index: number, inputType?: string) => {
     if (readOnly) return;
-    const target = event.currentTarget;
     const raw = sanitize(target.value);
+    // Écrit par le navigateur dans une case sans focus : le focus n'y est pas attiré.
+    const typed = hasFocus(target);
 
     // Plusieurs caractères (autofill, collage) : ils se répartissent sur les cases suivantes.
     if (raw.length > 1) {
-      fillFrom(target, index, raw);
+      fillFrom(target, index, raw, typed);
       return;
     }
 
@@ -201,11 +210,14 @@ export function UiInputOtp({
     next[index] = raw;
     target.value = raw; // reflète la valeur assainie
     commit(next);
+    if (!typed) return;
 
-    const inputType = (event.nativeEvent as InputEvent).inputType;
     if (raw) focusCell(target, index + 1);
     else if (inputType === 'deleteContentBackward') focusCell(target, index - 1);
   };
+
+  const onCellChange = (event: ChangeEvent<HTMLInputElement>, index: number) =>
+    onCellInput(event.currentTarget, index, (event.nativeEvent as InputEvent).inputType);
 
   const onCellKeyDown = (event: KeyboardEvent<HTMLInputElement>, index: number) => {
     if (event.altKey || event.ctrlKey || event.metaKey) return;
@@ -250,6 +262,8 @@ export function UiInputOtp({
   };
 
   const onCellFocus = (event: FocusEvent<HTMLInputElement>, index: number) => {
+    // Chrome envoie ce focus à la case qu'il remplit sans la focaliser : `select()` la focaliserait.
+    if (!hasFocus(event.currentTarget)) return;
     setFocusedIndex(index);
     event.currentTarget.select();
   };
@@ -295,6 +309,7 @@ export function UiInputOtp({
           onKeyDown: (event) => onCellKeyDown(event, index),
           onFocus: (event) => onCellFocus(event, index),
           onPaste: (event) => onCellPaste(event, index),
+          onAnimationStart: announceBrowserFill,
         };
 
         if (renderCell) return <Fragment key={index}>{renderCell(context)}</Fragment>;
@@ -303,7 +318,7 @@ export function UiInputOtp({
           <input
             key={index}
             id={`${uid}-${index}`}
-            className="ui-input-otp-cell"
+            className={cx('ui-input-otp-cell', BROWSER_FILL_CLASS)}
             type={mask ? 'password' : 'text'}
             value={cellValue}
             maxLength={1}
@@ -320,6 +335,7 @@ export function UiInputOtp({
             onKeyDown={context.onKeyDown}
             onFocus={context.onFocus}
             onPaste={context.onPaste}
+            onAnimationStart={context.onAnimationStart}
           />
         );
       })}
