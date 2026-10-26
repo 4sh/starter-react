@@ -8,6 +8,8 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-26
+
 ### Added
 
 - **`BROWSER_FILL_CLASS`, `announceBrowserFill` et `hasFocus`** dans `@4sh/ui-kit-react/forms`
