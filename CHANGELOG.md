@@ -8,6 +8,8 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-26
+
 ### Added
 
 - **`ui-field-sign`** (`@4sh/ui-kit-react/ui-field-sign`) : champ de signature manuscrite sur
