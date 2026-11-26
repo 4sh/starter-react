@@ -51,7 +51,7 @@ const ROADMAP = join(ROOT, 'docs/ROADMAP.md');
  * fois, avec la commande qui le produit, et le contrôle de parité de la phase 6
  * le comparera pour de bon.
  */
-const DESIGN_SYSTEM_TOTAL = 62;
+const DESIGN_SYSTEM_TOTAL = 63;
 
 /**
  * Points d'entrée du disque, et le dossier de chacun.

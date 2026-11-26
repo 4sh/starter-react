@@ -103,7 +103,9 @@ export function UiField({
     if (target.closest('button, a[href], input, textarea, select, [contenteditable="true"]'))
       return;
 
-    const control = boxRef.current?.querySelector<HTMLElement>('input, textarea, select');
+    const control = boxRef.current?.querySelector<HTMLElement>(
+      'input:not([type="hidden"]), textarea, select',
+    );
     if (!control || control.matches(':disabled')) return;
 
     event.preventDefault();

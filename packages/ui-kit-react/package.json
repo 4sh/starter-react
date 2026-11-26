@@ -134,6 +134,10 @@
       "types": "./dist/forms/ui-field/index.d.ts",
       "import": "./dist/ui-field.js"
     },
+    "./ui-field-sign": {
+      "types": "./dist/forms/ui-field-sign/index.d.ts",
+      "import": "./dist/ui-field-sign.js"
+    },
     "./ui-file-upload": {
       "types": "./dist/forms/ui-file-upload/index.d.ts",
       "import": "./dist/ui-file-upload.js"

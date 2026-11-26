@@ -19,6 +19,7 @@ import * as KnobStories from "../../packages/ui-kit-react/src/forms/ui-knob/ui-k
 import * as SwatchStories from "../../packages/ui-kit-react/src/forms/ui-swatch-picker/ui-swatch-picker.stories";
 import * as FileUploadStories from "../../packages/ui-kit-react/src/forms/ui-file-upload/ui-file-upload.stories";
 import * as EditorStories from "../../packages/ui-kit-react/src/forms/ui-editor/ui-editor.stories";
+import * as FieldSignStories from "../../packages/ui-kit-react/src/forms/ui-field-sign/ui-field-sign.stories";
 import * as RatingStories from "../../packages/ui-kit-react/src/forms/ui-rating/ui-rating.stories";
 import * as SliderStories from "../../packages/ui-kit-react/src/forms/ui-slider/ui-slider.stories";
 import * as ToggleBlockStories from "../../packages/ui-kit-react/src/forms/ui-toggle-block/ui-toggle-block.stories";
@@ -109,6 +110,7 @@ export const CATEGORIES = [
       { name: 'ui-autocomplete', description: "Saisie assistée. Le composant ne filtre rien : il émet une requête, et l'appelant fournit les suggestions.", link: '?path=/docs/components-ui-forms-ui-autocomplete--docs', story: AutocompleteStories.WithDropdown },
       { name: 'ui-datepicker', description: "Sélecteur de date, mois ou année, heure en option. Tout le formatage passe par Intl : aucune librairie de dates.", link: '?path=/docs/components-ui-forms-ui-datepicker--docs', story: DatepickerStories.Inline, previewHeight: 300, previewScale: 0.62 },
       { name: 'ui-nudger', description: "Compteur numérique. Les états « au minimum » et « au maximum » sont dérivés de la valeur, jamais des props.", link: '?path=/docs/components-ui-forms-ui-nudger--docs', story: NudgerStories.Default },
+      { name: 'ui-field-sign', description: "Signature manuscrite au doigt, au stylet ou à la souris. La valeur est une image, émise à la fin de chaque trait.", link: '?path=/docs/components-ui-forms-ui-field-sign--docs', story: FieldSignStories.WithValue },
       { name: 'ui-rating', description: "Note en étoiles posée sur un curseur natif : focus, clavier et sémantique de valeur viennent du navigateur.", link: '?path=/docs/components-ui-forms-ui-rating--docs', story: RatingStories.AllowHalf },
       { name: 'ui-slider', description: "Curseur simple ou de plage. Le pointeur est capturé, donc le glissement continue hors de la piste.", link: '?path=/docs/components-ui-forms-ui-slider--docs', story: SliderStories.Default },
       { name: 'ui-knob', description: "Cadran circulaire. Un arc SVG de 300° en viewBox, donc le trait suit le diamètre rendu.", link: '?path=/docs/components-ui-forms-ui-knob--docs', story: KnobStories.Basic },

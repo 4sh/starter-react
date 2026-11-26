@@ -39,18 +39,18 @@ La liste est longue parce que chaque entrée a coûté du temps une fois.
 | 0     | Socle et décisions              | ✅ terminée                               |
 | 1     | Le patron, de bout en bout      | ✅ terminée (`ui-icon`, puis `ui-button`) |
 | 2     | Fondation transverse            | ✅ terminée (`core/ripple` en dernier)    |
-| 3     | La vague des composants         | ✅ 62 sur 62                              |
+| 3     | La vague des composants         | ✅ 63 sur 63                              |
 | 4     | Mode copie (CLI)                | ⬜ pas commencée                          |
 | 5     | MCP, doc publique, publication  | ✅ `0.1.0` publiée le 13 octobre          |
 | 6     | Contrôle de parité entre stacks | ⬜ pas commencée                          |
 
-**Chiffres du jour** : 62 composants, 73 points d'entrée publics, 8 garde-fous en CI,
+**Chiffres du jour** : 63 composants, 74 points d'entrée publics, 8 garde-fous en CI,
 **deux** dépendances runtime (`@floating-ui/react-dom` et `@tanstack/react-virtual`, un seul
 fichier chacune).
 
-**Le dénominateur est 62, et il BOUGE.** C'est le nombre de points d'entrée `ui-*` du starter
+**Le dénominateur est 63, et il BOUGE.** C'est le nombre de points d'entrée `ui-*` du starter
 Angular, mesuré : il valait 60 le 10 septembre, et le starter Angular a depuis livré
-`ui-input-date` (porté ici dans la foulée) et `ui-bottom-sheet` (à porter). Ce n'est donc pas
+`ui-input-date`, `ui-bottom-sheet` et `ui-field-sign`, tous portés ici. Ce n'est donc pas
 une constante à recopier de mémoire mais une mesure à refaire, ce que `components.check.mjs`
 ne peut pas faire seul : l'autre dépôt n'est pas là. **Le remesurer à chaque reprise.**
 
@@ -2413,3 +2413,25 @@ distingue ensuite une écriture sans focus (`hasFocus`) d'une frappe. Frappe et 
 mesurés identiques avant et après, sur les trois moteurs. Reste un double appel préexistant,
 commun aux deux stacks : `ui-input-number` republie sa valeur à la sortie du champ, ce que
 Chrome déclenche aussi avec son faux `blur`.
+
+### 2026-11-26 : `ui-field-sign`
+
+Porté du starter Angular (FSHSP-266, 63e point d'entrée). La géométrie pure (lissage, export
+SVG, relecture des exports du champ) est reprise telle quelle avec ses 68 tests ; seules des
+gardes d'indexation ont été ajoutées, `noUncheckedIndexedAccess` étant actif ici. Le reste vit
+dans `ui-field-sign-pad.ts`, un moteur sans React que le composant nourrit d'événements et lit
+par `useSyncExternalStore` : l'état du dessin change sous le pointeur, au chargement d'une
+image et à la réception d'une valeur, et un état React aurait demandé des `setState` dans des
+effets.
+
+Trois écarts, inscrits dans `docs/DUAL-ENGINE.md` : pas de `clear()` / `undo()` publics (la
+règle du kit, le clavier et le bouton les couvrent, et l'hôte vide le champ par `value`),
+`name` porte la valeur dans un `<input type="hidden">`, et `aria-disabled` est retiré du
+`role="img"`, que jsx-a11y refuse. `ui-field` ne relaie plus le focus vers un `input` caché.
+
+Le Figma pointe sur le jeu de composants `4219:1970`, le même nœud que la story Angular.
+
+Le bouton d'effacement est posé **par-dessus** le coin haut-droit de la zone de dessin, et non
+dans le `suffix` de la boîte : en colonne, il retranchait sa largeur à la zone, et l'invite comme
+la signature se centraient à côté du centre de la boîte (FSHSP-275 côté Angular, même défaut, et
+le composant Figma).
