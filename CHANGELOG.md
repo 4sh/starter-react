@@ -8,6 +8,23 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/), et le p
 
 ## [Unreleased]
 
+### Added
+
+- **`ui-field-sign`** (`@4sh/ui-kit-react/ui-field-sign`) : champ de signature manuscrite sur
+  la coquille `ui-field`, la boîte servant de zone de dessin au doigt, au stylet ou à la
+  souris. La valeur est une data URL PNG ou SVG (`format`), émise à la fin de chaque trait et
+  `null` tant que rien n'est signé, en mode contrôlé comme non contrôlé. L'export est peint
+  avec `exportColor` sur fond transparent, l'encre à l'écran suivant les jetons. Une signature
+  reçue reste sous les nouveaux traits, une image illisible est signalée par `onImageError`
+  sans être jetée, `Retour arrière` / `Ctrl`+`Z` annulent et `Suppr` efface, et `name` porte
+  la valeur dans un formulaire natif. Hooks `--ui-field-sign-*` pour la hauteur, l'invite, le
+  bouton d'effacement et l'encre.
+
+### Fixed
+
+- **`ui-field` ne donne plus le focus à un `<input type="hidden">`** quand on clique sur sa
+  boîte : le relais de focus visait le premier `input` venu, champ caché compris.
+
 ## [0.4.0] - 2026-10-26
 
 ### Added

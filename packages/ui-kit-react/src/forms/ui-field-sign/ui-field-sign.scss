@@ -1,0 +1,93 @@
+@use 'utils';
+
+// ui-field-sign: projected parts only; the box, label, helper and states live in ui-field.
+// The canvas reads its ink from CSS (`color` + `--_field-sign-ink-width`), so a token or a
+// hook retunes the pen too.
+
+$height: var(--ui-field-sign-height, calc(4 * var(--size-components-default)));        /// Hauteur de la zone de dessin.
+$height-small: var(--ui-field-sign-height-small, calc(3 * var(--size-components-sm))); /// Hauteur de la zone de dessin, variante `small`.
+
+$placeholder-font-size: var(--ui-field-sign-placeholder-font-size, var(--size-typography-text-default));    /// Taille de police de l'invite affichée dans la zone vide.
+$placeholder-font-size-small: var(--ui-field-sign-placeholder-font-size-small, var(--size-typography-text-md)); /// Taille de police de l'invite, variante `small`.
+
+$action-height: var(--ui-field-sign-action-height, #{utils.$form-field-height});                   /// Hauteur du bouton d'effacement, alignée sur un champ d'une ligne.
+$action-height-small: var(--ui-field-sign-action-height-small, #{utils.$form-field-height-small}); /// Hauteur du bouton d'effacement, variante `small`.
+
+// Registered as a length so the canvas reads it back in px whatever unit the hook uses.
+// `@property` is global: the name is kept specific to this component.
+@property --_field-sign-ink-width {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 2px;
+}
+
+.ui-field-sign {
+  // --- Drawing area ---------------------------------------------------
+  // Canvas and placeholder share one grid cell: stacked without leaving the flow.
+  &-pad {
+    display: grid;
+    // Definite tracks: in an `auto` track the canvas' `height: 100%` does not resolve and it
+    // takes the proportions of its bitmap instead.
+    grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+    flex: 1 1 auto;
+    min-width: 0;
+    height: $height;
+
+    &._small { height: $height-small; }
+  }
+
+  &-canvas,
+  &-placeholder,
+  &-clear { grid-area: 1 / 1; }
+
+  &-canvas {
+    --_field-sign-ink-width: var(--ui-field-sign-ink-stroke-width, var(--stroke-default)); /// Épaisseur de l'encre, à l'écran et à l'export.
+
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    color: var(--ui-field-sign-ink-color, var(--form-high-content-default)); /// Couleur de l'encre à l'écran (l'export suit `exportColor`).
+    outline: none; // the box draws the focus ring on `:focus-within`
+    user-select: none;
+    -webkit-user-select: none;
+
+    // The page must not scroll or zoom under the pen, and only while there is a pen: a
+    // read-only or disabled signature on a review screen lets the page scroll.
+    &._interactive {
+      cursor: crosshair;
+      touch-action: none;
+    }
+    &._disabled {
+      color: var(--ui-field-sign-ink-color-disabled, var(--form-high-content-disabled)); /// Couleur de l'encre, champ désactivé.
+      cursor: not-allowed;
+    }
+  }
+
+  &-placeholder {
+    place-self: center;
+    font-family: utils.$form-field-font-family;
+    font-size: $placeholder-font-size;
+    color: utils.$form-field-placeholder-color;
+    pointer-events: none;
+    user-select: none;
+
+    &._disabled { color: utils.$form-field-color-disabled; }
+  }
+
+  &-pad._small &-placeholder { font-size: $placeholder-font-size-small; }
+
+  // --- Clear action ---------------------------------------------------
+  // Same button as every field action, laid over the top-right corner of the drawing area
+  // rather than in a column of its own: the area keeps the full width of the box, and the
+  // hint and the signature centre on it. Pinned to the top row: stretched to the full height
+  // of a signature box, it would be a tall bar.
+  &-clear {
+    @include utils.field-action;
+    place-self: start end;
+    height: $action-height;
+
+    &._small { height: $action-height-small; }
+  }
+}

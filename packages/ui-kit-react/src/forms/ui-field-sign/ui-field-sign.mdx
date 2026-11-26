@@ -1,0 +1,195 @@
+import { Meta, Canvas, ArgTypes } from '@storybook/addon-docs/blocks';
+import { ConfigTable } from '@sb/blocks/config-table';
+import * as SignStories from './ui-field-sign.stories';
+
+<Meta of={SignStories} />
+
+# ui-field-sign
+
+Champ de **signature manuscrite**, bâti sur la coquille
+[`ui-field`](?path=/docs/components-ui-forms-ui-field--docs) (libellé, boîte, message).
+**La boîte du champ est la zone de dessin** : doigt, stylet ou souris, sur un `<canvas>`.
+
+La valeur est une data URL (`image/png` ou `image/svg+xml`, selon `format`), ou `null` tant
+que rien n'est signé. Même contrat contrôlé / non contrôlé que les autres champs :
+`value` + `defaultValue` + `onValueChange`.
+
+<Canvas of={SignStories.WithHelper} />
+
+## API
+
+<ArgTypes of={SignStories} />
+
+```tsx
+const [signature, setSignature] = useState<FieldSignValue>(null);
+
+<UiFieldSign
+  label="Signature du client"
+  required
+  value={signature}
+  onValueChange={setSignature}
+/>;
+```
+
+## Valeur
+
+La valeur est émise **à la fin de chaque trait** (le pointeur relâché), puis à chaque
+effacement ou annulation, jamais pendant le tracé : un formulaire branché sur une sauvegarde
+automatique recevrait sinon une image par mouvement du pointeur.
+
+`format="png"` (défaut) exporte une image deux fois plus dense que le cadre du dessin, la même
+sur tous les appareils ; `format="svg"` exporte un tracé vectoriel, plus léger et net à toute
+échelle. Quand le navigateur ne sait pas produire le PNG (pas de canvas 2D, ou un canvas qu'il
+refuse de relire), le champ émet le SVG plutôt que rien : lire le type MIME de la data URL, pas
+`format`.
+
+<Canvas of={SignStories.Svg} />
+
+### Deux encres : l'écran et l'export
+
+À l'écran, l'encre suit les jetons (`--form-high-content-default`), thème sombre compris.
+L'export est peint avec **`exportColor`** (`black` par défaut) sur un **fond transparent** :
+une signature tracée en sombre sortirait sinon blanche, illisible sur le PDF auquel elle est
+destinée.
+
+`exportColor` accepte toute couleur CSS, **un jeton compris** : elle est résolue en `rgb()` là
+où se tient le champ avant d'être écrite dans l'image, car un `var()` dans un SVG exporté ne
+résout rien et le trait ne serait pas peint. Une valeur qui n'est pas une couleur, ou un jeton
+qui ne résout pas, retombe sur `black` (avec un avertissement en développement).
+
+Choisir une valeur **qui ne change pas avec le thème** : elle est résolue au moment de
+l'export, donc un jeton sémantique qui bascule en sombre ferait basculer l'encre exportée avec
+lui, précisément le piège que les deux encres évitent.
+
+### Ce qui est à l'écran est ce qui est exporté
+
+La boîte au **premier trait** devient la région de la signature ; le cadre exporté est cette
+région **agrandie à chaque trait**. Quand la boîte change de taille ensuite (un téléphone
+tourné en cours de signature), le cadre y est réajusté (mis à l'échelle, centré), et un trait
+tracé dans la place ainsi libérée agrandit le cadre au lieu de sortir de la valeur. Un pointeur
+tiré au-delà du bord trace le long de ce bord : rien de ce qui est tracé ne peut être
+invisible, rien de ce qui est visible ne peut être perdu. Effacer libère la région ; le trait
+suivant prend la boîte telle qu'elle est alors.
+
+### Valeur reçue de l'hôte
+
+Le champ accepte une **data URL d'image**, ce qu'il émet lui-même (`png`, `jpeg`, `webp` ou
+`svg+xml`). Toute autre valeur, une URL distante en particulier, est ignorée avec un
+avertissement en développement : dessinée sur un canvas elle ferait échouer l'export PNG, et
+portée dans un export SVG elle serait chargée par ce qui affichera ce fichier plus tard.
+Convertir une signature stockée en data URL avant de la donner au champ.
+
+La valeur s'affiche dans la boîte et reste **sous** les nouveaux traits jusqu'à l'effacement.
+À l'écran elle est redessinée en silhouette dans l'encre courante, pour qu'une signature noire
+reste lisible sur un champ sombre ; elle est ajustée au cadre, proportions gardées. En PNG, un
+trait tracé avant que la signature précédente soit chargée est retenu jusqu'à ce qu'elle le
+soit : l'export ne la perd jamais.
+
+Une valeur SVG **exportée par ce champ** est relue quand on signe par-dessus : ses traits sont
+recopiés à côté des nouveaux, et la valeur ne grandit que des nouveaux traits, d'édition en
+édition. Toute autre image (un PNG, le SVG d'un tiers, un des nôtres retouché à la main, ou un
+dont l'encre sort de son propre cadre) est gardée telle quelle en `<image>` dessous.
+
+<Canvas of={SignStories.WithValue} />
+
+Une image qui ne se charge pas est montrée **illisible** : `unreadableLabel` dans la boîte et
+annoncé comme état, le champ en erreur, le bouton d'effacement actif, et **`onImageError`**
+est appelé. Elle reste la valeur du champ : une image que ce navigateur ne sait pas décoder est
+peut-être une signature valide ailleurs, donc le champ ne la jette jamais de lui-même. La
+personne décide : l'effacer (annulable), ou signer par-dessus, ce qui la remplace (annuler ces
+traits la ramène).
+
+<Canvas of={SignStories.Unreadable} />
+
+Le champ montre l'erreur, mais **n'invalide pas le formulaire** : une valeur est là. Pour
+bloquer l'envoi, tenir l'état chez l'hôte à partir d'`onImageError`, et le lever à la valeur
+suivante.
+
+Le champ n'assainit ni ce qu'il reçoit, ni ce qu'il émet : ce n'est pas une frontière de
+sécurité. Traiter la valeur comme non fiable côté serveur : vérifier son type MIME et sa
+taille, et rastériser un SVG avant de l'intégrer dans un document.
+
+### Valeur réécrite par l'hôte
+
+Un hôte contrôlé réécrit la valeur qu'il vient de recevoir : le champ le reconnaît et garde ses
+traits, **et leur historique d'annulation**. Toute autre valeur remplace le dessin, `null`
+compris : c'est ainsi qu'un bouton « Recommencer » de l'hôte vide le champ.
+
+<Canvas of={SignStories.Controlled} />
+
+### Formulaire natif
+
+`name` pose un `<input type="hidden">` qui porte la valeur (vide tant que rien n'est signé) :
+`FormData` et une action de formulaire la lisent sans code supplémentaire.
+
+<Canvas of={SignStories.NativeForm} />
+
+## Effacer, annuler
+
+- Le bouton d'effacement (`clearable`, actif dès que la zone est signée) vide le champ et rend
+  le focus à la zone de dessin. Il est posé dans le coin haut-droit de la zone, par-dessus, et
+  non dans une colonne à côté : la zone garde toute la largeur de la boîte, et l'invite comme
+  la signature se centrent sur elle.
+- Au clavier, sur la zone de dessin : `Retour arrière` ou `Ctrl`+`Z` (`⌘`+`Z`) annulent le
+  dernier trait, `Suppr` efface, de façon annulable elle aussi. Une annulation sans trait
+  restant ramène ce que le dernier effacement a retiré.
+- Une signature reçue de l'hôte n'est pas un trait : seul l'effacement la retire. Sans trait
+  par-dessus, elle est réémise **mot pour mot**, et non réexportée, ce qui changerait la valeur
+  sous un contrôle de modification.
+
+## Tracé
+
+- Les traits sont **lissés** (courbes quadratiques entre les milieux des segments) et suivent
+  l'appareil à sa propre cadence (`getCoalescedEvents`), pas celle de l'écran. Un appui, même
+  avec quelques mouvements sur place, est exporté comme un point que tout moteur peint.
+- `touch-action: none` sur la zone tant qu'elle accepte une signature : **la page ne défile
+  pas** sous le doigt pendant la signature (une signature `readOnly` ou `disabled` la laisse
+  défiler), et le pointeur est capturé jusqu'au relâchement, même hors de la boîte. Une capture
+  perdue termine le trait comme un relâchement.
+- Un second doigt posé pendant un trait est ignoré, comme tout bouton autre que le principal
+  (clic droit, gomme de stylet).
+- La zone est redessinée à chaque redimensionnement, à la densité de l'écran ; un
+  redimensionnement pendant un trait est appliqué à sa fin.
+- Un trait reste à une demi-épaisseur d'encre du bord : tracé le long du bord, son extrémité
+  arrondie tient encore dans le cadre, qui ne grandit pas d'édition en édition.
+- Désactivé ou passé en lecture seule pendant un trait, le champ abandonne ce trait au lieu de
+  l'émettre.
+
+## Niveaux et états
+
+`level` (`default`/`success`/`error`) pilote la bordure, `errorText` remplace l'aide en
+erreur : le même contrat que tous les champs bâtis sur `ui-field`. En `readOnly`, la signature reste
+visible mais ne peut plus changer, et le bouton d'effacement disparaît.
+
+<Canvas of={SignStories.Required} />
+<Canvas of={SignStories.Invalid} />
+<Canvas of={SignStories.ReadOnly} />
+<Canvas of={SignStories.Disabled} />
+<Canvas of={SignStories.Small} />
+
+Pas de `floatLabel` : la boîte est le dessin lui-même, il n'y a pas de valeur texte à la place
+de laquelle un libellé au repos tiendrait.
+
+## Accessibilité
+
+- Une signature manuscrite est un geste **à trajectoire** : les WCAG l'exemptent d'alternative
+  clavier (2.1.1, exception de trajectoire) et de geste simplifié (2.5.1, geste essentiel). La
+  zone reste un **arrêt de tabulation**, pour qu'annuler et effacer soient atteignables au
+  clavier.
+- La zone est exposée comme une image (`role="img"`), nommée par `label` (ou `aria-label`),
+  décrite par son état (l'invite tant qu'elle est vide, `signedLabel` une fois signée,
+  `unreadableLabel` pour une valeur illisible), suivi de `requiredLabel` quand le champ est
+  `required`, puis par le message d'aide ou d'erreur.
+- Désactivée, la zone quitte l'ordre de tabulation. `role="img"` ne prend pas
+  `aria-disabled` : l'état se lit au bouton d'effacement, désactivé lui aussi.
+- Le bouton d'effacement porte `clearAriaLabel`.
+- Le focus est visible sur la boîte (l'anneau `:focus-within` de la coquille), au pointeur
+  comme au clavier.
+
+## Theming
+
+La boîte, le libellé, le message et le bouton d'effacement viennent de la coquille `ui-field`
+(mixins `utils.field-*`), réglés par le groupe partagé des champs. L'encre se règle ici : sa
+couleur à l'écran et son épaisseur, relues par le canvas à chaque peinture.
+
+<ConfigTable of="ui-field-sign" />

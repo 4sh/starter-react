@@ -83,6 +83,10 @@
 - ✅ `ui-segment-control` : Contrôle segmenté, radiogroup en simple et group en multiple,
   indicateur glissant mesuré
 - ✅ `ui-nudger` : Compteur numérique, bornes dérivées de la valeur, deux `ui-button` composés
+- ✅ `ui-field-sign` : Signature manuscrite sur la coquille `ui-field`, la boîte servant de
+  zone de dessin (`<canvas>`, Pointer Events). Valeur en data URL PNG ou SVG émise à la fin
+  de chaque trait, encre d'export distincte de l'encre à l'écran, annulation au clavier,
+  `name` pour un formulaire natif. Moteur de tracé sans React, géométrie portée du kit Angular
 - ✅ `ui-rating` : Note en étoiles sur un `<input type="range">` natif, demi-notes découpées
 - ✅ `ui-slider` : Curseur simple ou de plage, motif slider WAI-ARIA, repères de pas
 - ✅ `ui-knob` : Cadran circulaire, arc SVG de 300° en viewBox, motif curseur de l'APG.
