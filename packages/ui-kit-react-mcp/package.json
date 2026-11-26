@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@modelcontextprotocol/sdk": "1.32.1",
-    "@types/node": "26.6.5",
+    "@types/node": "26.6.6",
     "minisearch": "7.2.0",
     "typescript": "6.0.3",
     "vite": "8.3.4",
